@@ -1,0 +1,152 @@
+
+import React, { useState, useEffect } from 'react';
+import LanguageSwitcher from './LanguageSwitcher';
+import DarkModeToggle from './DarkModeToggle';
+import { useTranslations } from '../hooks/useTranslations';
+import { User, View } from '../types';
+
+interface NavbarProps {
+  currentUser: User | null;
+  onLoginClick?: () => void;
+  onLogoutClick?: () => void;
+  setView?: (view: View) => void;
+  className?: string;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLoginClick, onLogoutClick, setView, className = "" }) => {
+  const { t } = useTranslations();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = (view: View, elementId?: string) => {
+    if (setView) setView(view);
+    if (elementId) {
+      setTimeout(() => {
+        const el = document.getElementById(elementId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const navContainerClass = scrolled
+    ? 'bg-slate-950/40 backdrop-blur-3xl border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2'
+    : 'bg-transparent py-6';
+
+  return (
+    <nav className={`fixed left-0 w-full z-[100] transition-all duration-500 border-b ${navContainerClass} ${className}`}>
+      <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
+
+        {/* Branding */}
+        <div
+          className="flex items-center gap-4 cursor-pointer group"
+          onClick={() => handleNavClick('home')}
+        >
+          <div className="relative w-12 h-12 flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-2xl blur-md opacity-40 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative w-full h-full bg-slate-900/50 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl overflow-hidden p-2">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="text-white fill-current drop-shadow-lg transform group-hover:scale-110 transition-transform duration-500">
+                <g transform="translate(0, 20) scale(0.9) translate(28, 0)">
+                  <path d="M490.39,182.75c-5.55-13.19-14.77-22.7-26.67-27.49l-.16-.06a46.46,46.46,0,0,0-17-3.2h-.64c-27.24.41-55.05,23.56-69.19,57.61-10.37,24.9-11.56,51.68-3.18,71.64,5.54,13.2,14.78,22.71,26.73,27.5l.13.05a46.53,46.53,0,0,0,17,3.2c27.5,0,55.6-23.15,70-57.65C497.65,229.48,498.78,202.72,490.39,182.75Z" />
+                  <path d="M381.55,329.61c-15.71-9.44-30.56-18.37-40.26-34.41C314.53,250.8,298.37,224,256,224s-58.57,26.8-85.39,71.2c-9.72,16.06-24.6,25-40.36,34.48-18.07,10.86-36.74,22.08-44.8,44.16a66.93,66.93,0,0,0-4.65,25c0,35.95,28,65.2,62.4,65.2,17.75,0,36.64-6.15,56.63-12.66,19.22-6.26,39.09-12.73,56.27-12.73s37,6.47,56.15,12.73C332.2,457.85,351,464,368.8,464c34.35,0,62.3-29.25,62.3-65.2a67,67,0,0,0-4.75-25C418.29,351.7,399.61,340.47,381.55,329.61Z" />
+                  <path d="M150,188.85c11.9,14.93,27,23.15,42.52,23.15a42.88,42.88,0,0,0,6.33-.47c32.37-4.76,52.54-44.26,45.92-90C242,102.3,234.6,84.39,224,71.11,212.12,56.21,197,48,181.49,48a42.88,42.88,0,0,0-6.33.47c-32.37,4.76-52.54,44.26-45.92,90C132,157.67,139.4,175.56,150,188.85Z" />
+                  <path d="M313.16,211.53a42.88,42.88,0,0,0,6.33.47c15.53,0,30.62-8.22,42.52-23.15,10.59-13.29,17.95-31.18,20.75-50.4h0c6.62-45.72-13.55-85.22-45.92-90a42.88,42.88,0,0,0-6.33-.47C315,48,299.88,56.21,288,71.11c-10.6,13.28-18,31.19-20.76,50.44C260.62,167.27,280.79,206.77,313.16,211.53Z" />
+                  <path d="M111.59,308.8l.14-.05c11.93-4.79,21.16-14.29,26.69-27.48,8.38-20,7.2-46.75-3.15-71.65C120.94,175.16,92.85,152,65.38,152a46.4,46.4,0,0,0-17,3.2l-.14.05C36.34,160,27.11,169.54,21.58,182.73c-8.38,20-7.2,46.75,3.15,71.65C39.06,288.84,67.15,312,94.62,312A46.4,46.4,0,0,0,111.59,308.8Z" />
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black tracking-tighter text-white leading-none">Paw<span className="text-primary">Print</span></span>
+            <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">Visual Biometrics</span>
+          </div>
+        </div>
+
+        {/* Desktop Navigation Links */}
+        <div className="hidden lg:flex items-center bg-white/5 border border-white/10 px-8 py-2 rounded-full backdrop-blur-md">
+          <div className="flex items-center gap-10">
+            <button
+              onClick={() => handleNavClick('home')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('homeButton')}
+            </button>
+
+            {currentUser && (
+              <button
+                onClick={() => {
+                  const role = currentUser.role;
+                  if (role === 'vet') handleNavClick('vetDashboard');
+                  else if (role === 'super_admin') handleNavClick('adminDashboard');
+                  else handleNavClick('dashboard');
+                }}
+                className="text-[11px] font-black uppercase tracking-widest transition-all text-primary hover:text-white hover:scale-105"
+              >
+                {t('dashboardButton')}
+              </button>
+            )}
+
+            <button
+              onClick={() => handleNavClick('blog')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('blogButton')}
+            </button>
+            <button
+              onClick={() => handleNavClick('home', 'how-it-works')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('ecosystemButton')}
+            </button>
+            <button
+              onClick={() => handleNavClick('home', 'support-us')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('supportButton')}
+            </button>
+          </div>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-white/10">
+            <LanguageSwitcher className="text-white !text-[10px]" />
+            <DarkModeToggle />
+          </div>
+
+          {!currentUser ? (
+            <button
+              onClick={onLoginClick}
+              className="btn btn-primary !py-2.5 !px-6 text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] rounded-xl transition-all"
+            >
+              {t('loginButton')}
+            </button>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="relative group/avatar">
+                <div className="absolute inset-0 bg-primary/20 rounded-xl blur group-hover/avatar:bg-primary/40 transition-all"></div>
+                <div className="relative w-10 h-10 rounded-xl bg-slate-900 border border-white/20 flex items-center justify-center text-sm font-black text-primary shadow-xl">
+                  {currentUser.email.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <button
+                onClick={onLogoutClick}
+                className="text-[10px] font-black tracking-widest uppercase py-2 px-4 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg hover:shadow-red-500/20"
+              >
+                {t('logoutButton')}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};

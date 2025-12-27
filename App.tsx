@@ -1,0 +1,281 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { View, User, PetProfile, VetClinic, Appointment, ChatSession, Geolocation, UserRole, Donation, BlogPost } from './types';
+
+// Standard Components
+import { Navbar } from './components/Navbar';
+import { AdminUplink } from './components/AdminUplink';
+import { NotificationToast } from './components/NotificationToast';
+import { LiveAssistantFAB } from './components/LiveAssistantFAB';
+import { AIHealthCheckModal } from './components/AIHealthCheckModal';
+import { MobileNavigation } from './components/MobileNavigation';
+import { dbService } from './services/firebase';
+import { LoadingScreen } from './components/LoadingScreen';
+import { Background } from './components/Background';
+import { Footer } from './components/Footer';
+import { SecureChatModal } from './components/SecureChatModal';
+import { Auth } from './components/Auth';
+
+// Modular Routers
+import { AdminRouter } from './components/routers/AdminRouter';
+import { VetRouter } from './components/routers/VetRouter';
+import { ShelterRouter } from './components/routers/ShelterRouter';
+import { UserRouter } from './components/routers/UserRouter';
+import { PublicRouter } from './components/routers/PublicRouter';
+
+import { useAppState } from './hooks/useAppState';
+import { useAuthSync } from './hooks/useAuthSync';
+
+const DevMarquee = () => {
+    const devText = "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •";
+
+    return (
+        <div className="fixed top-0 left-0 w-full h-8 overflow-hidden bg-yellow-400 border-b-2 border-black shadow-lg select-none flex items-center shrink-0 z-[250]">
+            <div className="absolute inset-0 opacity-25 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000, #000 20px, transparent 20px, transparent 40px)' }}></div>
+            <div className="flex animate-marquee whitespace-nowrap items-center h-full relative z-10">
+                <span className="text-[13px] font-black text-black px-4 uppercase tracking-normal drop-shadow-sm">{devText}</span>
+                <span className="text-[13px] font-black text-black px-4 uppercase tracking-normal drop-shadow-sm">{devText}</span>
+                <span className="text-[13px] font-black text-black px-4 uppercase tracking-normal drop-shadow-sm">{devText}</span>
+                <span className="text-[13px] font-black text-black px-4 uppercase tracking-normal drop-shadow-sm">{devText}</span>
+            </div>
+        </div>
+    );
+};
+
+export default function App() {
+    const [currentView, setCurrentView] = useState<View>('home');
+    const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+    const [showSplash, setShowSplash] = useState(true);
+    const [showAdminInit, setShowAdminInit] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+    const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
+    const {
+        allPets, vetClinics, donations, appointments, chatSessions, allUsers,
+        handleRefreshAdminData, setAllPets
+    } = useAppState(currentUser, currentView);
+
+    const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+    const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
+    const [activeChatSession, setActiveChatSession] = useState<ChatSession | null>(null);
+    const [viewingPatient, setViewingPatient] = useState<PetProfile | null>(null);
+    const [petToLink, setPetToLink] = useState<PetProfile | null>(null);
+    const [healthCheckingPet, setHealthCheckingPet] = useState<PetProfile | null>(null);
+
+    const [notifications, setNotifications] = useState<{ id: number, message: string }[]>([]);
+
+    const addNotification = useCallback((message: string) => {
+        const id = Date.now();
+        setNotifications(prev => [...prev, { id, message }]);
+        setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 3000);
+    }, []);
+
+    const lostPets = allPets.filter(p => p.isLost);
+    const petsForAdoption = allPets.filter(p => p.status === 'forAdoption');
+
+    useEffect(() => {
+        setTimeout(() => setShowSplash(false), 2500);
+    }, []);
+
+    useEffect(() => {
+        const handler = () => setIsLoginModalOpen(true);
+        window.addEventListener('open_login_modal', handler);
+        return () => window.removeEventListener('open_login_modal', handler);
+    }, []);
+
+    const handleLogout = async () => {
+        await dbService.logout();
+        setCurrentUser(null);
+        setCurrentView('home');
+        addNotification("Secure session closed.");
+    };
+
+    const handleRegisterPet = async (pet: PetProfile) => {
+        try {
+            await dbService.savePet(pet);
+            addNotification("Pet profile synced.");
+            setEditingPet(null);
+            setCurrentView(currentUser?.role === 'shelter' ? 'shelterDashboard' : 'dashboard');
+        } catch (err: any) { addNotification("Sync Error: " + err.message); }
+    };
+
+    const handleStartChat = async (pet: PetProfile) => {
+        if (!currentUser) return;
+        const sessionId = [pet.id, currentUser.uid].sort().join('_');
+        const newSession: ChatSession = {
+            id: sessionId, petId: pet.id, petName: pet.name, petPhotoUrl: pet.photos[0]?.url || '',
+            ownerEmail: pet.ownerEmail || '', finderEmail: currentUser.email, messages: []
+        };
+        await dbService.saveChatSession(newSession);
+        setActiveChatSession(newSession);
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') setShowAdminInit(true);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    const renderView = () => {
+        if (showAdminInit && currentUser) return <AdminUplink currentUser={currentUser} onClose={() => setShowAdminInit(false)} />;
+
+        if (!currentUser) {
+            return (
+                <PublicRouter
+                    currentView={currentView}
+                    setView={setCurrentView}
+                    lostPets={lostPets}
+                    petsForAdoption={petsForAdoption}
+                    donations={donations}
+                    selectedPost={selectedPost}
+                    setSelectedPost={setSelectedPost}
+                    handleStartChat={handleStartChat}
+                    setIsLoginModalOpen={setIsLoginModalOpen}
+                />
+            );
+        }
+
+        if (currentUser.role === 'super_admin') {
+            return (
+                <AdminRouter
+                    users={allUsers}
+                    allPets={allPets}
+                    vetClinics={vetClinics}
+                    donations={donations}
+                    onDeleteUser={(uid) => dbService.deleteUser(uid)}
+                    onLogout={handleLogout}
+                    onRefresh={handleRefreshAdminData}
+                />
+            );
+        }
+
+        if (currentUser.role === 'vet') {
+            return (
+                <VetRouter
+                    currentView={currentView}
+                    setView={setCurrentView}
+                    currentUser={currentUser}
+                    allPets={allPets}
+                    vetClinics={vetClinics}
+                    appointments={appointments}
+                    viewingPatient={viewingPatient}
+                    setViewingPatient={setViewingPatient}
+                />
+            );
+        }
+
+        if (currentUser.role === 'shelter') {
+            return (
+                <ShelterRouter
+                    currentView={currentView}
+                    setView={setCurrentView}
+                    currentUser={currentUser}
+                    allPets={allPets}
+                    chatSessions={chatSessions}
+                    editingPet={editingPet}
+                    setEditingPet={setEditingPet}
+                    handleRegisterPet={handleRegisterPet}
+                    onOpenChat={(id) => setActiveChatSession(chatSessions.find(s => s.id === id) || null)}
+                />
+            );
+        }
+
+        return (
+            <UserRouter
+                currentView={currentView}
+                setView={setCurrentView}
+                currentUser={currentUser}
+                allPets={allPets}
+                vetClinics={vetClinics}
+                appointments={appointments}
+                chatSessions={chatSessions}
+                lostPets={lostPets}
+                allUsers={allUsers}
+                editingPet={editingPet}
+                setEditingPet={setEditingPet}
+                petToLink={petToLink}
+                setPetToLink={setPetToLink}
+                handleRegisterPet={handleRegisterPet}
+                handleStartChat={handleStartChat}
+                handleLogout={handleLogout}
+                setIsLoginModalOpen={setIsLoginModalOpen}
+                setHealthCheckingPet={setHealthCheckingPet}
+            />
+        );
+    };
+
+    return (
+        <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden">
+            {/* Fixed Marquee at the very top */}
+            <DevMarquee />
+
+            <ErrorBoundary>
+                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><Background /></div>
+                <NotificationToast notifications={notifications} />
+                {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
+
+                <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
+                    {/* Navbar top offset matches marquee height (8 units / 32px) */}
+                    <Navbar
+                        currentUser={currentUser}
+                        onLoginClick={() => setIsLoginModalOpen(true)}
+                        onLogoutClick={handleLogout}
+                        setView={setCurrentView}
+                        className="!top-8"
+                    />
+
+                    {/* Main content padding adjusted to account for fixed marquee + fixed navbar */}
+                    <main className="flex-grow pt-40 pb-28 md:pb-20">
+                        {renderView()}
+                    </main>
+
+                    <Footer setView={setCurrentView} />
+                </div>
+            </ErrorBoundary>
+
+            {/* Global UI Elements - Moved outside main wrapper for better z-index management and fixed positioning */}
+            <MobileNavigation
+                currentView={currentView}
+                setView={setCurrentView}
+                userRole={currentUser?.role}
+                onAssistantClick={() => setIsAssistantOpen(true)}
+            />
+
+            {isAssistantOpen && (
+                <LiveAssistantFAB
+                    currentUserRole={currentUser?.role}
+                    tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
+                    forceOpen={true}
+                    onClose={() => setIsAssistantOpen(false)}
+                />
+            )}
+
+            {activeChatSession && (
+                <SecureChatModal
+                    session={activeChatSession}
+                    currentUser={currentUser!}
+                    onClose={() => setActiveChatSession(null)}
+                />
+            )}
+
+            {healthCheckingPet && (
+                <AIHealthCheckModal
+                    pet={healthCheckingPet}
+                    onClose={() => setHealthCheckingPet(null)}
+                    onComplete={(id, check) => dbService.savePet({ ...allPets.find(p => p.id === id)!, healthChecks: [...(allPets.find(p => p.id === id)!.healthChecks || []), check] })}
+                    onBookAppointment={() => { setHealthCheckingPet(null); }}
+                />
+            )}
+
+            {isLoginModalOpen && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setIsLoginModalOpen(false)}>
+                    <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative">
+                        <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

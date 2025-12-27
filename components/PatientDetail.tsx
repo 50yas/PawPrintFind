@@ -1,0 +1,219 @@
+
+import React, { useState } from 'react';
+import { PetProfile } from '../types';
+import { useTranslations } from '../hooks/useTranslations';
+import { draftVetMessageToOwner } from '../services/geminiService';
+import { LoadingSpinner } from './LoadingSpinner';
+
+interface PatientDetailProps {
+  patient: PetProfile;
+  goBack: () => void;
+}
+
+const TimelineItem: React.FC<{ date: string; title: string; description?: string; icon: React.ReactNode }> = ({ date, title, description, icon }) => (
+    <div className="relative pl-8 pb-8 last:pb-0 border-l-2 border-border">
+        <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-card border-2 border-primary"></div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1">
+             <h4 className="font-bold text-foreground text-lg">{title}</h4>
+             <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1 rounded-full">{date}</span>
+        </div>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+    </div>
+);
+
+export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack }) => {
+  const { t } = useTranslations();
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [messageTopic, setMessageTopic] = useState('');
+  const [generatedMessage, setGeneratedMessage] = useState('');
+  const [isDrafting, setIsDrafting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'medical' | 'media'>('overview');
+
+  const handlePrint = () => window.print();
+  const handleDraftMessage = async () => {
+    if (!messageTopic) return;
+    setIsDrafting(true);
+    try {
+      const draft = await draftVetMessageToOwner(patient, messageTopic);
+      setGeneratedMessage(draft);
+    } catch (err) {
+      console.error(err);
+      alert(t('genericError'));
+    }
+    setIsDrafting(false);
+  };
+  const sendMessage = () => {
+    alert(t('messageSentToOwnerAlert', { ownerEmail: patient.ownerEmail }));
+    setShowContactModal(false);
+    setGeneratedMessage('');
+    setMessageTopic('');
+  };
+  
+  const labelStyles = "block text-sm font-medium text-muted-foreground";
+
+  return (
+    <>
+      <div className="max-w-5xl mx-auto pb-12">
+        <div className="flex items-center justify-between mb-6">
+             <button onClick={goBack} className="flex items-center text-muted-foreground hover:text-primary transition-colors font-semibold">
+                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+                 {t('backButton')}
+             </button>
+             <div className="flex space-x-3 no-print">
+                <button onClick={handlePrint} className="btn btn-secondary shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" /></svg>
+                    {t('printSummaryButton')}
+                </button>
+                <button onClick={() => setShowContactModal(true)} className="btn btn-primary shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg>
+                    {t('contactOwnerButton')}
+                </button>
+            </div>
+        </div>
+
+        <div className="bg-card rounded-2xl shadow-lg overflow-hidden border border-border">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-primary/10 to-transparent p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+                 <img src={patient.photos[0]?.url} alt={patient.name} className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-lg"/>
+                 <div>
+                     <h1 className="text-4xl font-bold text-foreground mb-2">{patient.name}</h1>
+                     <div className="flex flex-wrap gap-3 items-center">
+                         <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-sm font-semibold shadow-sm text-foreground border border-border">{patient.breed}</span>
+                         <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-sm font-semibold shadow-sm text-foreground border border-border">{patient.age}</span>
+                         <span className={`px-3 py-1 rounded-full text-sm font-bold shadow-sm ${patient.isLost ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>{patient.isLost ? t('statusLost') : t('statusSafe')}</span>
+                     </div>
+                 </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-border px-8">
+                <button 
+                    onClick={() => setActiveTab('overview')} 
+                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                >
+                    {t('tabOverview')}
+                </button>
+                <button 
+                    onClick={() => setActiveTab('medical')} 
+                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'medical' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                >
+                    {t('tabMedical')}
+                </button>
+                 <button 
+                    onClick={() => setActiveTab('media')} 
+                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'media' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                >
+                    {t('tabMedia')}
+                </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 printable-area">
+                {activeTab === 'overview' && (
+                    <div className="grid md:grid-cols-2 gap-12">
+                         <div>
+                            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">{t('keyInfoTitle')}</h3>
+                            <dl className="space-y-4">
+                                <div className="flex justify-between">
+                                    <dt className="text-muted-foreground font-medium">{t('ownerEmailLabel')}</dt>
+                                    <dd className="text-foreground font-semibold">{patient.ownerEmail}</dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-muted-foreground font-medium">{t('weightLabel')}</dt>
+                                    <dd className="text-foreground font-semibold">{patient.weight}</dd>
+                                </div>
+                                 <div>
+                                    <dt className="text-muted-foreground font-medium mb-1">{t('behaviorLabel')}</dt>
+                                    <dd className="text-foreground bg-muted p-3 rounded-lg text-sm">{patient.behavior || 'N/A'}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                         <div>
+                            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">{t('quickMedicalView')}</h3>
+                             <div className="space-y-3">
+                                <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/30">
+                                    <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide block mb-1">{t('allergiesLabel')}</span>
+                                    <p className="text-foreground font-medium">{patient.medicalRecord?.allergies || t('noneReported')}</p>
+                                </div>
+                                 <div className="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-lg border border-amber-100 dark:border-amber-900/30">
+                                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide block mb-1">{t('chronicConditionsLabel')}</span>
+                                    <p className="text-foreground font-medium">{patient.medicalRecord?.chronicConditions || t('noneReported')}</p>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'medical' && (
+                    <div className="max-w-3xl">
+                         <h3 className="text-lg font-bold text-foreground mb-6">{t('medicalRecordTitle')} & Timeline</h3>
+                         <div className="mt-4">
+                            {/* Mock initial registration */}
+                            <TimelineItem 
+                                date="Registration" 
+                                title={t('patientRegisteredEvent')}
+                                description={t('patientRegisteredDesc')}
+                                icon={null}
+                            />
+                            {patient.medicalRecord?.vaccinations?.map((vac, i) => (
+                                <TimelineItem 
+                                    key={i}
+                                    date={vac.date}
+                                    title={t('vaccinationEvent', {name: vac.name})}
+                                    icon={null}
+                                />
+                            ))}
+                             {patient.healthChecks?.map((check, i) => (
+                                <TimelineItem 
+                                    key={`check-${i}`}
+                                    date={new Date(check.timestamp).toLocaleDateString()}
+                                    title={t('aiHealthCheckEvent')}
+                                    description={check.symptoms}
+                                    icon={null}
+                                />
+                            ))}
+                             <div className="relative pl-8 pt-2">
+                                <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-border"></div>
+                                <p className="text-xs text-muted-foreground uppercase tracking-widest">{t('startOfRecords')}</p>
+                            </div>
+                         </div>
+                    </div>
+                )}
+
+                {activeTab === 'media' && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        {patient.photos.map(photo => (
+                            <div key={photo.id} className="relative group rounded-xl overflow-hidden shadow-md">
+                                <img src={photo.url} alt={photo.description} className="w-full h-full object-cover aspect-square transition-transform duration-500 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
+                                    <p className="text-white font-bold">{photo.description}</p>
+                                    <p className="text-white/80 text-xs mt-1">{t('marksIdentified', {count: photo.marks.length})}</p>
+                                </div>
+                                {photo.marks.map((mark, index) => (<div key={index} className="absolute w-3 h-3 -ml-1.5 -mt-1.5 rounded-full bg-yellow-400 border border-white shadow-sm pointer-events-none" style={{ left: `${mark.x}%`, top: `${mark.y}%` }}></div>))}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+      </div>
+      
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+            <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-lg">
+                <h3 className="text-xl font-bold text-card-foreground">{t('contactOwnerButton')}</h3>
+                <div className="mt-4 space-y-4">
+                    <div><label htmlFor="topic" className={labelStyles}>{t('messageTopicLabel')}</label><input type="text" id="topic" value={messageTopic} onChange={e => setMessageTopic(e.target.value)} className="input-base mt-1" placeholder={t('aiAssistantPlaceholder')} /></div>
+                    <button onClick={handleDraftMessage} disabled={isDrafting || !messageTopic} className="btn btn-primary w-full flex justify-center items-center">{isDrafting ? <LoadingSpinner/> : t('draftMessageButton')}</button>
+                    {generatedMessage && (<div><label className={labelStyles}>{t('generatedMessageLabel')}</label><textarea value={generatedMessage} onChange={e => setGeneratedMessage(e.target.value)} rows={6} className="input-base mt-1 text-sm p-3"></textarea></div>)}
+                </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                    <button onClick={() => setShowContactModal(false)} className="btn btn-secondary">{t('cancelButton')}</button>
+                    <button onClick={sendMessage} disabled={!generatedMessage} className="btn btn-primary !bg-green-600 hover:!bg-green-700">{t('sendMessageToOwner')}</button>
+                </div>
+            </div>
+        </div>
+      )}
+    </>
+  );
+};

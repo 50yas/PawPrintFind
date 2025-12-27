@@ -1,0 +1,9 @@
+{
+  "name": "to enhance Paw Print: Pet Finder AI",
+  "description": "An advanced AI system to find lost pets. Create a 'visual passport' for your pet with unique biometric markers. If lost, rescuers can identify them instantly with a photo, even without a microchip.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
