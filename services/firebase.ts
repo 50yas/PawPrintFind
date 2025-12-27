@@ -36,7 +36,7 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
 import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage } from '../types';
-import { logger } from '../loggerService';
+import { logger } from './loggerService';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAluD8clP5w8Z__xOUzJXcg_ztOvqRtPJU",
