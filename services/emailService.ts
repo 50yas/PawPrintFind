@@ -2,6 +2,7 @@
 import { db } from './firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { PetProfile, Appointment, UserRole } from '../types';
+import { logger } from './loggerService';
 
 /**
  * EMAIL SERVICE
@@ -56,7 +57,7 @@ export const emailService = {
             console.log(`📧 Email trigger created for: ${to}`);
             return { success: true };
         } catch (error) {
-            console.error("Failed to queue email in Firestore:", error);
+            logger.error("Failed to queue email in Firestore:", error);
             return { success: false, error };
         }
     },
