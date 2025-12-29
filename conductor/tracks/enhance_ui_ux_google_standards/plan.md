@@ -16,7 +16,7 @@
 - [x] Task: Implement "Scan" hover effects for all interactive cards (Pets, Vets, Maps). [commit: ed97cca]
 - [x] Task: Audit and fix accessibility issues (ARIA labels, focus management) in `Modal.tsx` and form inputs. [commit: 4524c7a]
 
-### Phase 4: Polish & Performance
+### Phase 4: Polish & Performance [checkpoint: f89a65c]
 - [x] Task: Optimize image loading with lazy loading and skeleton states for all pet cards. [commit: d211cd4]
 - [x] Task: Conduct a Lighthouse audit and fix top 3 performance/accessibility violations. [commit: 1ca5a0b]
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Enhancement' (Protocol in workflow.md)
