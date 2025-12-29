@@ -65,13 +65,13 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
     };
 
     return (
-        <div className="fixed bottom-0 left-0 w-full bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 z-[50] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-safe">
+        <div className="fixed bottom-0 left-0 w-full bg-slate-950/60 backdrop-blur-3xl border-t border-white/10 z-[50] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-safe">
             
             {/* Vertical Language Selector Overlay */}
             {showLangMenu && (
                 <>
-                    <div className="fixed inset-0 bg-black/60 z-[-1]" onClick={() => setShowLangMenu(false)}></div>
-                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    <div className="fixed inset-0 bg-black/60 z-[-1]" onClick={() => setShowLangMenu(false)} aria-hidden="true"></div>
+                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
                         <div className="px-3 py-2 border-b border-white/10 mb-1">
                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Select Language</span>
                         </div>
@@ -94,6 +94,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 <button 
                     onClick={() => setView('home')} 
                     className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-3 ${isActive('home')}`}
+                    aria-label={t('homeButton')}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -102,7 +103,11 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 </button>
 
                 {/* Maps */}
-                <button onClick={() => handleHomeSection('missing-pets-map')} className="flex flex-col items-center gap-1 transition-all duration-300 relative px-3 text-muted-foreground hover:text-foreground">
+                <button 
+                    onClick={() => handleHomeSection('missing-pets-map')} 
+                    className="flex flex-col items-center gap-1 transition-all duration-300 relative px-3 text-muted-foreground hover:text-foreground"
+                    aria-label="Maps"
+                >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -113,7 +118,8 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 <div className="relative -top-6">
                     <button 
                         onClick={onAssistantClick}
-                        className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.4)] relative overflow-hidden active:scale-95 transition-transform"
+                        className="w-16 h-16 rounded-full bg-slate-900/80 backdrop-blur-xl border-4 border-slate-950 flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.4)] relative overflow-hidden active:scale-95 transition-transform"
+                        aria-label="AI Assistant"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-20 animate-pulse"></div>
                         <div className="relative z-10 p-3">
@@ -132,6 +138,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 <button 
                     onClick={handleAuthAction} 
                     className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-3 ${userRole ? isActive(dashboardView) : 'text-muted-foreground'}`}
+                    aria-label={userRole ? 'Dashboard' : 'Login'}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -144,6 +151,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 <button 
                     onClick={() => setShowLangMenu(!showLangMenu)} 
                     className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-3 ${showLangMenu ? 'text-primary' : 'text-muted-foreground'}`}
+                    aria-label="Select Language"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5a18.022 18.022 0 01-3.827-5.802M6 9h10.762c-1.218 2.52-3.033 4.733-5.139 6.56M11 19l-5-5M11 19l5-5" />

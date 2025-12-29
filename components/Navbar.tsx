@@ -4,16 +4,19 @@ import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
 import { useTranslations } from '../hooks/useTranslations';
 import { User, View } from '../types';
+import { RoleSwitcher } from './RoleSwitcher';
+import { GlassButton } from './ui/GlassButton';
 
 interface NavbarProps {
   currentUser: User | null;
+  setCurrentUser: (user: User) => void;
   onLoginClick?: () => void;
   onLogoutClick?: () => void;
   setView?: (view: View) => void;
   className?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLoginClick, onLogoutClick, setView, className = "" }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onLoginClick, onLogoutClick, setView, className = "" }) => {
   const { t } = useTranslations();
   const [scrolled, setScrolled] = useState(false);
 
@@ -83,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLoginClick, onLog
             {currentUser && (
               <button
                 onClick={() => {
-                  const role = currentUser.role;
+                  const role = currentUser.activeRole;
                   if (role === 'vet') handleNavClick('vetDashboard');
                   else if (role === 'super_admin') handleNavClick('adminDashboard');
                   else handleNavClick('dashboard');
@@ -123,26 +126,29 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLoginClick, onLog
           </div>
 
           {!currentUser ? (
-            <button
+            <GlassButton
               onClick={onLoginClick}
-              className="btn btn-primary !py-2.5 !px-6 text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] rounded-xl transition-all"
+              variant="primary"
+              className="!py-2.5 !px-6 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl"
             >
               {t('loginButton')}
-            </button>
+            </GlassButton>
           ) : (
             <div className="flex items-center gap-4">
+              {currentUser && <RoleSwitcher currentUser={currentUser} setCurrentUser={setCurrentUser} />}
               <div className="relative group/avatar">
                 <div className="absolute inset-0 bg-primary/20 rounded-xl blur group-hover/avatar:bg-primary/40 transition-all"></div>
                 <div className="relative w-10 h-10 rounded-xl bg-slate-900 border border-white/20 flex items-center justify-center text-sm font-black text-primary shadow-xl">
                   {currentUser.email.charAt(0).toUpperCase()}
                 </div>
               </div>
-              <button
+              <GlassButton
                 onClick={onLogoutClick}
-                className="text-[10px] font-black tracking-widest uppercase py-2 px-4 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg hover:shadow-red-500/20"
+                variant="danger"
+                className="text-[10px] font-black tracking-widest uppercase py-2 px-4"
               >
                 {t('logoutButton')}
-              </button>
+              </GlassButton>
             </div>
           )}
         </div>
