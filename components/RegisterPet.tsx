@@ -41,8 +41,9 @@ const FloatingLabelInput = ({ label, id, value, onChange, required = false, type
             value={value} 
             onChange={onChange} 
             required={required}
-            className={`block w-full px-4 py-3 text-foreground bg-background border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm ${shake ? 'border-red-500 ring-4 ring-red-500/10' : 'border-input focus:border-primary'}`}
+            className={`peer block w-full px-4 py-3 text-foreground bg-background border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm ${shake ? 'border-red-500 ring-4 ring-red-500/10' : 'border-input focus:border-primary'}`}
             placeholder={placeholder}
+            aria-label={label}
         />
         <label 
             htmlFor={id} 
@@ -630,21 +631,42 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       {/* Footer Navigation */}
       <div className="p-6 md:p-8 border-t border-border flex justify-between items-center bg-muted/20 backdrop-blur-sm sticky bottom-0 z-10">
           {currentStep > 1 ? (
-              <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+              <button 
+                type="button" 
+                onClick={handleBack} 
+                className="px-6 py-3 rounded-xl font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                aria-label="Previous Step"
+              >
                   {t('backButton')}
               </button>
           ) : (
-              <button type="button" onClick={goToDashboard} className="px-6 py-3 rounded-xl font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+              <button 
+                type="button" 
+                onClick={goToDashboard} 
+                className="px-6 py-3 rounded-xl font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                aria-label="Cancel Registration"
+              >
                   {t('cancelButton')}
               </button>
           )}
 
           {currentStep < totalSteps ? (
-              <button type="button" onClick={handleNext} className="btn btn-primary px-10 py-3.5 shadow-xl shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all font-bold text-sm tracking-wide">
+              <button 
+                type="button" 
+                onClick={handleNext} 
+                className="btn btn-primary px-10 py-3.5 shadow-xl shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all font-bold text-sm tracking-wide"
+                aria-label="Next Step"
+              >
                   {t('nextButton')}
               </button>
           ) : (
-              <button type="button" onClick={handleSubmit} disabled={isSaving} className="btn btn-primary px-10 py-3.5 shadow-xl shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all !bg-green-600 hover:!bg-green-700 border-green-500 font-bold text-sm tracking-wide">
+              <button 
+                type="button" 
+                onClick={handleSubmit} 
+                disabled={isSaving} 
+                className="btn btn-primary px-10 py-3.5 shadow-xl shadow-primary/25 hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all !bg-green-600 hover:!bg-green-700 border-green-500 font-bold text-sm tracking-wide"
+                aria-label="Complete Registration"
+              >
                   {isSaving ? <LoadingSpinner /> : t('submitButton')}
               </button>
           )}
