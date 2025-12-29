@@ -8,6 +8,8 @@ import { SharePetModal } from './SharePetModal';
 import { calculateProfileCompleteness } from '../services/geminiService';
 import { Modal } from './Modal';
 import { OwnerPetDetailModal } from './OwnerPetDetailModal';
+import { GlassCard } from './ui/GlassCard';
+import { GlassButton } from './ui/GlassButton';
 
 interface DashboardProps {
   user: User;
@@ -121,9 +123,9 @@ const PetCard: React.FC<{
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
-            <div 
+            <GlassCard 
                 ref={cardRef}
-                className="w-full h-full bg-white dark:bg-black rounded-3xl overflow-hidden shadow-xl dark:shadow-2xl transition-transform duration-200 ease-out border border-border dark:border-white/10 transform-style-3d relative"
+                className="w-full h-full overflow-hidden transition-transform duration-200 ease-out transform-style-3d relative border-white/10"
                 style={{
                     transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
                 }}
@@ -135,11 +137,11 @@ const PetCard: React.FC<{
                         src={pet.photos[0]?.url} 
                         alt={pet.name} 
                     />
-                    {/* Darker overlay in Light Mode for contrast, Standard gradient in Dark Mode */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/10 transition-opacity duration-300"></div>
+                    {/* Cinematic Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent transition-opacity duration-300"></div>
                     
                     {/* Holographic Shine Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundSize: '200% 200%', backgroundPosition: '0% 0%', transform: `translate(${rotation.y}px, ${rotation.x}px)`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundSize: '200% 200%', backgroundPosition: '0% 0%', transform: `translate(${rotation.y}px, ${rotation.x}px)`}}></div>
                 </div>
 
                 {/* 2. HUD SCANNING EFFECT (Only visible on Hover) */}
@@ -153,20 +155,20 @@ const PetCard: React.FC<{
                     {/* Scanning Line - Cyan for tech feel */}
                     <div className="absolute top-0 left-0 w-full h-[3px] bg-primary shadow-[0_0_20px_rgba(45,212,191,0.8)] animate-[scan_2s_linear_infinite]"></div>
                     
-                    {/* Grid Overlay - Visible on dark backgrounds */}
+                    {/* Grid Overlay */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#2dd4bf1a_1px,transparent_1px),linear-gradient(to_bottom,#2dd4bf1a_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 
                     {/* Facial Recognition Box Simulation */}
                     <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-40 h-40 border border-primary/50 rounded-lg shadow-[0_0_15px_rgba(45,212,191,0.2)]">
-                        <div className="absolute -top-6 left-0 text-[10px] text-primary font-mono bg-black/60 px-2 py-0.5 rounded backdrop-blur-md border border-primary/20">TARGET LOCKED</div>
+                        <div className="absolute -top-6 left-0 text-[10px] text-primary font-mono bg-slate-950/80 px-2 py-0.5 rounded backdrop-blur-md border border-primary/20">TARGET LOCKED</div>
                         <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-primary/50 rounded-full -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
                     </div>
 
                     {/* Data Points */}
                     <div className="absolute top-20 right-6 text-right space-y-2">
-                        <div className="text-[10px] font-mono text-cyan-300 bg-black/60 px-2 py-1 rounded border-r-2 border-cyan-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-100">BIOMETRIC MATCH</div>
-                        <div className="text-[10px] font-mono text-green-300 bg-black/60 px-2 py-1 rounded border-r-2 border-green-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-200">VACCINATION: OK</div>
-                        <div className="text-[10px] font-mono text-purple-300 bg-black/60 px-2 py-1 rounded border-r-2 border-purple-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-300">GPS: ACTIVE</div>
+                        <div className="text-[10px] font-mono text-cyan-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-cyan-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-100">BIOMETRIC MATCH</div>
+                        <div className="text-[10px] font-mono text-green-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-green-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-200">VACCINATION: OK</div>
+                        <div className="text-[10px] font-mono text-purple-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-purple-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-300">GPS: ACTIVE</div>
                     </div>
                 </div>
 
@@ -178,7 +180,7 @@ const PetCard: React.FC<{
                     <CompletenessRing score={completeness} />
                 </div>
 
-                {/* 4. Main Info (Always Visible - White text on Dark Overlay) */}
+                {/* 4. Main Info */}
                 <div className="absolute bottom-28 left-6 z-20 transition-transform duration-500 group-hover:-translate-y-6 transform translate-z-30">
                     <h3 className="text-4xl font-extrabold text-white leading-none tracking-tight drop-shadow-md">{pet.name}</h3>
                     <div className="flex items-center gap-2 mt-2">
@@ -187,16 +189,16 @@ const PetCard: React.FC<{
                     </div>
                 </div>
 
-                {/* 5. Action Panel (Slide Up on Hover) - Theme Adaptive */}
-                <div className="absolute bottom-0 left-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10 p-5 transform translate-y-[65%] group-hover:translate-y-0 transition-transform duration-500 ease-out z-30 translate-z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+                {/* 5. Action Panel (Slide Up on Hover) */}
+                <GlassCard className="absolute bottom-0 left-0 w-full rounded-none border-t border-white/10 p-5 transform translate-y-[65%] group-hover:translate-y-0 transition-transform duration-500 ease-out z-30 translate-z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] bg-slate-900/90 backdrop-blur-2xl">
                     
                     {/* Visible Strip (Buttons Preview) */}
                     <div className="flex justify-between items-center mb-6">
                         <div className="flex gap-4">
-                            <button onClick={() => onEditPet(pet)} className="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full" title={t('editButton')}>
+                            <button onClick={() => onEditPet(pet)} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-white/10 rounded-full" title={t('editButton')}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
-                            <button onClick={() => onHealthCheck(pet)} className="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full" title={t('aiHealthCheckButton')}>
+                            <button onClick={() => onHealthCheck(pet)} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full" title={t('aiHealthCheckButton')}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                             </button>
                         </div>
@@ -208,34 +210,34 @@ const PetCard: React.FC<{
 
                     {/* Expanded Controls */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
-                        <button onClick={() => onGenerateQR(pet)} className="btn btn-secondary text-xs py-2 flex flex-col items-center gap-1 h-auto hover:bg-primary/10 hover:text-primary border-gray-200 dark:border-white/10 hover:border-primary/50">
+                        <GlassButton onClick={() => onGenerateQR(pet)} variant="secondary" className="text-[10px] py-2 flex flex-col items-center gap-1 h-auto border-white/5 hover:border-primary/50">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4h2v-4zm-6 12v-2m0 0l-3-3m3 3l3-3m2 8H9m13 0h-3m3 0v-3m0 3v3m-3-3h3m-6 0v-3m0 3h3m-3 0v3m-3-3h3" /></svg>
                             Tag
-                        </button>
-                        <button onClick={() => onShare(pet)} className="btn btn-secondary text-xs py-2 flex flex-col items-center gap-1 h-auto hover:bg-blue-500/10 hover:text-blue-500 border-gray-200 dark:border-white/10 hover:border-blue-500/50">
+                        </GlassButton>
+                        <GlassButton onClick={() => onShare(pet)} variant="secondary" className="text-[10px] py-2 flex flex-col items-center gap-1 h-auto border-white/5 hover:border-blue-500/50">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                             Share
-                        </button>
-                        <button onClick={() => onTransferOwnership(pet)} className="btn btn-secondary text-xs py-2 flex flex-col items-center gap-1 h-auto text-red-500 hover:bg-red-500/10 hover:text-red-600 border-gray-200 dark:border-white/10 hover:border-red-500/50">
+                        </GlassButton>
+                        <GlassButton onClick={() => onTransferOwnership(pet)} variant="secondary" className="text-[10px] py-2 flex flex-col items-center gap-1 h-auto text-red-400 border-white/5 hover:border-red-500/50">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
                             Transfer
-                        </button>
+                        </GlassButton>
                     </div>
 
                     {/* Primary State Button */}
                     {pet.isLost ? (
-                        <button onClick={() => onMarkFound(pet.id)} className="w-full btn bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg flex items-center justify-center gap-2 py-3 rounded-xl font-bold tracking-wide transition-all hover:scale-105">
+                        <GlassButton onClick={() => onMarkFound(pet.id)} variant="primary" className="w-full bg-gradient-to-r from-green-600 to-emerald-600 border-green-400/50 py-3 text-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                             {t('markFoundButton')}
-                        </button>
+                        </GlassButton>
                     ) : (
-                        <button onClick={() => onReportLostClick(pet)} className="w-full btn bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-600 hover:text-white dark:hover:text-white flex items-center justify-center gap-2 transition-all py-3 rounded-xl font-bold tracking-wide hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+                        <GlassButton onClick={() => onReportLostClick(pet)} variant="danger" className="w-full py-3 text-sm shadow-[0_0_20px_rgba(239,68,68,0.3)]">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                             {t('reportLostButton')}
-                        </button>
+                        </GlassButton>
                     )}
-                </div>
-            </div>
+                </GlassCard>
+            </GlassCard>
             
             <style>{`
                 @keyframes scan {
@@ -250,12 +252,12 @@ const PetCard: React.FC<{
 });
 
 const QuickAction: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void; colorClass: string }> = ({ title, icon, onClick, colorClass }) => (
-    <button onClick={onClick} className="flex flex-col items-center justify-center p-4 bg-card hover:bg-muted transition-colors rounded-2xl border border-border shadow-sm hover:shadow-md transform hover:-translate-y-1 duration-300 h-full group">
-        <div className={`p-3 rounded-xl ${colorClass} mb-2 group-hover:scale-110 transition-transform`}>
+    <GlassCard variant="interactive" onClick={onClick} className="flex flex-col items-center justify-center p-4 transform hover:-translate-y-1 duration-300 h-full group border-white/10 bg-white/5">
+        <div className={`p-3 rounded-xl ${colorClass} mb-2 group-hover:scale-110 transition-transform shadow-lg`}>
             {icon}
         </div>
-        <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground text-center">{title}</span>
-    </button>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white text-center">{title}</span>
+    </GlassCard>
 )
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointments = [], onReportLost, onMarkFound, onEditPet, onRegisterNew, setView, chatSessions, onOpenChat, onRequestAppointment, onLinkVet, onSharePet, onHealthCheck, onTransferOwnership, onLogout }) => {
@@ -302,8 +304,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
     
     <div className="max-w-7xl mx-auto space-y-8 pb-24 px-4">
       {/* 1. Control Center Header */}
-      <div className="bg-card rounded-3xl p-8 shadow-sm border border-border flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
-        {/* Subtle radial gradient for Light Mode depth */}
+      <GlassCard className="p-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+        {/* Subtle radial gradient for depth */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none"></div>
         
         <div className="flex items-center gap-6 relative z-10 w-full md:w-auto justify-between md:justify-start">
@@ -314,45 +316,47 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                         onClick={() => setShowUserMenu(!showUserMenu)}
                         className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary p-[2px] shadow-lg hover:scale-105 transition-transform"
                     >
-                        <div className="w-full h-full rounded-full bg-card flex items-center justify-center text-2xl font-bold text-primary overflow-hidden">
+                        <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-2xl font-bold text-primary overflow-hidden border border-white/10">
                             {user.email.charAt(0).toUpperCase()}
                         </div>
                     </button>
                     
                     {/* User Dropdown Menu */}
                     {showUserMenu && (
-                        <div className="absolute top-full left-0 mt-3 w-56 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in origin-top-left">
-                            <div className="p-4 border-b border-border bg-muted/30">
-                                <p className="font-bold text-foreground truncate">{user.email}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{user.activeRole}</p>
+                        <GlassCard className="absolute top-full left-0 mt-3 w-56 z-50 overflow-hidden animate-fade-in origin-top-left border-white/20">
+                            <div className="p-4 border-b border-white/10 bg-white/5">
+                                <p className="font-bold text-white truncate">{user.email}</p>
+                                <p className="text-xs text-primary/70 capitalize font-mono tracking-wider">{user.activeRole}</p>
                             </div>
                             <div className="p-2">
-                                <button className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2">
+                                <button className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                     Profile Settings
                                 </button>
-                                <button className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2">
+                                <button className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                     Notifications
                                 </button>
-                                <div className="h-px bg-border my-1"></div>
+                                <div className="h-px bg-white/10 my-1"></div>
                                 <button 
                                     onClick={onLogout}
-                                    className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2 font-bold"
+                                    className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 font-bold"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                                     {t('logoutButton')}
                                 </button>
                             </div>
-                        </div>
+                        </GlassCard>
                     )}
                 </div>
                 
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
-                    <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm font-medium">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        System Active • {userPets.length} Protected Pets
+                    <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
+                    <p className="text-slate-400 mt-1 flex items-center gap-2 text-sm font-medium">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
+                        <span className="font-mono text-[10px] tracking-widest uppercase">System Active</span> 
+                        <span className="text-white/20">•</span>
+                        <span>{userPets.length} {t('protectedPets', { count: userPets.length })}</span>
                     </p>
                 </div>
             </div>
@@ -385,29 +389,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                 icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>}
              />
         </div>
-      </div>
+      </GlassCard>
       
       {/* Messages Section */}
       {myChats.length > 0 && (
           <div className="animate-fade-in">
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
                   {t('messagesTitle')}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {myChats.map(chat => (
-                      <div key={chat.id} onClick={() => onOpenChat(chat.id)} className="bg-card hover:bg-muted/30 p-4 rounded-xl shadow-sm cursor-pointer transition-all flex items-center gap-4 border border-border group">
-                          <img src={chat.petPhotoUrl} alt={chat.petName} className="w-12 h-12 rounded-lg object-cover bg-gray-200 border border-border"/>
+                      <GlassCard key={chat.id} variant="interactive" onClick={() => onOpenChat(chat.id)} className="p-4 flex items-center gap-4 border-white/10 bg-white/5 group">
+                          <img src={chat.petPhotoUrl} alt={chat.petName} className="w-12 h-12 rounded-lg object-cover bg-slate-800 border border-white/10"/>
                           <div className="min-w-0">
-                              <p className="font-bold text-foreground truncate group-hover:text-primary transition-colors">{chat.petName}</p>
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="font-bold text-white truncate group-hover:text-primary transition-colors">{chat.petName}</p>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 truncate">
                                   {chat.ownerEmail === user.email ? 'Finder' : 'Owner'}
                               </p>
                           </div>
-                          <div className="ml-auto text-muted-foreground group-hover:text-primary transition-colors">
+                          <div className="ml-auto text-slate-500 group-hover:text-primary transition-colors">
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
                           </div>
-                      </div>
+                      </GlassCard>
                   ))}
               </div>
           </div>
@@ -441,13 +445,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
               ))}
               
               {/* Add New Pet Card Placeholder */}
-               <div onClick={onRegisterNew} className="border-2 border-dashed border-border rounded-3xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all min-h-[480px] group bg-card/30">
-                    <div className="w-16 h-16 rounded-full bg-muted group-hover:bg-primary/20 text-muted-foreground group-hover:text-primary flex items-center justify-center transition-colors mb-4 shadow-sm group-hover:scale-110">
+               <GlassCard variant="interactive" onClick={onRegisterNew} className="p-6 flex flex-col items-center justify-center min-h-[480px] group border-white/10 bg-white/5 border-2 border-dashed">
+                    <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-primary/20 text-slate-500 group-hover:text-primary flex items-center justify-center transition-colors mb-4 shadow-sm group-hover:scale-110">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     </div>
-                    <p className="font-bold text-muted-foreground group-hover:text-primary transition-colors text-lg">{t('addNewImprontaButton')}</p>
-                    <p className="text-sm text-muted-foreground/60 mt-1">Register a new pet profile</p>
-               </div>
+                    <p className="font-black text-slate-300 group-hover:text-primary transition-colors text-lg uppercase tracking-widest">{t('addNewImprontaButton')}</p>
+                    <p className="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">Register biometrics</p>
+               </GlassCard>
           </div>
         ) : (
           <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border flex flex-col items-center justify-center">

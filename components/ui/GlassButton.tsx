@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -6,7 +6,7 @@ interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
     icon?: React.ReactNode;
 }
 
-export const GlassButton: React.FC<GlassButtonProps> = ({ 
+export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({ 
     children, 
     className = '', 
     variant = 'primary', 
@@ -14,7 +14,7 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
     icon,
     disabled,
     ...props 
-}) => {
+}, ref) => {
     const baseStyles = "relative overflow-hidden backdrop-blur-md px-6 py-3 rounded-xl font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
     
     const variants = {
@@ -26,6 +26,7 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
 
     return (
         <button 
+            ref={ref}
             className={`${baseStyles} ${variants[variant]} ${className}`}
             disabled={disabled || isLoading}
             {...props}
@@ -49,4 +50,6 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
         </button>
     );
-};
+});
+
+GlassButton.displayName = 'GlassButton';
