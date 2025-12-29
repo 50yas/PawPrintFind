@@ -11,7 +11,7 @@ import { AIHealthCheckModal } from './components/AIHealthCheckModal';
 import { MobileNavigation } from './components/MobileNavigation';
 import { dbService } from './services/firebase';
 import { LoadingScreen } from './components/LoadingScreen';
-import { Background } from './components/Background';
+import { HeroScene } from './components/HeroScene';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
 import { Auth } from './components/Auth';
@@ -95,7 +95,7 @@ export default function App() {
             await dbService.savePet(pet);
             addNotification("Pet profile synced.");
             setEditingPet(null);
-            setCurrentView(currentUser?.role === 'shelter' ? 'shelterDashboard' : 'dashboard');
+            setCurrentView(currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : 'dashboard');
         } catch (err: any) { addNotification("Sync Error: " + err.message); }
     };
 
@@ -137,7 +137,7 @@ export default function App() {
             );
         }
 
-        if (currentUser.role === 'super_admin') {
+        if (currentUser.activeRole === 'super_admin') {
             return (
                 <AdminRouter
                     users={allUsers}
@@ -151,7 +151,7 @@ export default function App() {
             );
         }
 
-        if (currentUser.role === 'vet') {
+        if (currentUser.activeRole === 'vet') {
             return (
                 <VetRouter
                     currentView={currentView}
@@ -166,7 +166,7 @@ export default function App() {
             );
         }
 
-        if (currentUser.role === 'shelter') {
+        if (currentUser.activeRole === 'shelter') {
             return (
                 <ShelterRouter
                     currentView={currentView}
@@ -212,7 +212,7 @@ export default function App() {
             <DevMarquee />
 
             <ErrorBoundary>
-                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><Background /></div>
+                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><HeroScene /></div>
                 <NotificationToast notifications={notifications} />
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
@@ -220,6 +220,7 @@ export default function App() {
                     {/* Navbar top offset matches marquee height (8 units / 32px) */}
                     <Navbar
                         currentUser={currentUser}
+                        setCurrentUser={setCurrentUser}
                         onLoginClick={() => setIsLoginModalOpen(true)}
                         onLogoutClick={handleLogout}
                         setView={setCurrentView}
@@ -239,13 +240,13 @@ export default function App() {
             <MobileNavigation
                 currentView={currentView}
                 setView={setCurrentView}
-                userRole={currentUser?.role}
+                userRole={currentUser?.activeRole}
                 onAssistantClick={() => setIsAssistantOpen(true)}
             />
 
             {isAssistantOpen && (
                 <LiveAssistantFAB
-                    currentUserRole={currentUser?.role}
+                    currentUserRole={currentUser?.activeRole}
                     tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
                     forceOpen={true}
                     onClose={() => setIsAssistantOpen(false)}
