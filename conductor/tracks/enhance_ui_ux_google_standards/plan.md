@@ -9,7 +9,7 @@
 
 ### Phase 2: Core Layout & Navigation Refactor
 - [x] Task: Refactor `Navbar` and `MobileNavigation` to use the new Glass components and ensure full keyboard accessibility. [commit: ec4be4d]
-- [ ] Task: Update the main `App.tsx` layout to support high-performance background rendering (Hero Scene) without z-index fighting.
+- [x] Task: Update the main `App.tsx` layout to support high-performance background rendering (Hero Scene) without z-index fighting. [commit: 5edf2bf]
 
 ### Phase 3: Dashboard & Interactive Elements
 - [ ] Task: Refactor `Dashboard.tsx` to use `GlassCard` for widgets, ensuring responsive grid layouts.
