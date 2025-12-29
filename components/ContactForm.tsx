@@ -20,6 +20,7 @@ export const ContactForm: React.FC = () => {
                 await dbService.saveContactMessage({
                     name,
                     email,
+                    subject: 'Contact Form Submission', // Add a default subject
                     message,
                     timestamp: Date.now()
                 });

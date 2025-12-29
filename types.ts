@@ -43,7 +43,8 @@ export interface BlogPost {
 export interface User {
   uid: string;
   email: string;
-  role: UserRole;
+  roles: UserRole[];
+  activeRole: UserRole;
   friends: string[];
   friendRequests: { from: string, timestamp: number }[];
   points: number;

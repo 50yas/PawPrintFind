@@ -324,7 +324,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                         <div className="absolute top-full left-0 mt-3 w-56 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in origin-top-left">
                             <div className="p-4 border-b border-border bg-muted/30">
                                 <p className="font-bold text-foreground truncate">{user.email}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                                <p className="text-xs text-muted-foreground capitalize">{user.activeRole}</p>
                             </div>
                             <div className="p-2">
                                 <button className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-2">

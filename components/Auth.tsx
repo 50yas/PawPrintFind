@@ -55,7 +55,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                 setSuccessMsg("Recovery email sent. Check your inbox.");
                 setIsForgotPassword(false);
             } else if (isRegistering) {
-                await dbService.registerUser(email, password, selectedRole);
+                await dbService.registerUser(email, password, [selectedRole]);
             } else {
                 await dbService.loginWithEmail(email, password);
             }

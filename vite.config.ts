@@ -23,6 +23,16 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3000
-    }
+    },
+    test: { // Vitest configuration
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './vitest.setup.ts', // A setup file for global mocks
+      coverage: {
+        provider: 'v8', // or 'istanbul'
+        reporter: ['text', 'json', 'html'],
+        exclude: ['node_modules/', '**/types.ts', '**/firebase.ts', '**/loggerService.ts']
+      },
+    },
   };
 });

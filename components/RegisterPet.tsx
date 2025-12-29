@@ -287,8 +287,11 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
         const processedPhotos = await Promise.all(validPhotos.map(async (p) => {
             let finalUrl = p.url;
             if (p.file) {
-                // FIXED STORAGE PATH: Includes UID for permission matching
-                finalUrl = await dbService.uploadImage(p.file, `users/${ownerUid}/pets/${id}`);
+                // Role-based storage path
+                const storagePath = currentUser.activeRole === 'shelter'
+                    ? `shelters/${ownerUid}/pets/${id}`
+                    : `users/${ownerUid}/pets/${id}`;
+                finalUrl = await dbService.uploadImage(p.file, storagePath);
             }
             return {
                 id: p.id || Date.now().toString(),

@@ -1,5 +1,7 @@
+/// <reference types="vitest/globals" />
 import { petService } from './petService';
 import { auth } from './firebase';
+import type { Mock } from 'vitest';
 import { deleteDoc, getDocs, setDoc, writeBatch, doc, collection } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { logger } from './loggerService';
@@ -50,7 +52,7 @@ describe('petService', () => {
   describe('getPets', () => {
     it('should return a list of pets', async () => {
       const mockPets = [{ id: '1', name: 'Fido' }, { id: '2', name: 'Buddy' }];
-      (getDocs as vi.Mock).mockResolvedValue({
+      (getDocs as Mock).mockResolvedValue({
         docs: mockPets.map(p => ({ id: p.id, data: () => ({ name: p.name }) }))
       });
       const pets = await petService.getPets();
@@ -61,7 +63,7 @@ describe('petService', () => {
 
     it('should log an error if fetching fails', async () => {
         const mockError = new Error('Firestore error');
-        (getDocs as vi.Mock).mockRejectedValue(mockError);
+        (getDocs as Mock).mockRejectedValue(mockError);
         await expect(petService.getPets()).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error fetching pets:', mockError);
     });
@@ -85,7 +87,7 @@ describe('petService', () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const petProfile = { id: '1', name: 'Fido' } as any;
         const mockError = new Error('Firestore error');
-        (setDoc as vi.Mock).mockRejectedValue(mockError);
+        (setDoc as Mock).mockRejectedValue(mockError);
         await expect(petService.savePet(petProfile)).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error saving pet:', mockError);
     });
@@ -107,7 +109,7 @@ describe('petService', () => {
     it('should log an error if deleting fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const mockError = new Error('Firestore error');
-        (deleteDoc as vi.Mock).mockRejectedValue(mockError);
+        (deleteDoc as Mock).mockRejectedValue(mockError);
         await expect(petService.deletePet('pet-id-123')).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error deleting pet:', mockError);
     });
@@ -123,8 +125,8 @@ describe('petService', () => {
     it('should upload a photo and return the URL', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
-        (uploadBytes as vi.Mock).mockResolvedValue({ ref: 'mock-ref' } as any);
-        (getDownloadURL as vi.Mock).mockResolvedValue('http://mock-url.com');
+        (uploadBytes as Mock).mockResolvedValue({ ref: 'mock-ref' } as any);
+        (getDownloadURL as Mock).mockResolvedValue('http://mock-url.com');
 
         const url = await petService.uploadPetPhoto('pet-1', file);
         expect(uploadBytes).toHaveBeenCalled();
@@ -136,7 +138,7 @@ describe('petService', () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const file = new File([''], 'photo.jpg', { type: 'image/jpeg' });
         const mockError = new Error('Storage error');
-        (uploadBytes as vi.Mock).mockRejectedValue(mockError);
+        (uploadBytes as Mock).mockRejectedValue(mockError);
         await expect(petService.uploadPetPhoto('pet-1', file)).rejects.toThrow('Storage error');
         expect(logger.error).toHaveBeenCalledWith('Error uploading pet photo:', mockError);
     });
@@ -144,20 +146,20 @@ describe('petService', () => {
 
   describe('reportMultipleSightings', () => {
     it('should throw an error if user is not authenticated', async () => {
-        const updates = [{ id: 'pet-1', isLost: true, lastSeenLocation: { lat: 0, lng: 0 } }];
+        const updates = [{ id: 'pet-1', isLost: true, lastSeenLocation: { latitude: 0, longitude: 0 } }];
         await expect(petService.reportMultipleSightings(updates)).rejects.toThrow('Authentication required to report sightings.');
-        const batch = (writeBatch as vi.Mock)();
+        const batch = (writeBatch as Mock)();
         expect(batch.commit).not.toHaveBeenCalled();
     });
 
     it('should update multiple pet sightings in a batch', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const updates = [
-            { id: 'pet-1', isLost: true, lastSeenLocation: { lat: 0, lng: 0 } },
-            { id: 'pet-2', isLost: false, lastSeenLocation: { lat: 1, lng: 1 } },
+            { id: 'pet-1', isLost: true, lastSeenLocation: { latitude: 0, longitude: 0 } },
+            { id: 'pet-2', isLost: false, lastSeenLocation: { latitude: 1, longitude: 1 } },
         ];
         const batch = { update: vi.fn(), commit: vi.fn() };
-        (writeBatch as vi.Mock).mockReturnValue(batch as any);
+        (writeBatch as Mock).mockReturnValue(batch as any);
 
         await petService.reportMultipleSightings(updates);
         expect(writeBatch).toHaveBeenCalled();
@@ -167,10 +169,10 @@ describe('petService', () => {
 
     it('should log an error if batch write fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
-        const updates = [{ id: 'pet-1', isLost: true, lastSeenLocation: { lat: 0, lng: 0 } }];
+        const updates = [{ id: 'pet-1', isLost: true, lastSeenLocation: { latitude: 0, longitude: 0 } }];
         const mockError = new Error('Firestore error');
         const batch = { update: vi.fn(), commit: vi.fn().mockRejectedValue(mockError) };
-        (writeBatch as vi.Mock).mockReturnValue(batch as any);
+        (writeBatch as Mock).mockReturnValue(batch as any);
 
         await expect(petService.reportMultipleSightings(updates)).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error reporting multiple sightings:', mockError);

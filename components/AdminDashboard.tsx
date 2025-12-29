@@ -31,7 +31,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, allPets, 
     const totalRevenue = useMemo(() => calculateTotalFromList(donations), [donations]);
 
     const pendingVerifications = useMemo(() => {
-        return users.filter(u => (u.role === 'vet' || u.role === 'shelter') && !u.isVerified && u.verificationData);
+        return users.filter(u => (u.roles.includes('vet') || u.roles.includes('shelter')) && !u.isVerified && u.verificationData);
     }, [users]);
 
     const handleRefresh = async () => {
@@ -149,15 +149,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, allPets, 
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase ${u.role === 'super_admin' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-primary/10 text-primary border border-primary/20'
+                                                <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase ${u.roles.includes('super_admin') ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-primary/10 text-primary border border-primary/20'
                                                     }`}>
-                                                    {u.role}
+                                                    {u.activeRole}
                                                 </span>
                                                 {u.isVerified && <span className="ml-2 text-blue-400" title="Verified Professional">✔</span>}
                                             </td>
                                             <td className="p-4 font-mono text-slate-500">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleTimeString() : '---'}</td>
                                             <td className="p-4 text-right">
-                                                {u.role !== 'super_admin' && (
+                                                {!u.roles.includes('super_admin') && (
                                                     <button onClick={() => onDeleteUser(u.uid!)} className="text-red-500/50 group-hover:text-red-500 transition-colors font-bold text-[10px] hover:underline">PURGE</button>
                                                 )}
                                             </td>
@@ -187,7 +187,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, allPets, 
                                             <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-xl">🏥</div>
                                             <div>
                                                 <h4 className="font-bold text-white">{u.email}</h4>
-                                                <p className="text-[10px] text-slate-500 uppercase tracking-widest">Role: {u.role}</p>
+                                                <p className="text-[10px] text-slate-500 uppercase tracking-widest">Role: {u.activeRole}</p>
                                                 <p className="text-xs text-slate-400 mt-1">Submitted: {u.verificationData ? new Date(u.verificationData.timestamp).toLocaleString() : 'N/A'}</p>
                                             </div>
                                         </div>

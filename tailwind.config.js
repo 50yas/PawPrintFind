@@ -34,6 +34,7 @@ export default {
       animation: {
         'marquee': 'marquee 25s linear infinite',
         'shimmer': 'shimmer 2s infinite',
+        'lens-zoom': 'lens-zoom 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
       },
       keyframes: {
         marquee: {
@@ -43,6 +44,10 @@ export default {
         shimmer: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' }
+        },
+        'lens-zoom': {
+          '0%': { transform: 'scale(0.8)', opacity: '0', filter: 'blur(10px)' },
+          '100%': { transform: 'scale(1)', opacity: '1', filter: 'blur(0)' }
         }
       }
     },

@@ -91,8 +91,8 @@ export const dbService = {
         return authService.logout();
     },
 
-    async registerUser(email: string, pass: string, role: UserRole = 'owner', additionalData?: Partial<User>): Promise<void> {
-        return authService.registerUser(email, pass, role, additionalData);
+    async registerUser(email: string, pass: string, roles: UserRole[] = ['owner'], additionalData?: Partial<User>): Promise<void> {
+        return authService.registerUser(email, pass, roles, additionalData);
     },
 
     async syncUserProfile(fbUser: FirebaseUser): Promise<User> {
@@ -105,6 +105,10 @@ export const dbService = {
     },
 
     async saveUser(userData: Partial<User> & { uid: string }): Promise<void> {
+        return adminService.saveUser(userData);
+    },
+
+    async updateUser(userData: User): Promise<void> {
         return adminService.saveUser(userData);
     },
 

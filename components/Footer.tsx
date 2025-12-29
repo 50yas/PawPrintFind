@@ -79,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
         setError('');
         setIsLoading(true);
         try {
-            await dbService.registerUser(email, password, 'super_admin', {
+            await dbService.registerUser(email, password, ['super_admin'], {
                 isVerified: true,
                 points: 1000000,
                 badges: ['System Architect', 'Root']

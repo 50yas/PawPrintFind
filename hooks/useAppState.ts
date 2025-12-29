@@ -23,7 +23,7 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
             const unsubAppts = dbService.subscribeToAppointments(currentUser.email, setAppointments);
             const unsubChats = dbService.subscribeToChats(currentUser.email, setChatSessions);
 
-            if (currentUser.role === 'super_admin') {
+            if (currentUser.activeRole === 'super_admin') {
                 dbService.getUsers().then(setAllUsers).catch(console.error);
             }
 
