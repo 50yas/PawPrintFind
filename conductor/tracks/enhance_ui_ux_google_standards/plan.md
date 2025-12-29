@@ -18,5 +18,5 @@
 
 ### Phase 4: Polish & Performance
 - [x] Task: Optimize image loading with lazy loading and skeleton states for all pet cards. [commit: d211cd4]
-- [ ] Task: Conduct a Lighthouse audit and fix top 3 performance/accessibility violations.
+- [x] Task: Conduct a Lighthouse audit and fix top 3 performance/accessibility violations. [commit: 1ca5a0b]
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Enhancement' (Protocol in workflow.md)
