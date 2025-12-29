@@ -4,6 +4,8 @@ import { useGeolocation } from '../hooks/useGeolocation';
 import { findNearbyVets, findVetsByQuery } from '../services/geminiService';
 import { useTranslations } from '../hooks/useTranslations';
 import { LoadingSpinner } from './LoadingSpinner';
+import { GlassCard } from './ui/GlassCard';
+import { GlassButton } from './ui/GlassButton';
 
 interface FindVetProps {
   partnerVets: VetClinic[];
@@ -21,28 +23,70 @@ const VetCard: React.FC<{
 }> = ({ clinic, isPartner, gmapsUri, mode, onSendRequest }) => {
     const { t } = useTranslations();
     return (
-        <div className="bg-card p-4 rounded-lg shadow-md border border-border flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-            <div>
-                {isPartner && <p className="text-xs font-bold text-primary uppercase mb-1">{t('partnerVetsSectionTitle')}</p>}
-                <h3 className="font-bold text-card-foreground">{clinic.name}</h3>
-                <p className="text-sm text-muted-foreground">{clinic.address}</p>
+        <GlassCard variant="interactive" className="group p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-6 relative overflow-hidden border-white/10 bg-white/5">
+            {/* HUD Scanning Effect Overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-primary/40 shadow-[0_0_15px_rgba(45,212,191,0.5)] animate-[scan_3s_linear_infinite]"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#2dd4bf0a_1px,transparent_1px),linear-gradient(to_bottom,#2dd4bf0a_1px,transparent_1px)] bg-[size:1rem_1rem]"></div>
+                
+                {/* Data readout simulation */}
+                <div className="absolute bottom-2 right-4 flex gap-3">
+                    <span className="text-[8px] font-mono text-primary/60 uppercase tracking-tighter">Lat: 41.8902</span>
+                    <span className="text-[8px] font-mono text-primary/60 uppercase tracking-tighter">Lng: 12.4922</span>
+                    <span className="text-[8px] font-mono text-emerald-500/60 uppercase tracking-tighter">Verified_Link: OK</span>
+                </div>
             </div>
-            <div className="flex-shrink-0 flex items-center space-x-2">
+
+            <div className="relative z-20">
+                {isPartner && (
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{t('partnerVetsSectionTitle')}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_#2dd4bf]"></span>
+                    </div>
+                )}
+                <h3 className="font-bold text-white text-xl tracking-tight group-hover:text-primary transition-colors">{clinic.name}</h3>
+                <p className="text-sm text-slate-400 font-medium mt-1">{clinic.address}</p>
+            </div>
+
+            <div className="flex-shrink-0 flex items-center gap-3 relative z-20">
                 {mode === 'search' && clinic.phone && (
-                    <a href={`tel:${clinic.phone}`} className="w-full sm:w-auto text-center block btn !bg-green-600 hover:!bg-green-700 !text-white text-sm">
+                    <GlassButton 
+                        variant="primary" 
+                        className="w-full sm:w-auto !py-2 !px-5 text-[10px] uppercase tracking-widest"
+                        onClick={() => window.open(`tel:${clinic.phone}`)}
+                    >
                         {t('callVetButton')}
-                    </a>
+                    </GlassButton>
                 )}
                  {mode === 'linking' && onSendRequest && (
-                    <button onClick={() => onSendRequest(clinic.vetEmail)} className="w-full sm:w-auto text-center block btn btn-primary text-sm">
+                    <GlassButton 
+                        variant="primary" 
+                        className="w-full sm:w-auto !py-2 !px-5 text-[10px] uppercase tracking-widest"
+                        onClick={() => onSendRequest(clinic.vetEmail)}
+                    >
                         {t('sendRequestButton')}
-                    </button>
+                    </GlassButton>
                 )}
                 {gmapsUri && (
-                    <a href={gmapsUri} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto text-center block btn btn-secondary text-sm">View on Map</a>
+                    <GlassButton 
+                        variant="secondary" 
+                        className="w-full sm:w-auto !py-2 !px-5 text-[10px] uppercase tracking-widest"
+                        onClick={() => window.open(gmapsUri, '_blank')}
+                    >
+                        Map
+                    </GlassButton>
                 )}
             </div>
-        </div>
+
+            <style>{`
+                @keyframes scan {
+                    0% { top: 0%; opacity: 0; }
+                    10% { opacity: 1; }
+                    90% { opacity: 1; }
+                    100% { top: 100%; opacity: 0; }
+                }
+            `}</style>
+        </GlassCard>
     )
 }
 
