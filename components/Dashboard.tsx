@@ -353,7 +353,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                 
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
-                    <p className="text-slate-400 mt-1 flex items-center gap-2 text-sm font-medium">
+                    <p className="text-slate-300 mt-1 flex items-center gap-2 text-sm font-medium">
                         <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
                         <span className="font-mono text-[10px] tracking-widest uppercase">System Active</span> 
                         <span className="text-white/20">•</span>

@@ -8,6 +8,7 @@ import { DonorTicker } from './DonorTicker';
 import { RoleExplorer } from './RoleExplorer';
 import { SupportCard } from './SupportCard';
 import { dbService } from '../services/firebase';
+import { CinematicImage, GlassCard, GlassButton } from './ui';
 
 interface HomeProps {
     setView: (view: View) => void;
@@ -116,7 +117,7 @@ const HeroScanner = memo(() => {
     return (
         <div className="relative w-full max-w-xs md:max-w-sm aspect-square mx-auto lg:mx-0 z-20">
             <div className={`relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 border-[4px] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                <img src={pet.img} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
+                <CinematicImage src={pet.img} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
 
                 <div className="absolute top-4 left-4 z-20">
                     <div className={`px-2 py-1 text-[8px] md:text-[9px] font-mono-tech rounded-md bg-black/70 backdrop-blur-md border border-white/20 text-cyan-400 tracking-[0.2em] shadow-lg ${phase === 'scanning' ? 'animate-pulse' : ''}`}>
@@ -377,18 +378,24 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             <section id="support-us" className="scroll-animation container mx-auto px-6 py-20 md:py-32 relative z-10">
                 <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-stretch">
-                    <div className="glass-panel p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] flex flex-col justify-between h-full border border-white/10 bg-black/40 backdrop-blur-3xl shadow-2xl">
+                    <GlassCard className="p-8 md:p-10 flex flex-col justify-between h-full border-white/10 bg-slate-900/40 backdrop-blur-3xl shadow-2xl">
                         <div className="space-y-4 md:space-y-6">
                             <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">{t('openSourceTitle')}</h3>
-                            <p className="text-slate-300 leading-relaxed text-base md:text-lg font-medium opacity-80">{t('openSourceDesc')}</p>
+                            <p className="text-slate-300 leading-relaxed text-base md:text-lg font-medium">{t('openSourceDesc')}</p>
                         </div>
                         <div className="pt-8 md:pt-10">
-                            <a href="https://github.com/google/aistudio-apps" target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-4 px-8 py-4 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl text-white bg-slate-800 hover:bg-slate-700 transition-all border border-white/10 shadow-xl hover:-translate-y-1 w-full sm:w-auto justify-center">
+                            <a 
+                                href="https://github.com/google/aistudio-apps" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="inline-flex items-center space-x-4 px-8 py-4 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl text-white bg-slate-800 hover:bg-slate-700 transition-all border border-white/10 shadow-xl hover:-translate-y-1 w-full sm:w-auto justify-center"
+                                aria-label="Visit Paw Print GitHub Repository"
+                            >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-4.51-2-7-2"></path></svg>
                                 <span>GITHUB REPO</span>
                             </a>
                         </div>
-                    </div>
+                    </GlassCard>
                     <SupportCard />
                 </div>
             </section>
