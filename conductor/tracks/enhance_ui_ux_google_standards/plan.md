@@ -12,7 +12,7 @@
 - [x] Task: Update the main `App.tsx` layout to support high-performance background rendering (Hero Scene) without z-index fighting. [commit: 5edf2bf]
 
 ### Phase 3: Dashboard & Interactive Elements
-- [ ] Task: Refactor `Dashboard.tsx` to use `GlassCard` for widgets, ensuring responsive grid layouts.
+- [x] Task: Refactor `Dashboard.tsx` to use `GlassCard` for widgets, ensuring responsive grid layouts. [commit: 9b97c67]
 - [ ] Task: Implement "Scan" hover effects for all interactive cards (Pets, Vets, Maps).
 - [ ] Task: Audit and fix accessibility issues (ARIA labels, focus management) in `Modal.tsx` and form inputs.
 
