@@ -2,6 +2,7 @@
 import React from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { CinematicImage, GlassCard, GlassButton } from './ui';
 
 interface AdoptionCenterProps {
   petsForAdoption: PetProfile[];
@@ -13,19 +14,21 @@ interface AdoptionCenterProps {
 const AdoptionCard: React.FC<{ pet: PetProfile; onInquire: () => void; }> = ({ pet, onInquire }) => {
     const { t } = useTranslations();
     return (
-        <div className="bg-card rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
-            <img className="h-56 w-full object-cover" src={pet.photos[0]?.url} alt={pet.name} />
+        <GlassCard variant="interactive" className="flex flex-col h-full border-white/10 bg-white/5">
+            <CinematicImage className="h-64 w-full" src={pet.photos[0]?.url} alt={pet.name} />
             <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-2xl font-bold text-card-foreground">{pet.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{pet.breed}</p>
-                <p className="text-sm text-muted-foreground mt-2 flex-grow">{pet.behavior.substring(0, 100)}{pet.behavior.length > 100 ? '...' : ''}</p>
-                <div className="mt-4 flex flex-wrap items-center justify-start gap-2 text-xs text-muted-foreground">
-                    <span className="bg-muted px-2 py-1 rounded-full">{pet.age}</span>
-                    <span className="bg-muted px-2 py-1 rounded-full">{pet.weight}</span>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tight">{pet.name}</h3>
+                <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1">{pet.breed}</p>
+                <p className="text-sm text-slate-400 mt-4 flex-grow leading-relaxed">{pet.behavior.substring(0, 120)}{pet.behavior.length > 120 ? '...' : ''}</p>
+                <div className="mt-6 flex flex-wrap items-center justify-start gap-3">
+                    <span className="bg-white/5 border border-white/10 text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{pet.age}</span>
+                    <span className="bg-white/5 border border-white/10 text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">{pet.weight}</span>
                 </div>
-                 <button onClick={onInquire} className="mt-6 w-full btn btn-primary">{t('inquireToAdoptButton')}</button>
+                 <GlassButton onClick={onInquire} className="mt-8 w-full text-[10px] uppercase tracking-[0.2em] font-black" variant="primary">
+                    {t('inquireToAdoptButton')}
+                 </GlassButton>
             </div>
-        </div>
+        </GlassCard>
     )
 }
 

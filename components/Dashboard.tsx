@@ -10,6 +10,7 @@ import { Modal } from './Modal';
 import { OwnerPetDetailModal } from './OwnerPetDetailModal';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface DashboardProps {
   user: User;
@@ -132,8 +133,8 @@ const PetCard: React.FC<{
             >
                 {/* 1. Background Image with Adaptive Overlay */}
                 <div className="absolute inset-0 cursor-pointer" onClick={() => onViewDetail(pet)}>
-                    <img 
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" 
+                    <CinematicImage 
+                        className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110" 
                         src={pet.photos[0]?.url} 
                         alt={pet.name} 
                     />
