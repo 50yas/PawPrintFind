@@ -14,7 +14,7 @@
 ### Phase 3: Dashboard & Interactive Elements
 - [x] Task: Refactor `Dashboard.tsx` to use `GlassCard` for widgets, ensuring responsive grid layouts. [commit: 9b97c67]
 - [x] Task: Implement "Scan" hover effects for all interactive cards (Pets, Vets, Maps). [commit: ed97cca]
-- [ ] Task: Audit and fix accessibility issues (ARIA labels, focus management) in `Modal.tsx` and form inputs.
+- [x] Task: Audit and fix accessibility issues (ARIA labels, focus management) in `Modal.tsx` and form inputs. [commit: 4524c7a]
 
 ### Phase 4: Polish & Performance
 - [ ] Task: Optimize image loading with lazy loading and skeleton states for all pet cards.
