@@ -17,6 +17,6 @@
 - [x] Task: Audit and fix accessibility issues (ARIA labels, focus management) in `Modal.tsx` and form inputs. [commit: 4524c7a]
 
 ### Phase 4: Polish & Performance
-- [ ] Task: Optimize image loading with lazy loading and skeleton states for all pet cards.
+- [x] Task: Optimize image loading with lazy loading and skeleton states for all pet cards. [commit: d211cd4]
 - [ ] Task: Conduct a Lighthouse audit and fix top 3 performance/accessibility violations.
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Enhancement' (Protocol in workflow.md)
