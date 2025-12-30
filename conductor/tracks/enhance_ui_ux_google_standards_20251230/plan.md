@@ -2,7 +2,7 @@
 
 ## Phase 1: Foundation - Dynamic Color & Theme Setup
 - [x] Task: Create a new `theme.ts` utility that generates a dynamic color palette (Primary, Secondary, Tertiary, Surface, Error) from a single seed color ("Paw Print Teal": `#008080`). 1970a01
-- [ ] Task: Update `tailwind.config.js` to extend the theme with these new dynamic color tokens (e.g., `primary`, `on-primary`, `surface-container`).
+- [x] Task: Update `tailwind.config.js` to extend the theme with these new dynamic color tokens (e.g., `primary`, `on-primary`, `surface-container`). 0ddfa0a
 - [ ] Task: Refactor `index.css` to define CSS variables for the color tokens, ensuring dark mode compatibility.
 - [ ] Task: Conductor - User Manual Verification 'Foundation - Dynamic Color & Theme Setup' (Protocol in workflow.md)
 
