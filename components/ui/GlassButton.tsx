@@ -18,10 +18,10 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
     const baseStyles = "relative overflow-hidden backdrop-blur-md px-6 py-3 rounded-xl font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
     
     const variants = {
-        primary: "bg-teal-500/80 hover:bg-teal-400 text-white shadow-lg shadow-teal-500/20 border border-teal-400/30",
-        secondary: "bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40",
-        danger: "bg-red-500/80 hover:bg-red-400 text-white shadow-lg shadow-red-500/20 border border-red-400/30",
-        ghost: "hover:bg-white/10 text-slate-200 hover:text-white"
+        primary: "bg-primary text-on-primary shadow-lg shadow-primary/20 border border-primary/30 hover:shadow-xl hover:shadow-primary/30",
+        secondary: "bg-secondary-container text-on-secondary-container border border-secondary/20 hover:bg-secondary-container/80",
+        danger: "bg-error text-on-error shadow-lg shadow-error/20 border border-error/30 hover:shadow-xl hover:shadow-error/30",
+        ghost: "hover:bg-surface-container-highest text-on-surface hover:text-primary"
     };
 
     return (

@@ -7,9 +7,9 @@
 - [ ] Task: Conductor - User Manual Verification 'Foundation - Dynamic Color & Theme Setup' (Protocol in workflow.md)
 
 ## Phase 2: Component Refactor - Glassmorphism & Interaction
-- [ ] Task: Refactor the `GlassCard` component to use the new `surface-container-low` tokens and add a subtle border/shadow for better accessibility.
-- [ ] Task: Refactor the `GlassButton` component to implement Material 3 state layers (hover, focus, press ripples) and dynamic elevation.
-- [ ] Task: Create a reusable `Snackbar` component for system notifications (success, error, info) using the new design system.
+- [~] Task: Refactor the `GlassCard` component to use the new `surface-container-low` tokens and add a subtle border/shadow for better accessibility.
+- [~] Task: Refactor the `GlassButton` component to implement Material 3 state layers (hover, focus, press ripples) and dynamic elevation.
+- [~] Task: Create a reusable `Snackbar` component for system notifications (success, error, info) using the new design system.
 - [ ] Task: Conductor - User Manual Verification 'Component Refactor - Glassmorphism & Interaction' (Protocol in workflow.md)
 
 ## Phase 3: Core Experience - Home & Maps

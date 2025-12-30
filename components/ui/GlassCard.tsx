@@ -15,9 +15,9 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
     onClick,
     style
 }, ref) => {
-    const baseStyles = "backdrop-blur-xl bg-white/10 border border-white/20 shadow-xl rounded-2xl overflow-hidden";
+    const baseStyles = "backdrop-blur-xl bg-surface-container-low border border-outline-variant shadow-xl rounded-2xl overflow-hidden text-on-surface";
     const interactiveStyles = variant === 'interactive' 
-        ? "hover:scale-[1.02] hover:bg-white/20 transition-all duration-300 cursor-pointer hover:shadow-2xl hover:shadow-teal-500/10" 
+        ? "hover:scale-[1.02] hover:bg-surface-container transition-all duration-300 cursor-pointer hover:shadow-2xl hover:shadow-primary/10" 
         : "";
 
     return (
