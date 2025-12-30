@@ -6,11 +6,11 @@
 - [x] Task: Refactor `index.css` to define CSS variables for the color tokens, ensuring dark mode compatibility. c1df8ac
 - [ ] Task: Conductor - User Manual Verification 'Foundation - Dynamic Color & Theme Setup' (Protocol in workflow.md)
 
-## Phase 2: Component Refactor - Glassmorphism & Interaction
-- [~] Task: Refactor the `GlassCard` component to use the new `surface-container-low` tokens and add a subtle border/shadow for better accessibility.
-- [~] Task: Refactor the `GlassButton` component to implement Material 3 state layers (hover, focus, press ripples) and dynamic elevation.
-- [~] Task: Create a reusable `Snackbar` component for system notifications (success, error, info) using the new design system.
-- [ ] Task: Conductor - User Manual Verification 'Component Refactor - Glassmorphism & Interaction' (Protocol in workflow.md)
+## Phase 2: Component Refactor - Glassmorphism & Interaction [checkpoint: 9a57ced]
+- [x] Task: Refactor the `GlassCard` component to use the new `surface-container-low` tokens and add a subtle border/shadow for better accessibility. 9a57ced
+- [x] Task: Refactor the `GlassButton` component to implement Material 3 state layers (hover, focus, press ripples) and dynamic elevation. 9a57ced
+- [x] Task: Create a reusable `Snackbar` component for system notifications (success, error, info) using the new design system. 9a57ced
+- [x] Task: Conductor - User Manual Verification 'Component Refactor - Glassmorphism & Interaction' (Protocol in workflow.md) 9a57ced
 
 ## Phase 3: Core Experience - Home & Maps
 - [ ] Task: Optimize the `HeroScene` to ensure smooth 3D rendering and transitions, aligning with the new color palette.
