@@ -10,9 +10,10 @@ Paw Print is a comprehensive, AI-powered platform designed to connect pet lovers
 - **Veterinarians:** Professionals offering their services and managing patient information through the platform.
 - **Community Members:** Individuals who want to help find lost pets and support local animal welfare.
 
-## 3. Core Features
+## 3. Core Features & Design
 Based on the file structure, the application includes the following features:
-- **Pet Adoption:** A central hub (`AdoptionCenter.tsx`) for users to browse and find pets available for adoption.
+- **Glassmorphism 2.0 Interface:** A futuristic, "Holographic Data Slate" aesthetic featuring depth, motion, and translucent UI elements.
+- **Pet Adoption:** A central hub (`AdoptionCenter.tsx`) for users to browse and find pets available for adoption, with high-performance cinematic image loading.
 - **AI Health Check:** An AI-powered tool (`AIHealthCheckModal.tsx`) to provide preliminary health assessments for pets.
 - **Lost & Found Pets:**
     - A system for reporting lost pets (`ReportLostModal.tsx`).
@@ -24,6 +25,7 @@ Based on the file structure, the application includes the following features:
 - **Community & Engagement:**
     - A community forum or social space (`Community.tsx`).
     - A blog (`Blog.tsx`) for sharing articles and information.
+- **Cinematic Backgrounds:** High-performance 3D neural network and biometric scenes powered by Three.js.
 - **User & Role Management:**
     - Authentication for different user roles (`Auth.tsx`).
     - Dashboards tailored to different roles (Admin, Shelter, Vet, Volunteer).
