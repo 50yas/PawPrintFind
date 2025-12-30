@@ -10,10 +10,13 @@ This document outlines the core technologies used in the Paw Print application.
     -   **Description:** A fast build tool that provides an extremely quick development experience.
 -   **Language:** TypeScript
     -   **Description:** A strongly typed superset of JavaScript that compiles to plain JavaScript, enhancing code quality and developer experience.
--   **Styling:** Tailwind CSS
-    -   **Description:** A utility-first CSS framework for rapidly building custom designs.
+- **Styling:** Tailwind CSS v4
+    - **Description:** A utility-first CSS framework used with the @tailwindcss/postcss plugin for high-performance "Glassmorphism 2.0" styling.
+- **UI Utilities:** @material/material-color-utilities
+    - **Description:** Official Google library for generating Material Design 3 color schemes (Material You) from a source color.
 
 ## 2. Backend & Database
+
 
 -   **Platform:** Firebase
     -   **Description:** Google's mobile and web application development platform.
@@ -28,7 +31,10 @@ This document outlines the core technologies used in the Paw Print application.
 
 ## 4. Graphics & Mapping
 
--   **3D Graphics:** Three.js / React Three Fiber
-    -   **Description:** Three.js is a cross-browser JavaScript library/API used to create and display animated 3D computer graphics in a web browser. React Three Fiber is a React renderer for Three.js, making it easier to build 3D scenes with React components.
+- **3D Graphics:** Three.js / React Three Fiber
+
+    - **Description:** Core components of the "Cinematic" UI, providing interactive 3D backgrounds and biometric scanning effects.
+
+
 -   **Mapping:** Leaflet
     -   **Description:** An open-source JavaScript library for mobile-friendly interactive maps.
