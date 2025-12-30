@@ -238,6 +238,6 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
                 100% { transform: scale(2.5); opacity: 0; }
             }
         `}</style>
-    </div>
+    </GlassCard>
   );
 };
