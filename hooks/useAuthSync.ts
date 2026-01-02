@@ -20,7 +20,16 @@ export const useAuthSync = (
                     setIsLoginModalOpen(false);
 
                     if (currentView === 'home') {
-                        setCurrentView('dashboard');
+                        // Redirect based on role
+                        if (profile.activeRole === 'super_admin') {
+                            setCurrentView('adminDashboard');
+                        } else if (profile.activeRole === 'vet') {
+                            setCurrentView('vetDashboard');
+                        } else if (profile.activeRole === 'shelter') {
+                            setCurrentView('shelterDashboard');
+                        } else {
+                            setCurrentView('dashboard');
+                        }
                     }
                 } catch (e: any) {
                     console.error("Sync Error:", e.message);

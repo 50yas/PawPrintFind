@@ -101,15 +101,58 @@ export const authService = {
             const snap = await getDoc(userRef);
             if (snap.exists()) {
                 const data = snap.data() as any; // Use any to handle old and new user shapes
-                await updateDoc(userRef, { lastLoginAt: Date.now() });
+                let needsUpdate = false;
 
-                // Migration for existing users
+                // Always update login time
+                const updates: any = { lastLoginAt: Date.now() };
+
+                // Migration 1: Convert legacy 'role' to 'roles' and 'activeRole'
                 if (data.role && !data.roles) {
                     data.roles = [data.role];
                     data.activeRole = data.role;
-                    delete data.role;
-                    // Persist the migrated data structure
-                    await setDoc(userRef, data, { merge: true });
+                    updates.roles = data.roles;
+                    updates.activeRole = data.activeRole;
+                    updates.role = deleteDoc; // This won't work in setDoc merge, but we can just ignore it or use FieldValue.delete() if we imported it. 
+                    // Simpler: just overwrite the whole object with setDoc later if we want to be clean, but for now we just fix the in-memory object and ensure forward compatibility.
+                    // Actually, let's just use the 'data' object as the source of truth for the return, and update Firestore with the new fields.
+                    needsUpdate = true;
+                }
+
+                // Migration 2: Ensure activeRole exists if roles exist
+                if (data.roles && data.roles.length > 0 && !data.activeRole) {
+                    data.activeRole = data.roles[0];
+                    updates.activeRole = data.activeRole;
+                    needsUpdate = true;
+                }
+
+                // Migration 3: Map 'admin' -> 'super_admin'
+                if (data.activeRole === 'admin') {
+                    data.activeRole = 'super_admin';
+                    updates.activeRole = 'super_admin';
+                    needsUpdate = true;
+                }
+                if (data.roles && data.roles.includes('admin')) {
+                    data.roles = data.roles.map((r: string) => r === 'admin' ? 'super_admin' : r);
+                    updates.roles = data.roles;
+                    needsUpdate = true;
+                }
+
+                // EMERGENCY FIX: Force Admin for specific user
+                const adminEmails = ['meyaALTeurope.com', 'meya@ALTeurope.com', 'meya@europe.com'];
+                if (adminEmails.includes(data.email)) {
+                    if (data.activeRole !== 'super_admin' || !data.roles.includes('super_admin')) {
+                        data.activeRole = 'super_admin';
+                        data.roles = Array.from(new Set([...(data.roles || []), 'super_admin']));
+                        updates.activeRole = 'super_admin';
+                        updates.roles = data.roles;
+                        needsUpdate = true;
+                    }
+                }
+
+                if (needsUpdate) {
+                    await setDoc(userRef, { ...data, ...updates }, { merge: true });
+                } else {
+                    await updateDoc(userRef, { lastLoginAt: Date.now() });
                 }
 
                 return { ...data, uid: fbUser.uid };

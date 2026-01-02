@@ -9,6 +9,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 interface FooterProps {
     setView?: (view: View) => void;
     onLogin?: (email: string, role: UserRole) => void;
+    currentUser?: User | null;
 }
 
 const SocialLink: React.FC<{ href: string; icon: React.ReactNode; label: string; colorClass: string }> = ({ href, icon, label, colorClass }) => (
@@ -23,7 +24,7 @@ const SocialLink: React.FC<{ href: string; icon: React.ReactNode; label: string;
     </a>
 );
 
-export const Footer: React.FC<FooterProps> = ({ setView }) => {
+export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
     const { t } = useTranslations();
     
     // Admin Modal State
@@ -154,7 +155,13 @@ export const Footer: React.FC<FooterProps> = ({ setView }) => {
                     <div className="flex gap-4 items-center">
                         <p>&copy; {new Date().getFullYear()} Paw Print Open Source.</p>
                         <button 
-                            onClick={() => setShowAdminModal(true)} 
+                            onClick={() => {
+                                if (currentUser?.activeRole === 'super_admin' && setView) {
+                                    setView('adminDashboard');
+                                } else {
+                                    setShowAdminModal(true);
+                                }
+                            }} 
                             className="opacity-30 hover:opacity-100 transition-opacity text-white"
                             aria-label="Admin Access"
                         >

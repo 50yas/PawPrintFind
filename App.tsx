@@ -232,7 +232,7 @@ export default function App() {
                         {renderView()}
                     </main>
 
-                    <Footer setView={setCurrentView} />
+                    <Footer setView={setCurrentView} currentUser={currentUser} />
                 </div>
             </ErrorBoundary>
 

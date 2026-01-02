@@ -7,14 +7,14 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 37 100% 59%; /* #FFB02E - Safety Amber */
     --secondary-foreground: 0 0% 100%;
-    --background: #020617; /* Slate 950 */
-    --foreground: #F8FAFC; /* Slate 50 */
-    --card: rgba(15, 23, 42, 0.4);
-    --card-foreground: #F8FAFC;
-    --card-border: rgba(255, 255, 255, 0.08);
-    --muted: rgba(30, 41, 59, 0.3);
-    --muted-foreground: #94A3B8;
-    --border: rgba(255, 255, 255, 0.1);
+    --background: #F8FAFC; /* Slate 50 - Light Background */
+    --foreground: #020617; /* Slate 950 - Dark Text */
+    --card: rgba(255, 255, 255, 0.6);
+    --card-foreground: #020617;
+    --card-border: rgba(0, 0, 0, 0.08);
+    --muted: rgba(241, 245, 249, 0.5);
+    --muted-foreground: #64748B;
+    --border: rgba(0, 0, 0, 0.1);
     --ring: 191 100% 50%;
     --radius: 1.5rem;
     --scanline-color: rgba(0, 210, 255, 0.03);
