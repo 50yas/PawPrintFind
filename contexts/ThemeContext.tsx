@@ -1,9 +1,12 @@
 import React, { createContext, useState, useEffect, useMemo, ReactNode, useContext, useCallback } from 'react';
+import { generateTheme, ThemeColors } from '../src/utils/theme';
 
 type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
+  isDark: boolean;
+  colors: ThemeColors;
   setTheme: (theme: Theme) => void;
 }
 
@@ -17,19 +20,27 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return 'system';
   });
 
+  const [isDark, setIsDark] = useState(false);
+
+  // We use the same seed color as defined in the plan: "Paw Print Teal" (#008080)
+  const themePalette = useMemo(() => generateTheme('#008080'), []);
+
   useEffect(() => {
     const root = window.document.documentElement;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDark =
-      theme === 'dark' ||
-      (theme === 'system' && mediaQuery.matches);
+    const checkDark = () => 
+      theme === 'dark' || (theme === 'system' && mediaQuery.matches);
     
-    root.classList.toggle('dark', isDark);
+    const darkActive = checkDark();
+    setIsDark(darkActive);
+    root.classList.toggle('dark', darkActive);
 
     const handleChange = (e: MediaQueryListEvent) => {
       if (theme === 'system') {
-        root.classList.toggle('dark', e.matches);
+        const active = e.matches;
+        setIsDark(active);
+        root.classList.toggle('dark', active);
       }
     };
     
@@ -44,7 +55,11 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setThemeState(newTheme);
   }, []);
 
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
+  const colors = useMemo(() => {
+    return isDark ? themePalette.dark : themePalette.light;
+  }, [isDark, themePalette]);
+
+  const value = useMemo(() => ({ theme, isDark, colors, setTheme }), [theme, isDark, colors, setTheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

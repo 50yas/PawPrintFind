@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { PetProfile } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 
 declare var L: any;
 
@@ -19,6 +20,7 @@ const fixDefaultIcons = () => {
 };
 
 export const SightingsMap: React.FC<SightingsMapProps> = ({ pet }) => {
+  const { colors } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any | null>(null);
 
@@ -48,7 +50,7 @@ export const SightingsMap: React.FC<SightingsMapProps> = ({ pet }) => {
 
       // Home locations
       pet.homeLocations.forEach(loc => {
-        L.circle([loc.latitude, loc.longitude], { radius: 2500, color: '#2dd4bf', fillOpacity: 0.1, weight: 1 }).addTo(mapInstance.current);
+        L.circle([loc.latitude, loc.longitude], { radius: 2500, color: colors.primary, fillOpacity: 0.1, weight: 1 }).addTo(mapInstance.current);
         markers.push(L.marker([loc.latitude, loc.longitude]));
       });
 
@@ -75,7 +77,7 @@ export const SightingsMap: React.FC<SightingsMapProps> = ({ pet }) => {
             [pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude],
             ...sortedSightings.map(s => [s.location.latitude, s.location.longitude])
         ];
-        L.polyline(latlngs, {color: 'red', dashArray: '5, 5'}).addTo(mapInstance.current);
+        L.polyline(latlngs, {color: colors.error, dashArray: '5, 5'}).addTo(mapInstance.current);
       }
 
       if (markers.length > 0) {
@@ -83,7 +85,7 @@ export const SightingsMap: React.FC<SightingsMapProps> = ({ pet }) => {
         mapInstance.current.fitBounds(group.getBounds().pad(0.25));
       }
     }
-  }, [pet]);
+  }, [pet, colors]);
 
   return <div ref={mapRef} style={{ height: '300px', width: '100%', borderRadius: 'var(--radius)', zIndex: 0 }} />;
 };

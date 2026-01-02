@@ -4,8 +4,9 @@ import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Icosahedron, MeshDistortMaterial, Points, PointMaterial, Line } from '@react-three/drei';
 import * as THREE from 'three';
+import { useTheme } from '../contexts/ThemeContext';
 
-const AICore = () => {
+const AICore = ({ primary, secondary }: { primary: string; secondary: string }) => {
   const meshRef = useRef<THREE.Group>(null);
   const particleRef = useRef<THREE.Points>(null);
   const [glitchFactor, setGlitchFactor] = useState(1);
@@ -53,7 +54,7 @@ const AICore = () => {
       {/* Geodesic Wireframe Shell */}
       <Icosahedron args={[1.5, 2]}>
         <meshBasicMaterial 
-          color="#00D2FF" 
+          color={primary} 
           wireframe 
           transparent 
           opacity={0.3 * glitchFactor} 
@@ -65,7 +66,7 @@ const AICore = () => {
       <Points ref={particleRef} positions={positions} stride={3}>
         <PointMaterial
           transparent
-          color="#FFB02E"
+          color={secondary}
           size={0.04}
           sizeAttenuation={true}
           depthWrite={false}
@@ -76,8 +77,8 @@ const AICore = () => {
       {/* Core Glow */}
       <Icosahedron args={[0.5, 1]}>
         <MeshDistortMaterial
-          color="#00D2FF"
-          emissive="#00D2FF"
+          color={primary}
+          emissive={primary}
           emissiveIntensity={2}
           distort={0.4}
           speed={4}
@@ -89,7 +90,7 @@ const AICore = () => {
   );
 };
 
-const NeuralNetwork = () => {
+const NeuralNetwork = ({ primary, secondary }: { primary: string; secondary: string }) => {
   const count = 100;
   const { mouse, viewport } = useThree();
   const [nodes] = useState(() => {
@@ -127,7 +128,7 @@ const NeuralNetwork = () => {
       // Mouse proximity color logic (Safety Amber activation)
       const dist = position.distanceTo(new THREE.Vector3(mouseX, mouseY, 0));
       const intensity = Math.max(0, 1 - dist / 5);
-      tempColor.set(intensity > 0.4 ? '#FFB02E' : '#00D2FF');
+      tempColor.set(intensity > 0.4 ? secondary : primary);
       meshRef.current?.setColorAt(i, tempColor);
     });
     
@@ -143,29 +144,31 @@ const NeuralNetwork = () => {
 };
 
 export const HeroScene: React.FC = () => {
+  const { colors } = useTheme();
+
   return (
-    <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden bg-[#0B1120]">
+    <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden" style={{ backgroundColor: colors.background }}>
       <Canvas
         camera={{ position: [0, 0, 10], fov: 40 }}
         dpr={[1, 1.5]}
         gl={{ alpha: true, antialias: true }}
       >
-        <fog attach="fog" args={['#0B1120', 10, 30]} />
+        <fog attach="fog" args={[colors.background, 10, 30]} />
         <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} color="#00D2FF" intensity={2} />
+        <pointLight position={[10, 10, 10]} color={colors.primary} intensity={2} />
         
         <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
         
-        <NeuralNetwork />
+        <NeuralNetwork primary={colors.primary} secondary={colors.secondary} />
         
         <group position={[3.5, 0, 0]} scale={1.2}>
-          <AICore />
+          <AICore primary={colors.primary} secondary={colors.secondary} />
         </group>
 
         {/* Global HUD Scanning Line Simulation */}
         <Line 
             points={[[-20, 0, 0], [20, 0, 0]]} 
-            color="#00D2FF" 
+            color={colors.primary} 
             lineWidth={0.5} 
             transparent 
             opacity={0.02} 
