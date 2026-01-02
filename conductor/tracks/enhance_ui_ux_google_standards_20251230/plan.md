@@ -1,6 +1,6 @@
 # Plan: Google-Level UI/UX Enhancement (Material You)
 
-## Phase 1: Foundation - Dynamic Color & Theme Setup
+## Phase 1: Foundation - Dynamic Color & Theme Setup [checkpoint: af61382]
 - [x] Task: Create a new `theme.ts` utility that generates a dynamic color palette (Primary, Secondary, Tertiary, Surface, Error) from a single seed color ("Paw Print Teal": `#008080`). 1970a01
 - [x] Task: Update `tailwind.config.js` to extend the theme with these new dynamic color tokens (e.g., `primary`, `on-primary`, `surface-container`). 0ddfa0a
 - [x] Task: Refactor `index.css` to define CSS variables for the color tokens, ensuring dark mode compatibility. c1df8ac
