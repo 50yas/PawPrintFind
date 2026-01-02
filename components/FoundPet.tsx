@@ -7,11 +7,15 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { playAudio } from '../services/audioService';
 import { useTranslations } from '../hooks/useTranslations';
 import { MissingPetsMap } from './MissingPetsMap';
+import { GlassCard } from './ui/GlassCard';
+import { MapSidebarSkeleton, Skeleton } from './ui/SkeletonLoader';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface FoundPetProps {
   lostPets: PetProfile[];
   partnerVets: VetClinic[];
   onContactOwner: (pet: PetProfile) => void;
+  isLoading?: boolean;
 }
 
 // Calculate distance between two coordinates in km using Haversine formula
@@ -244,19 +248,51 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                   <h2 className="text-2xl font-bold text-foreground">{t('missingPetsMapTitle')}</h2>
                   <p className="text-muted-foreground">{t('missingPetsMapDesc')}</p>
               </div>
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 h-[600px]">
-                  <MissingPetsMap lostPets={lostPets} />
-                  
-                  {/* Floating Action Button for Scan */}
-                  <div className="absolute bottom-6 right-6 z-[1000]">
-                      <button 
-                        onClick={() => setMode('scan')}
-                        className="btn btn-primary !rounded-full !px-6 !py-4 shadow-xl flex items-center gap-2 hover:scale-105 transition-transform"
-                      >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                          {t('foundPetButton')}
-                      </button>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+                  <div className="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
+                      <MissingPetsMap lostPets={lostPets} />
+                      
+                      {/* Floating Action Button for Scan */}
+                      <div className="absolute bottom-6 right-6 z-[1000]">
+                          <button 
+                            onClick={() => setMode('scan')}
+                            className="btn btn-primary !rounded-full !px-6 !py-4 shadow-xl flex items-center gap-2 hover:scale-105 transition-transform"
+                          >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                              {t('foundPetButton')}
+                          </button>
+                      </div>
                   </div>
+
+                  <GlassCard className="lg:col-span-1 flex flex-col border-white/10 bg-white/5 overflow-hidden">
+                      <div className="p-4 border-b border-white/10 bg-white/5">
+                          <h3 className="text-sm font-black uppercase tracking-widest text-white">Active Alerts</h3>
+                      </div>
+                      <div className="flex-grow overflow-y-auto custom-scrollbar">
+                          {isLoading ? (
+                              <MapSidebarSkeleton />
+                          ) : lostPets.length > 0 ? (
+                              <div className="p-2 space-y-2">
+                                  {lostPets.map(pet => (
+                                      <div key={pet.id} className="flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 group">
+                                          <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                                              <img src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                          </div>
+                                          <div className="flex flex-col justify-center min-w-0">
+                                              <h4 className="text-xs font-black text-white uppercase truncate">{pet.name}</h4>
+                                              <p className="text-[10px] text-primary font-mono uppercase truncate">{pet.breed}</p>
+                                              <p className="text-[9px] text-red-400 font-bold uppercase mt-1 animate-pulse">Missing</p>
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                          ) : (
+                              <div className="p-8 text-center">
+                                  <p className="text-xs text-muted-foreground uppercase font-mono tracking-widest">No active alerts in this area</p>
+                              </div>
+                          )}
+                      </div>
+                  </GlassCard>
               </div>
           </div>
       )}

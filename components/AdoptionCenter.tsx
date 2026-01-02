@@ -3,12 +3,14 @@ import React from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
+import { CardSkeleton } from './ui/SkeletonLoader';
 
 interface AdoptionCenterProps {
   petsForAdoption: PetProfile[];
   onInquire: (pet: PetProfile) => void;
   goBack: () => void;
   currentUser: User | null;
+  isLoading?: boolean;
 }
 
 const AdoptionCard: React.FC<{ pet: PetProfile; onInquire: () => void; }> = ({ pet, onInquire }) => {
@@ -52,7 +54,11 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">{t('adoptionCenterDescPublic')}</p>
       </div>
       
-      {petsForAdoption.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => <CardSkeleton key={i} />)}
+        </div>
+      ) : petsForAdoption.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {petsForAdoption.map(pet => (
                 <AdoptionCard key={pet.id} pet={pet} onInquire={() => handleInquire(pet)} />

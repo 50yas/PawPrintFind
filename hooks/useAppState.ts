@@ -10,11 +10,35 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
     const [allUsers, setAllUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const unsubPets = dbService.subscribeToPets(setAllPets);
-        const unsubDonations = dbService.subscribeToDonations(setDonations);
-        const unsubClinics = dbService.subscribeToClinics(setVetClinics);
+        let petsLoaded = false;
+        let donationsLoaded = false;
+        let clinicsLoaded = false;
+
+        const checkLoaded = () => {
+            if (petsLoaded && donationsLoaded && clinicsLoaded) {
+                setIsLoading(false);
+            }
+        };
+
+        const unsubPets = dbService.subscribeToPets((data) => {
+            setAllPets(data);
+            petsLoaded = true;
+            checkLoaded();
+        });
+        const unsubDonations = dbService.subscribeToDonations((data) => {
+            setDonations(data);
+            donationsLoaded = true;
+            checkLoaded();
+        });
+        const unsubClinics = dbService.subscribeToClinics((data) => {
+            setVetClinics(data);
+            clinicsLoaded = true;
+            checkLoaded();
+        });
+
         return () => { unsubPets(); unsubDonations(); unsubClinics(); };
     }, []);
 
@@ -35,10 +59,12 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
     }, [currentUser]);
 
     const handleRefreshAdminData = useCallback(async () => {
+        setIsLoading(true);
         const u = await dbService.getUsers();
         const p = await dbService.getPets();
         setAllUsers(u);
         setAllPets(p);
+        setIsLoading(false);
     }, []);
 
     return {
@@ -48,6 +74,7 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
         appointments,
         chatSessions,
         allUsers,
+        isLoading,
         handleRefreshAdminData,
         setAllPets,
         setAllUsers

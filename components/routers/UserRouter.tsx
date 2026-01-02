@@ -28,16 +28,17 @@ interface UserRouterProps {
     handleLogout: () => void;
     setIsLoginModalOpen: (open: boolean) => void;
     setHealthCheckingPet: (p: PetProfile | null) => void;
+    isLoading?: boolean;
 }
 
 export const UserRouter: React.FC<UserRouterProps> = ({
-    currentView, setView, currentUser, allPets, vetClinics, appointments, chatSessions, lostPets, allUsers, editingPet, setEditingPet, petToLink, setPetToLink, handleRegisterPet, handleStartChat, handleLogout, setIsLoginModalOpen, setHealthCheckingPet
+    currentView, setView, currentUser, allPets, vetClinics, appointments, chatSessions, lostPets, allUsers, editingPet, setEditingPet, petToLink, setPetToLink, handleRegisterPet, handleStartChat, handleLogout, setIsLoginModalOpen, setHealthCheckingPet, isLoading
 }) => {
     switch (currentView) {
         case 'register':
             return <RegisterPet onRegister={handleRegisterPet} goToDashboard={() => setView('dashboard')} currentUser={currentUser} existingPet={editingPet} mode="owned" />;
         case 'find':
-            return <FoundPet lostPets={lostPets} partnerVets={vetClinics} onContactOwner={handleStartChat} />;
+            return <FoundPet lostPets={lostPets} partnerVets={vetClinics} onContactOwner={handleStartChat} isLoading={isLoading} />;
         case 'findVet':
             return <FindVet partnerVets={vetClinics} goBack={() => setView('dashboard')} mode="search" />;
         case 'linkVet':

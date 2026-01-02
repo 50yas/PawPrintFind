@@ -51,7 +51,7 @@ export default function App() {
 
     const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
     const {
-        allPets, vetClinics, donations, appointments, chatSessions, allUsers,
+        allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
         handleRefreshAdminData, setAllPets
     } = useAppState(currentUser, currentView);
 
@@ -133,6 +133,7 @@ export default function App() {
                     setSelectedPost={setSelectedPost}
                     handleStartChat={handleStartChat}
                     setIsLoginModalOpen={setIsLoginModalOpen}
+                    isLoading={isLoading}
                 />
             );
         }
@@ -202,6 +203,7 @@ export default function App() {
                 handleLogout={handleLogout}
                 setIsLoginModalOpen={setIsLoginModalOpen}
                 setHealthCheckingPet={setHealthCheckingPet}
+                isLoading={isLoading}
             />
         );
     };
