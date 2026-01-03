@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PetProfile, Geolocation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { SearchAreaMap } from './SearchAreaMap';
 import { Modal } from './Modal';
 
@@ -12,13 +13,14 @@ interface ReportLostModalProps {
 
 export const ReportLostModal: React.FC<ReportLostModalProps> = ({ pet, onConfirm, onClose }) => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [area, setArea] = useState<{ center: Geolocation, radius: number } | null>(null);
 
     const handleConfirm = () => {
         if (area) {
             onConfirm(area.center, area.radius);
         } else {
-            alert(t('noLocationSelected'));
+            addSnackbar(t('noLocationSelected'), 'error');
         }
     }
 

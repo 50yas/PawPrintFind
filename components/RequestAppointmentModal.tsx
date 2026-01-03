@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { PetProfile, Appointment } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
 
 interface RequestAppointmentModalProps {
@@ -12,6 +13,7 @@ interface RequestAppointmentModalProps {
 
 export const RequestAppointmentModal: React.FC<RequestAppointmentModalProps> = ({ pet, onClose, onSubmit }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [notes, setNotes] = useState('');
@@ -19,7 +21,7 @@ export const RequestAppointmentModal: React.FC<RequestAppointmentModalProps> = (
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pet.vetEmail) {
-        alert(t('petNotLinked'));
+        addSnackbar(t('petNotLinked'), 'error');
         return;
     }
     onSubmit({

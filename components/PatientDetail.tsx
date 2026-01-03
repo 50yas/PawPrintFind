@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { PetProfile } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { draftVetMessageToOwner } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -23,6 +24,7 @@ const TimelineItem: React.FC<{ date: string; title: string; description?: string
 
 export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [showContactModal, setShowContactModal] = useState(false);
   const [messageTopic, setMessageTopic] = useState('');
   const [generatedMessage, setGeneratedMessage] = useState('');
@@ -38,12 +40,12 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
       setGeneratedMessage(draft);
     } catch (err) {
       console.error(err);
-      alert(t('genericError'));
+      addSnackbar(t('genericError'), 'error');
     }
     setIsDrafting(false);
   };
   const sendMessage = () => {
-    alert(t('messageSentToOwnerAlert', { ownerEmail: patient.ownerEmail }));
+    addSnackbar(t('messageSentToOwnerAlert', { ownerEmail: patient.ownerEmail }), 'success');
     setShowContactModal(false);
     setGeneratedMessage('');
     setMessageTopic('');

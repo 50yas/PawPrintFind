@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { PetProfile, Appointment } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { queryVetPatientData } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -14,6 +15,7 @@ interface SmartCalendarProps {
 
 export const SmartCalendar: React.FC<SmartCalendarProps> = ({ vetPatients, appointments, onAddAppointment, onStatusChange }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [selectedPetId, setSelectedPetId] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -51,7 +53,7 @@ export const SmartCalendar: React.FC<SmartCalendarProps> = ({ vetPatients, appoi
         setAiResponse(response);
     } catch(err) {
         console.error(err);
-        alert(t('genericError'));
+        addSnackbar(t('genericError'), 'error');
     }
     setIsQuerying(false);
   }

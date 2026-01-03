@@ -13,6 +13,12 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
+  }),
+}));
+
 vi.mock('../hooks/useGeolocation', () => ({
   useGeolocation: () => ({
     location: { latitude: 0, longitude: 0 },

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { VetClinic, Geolocation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { findClinicOnGoogleMaps } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -13,6 +14,7 @@ interface MyClinicProps {
 
 export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingClinic }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
@@ -42,11 +44,11 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
         if (results && results.length > 0) {
             setSearchResult(results[0]);
         } else {
-            alert(t('noGoogleMapsVets'));
+            addSnackbar(t('noGoogleMapsVets'), 'info');
         }
     } catch(err) {
         console.error("Maps search failed", err);
-        alert(t('genericError'));
+        addSnackbar(t('genericError'), 'error');
     }
     setIsSearching(false);
   };

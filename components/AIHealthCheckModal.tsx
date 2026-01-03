@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { PetProfile, HealthCheck } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
 import { performAIHealthCheck } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -15,6 +16,7 @@ interface AIHealthCheckModalProps {
 
 export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onClose, onComplete, onBookAppointment }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [symptoms, setSymptoms] = useState('');
   const [analysis, setAnalysis] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +37,7 @@ export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onC
       onComplete(pet.id, newHealthCheck);
     } catch (error) {
       console.error("Health check failed:", error);
-      alert(t('genericError'));
+      addSnackbar(t('genericError'), 'error');
     }
     setIsLoading(false);
   };

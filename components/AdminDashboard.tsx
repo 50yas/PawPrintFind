@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { User, PetProfile, VetClinic, LogEntry, Donation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { calculateTotalFromList } from '../services/donationService';
 import { logger } from '../services/loggerService';
 import { dbService } from '../services/firebase';
@@ -20,6 +21,7 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, allPets, donations, onDeleteUser, onLogout, onRefresh, onVerifyVet }) => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'verification' | 'logs'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -54,8 +56,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, allPets, 
                 details: `Verified user ${user.email}`
             });
 
+            addSnackbar(t('userVerifiedSuccess'), 'success');
             await onRefresh();
-        } catch (e: any) { alert(e.message); }
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     }
 

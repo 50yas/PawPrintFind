@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PetProfile, Geolocation, Sighting, PhotoWithMarks } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
 
 declare var L: any;
@@ -14,6 +15,7 @@ interface ReportSightingModalProps {
 
 export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, onClose, onConfirm }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const mapRef = useRef<HTMLDivElement>(null);
   const [selectedLocation, setSelectedLocation] = useState<Geolocation | null>(null);
   const [notes, setNotes] = useState('');
@@ -47,7 +49,7 @@ export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, o
         notes,
       });
     } else {
-      alert(t('noLocationSelected'));
+      addSnackbar(t('noLocationSelected'), 'error');
     }
   };
 

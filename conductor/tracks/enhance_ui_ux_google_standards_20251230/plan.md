@@ -19,7 +19,7 @@
 - [x] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md) f0531e2
 
 ## Phase 4: Polish & Performance
-- [~] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width).
-- [ ] Task: Replace standard browser alerts with the new `Snackbar` component throughout the application.
+- [x] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width). 09b9733
+- [~] Task: Replace standard browser alerts with the new `Snackbar` component throughout the application.
 - [ ] Task: Optimize image loading strategy (implement lazy loading and proper sizing) to improve LCP.
 - [ ] Task: Conductor - User Manual Verification 'Polish & Performance' (Protocol in workflow.md)

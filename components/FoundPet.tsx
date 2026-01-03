@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { PetProfile, MatchResult, VetClinic, Geolocation } from '../types';
 import { analyzeImageForDescription, comparePets, findNearbyVets, textToSpeech } from '../services/geminiService';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { LoadingSpinner } from './LoadingSpinner';
 import { playAudio } from '../services/audioService';
 import { useTranslations } from '../hooks/useTranslations';
@@ -105,6 +106,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
 
 export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onContactOwner, isLoading }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [mode, setMode] = useState<'map' | 'scan'>('map');
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -147,7 +149,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
     } catch (error) {
         console.error("TTS Error:", error);
         setStatus(t('statusAudioError'));
-        alert(t('audioPlaybackError'));
+        addSnackbar(t('audioPlaybackError'), 'error');
     }
   };
 
@@ -184,9 +186,9 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
   }, [lostPets, filterBreed, filterColor, filterSize, filterRadius, location]);
 
   const handleSearch = async () => {
-    if (!photo) { alert(t('uploadPhotoWarning')); return; }
-    if (!location) { alert(t('enableLocationWarning')); return; }
-    if (filteredLostPets.length === 0) { alert(t('noPetsLostWarning')); return; }
+    if (!photo) { addSnackbar(t('uploadPhotoWarning'), 'info'); return; }
+    if (!location) { addSnackbar(t('enableLocationWarning'), 'info'); return; }
+    if (filteredLostPets.length === 0) { addSnackbar(t('noPetsLostWarning'), 'info'); return; }
 
     setIsSearching(true);
     setResults([]);
@@ -215,7 +217,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
     } catch (error) {
       console.error('Search failed:', error);
       setStatus(t('statusSearchError'));
-      alert(t('genericError'));
+      addSnackbar(t('genericError'), 'error');
     } finally {
       setIsSearching(false);
     }

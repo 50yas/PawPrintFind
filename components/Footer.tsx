@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { View, UserRole, User } from '../types';
 import { Modal } from './Modal';
 import { dbService } from '../services/firebase';
@@ -26,6 +27,7 @@ const SocialLink: React.FC<{ href: string; icon: React.ReactNode; label: string;
 
 export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     
     // Admin Modal State
     const [showAdminModal, setShowAdminModal] = useState(false);
@@ -87,7 +89,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
             });
             await dbService.initializeSystem();
             setShowAdminModal(false);
-            alert("Super Admin initialized successfully. Please log in.");
+            addSnackbar("Super Admin initialized successfully. Please log in.", 'success');
         } catch (err: any) {
             setError("Initialization failed: " + err.message);
         }

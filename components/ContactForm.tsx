@@ -1,11 +1,13 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 
 export const ContactForm: React.FC = () => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
@@ -27,7 +29,7 @@ export const ContactForm: React.FC = () => {
                 setSubmitted(true);
             } catch (error) {
                 console.error("Error submitting contact form:", error);
-                alert("Failed to send message. Please try again.");
+                addSnackbar(t('genericError'), 'error');
             } finally {
                 setLoading(false);
             }

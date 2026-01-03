@@ -2,6 +2,7 @@
 import React from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { CardSkeleton } from './ui/SkeletonLoader';
 
@@ -36,10 +37,11 @@ const AdoptionCard: React.FC<{ pet: PetProfile; onInquire: () => void; }> = ({ p
 
 export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   
   const handleInquire = (pet: PetProfile) => {
     if (!currentUser) {
-        alert(t('loginToAdoptWarning'));
+        addSnackbar(t('loginToAdoptWarning'), 'error');
         // Optionally, trigger a login flow here
         return;
     }

@@ -26,6 +26,13 @@ vi.mock('../hooks/useTranslations', () => ({
     })
 }));
 
+const mockAddSnackbar = vi.fn();
+vi.mock('../contexts/SnackbarContext', () => ({
+    useSnackbar: () => ({
+        addSnackbar: mockAddSnackbar
+    })
+}));
+
 // Mock services
 vi.mock('../services/firebase', () => ({
     dbService: {
@@ -96,9 +103,6 @@ describe('Footer Component', () => {
         (dbService.registerUser as any).mockResolvedValue({});
         (dbService.initializeSystem as any).mockResolvedValue({});
         
-        // Mock window.alert
-        const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-        
         render(<Footer />);
         fireEvent.click(screen.getByLabelText('Admin Access'));
         fireEvent.click(screen.getByText('Initialize / Reset System Control'));
@@ -121,9 +125,7 @@ describe('Footer Component', () => {
         
         expect(dbService.registerUser).toHaveBeenCalledWith('root@test.com', 'rootpassword', ['super_admin'], expect.any(Object));
         expect(dbService.initializeSystem).toHaveBeenCalled();
-        expect(alertMock).toHaveBeenCalled();
+        expect(mockAddSnackbar).toHaveBeenCalledWith("Super Admin initialized successfully. Please log in.", 'success');
         expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
-        
-        alertMock.mockRestore();
     });
 });

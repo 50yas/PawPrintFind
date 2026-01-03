@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VetClinic } from '../types';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { findNearbyVets, findVetsByQuery } from '../services/geminiService';
 import { useTranslations } from '../hooks/useTranslations';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -93,6 +94,7 @@ const VetCard: React.FC<{
 
 export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onSendRequest }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const { location, error: geoError, loading: geoLoading, getLocation } = useGeolocation();
   const [googleVets, setGoogleVets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +111,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
         setGoogleVets(results.places);
     } catch (err) {
         console.error("Failed to fetch vets from Google Maps", err);
-        alert(t('genericError'));
+        addSnackbar(t('genericError'), 'error');
     }
     setIsLoading(false);
   };
@@ -122,7 +124,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
         try {
             const results = await findNearbyVets(location);
             setGoogleVets(results.places);
-        } catch (err) { console.error(err); alert(t('genericError')); }
+        } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error'); }
     } else {
         getLocation();
     }
@@ -136,7 +138,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
             try {
                 const results = await findNearbyVets(location);
                 setGoogleVets(results.places);
-            } catch (err) { console.error(err); alert(t('genericError'));}
+            } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error');}
             setIsLoading(false);
         }
     };

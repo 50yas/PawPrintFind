@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { dbService } from '../services/firebase';
 import { User } from '../types';
+import { useTranslations } from '../hooks/useTranslations';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface VetVerificationProps {
@@ -10,6 +12,8 @@ interface VetVerificationProps {
 }
 
 export const VetVerification: React.FC<VetVerificationProps> = ({ user, onVerificationSubmitted }) => {
+    const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [file, setFile] = useState<File | null>(null);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -34,7 +38,7 @@ export const VetVerification: React.FC<VetVerificationProps> = ({ user, onVerifi
             onVerificationSubmitted();
         } catch (error) {
             console.error("Verification upload failed:", error);
-            alert("Upload failed. Please try again.");
+            addSnackbar(t('genericError'), 'error');
         } finally {
             setIsUploading(false);
         }

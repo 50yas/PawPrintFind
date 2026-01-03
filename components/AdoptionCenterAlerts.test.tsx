@@ -1,6 +1,6 @@
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 import { AdoptionCenter } from './AdoptionCenter';
@@ -13,9 +13,10 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+const mockAddSnackbar = vi.fn();
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({
-    addSnackbar: vi.fn(),
+    addSnackbar: mockAddSnackbar,
   }),
 }));
 
@@ -50,24 +51,13 @@ const mockPets: PetProfile[] = [
   }
 ];
 
-describe('AdoptionCenter Skeleton Loading', () => {
-  it('should render skeletons when isLoading is true', () => {
-    render(
-      <AdoptionCenter 
-        petsForAdoption={[]} 
-        onInquire={vi.fn()} 
-        goBack={vi.fn()} 
-        currentUser={null} 
-        isLoading={true} 
-      />
-    );
-    
-    // Expect 6 skeletons as per the code
-    const skeletons = screen.getAllByTestId('card-skeleton');
-    expect(skeletons).toHaveLength(6);
+describe('AdoptionCenter Alerts Replacement', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.alert = vi.fn();
   });
 
-  it('should render pets when isLoading is false', () => {
+  it('should call addSnackbar instead of alert when user is not logged in', () => {
     render(
       <AdoptionCenter 
         petsForAdoption={mockPets} 
@@ -78,7 +68,13 @@ describe('AdoptionCenter Skeleton Loading', () => {
       />
     );
     
-    expect(screen.queryByTestId('card-skeleton')).toBeNull();
-    expect(screen.getByText('Buddy')).toBeInTheDocument();
+    const inquireButton = screen.getByText('inquireToAdoptButton');
+    fireEvent.click(inquireButton);
+
+    // Expect alert NOT to be called
+    expect(window.alert).not.toHaveBeenCalled();
+    
+    // Expect addSnackbar TO be called
+    expect(mockAddSnackbar).toHaveBeenCalledWith('loginToAdoptWarning', 'error');
   });
 });
