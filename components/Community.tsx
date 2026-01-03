@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { SharePetModal } from './SharePetModal';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface CommunityProps {
     currentUser: User;
@@ -21,7 +22,9 @@ const PetCard: React.FC<{ pet: PetProfile, onShare: (pet: PetProfile) => void, i
     return (
         <div className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg">
             <div className="md:flex">
-                <div className="md:flex-shrink-0"><img className="h-48 w-full object-cover md:w-48" src={pet.photos[0]?.url} alt={pet.name} /></div>
+                <div className="md:flex-shrink-0 w-full md:w-48 h-48">
+                    <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
+                </div>
                 <div className="p-6 flex flex-col justify-between flex-grow">
                     <div>
                         <div className="flex justify-between items-start">

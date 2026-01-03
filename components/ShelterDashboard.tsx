@@ -2,6 +2,7 @@
 import React from 'react';
 import { PetProfile, ChatSession } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface ShelterDashboardProps {
   shelterPets: PetProfile[];
@@ -17,8 +18,8 @@ const PetCard: React.FC<{ pet: PetProfile; onEdit: (pet: PetProfile) => void; on
     return (
         <div className="bg-card rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-border group">
             <div className="flex flex-col sm:flex-row">
-                <div className="sm:w-48 h-48 sm:h-auto relative overflow-hidden">
-                    <img className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={pet.photos[0]?.url} alt={pet.name} />
+                <div className="sm:w-48 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
+                    <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
                         Available
                     </div>
@@ -104,8 +105,8 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                       <div className="divide-y divide-border">
                           {chatSessions.map(chat => (
                               <div key={chat.id} onClick={() => onOpenChat(chat.id)} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors flex items-start gap-3 group">
-                                  <div className="relative">
-                                    <img src={chat.petPhotoUrl} alt={chat.petName} className="w-12 h-12 rounded-lg object-cover bg-gray-200"/>
+                                  <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                    <CinematicImage src={chat.petPhotoUrl} alt={chat.petName} className="w-full h-full object-cover bg-gray-200" />
                                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 border-2 border-white rounded-full"></div>
                                   </div>
                                   <div className="flex-grow min-w-0">
@@ -131,3 +132,4 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
     </div>
   );
 };
+

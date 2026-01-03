@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { PetProfile } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { AddPatientModal } from './AddPatientModal';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface MyPatientsProps {
   vetPatients: PetProfile[];
@@ -46,7 +47,9 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {pendingRequests.map(pet => (
                 <div key={pet.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm flex items-center gap-4 border border-border">
-                  <img src={pet.photos[0]?.url} alt={pet.name} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"/>
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                    <CinematicImage src={pet.photos[0]?.url} alt={pet.name} />
+                  </div>
                   <div className="flex-grow min-w-0">
                       <p className="font-bold text-foreground truncate">{pet.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{pet.ownerEmail}</p>
@@ -93,7 +96,7 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                 <div key={pet.id} onClick={() => onViewPatient(pet)} className="glass-panel rounded-2xl p-0 overflow-hidden cursor-pointer group hover:border-primary/50 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 fade-in-down" style={{animationDelay: `${index * 50}ms`}}>
                     <div className="relative h-40 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
-                        <img src={pet.photos[0]?.url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80'} alt={pet.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
+                        <CinematicImage src={pet.photos[0]?.url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80'} alt={pet.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
                         <div className="absolute bottom-3 left-4 z-20">
                              <h3 className="text-xl font-bold text-white">{pet.name}</h3>
                              <p className="text-xs text-white/80">{pet.breed}, {pet.age}</p>

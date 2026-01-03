@@ -375,7 +375,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </div>
                         <div className="hidden md:block">
                             <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-2xl">
-                                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80" alt="Veterinarian" className="w-full h-full object-cover grayscale-[0.2] brightness-90 hover:grayscale-0 transition-all duration-1000" />
+                                <CinematicImage src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80" alt="Veterinarian" className="w-full h-full object-cover grayscale-[0.2] brightness-90 hover:grayscale-0 transition-all duration-1000" />
                             </div>
                         </div>
                     </div>

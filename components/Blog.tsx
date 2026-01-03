@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { BlogPost, View } from '../types';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface BlogProps {
     setView: (view: View) => void;
@@ -77,7 +78,9 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                             onClick={() => onSelectPost(featuredPost)}
                             className="group relative rounded-3xl overflow-hidden cursor-pointer shadow-2xl min-h-[400px] flex items-end border border-white/10"
                         >
-                            <img src={featuredPost.imageUrl || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1400&q=80'} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="" />
+                            <div className="absolute inset-0 w-full h-full">
+                                <CinematicImage priority src={featuredPost.imageUrl || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1400&q=80'} alt="" className="w-full h-full" />
+                            </div>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                             <div className="relative z-10 p-8 md:p-12 w-full md:w-2/3">
                                 <div className="flex gap-2 mb-4">
@@ -105,7 +108,7 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                                 className="bg-card rounded-3xl border border-white/10 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group flex flex-col h-full"
                             >
                                 <div className="h-56 relative overflow-hidden">
-                                    <img src={post.imageUrl || `https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
+                                    <CinematicImage src={post.imageUrl || `https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80`} alt="" className="w-full h-full" />
                                     <div className="absolute top-4 left-4">
                                         <span className="bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold">{post.tags[0] || 'Article'}</span>
                                     </div>

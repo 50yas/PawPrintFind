@@ -5,9 +5,10 @@ interface CinematicImageProps {
     src: string;
     alt: string;
     className?: string;
+    priority?: boolean;
 }
 
-export const CinematicImage: React.FC<CinematicImageProps> = ({ src, alt, className = "" }) => {
+export const CinematicImage: React.FC<CinematicImageProps> = ({ src, alt, className = "", priority = false }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
@@ -27,7 +28,8 @@ export const CinematicImage: React.FC<CinematicImageProps> = ({ src, alt, classN
                 alt={alt} 
                 className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-110 blur-xl'}`}
                 onLoad={() => setIsLoaded(true)}
-                loading="lazy"
+                loading={priority ? "eager" : "lazy"}
+                decoding={priority ? "sync" : "async"}
             />
 
             <style>{`

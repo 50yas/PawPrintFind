@@ -42,11 +42,11 @@ const QRCodeModal: React.FC<{ pet: PetProfile; onClose: () => void }> = ({ pet, 
                 <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 text-center mb-4 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-primary"></div>
                     <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-2 overflow-hidden border-2 border-primary">
-                        <img src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover"/>
+                        <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover"/>
                     </div>
                     <h3 className="text-xl font-bold text-gray-800">{pet.name}</h3>
                     <p className="text-xs text-gray-500 mb-4">{t('scanToViewProfile')}</p>
-                    <img src={qrImageUrl} alt="QR Code" className="w-40 h-40 mx-auto" />
+                    <img src={qrImageUrl} alt="QR Code" className="w-40 h-40 mx-auto" loading="lazy" decoding="async" />
                     <p className="text-[10px] text-gray-400 mt-2 font-mono">ID: {pet.aiIdentityCode || pet.id.substring(0, 8)}</p>
                 </div>
                 <div className="flex gap-2 w-full">
@@ -402,7 +402,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {myChats.map(chat => (
                       <GlassCard key={chat.id} variant="interactive" onClick={() => onOpenChat(chat.id)} className="p-4 flex items-center gap-4 border-white/10 bg-white/5 group">
-                          <img src={chat.petPhotoUrl} alt={chat.petName} className="w-12 h-12 rounded-lg object-cover bg-slate-800 border border-white/10"/>
+                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                            <CinematicImage src={chat.petPhotoUrl} alt={chat.petName} className="w-full h-full object-cover bg-slate-800 border border-white/10"/>
+                          </div>
                           <div className="min-w-0">
                               <p className="font-bold text-white truncate group-hover:text-primary transition-colors">{chat.petName}</p>
                               <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 truncate">

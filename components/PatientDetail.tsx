@@ -5,6 +5,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { draftVetMessageToOwner } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface PatientDetailProps {
   patient: PetProfile;
@@ -76,7 +77,9 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
         <div className="bg-card rounded-2xl shadow-lg overflow-hidden border border-border">
             {/* Header */}
             <div className="bg-gradient-to-r from-primary/10 to-transparent p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-                 <img src={patient.photos[0]?.url} alt={patient.name} className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-lg"/>
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
+                    <CinematicImage priority src={patient.photos[0]?.url} alt={patient.name} />
+                 </div>
                  <div>
                      <h1 className="text-4xl font-bold text-foreground mb-2">{patient.name}</h1>
                      <div className="flex flex-wrap gap-3 items-center">
@@ -186,7 +189,9 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                         {patient.photos.map(photo => (
                             <div key={photo.id} className="relative group rounded-xl overflow-hidden shadow-md">
-                                <img src={photo.url} alt={photo.description} className="w-full h-full object-cover aspect-square transition-transform duration-500 group-hover:scale-110" />
+                                <div className="w-full h-full aspect-square">
+                                    <CinematicImage src={photo.url} alt={photo.description} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                </div>
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
                                     <p className="text-white font-bold">{photo.description}</p>
                                     <p className="text-white/80 text-xs mt-1">{t('marksIdentified', {count: photo.marks.length})}</p>

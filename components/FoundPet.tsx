@@ -44,8 +44,8 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
     return (
         <div className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-border">
             <div className="md:flex">
-                <div className="md:flex-shrink-0 relative">
-                    <img className="h-full w-full object-cover md:w-48 min-h-[200px]" src={result.pet.photos[0]?.url} alt={result.pet.name} />
+                <div className="md:flex-shrink-0 relative w-full md:w-48 min-h-[200px]">
+                    <CinematicImage src={result.pet.photos[0]?.url} alt={result.pet.name} className="w-full h-full object-cover" />
                     <div className="absolute top-0 left-0 bg-black/50 p-2">
                         <span className={`text-sm font-bold px-2 py-1 rounded text-white ${scoreColor}`}>
                             {result.score}% Match
@@ -278,7 +278,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                                   {lostPets.map(pet => (
                                       <div key={pet.id} className="flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 group">
                                           <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
-                                              <img src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                              <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                           </div>
                                           <div className="flex flex-col justify-center min-w-0">
                                               <h4 className="text-xs font-black text-white uppercase truncate">{pet.name}</h4>
