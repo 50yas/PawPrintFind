@@ -15,8 +15,8 @@
 ## Phase 3: Core Experience - Home & Maps
 - [x] Task: Optimize the `HeroScene` to ensure smooth 3D rendering and transitions, aligning with the new color palette. e009bba
 - [x] Task: Update the `MissingPetsMap` and `SightingsMap` to use custom map markers that match the Material You theme. e009bba
-- [ ] Task: Implement "Skeleton Loaders" for the map sidebar and adoption center cards to prevent layout shifts during data loading.
-- [ ] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md)
+- [x] Task: Implement "Skeleton Loaders" for the map sidebar and adoption center cards to prevent layout shifts during data loading. f35638c
+- [~] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md)
 
 ## Phase 4: Polish & Performance
 - [ ] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width).
