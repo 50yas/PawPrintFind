@@ -12,11 +12,11 @@
 - [x] Task: Create a reusable `Snackbar` component for system notifications (success, error, info) using the new design system. 9a57ced
 - [x] Task: Conductor - User Manual Verification 'Component Refactor - Glassmorphism & Interaction' (Protocol in workflow.md) 9a57ced
 
-## Phase 3: Core Experience - Home & Maps
+## Phase 3: Core Experience - Home & Maps [checkpoint: f0531e2]
 - [x] Task: Optimize the `HeroScene` to ensure smooth 3D rendering and transitions, aligning with the new color palette. e009bba
 - [x] Task: Update the `MissingPetsMap` and `SightingsMap` to use custom map markers that match the Material You theme. e009bba
 - [x] Task: Implement "Skeleton Loaders" for the map sidebar and adoption center cards to prevent layout shifts during data loading. f35638c
-- [~] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md) f0531e2
 
 ## Phase 4: Polish & Performance
 - [ ] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width).
