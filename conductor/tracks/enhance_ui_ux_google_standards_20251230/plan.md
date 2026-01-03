@@ -21,5 +21,5 @@
 ## Phase 4: Polish & Performance
 - [x] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width). 09b9733
 - [x] Task: Replace standard browser alerts with the new `Snackbar` component throughout the application. ebb3a0b
-- [~] Task: Optimize image loading strategy (implement lazy loading and proper sizing) to improve LCP.
+- [x] Task: Optimize image loading strategy (implement lazy loading and proper sizing) to improve LCP. 715cff0
 - [ ] Task: Conductor - User Manual Verification 'Polish & Performance' (Protocol in workflow.md)
