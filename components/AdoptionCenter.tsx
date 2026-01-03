@@ -34,7 +34,7 @@ const AdoptionCard: React.FC<{ pet: PetProfile; onInquire: () => void; }> = ({ p
     )
 }
 
-export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser }) => {
+export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading }) => {
   const { t } = useTranslations();
   
   const handleInquire = (pet: PetProfile) => {

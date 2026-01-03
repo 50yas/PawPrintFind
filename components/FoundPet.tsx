@@ -103,12 +103,12 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
 };
 
 
-export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onContactOwner }) => {
+export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onContactOwner, isLoading }) => {
   const { t } = useTranslations();
   const [mode, setMode] = useState<'map' | 'scan'>('map');
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<MatchResult[]>([]);
   const [status, setStatus] = useState(t('statusReady'));
   const [nearbyVetsInfo, setNearbyVetsInfo] = useState<{text: string, places: any[]}|null>(null);
@@ -188,7 +188,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
     if (!location) { alert(t('enableLocationWarning')); return; }
     if (filteredLostPets.length === 0) { alert(t('noPetsLostWarning')); return; }
 
-    setIsLoading(true);
+    setIsSearching(true);
     setResults([]);
     setNearbyVetsInfo(null);
 
@@ -217,7 +217,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
       setStatus(t('statusSearchError'));
       alert(t('genericError'));
     } finally {
-      setIsLoading(false);
+      setIsSearching(false);
     }
   };
 
@@ -387,8 +387,8 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
             </div>
 
             {geoError && <p className="text-sm text-red-600 mt-4 text-center">{t('locationError', { error: geoError })}</p>}
-            <button onClick={handleSearch} disabled={isLoading || !photo || geoLoading} className="mt-6 w-full btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg flex items-center justify-center shadow-green-500/20 shadow-lg transition-transform active:scale-95">{isLoading ? <LoadingSpinner /> : (<><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>{t('applyFiltersButton')}</>)}</button>
-            {isLoading && <p className="mt-4 text-primary animate-pulse text-sm font-medium text-center">{status}</p>}
+            <button onClick={handleSearch} disabled={isSearching || !photo || geoLoading} className="mt-6 w-full btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg flex items-center justify-center shadow-green-500/20 shadow-lg transition-transform active:scale-95">{isSearching ? <LoadingSpinner /> : (<><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>{t('applyFiltersButton')}</>)}</button>
+            {isSearching && <p className="mt-4 text-primary animate-pulse text-sm font-medium text-center">{status}</p>}
         </div>
         {results.length > 0 && (<div className="space-y-6 fade-in-down"><h3 className="text-2xl font-bold text-center text-foreground">{t('potentialMatchesTitle')}</h3>{results.map((result) => <MatchResultCard key={result.pet.id} result={result} onSpeak={handleSpeak} onContactOwner={onContactOwner} />)}</div>)}
         {(nearbyVetsInfo || partnerVets.length > 0) && (<div className="bg-card p-6 sm:p-8 rounded-xl shadow-md"><h3 className="text-2xl font-bold mb-4 text-card-foreground">{t('nearbyHelpTitle')}</h3><div className="border-b border-border"><nav className="-mb-px flex space-x-6" aria-label="Tabs"><button onClick={() => setActiveTab('partners')} aria-selected={activeTab === 'partners'} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'partners' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>{t('partnerVetsTab')}</button><button onClick={() => setActiveTab('google')} aria-selected={activeTab === 'google'} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'google' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>{t('googleMapsTab')}</button></nav></div><div className="pt-6">{activeTab === 'partners' && (<div>{partnerVets.length > 0 ? (<ul className='list-disc pl-5 mt-2 space-y-2'>{partnerVets.map((vet, i) => (<li key={i} className="text-muted-foreground"><strong className="text-card-foreground">{vet.name}</strong> <br/> {vet.address} ({vet.phone})</li>))}</ul>) : <p className="text-muted-foreground">{t('noPartnerVets')}</p>}</div>)}{activeTab === 'google' && (<div>{nearbyVetsInfo ? (<div className="prose prose-teal dark:prose-invert max-w-none mt-2 text-card-foreground"><p>{nearbyVetsInfo.text}</p>{nearbyVetsInfo.places.length > 0 && (<ul className="text-muted-foreground">{nearbyVetsInfo.places.map((place, index) => (place.maps && <li key={index}><a href={place.maps.uri} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{place.maps.title}</a></li>))}</ul>)}</div>) : <p className="text-muted-foreground">{t('noGoogleMapsVets')}</p>}</div>)}</div></div>)}
