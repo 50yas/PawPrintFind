@@ -182,7 +182,15 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
             : t('liveAssistantSystemPrompt');
 
         // FIX: Guidelines state we must create the GoogleGenAI instance right before connecting
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        // Use the new standard for Vite env vars
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+          console.error("Gemini API Key is missing. Please set VITE_GEMINI_API_KEY in your .env file.");
+          addMessage({ id: Date.now().toString(), text: "System Error: AI Identity Module not initialized (Missing API Key).", sender: 'ai', timestamp: Date.now() });
+          setIsTyping(false);
+          return;
+      }
+      const ai = new GoogleGenAI({ apiKey });
         const sessionPromise = ai.live.connect({
             model: 'gemini-2.5-flash-native-audio-preview-09-2025',
             callbacks: {

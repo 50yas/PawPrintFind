@@ -100,7 +100,7 @@ describe('authService error handling and authentication', () => {
 
   describe('registerUser', () => {
     const mockUserCredential = { user: { uid: 'new-uid', email: 'new@example.com' } } as any;
-    const mockUser = { uid: 'new-uid', email: 'new@example.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 50, badges: ['Newcomer'], joinedAt: expect.any(Number), lastLoginAt: expect.any(Number), isVerified: false };
+    const mockUser = { uid: 'new-uid', email: 'new@example.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 50, badges: ['Alpha-Tester'], joinedAt: expect.any(Number), lastLoginAt: expect.any(Number), isVerified: false };
 
     beforeEach(() => {
         (createUserWithEmailAndPassword as Mock).mockResolvedValue(mockUserCredential);
@@ -119,7 +119,7 @@ describe('authService error handling and authentication', () => {
       (createUserWithEmailAndPassword as Mock).mockRejectedValue(mockError);
 
       await expect(authService.registerUser('new@example.com', 'password123', ['owner'])).rejects.toThrow(mockError);
-      expect(logger.error).toHaveBeenCalledWith('Error registering user:', mockError);
+      expect(logger.error).toHaveBeenCalledWith('Registration Protocol Failure:', mockError);
     });
   });
 
@@ -168,7 +168,7 @@ describe('authService error handling and authentication', () => {
       (getDoc as Mock).mockRejectedValue(mockError);
 
       await expect(authService.syncUserProfile(mockExistingUser)).rejects.toThrow(mockError);
-      expect(logger.error).toHaveBeenCalledWith('Error syncing user profile:', mockError);
+      expect(logger.error).toHaveBeenCalledWith('Profile Sync Protocol Failure:', mockError);
     });
   });
 

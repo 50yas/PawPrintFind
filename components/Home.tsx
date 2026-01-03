@@ -70,20 +70,28 @@ const HeroHUD = memo(() => {
     );
 });
 
-const SCANNED_PETS = [
-    { id: 1, img: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80", name: "Buddy", breed: "Golden Retriever" },
-    { id: 2, img: "https://images.unsplash.com/photo-1583511655826-05700d52f4d9?auto=format&fit=crop&w=600&q=80", name: "Pug", breed: "Black Pug" },
-    { id: 3, img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80", name: "Mochi", breed: "Tabby Cat" },
-    { id: 4, img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80", name: "Rocky", breed: "French Bulldog" }
+const FALLBACK_PETS = [
+    { id: 'f1', img: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80", name: "Buddy", breed: "Golden Retriever" },
+    { id: 'f2', img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80", name: "Mochi", breed: "Tabby Cat" },
 ];
 
 type ScanPhase = 'scanning' | 'analyzing' | 'match' | 'transition';
 
-const HeroScanner = memo(() => {
+const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
     const { t } = useTranslations();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [phase, setPhase] = useState<ScanPhase>('scanning');
     const timerRef = useRef<number>(0);
+
+    // Filter pets that actually have photos
+    const scanPool = lostPets.filter(p => p.photos?.[0]?.url).length > 0 
+        ? lostPets.filter(p => p.photos?.[0]?.url).map(p => ({
+            id: p.id,
+            img: p.photos[0].url,
+            name: p.name,
+            breed: p.breed
+        }))
+        : FALLBACK_PETS;
 
     useEffect(() => {
         let isMounted = true;
@@ -104,14 +112,14 @@ const HeroScanner = memo(() => {
             }
 
             if (isMounted) {
-                setCurrentIndex(prev => (prev + 1) % SCANNED_PETS.length);
+                setCurrentIndex(prev => (prev + 1) % scanPool.length);
             }
         };
         runSequence();
         return () => { isMounted = false; window.clearTimeout(timerRef.current); };
-    }, [currentIndex]);
+    }, [currentIndex, scanPool.length]);
 
-    const pet = SCANNED_PETS[currentIndex];
+    const pet = scanPool[currentIndex];
     const isTransitioning = phase === 'transition';
 
     return (
@@ -262,7 +270,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </div>
 
                         <div className="lg:col-span-5 animate-fade-in flex justify-center lg:justify-end mt-8 md:mt-0" style={{ animationDelay: '400ms' }}>
-                            <HeroScanner />
+                            <HeroScanner lostPets={lostPets} />
                         </div>
                     </div>
                 </div>

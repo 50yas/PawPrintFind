@@ -22,11 +22,15 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
     const [selectedRole, setSelectedRole] = useState<UserRole>('owner');
 
+    const [showPassword, setShowPassword] = useState(false);
+
     const getFriendlyErrorMessage = (error: any) => {
-        const code = error.message?.match(/\[(.*?)\]/)?.[1] || error.code;
+        const code = error.code || error.message?.match(/\[(.*?)\]/)?.[1];
         switch (code) {
             case 'auth/email-already-in-use':
                 return "This email is already registered. Please log in instead.";
+            case 'auth/invalid-credential':
+                return "Incorrect email or password. Please try again.";
             case 'auth/user-not-found':
                 return "No account found with this email.";
             case 'auth/wrong-password':
@@ -38,13 +42,17 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
             case 'auth/weak-password':
                 return "Password should be at least 6 characters.";
             default:
-                if (error.message?.includes("auth/email-already-in-use")) return "This email is already registered.";
                 return error.message || "Authentication failed. Please try again.";
         }
     };
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!email || (!isForgotPassword && !password)) {
+            setErrorMsg("Please fill in all required fields.");
+            return;
+        }
+        
         setErrorMsg(null);
         setSuccessMsg(null);
         setLoading(true);
@@ -56,11 +64,13 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                 setIsForgotPassword(false);
             } else if (isRegistering) {
                 await dbService.registerUser(email, password, [selectedRole]);
+                setSuccessMsg("Account created successfully!");
             } else {
                 await dbService.loginWithEmail(email, password);
             }
-            if (!isForgotPassword && onClose) onClose();
+            if (!isForgotPassword && !isRegistering && onClose) onClose();
         } catch (error: any) {
+            console.error("Auth Error:", error);
             setErrorMsg(getFriendlyErrorMessage(error));
         } finally {
             setLoading(false);
@@ -74,106 +84,205 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
             await dbService.signInWithGoogle();
             if (onClose) onClose();
         } catch (error: any) {
+            console.error("Google Auth Error:", error);
             setErrorMsg(getFriendlyErrorMessage(error));
         } finally {
             setLoading(false);
         }
     };
 
-    const roles: { id: UserRole; label: string; icon: string }[] = [
-        { id: 'owner', label: t('loginAsOwner'), icon: '👤' },
-        { id: 'vet', label: t('loginAsVet'), icon: '🏥' },
-        { id: 'shelter', label: t('loginAsShelter'), icon: '🏡' },
-        { id: 'volunteer', label: t('volunteerTitle'), icon: '🛡️' }
+    const roles: { id: UserRole; label: string; icon: string; desc: string }[] = [
+        { id: 'owner', label: t('loginAsOwner'), icon: '👤', desc: 'Find your lost pet or manage your pack' },
+        { id: 'vet', label: t('loginAsVet'), icon: '🏥', desc: 'Manage patients and appointments' },
+        { id: 'shelter', label: t('loginAsShelter'), icon: '🏡', desc: 'List pets for adoption and find homes' },
+        { id: 'volunteer', label: t('volunteerTitle'), icon: '🛡️', desc: 'Help the community find missing pets' }
     ];
 
     return (
-        <div className={`relative transition-all duration-500 ${isFullScreen ? 'w-full max-w-md mx-auto z-50' : 'w-full'}`}>
-            <div className={`glass-panel p-8 rounded-[2.5rem] shadow-2xl border border-white/10 text-center relative overflow-hidden bg-slate-900/95 backdrop-blur-3xl`}>
+        <div className={`relative transition-all duration-500 ${isFullScreen ? 'w-full max-w-lg mx-auto z-50' : 'w-full'}`}>
+            <div className={`glass-panel p-10 rounded-[3rem] shadow-2xl border border-white/20 text-center relative overflow-hidden bg-slate-950/90 backdrop-blur-3xl`}>
                 {isFullScreen && onClose && (
-                    <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-white/5 transition-colors z-20">
+                    <button onClick={onClose} className="absolute top-8 right-8 text-white/40 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all z-20">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 )}
 
-                <div className="mb-6 relative">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20 transform hover:scale-105 transition-transform duration-500 rotate-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                <div className="mb-10 relative">
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary via-secondary to-primary bg-[length:200%_200%] animate-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/30 transform hover:scale-110 transition-transform duration-500 rotate-6 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
-                    <h2 className="text-2xl font-black text-white tracking-tight uppercase">
-                        {isForgotPassword ? 'Reset Protocol' : isRegistering ? 'Initialize Identity' : 'Secure Entry'}
+                    <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        {isForgotPassword ? 'Rescue Access' : isRegistering ? 'Join the Pack' : 'Identity Verified'}
                     </h2>
-                    <p className="text-xs font-mono text-primary mt-2 tracking-widest uppercase opacity-70">Paw Print Network Auth</p>
+                    <p className="text-sm text-slate-400 mt-3 font-medium px-4">{isForgotPassword ? 'Enter your email to recover your credentials' : isRegistering ? 'Create your profile to start protecting pets' : 'Access the global biometric pet network'}</p>
                 </div>
 
-                <div className="space-y-6">
-                    {errorMsg && <p className="text-[10px] text-red-400 bg-red-500/10 p-3 rounded-xl font-bold border border-red-500/20 uppercase tracking-tighter">{errorMsg}</p>}
-                    {successMsg && <p className="text-[10px] text-green-400 bg-green-500/10 p-3 rounded-xl font-bold border border-green-500/20 uppercase tracking-tighter">{successMsg}</p>}
+                <div className="space-y-8">
+                    {errorMsg && (
+                        <div className="animate-shake flex items-center gap-3 bg-red-500/10 p-4 rounded-2xl border border-red-500/30 text-left">
+                            <span className="text-xl">⚠️</span>
+                            <p className="text-xs text-red-400 font-bold uppercase tracking-tight leading-tight">{errorMsg}</p>
+                        </div>
+                    )}
+                    {successMsg && (
+                        <div className="animate-fade-in flex items-center gap-3 bg-green-500/10 p-4 rounded-2xl border border-green-500/30 text-left">
+                            <span className="text-xl">✅</span>
+                            <p className="text-xs text-green-400 font-bold uppercase tracking-tight leading-tight">{successMsg}</p>
+                        </div>
+                    )}
 
-                    {/* iPhone-style Carousel Role Selector */}
+                    {/* Protocol Selector */}
                     {!isForgotPassword && (
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] block text-left pl-2">Select Account Protocol</label>
-                            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar snap-x no-scrollbar">
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-end px-2">
+                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">Security Protocol</label>
+                                <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Verified</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
                                 {roles.map(role => (
                                     <button
                                         key={role.id}
                                         type="button"
                                         onClick={() => setSelectedRole(role.id)}
-                                        className={`snap-center flex-shrink-0 flex flex-col items-center gap-2 p-4 rounded-2xl transition-all duration-300 min-w-[90px] border ${selectedRole === role.id
-                                            ? 'bg-primary/20 border-primary text-white shadow-[0_0_20px_rgba(34,211,238,0.3)] scale-105'
-                                            : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 grayscale'
+                                        className={`group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 border overflow-hidden ${selectedRole === role.id
+                                            ? 'bg-primary/20 border-primary shadow-[0_0_30px_rgba(34,211,238,0.2)]'
+                                            : 'bg-white/5 border-white/10 hover:border-white/30 grayscale hover:grayscale-0'
                                             }`}
                                     >
-                                        <span className="text-2xl">{role.icon}</span>
-                                        <span className="text-[9px] font-black uppercase tracking-tighter truncate w-full">{role.label}</span>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all duration-500 ${selectedRole === role.id ? 'bg-primary text-white shadow-lg' : 'bg-white/10 text-slate-400 group-hover:bg-white/20 group-hover:text-white'}`}>
+                                            {role.icon}
+                                        </div>
+                                        <div className="text-left">
+                                            <span className={`block text-[10px] font-black uppercase tracking-widest leading-none ${selectedRole === role.id ? 'text-white' : 'text-slate-400'}`}>{role.label}</span>
+                                            <span className="text-[8px] font-medium text-slate-500 mt-1 block leading-tight">{role.desc}</span>
+                                        </div>
+                                        {selectedRole === role.id && (
+                                            <div className="absolute -right-2 -top-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center pt-1 pr-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-900" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                            </div>
+                                        )}
                                     </button>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    <form onSubmit={handleAuth} className="space-y-4">
-                        <div className="relative">
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="IDENT_EMAIL" required className="input-enhanced !font-mono !text-xs !bg-black/40 !py-4" />
+                    <form onSubmit={handleAuth} className="space-y-5">
+                        <div className="group relative transition-all duration-300">
+                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                            </div>
+                            <input 
+                                type="email" 
+                                value={email} 
+                                onChange={(e) => setEmail(e.target.value)} 
+                                placeholder="Network Identifier (Email)" 
+                                required 
+                                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                            />
                         </div>
+                        
                         {!isForgotPassword && (
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="SECURITY_PHRASE" required className="input-enhanced !font-mono !text-xs !bg-black/40 !py-4" />
+                            <div className="group relative transition-all duration-300">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                </div>
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    placeholder="Access Credential (Password)" 
+                                    required 
+                                    className="w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-4 flex items-center text-slate-500 hover:text-white transition-colors"
+                                >
+                                    {showPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    )}
+                                </button>
+                            </div>
                         )}
-                        <button type="submit" disabled={loading} className="w-full btn btn-primary py-4 text-xs font-black uppercase tracking-[0.3em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                            {loading ? <LoadingSpinner /> : isForgotPassword ? 'Send Link' : isRegistering ? 'Establish Link' : 'Initialize Access'}
+                        <button type="submit" disabled={loading} className="group w-full bg-gradient-to-r from-primary to-secondary p-[2px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-300">
+                            <div className="w-full h-full bg-slate-900 rounded-[14px] py-4 flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors">
+                                {loading ? <LoadingSpinner /> : (
+                                    <>
+                                        <span className="text-sm font-black uppercase tracking-[0.2em] text-white">
+                                            {isForgotPassword ? 'Initiate Recovery' : isRegistering ? 'Authorize New Account' : 'Decrypt Dashboard'}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                    </>
+                                )}
+                            </div>
                         </button>
                     </form>
 
-                    <div className="flex flex-col gap-3 mt-4">
+                    <div className="flex flex-col gap-4 mt-6">
                         {!isForgotPassword && (
-                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[10px] text-primary font-bold hover:underline uppercase tracking-widest">Protocol Recovery?</button>
+                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">Lost Credentials?</button>
                         )}
-                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-[10px] text-muted-foreground hover:text-white transition-colors font-bold uppercase tracking-widest">
-                            {isRegistering ? 'Existing Identity? Enter' : 'New Identity? Register'}
+                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
+                            {isRegistering ? (
+                                <><span>Already registered?</span> <span className="text-primary border-b border-primary/30">Sign In Protocol</span></>
+                            ) : (
+                                <><span>New operative?</span> <span className="text-primary border-b border-primary/30">Initialize Profile</span></>
+                            )}
                         </button>
                         {isForgotPassword && (
-                            <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[10px] text-muted-foreground hover:underline uppercase font-bold tracking-widest">Abort & Back</button>
+                            <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[10px] text-slate-400 hover:text-white transition-all font-black uppercase tracking-[0.1em] w-fit mx-auto flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                                Back to Identification
+                            </button>
                         )}
                     </div>
 
                     {!isForgotPassword && (
-                        <div className="pt-4 border-t border-white/10">
-                            <button onClick={handleGoogleLogin} className="w-full py-3.5 bg-white text-gray-900 font-black text-[10px] uppercase tracking-[0.2em] rounded-xl border border-gray-200 flex items-center justify-center gap-3 hover:bg-gray-100 transition-all hover:scale-[1.02] shadow-sm">
-                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" alt="" />
-                                Google Auth Uplink
+                        <div className="pt-8 relative">
+                            <div className="absolute inset-x-0 top-4 flex items-center">
+                                <div className="w-full border-t border-white/5"></div>
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-[#020617] px-4 text-slate-500 font-bold tracking-widest text-[9px]">External Uplink</span>
+                            </div>
+                            <button onClick={handleGoogleLogin} className="mt-6 w-full py-4 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-2xl border border-white/10 flex items-center justify-center gap-4 transition-all hover:scale-[1.02] shadow-sm group">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="" />
+                                <span className="uppercase tracking-[0.15em]">Sync with Google ID</span>
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Design accents */}
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+                {/* Cyber Design accents */}
+                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className="absolute -top-20 -right-20 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
             </div>
             <style>{`
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            @keyframes gradient {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            .animate-gradient {
+                background-size: 200% 200%;
+                animation: gradient 15s ease infinite;
+            }
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            .animate-shake {
+                animation: shake 0.4s ease-in-out infinite;
+            }
         `}</style>
         </div>
     );

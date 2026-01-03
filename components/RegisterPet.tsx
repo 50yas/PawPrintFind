@@ -282,23 +282,30 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
     }
 
     try {
-        // PROD-LEVEL PATHING: Standard rules usually allow users to write to users/UID/pets
-        const ownerUid = currentUser.uid;
+        if (!currentUser || !currentUser.uid) {
+            triggerFunnyWarning("Access Protocol Failure: User not identified. Please re-authenticate.", []);
+            setIsSaving(false);
+            return;
+        }
         
+        const ownerUid = currentUser.uid;
         const processedPhotos = await Promise.all(validPhotos.map(async (p) => {
-            let finalUrl = p.url;
-            if (p.file) {
-                // Role-based storage path
-                const storagePath = currentUser.activeRole === 'shelter'
-                    ? `shelters/${ownerUid}/pets/${id}`
-                    : `users/${ownerUid}/pets/${id}`;
-                finalUrl = await dbService.uploadImage(p.file, storagePath);
-            }
+            if (!p.file) return p; // Already uploaded or legacy
+
+            // SECURITY: Construct path based on User ID to match Firebase Rules
+            // users/{uid}/pets/{petId}/{filename}
+            const folder = currentUser.activeRole === 'shelter' ? 'shelters' : 'users';
+            const fileName = `${Date.now()}_${p.file.name.replace(/\s+/g, '_')}`;
+            const storagePath = `${folder}/${ownerUid}/pets/${id}/${fileName}`;
+            
+            console.log(`[Bio-Sync] Uploading visual data to encrypted vault: ${storagePath}`);
+            const finalUrl = await dbService.uploadImage(p.file, storagePath);
+            
             return {
                 id: p.id || Date.now().toString(),
-                url: finalUrl || '',
+                url: finalUrl,
                 marks: p.marks || [],
-                description: p.description || 'Photo'
+                description: p.description || 'Pet Profile Photo'
             };
         }));
 
@@ -316,8 +323,8 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             status: mode,
             isLost: existingPet?.isLost || false, 
             searchRadius: existingPet?.searchRadius || null,
-            name: name || 'Unnamed', 
-            breed: breed || 'Unknown', 
+            name: name || 'Unnamed Operative', 
+            breed: breed || 'Classified', 
             age: age || '', 
             weight: weight || '', 
             behavior: behavior || '', 
@@ -335,14 +342,14 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             aiPhysicalDescription: aiPhysicalDescription || ''
         };
         
-        const cleanPet = JSON.parse(JSON.stringify(newPet));
-        onRegister(cleanPet);
+        console.log(`[Bio-Sync] Finalizing pet profile: ${newPet.name}`);
+        onRegister(newPet);
     } catch (error: any) {
-        console.error("Error registering pet:", error);
-        if (error.code === 'storage/unauthorized') {
-            triggerFunnyWarning("Access Denied! Did your human forget to sign the papers? (Permission Error)", []);
+        console.error("Critical Profile Sync Error:", error);
+        if (error.message?.includes('permission-denied') || error.code === 'storage/unauthorized') {
+            triggerFunnyWarning("Security Breach! Access to the storage vault was denied. Check your permissions.", []);
         } else {
-            triggerFunnyWarning("The system is being catty! Failed to save pet profile.", []);
+            triggerFunnyWarning("The mainframe is resisting! Error: " + (error.message || "Unknown error"), []);
         }
     } finally {
         setIsSaving(false);

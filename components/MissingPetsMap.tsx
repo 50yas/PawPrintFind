@@ -27,15 +27,28 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
 
   const STREET_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
   const SATELLITE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  const SATELLITE_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
   const switchStyle = (style: MapStyle) => {
       setMapStyle(style);
-      if (mapInstance.current && tilesRef.current) {
-          mapInstance.current.removeLayer(tilesRef.current);
+      if (mapInstance.current) {
+          if (tilesRef.current) mapInstance.current.removeLayer(tilesRef.current);
+          if ((mapInstance.current as any)._labelsLayer) {
+              mapInstance.current.removeLayer((mapInstance.current as any)._labelsLayer);
+              (mapInstance.current as any)._labelsLayer = null;
+          }
+
           tilesRef.current = L.tileLayer(style === 'street' ? STREET_URL : SATELLITE_URL, {
               maxZoom: 20,
               attribution: style === 'street' ? '&copy; CartoDB' : 'Esri, ArcGIS'
           }).addTo(mapInstance.current);
+
+          if (style === 'satellite') {
+              (mapInstance.current as any)._labelsLayer = L.tileLayer(SATELLITE_LABELS_URL, {
+                  maxZoom: 20,
+                  opacity: 0.8
+              }).addTo(mapInstance.current);
+          }
       }
   };
 
@@ -145,33 +158,6 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
 
   return (
     <GlassCard variant="interactive" className="group relative w-full h-full overflow-hidden border-white/10" style={{ backgroundColor: colors.surfaceContainer }}>
-        {/* HUD SCANNING OVERLAY (Visible on Hover) */}
-        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1001]">
-            {/* Viewfinder Corners */}
-            <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2" style={{ borderColor: colors.primary + '66' }}></div>
-            <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2" style={{ borderColor: colors.primary + '66' }}></div>
-            <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2" style={{ borderColor: colors.primary + '66' }}></div>
-            <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2" style={{ borderColor: colors.primary + '66' }}></div>
-
-            {/* Scanning Line */}
-            <div className="absolute top-0 left-0 w-full h-[2px] animate-[scan_4s_linear_infinite]" style={{ backgroundColor: colors.primary + '4D', boxShadow: `0 0 20px ${colors.primary}80` }}></div>
-            
-            {/* Grid Mask */}
-            <div className="absolute inset-0" style={{ backgroundImage: `linear-gradient(to right,${colors.primary}0D 1px,transparent 1px),linear-gradient(to bottom,${colors.primary}0D 1px,transparent_1px)`, backgroundSize: '3rem 3rem' }}></div>
-            
-            {/* HUD Labels */}
-            <div className="absolute top-1/2 left-6 -translate-y-1/2 flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full animate-ping" style={{ backgroundColor: colors.primary }}></div>
-                    <span className="text-[10px] font-mono tracking-[0.3em] uppercase" style={{ color: colors.primary + 'CC' }}>Tracking_Active</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.primary + '66' }}></div>
-                    <span className="text-[10px] font-mono tracking-[0.3em] uppercase" style={{ color: colors.primary + '66' }}>Coverage: 98.4%</span>
-                </div>
-            </div>
-        </div>
-
         {/* MAP HUD CONTROLS */}
         <div className="absolute top-4 right-4 z-[1002] flex flex-col gap-2">
             <GlassCard className="p-1 flex border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>

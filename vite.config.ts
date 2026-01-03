@@ -22,7 +22,11 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      port: 3000
+      port: 3000,
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+        'Cross-Origin-Embedder-Policy': 'require-corp'
+      }
     },
     test: { // Vitest configuration
       globals: true,

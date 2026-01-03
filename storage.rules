@@ -1,0 +1,41 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Allow public read access to all images (for sharing pets)
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // User folders: users/{userId}/...
+    match /users/{userId}/{allPaths=**} {
+      allow write: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Shelter folders: shelters/{userId}/...
+    match /shelters/{userId}/{allPaths=**} {
+      allow write: if isAuthenticated() && isOwner(userId);
+    }
+
+    // Pets folder: pets/{petId}/... (Legacy or shared)
+    // Allow any authenticated user to upload here for now, 
+    // ideally should verify ownership of the pet doc in Firestore
+    match /pets/{petId}/{allPaths=**} {
+      allow write: if isAuthenticated();
+    }
+    
+    // Uploads folder (Legacy fallback)
+    match /uploads/{allPaths=**} {
+      allow write: if isAuthenticated();
+    }
+  }
+}

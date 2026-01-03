@@ -242,17 +242,21 @@ export const dbService = {
     // --- STORAGE (Delegated to petService where appropriate) ---
     async uploadImage(file: File, path: string): Promise<string> {
         try {
-            if (!dbService.auth.currentUser) {
+            if (!auth.currentUser) {
                 throw new Error("Authentication required to upload image.");
             }
-            const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-            const storageRef = ref(storage, `uploads/${fileName}`);
+            // Sanitize filename to avoid path issues
+            const safePath = path.replace(/\s+/g, '_');
+            const storageRef = ref(storage, safePath);
+            
+            console.log(`[Upload] Starting upload to ${safePath} for user ${auth.currentUser.uid}`);
+            
             const snapshot = await uploadBytes(storageRef, file);
             return await getDownloadURL(snapshot.ref);
-        } catch (error) {
-            logger.error('Error uploading image:', error);
-            // TODO: Add user-facing error notification
-            throw error;
+        } catch (error: any) {
+            logger.error(`Error uploading image to ${path}:`, error);
+            // Re-throw with more context
+            throw new Error(`Upload failed: ${error.message}`);
         }
     },
 

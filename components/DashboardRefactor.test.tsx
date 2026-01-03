@@ -77,7 +77,7 @@ describe('Dashboard Refactor Glassmorphism', () => {
     
     expect(header).toBeInTheDocument();
     expect(header).toHaveClass('backdrop-blur-xl');
-    expect(header).toHaveClass('bg-white/10');
+    expect(header).toHaveClass('bg-surface-container-low');
   });
 
   it('renders PetCards within a responsive grid', () => {

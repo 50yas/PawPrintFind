@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Default: Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || (isAuthenticated() && request.resource.data.uid == request.auth.uid);
+    }
+    
+    // Pets
+    match /pets/{petId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (resource.data.ownerEmail == request.auth.token.email || resource.data.guardianEmails[0] == request.auth.token.email);
+    }
+    
+    // Clinics
+    match /clinics/{clinicId} {
+      allow read: if true;
+      allow write: if isAuthenticated(); // Refine for vet roles later
+    }
+    
+    // Appointments
+    match /appointments/{apptId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Contact Messages
+    match /contact_messages/{msgId} {
+      allow create: if true; // Allow public contact form
+      allow read, write: if false; // Only admin
+    }
+
+    // Chat Sessions
+    match /chat_sessions/{sessionId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

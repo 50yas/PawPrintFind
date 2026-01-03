@@ -92,11 +92,18 @@ export default function App() {
 
     const handleRegisterPet = async (pet: PetProfile) => {
         try {
+            console.log(`[App-Logic] Transmitting biometric data for ${pet.name}...`);
             await dbService.savePet(pet);
-            addNotification("Pet profile synced.");
+            addNotification(`Sync Successful: ${pet.name} is now protected.`);
             setEditingPet(null);
-            setCurrentView(currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : 'dashboard');
-        } catch (err: any) { addNotification("Sync Error: " + err.message); }
+            
+            // Redirect based on active protocol
+            const nextView = currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : 'dashboard';
+            setCurrentView(nextView);
+        } catch (err: any) { 
+            console.error("App Register Error:", err);
+            addNotification("Critical Sync Failure: " + (err.message || "Network Timeout")); 
+        }
     };
 
     const handleStartChat = async (pet: PetProfile) => {

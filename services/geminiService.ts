@@ -7,7 +7,25 @@ import * as Prompts from './prompts';
  * Helper to get a fresh instance of the Gemini AI client using the current environment API Key.
  * This is crucial for nano banana series models where the key may be selected via window.aistudio.
  */
-const getAIClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAIClient = () => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+        console.warn("Gemini API Key is missing! Using Mock Mode. Please set VITE_GEMINI_API_KEY in your .env file.");
+        // Return a mock object that mimics GoogleGenAI but returns "Mock Data"
+        return {
+            models: {
+                generateContent: async () => ({
+                    text: "Gemini API Key missing. This is a mock response.",
+                    candidates: [{
+                        content: { parts: [{ inlineData: { data: "" }, text: "Mock response" }] },
+                        groundingMetadata: { groundingChunks: [] }
+                    }]
+                })
+            }
+        } as unknown as GoogleGenAI;
+    }
+    return new GoogleGenAI({ apiKey });
+};
 
 // --- UTILITY: Exponential Backoff Retry Wrapper ---
 async function retryWithBackoff<T>(
