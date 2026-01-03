@@ -37,7 +37,7 @@ const HeroHUD = memo(() => {
     return (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
             {/* Top Left System Status - Terminal Animation */}
-            <div className="absolute top-4 left-4 md:top-8 md:left-12 p-3 md:p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[9px] md:text-[10px] font-mono-tech text-cyan-400 min-w-[140px] md:min-w-[180px] shadow-2xl z-20">
+            <div className="absolute top-20 left-4 md:top-8 md:left-12 p-3 md:p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[9px] md:text-[10px] font-mono-tech text-cyan-400 min-w-[140px] md:min-w-[180px] shadow-2xl z-20">
                 <div className="flex items-center gap-2 mb-2 md:mb-3 border-b border-white/10 pb-2">
                     <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
                     <span className="text-white font-bold tracking-widest uppercase">Console Output</span>
@@ -230,7 +230,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                             </div>
 
                             <div className="animate-fade-in mb-6 md:mb-8 relative" style={{ animationDelay: '100ms' }}>
-                                <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
+                                <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
                                     <span className="text-white drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)]">{t('homeTitle1')}</span>
                                     {/* Fixed: Removed vertical transforms and added padding to prevent clipping in Brave/Safari */}
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-purple-400 pb-1" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>{t('homeTitle2')}</span>
@@ -277,7 +277,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             </section>
 
             {/* Main Content Sections */}
-            <section id="how-it-works" className="scroll-animation relative z-10 py-20 md:py-32 bg-card/10 backdrop-blur-3xl border-y border-white/5">
+            <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-card/10 backdrop-blur-3xl border-y border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16 md:mb-24">
                         <h3 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('howItWorksTitle')}</h3>
@@ -347,7 +347,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
             </section>
 
-            <section id="missing-pets-map" className="scroll-animation container mx-auto px-6 relative z-10 py-20 md:py-32">
+            <section id="missing-pets-map" className="scroll-animation container mx-auto px-6 relative z-10 py-12 md:py-32">
                 <div className="text-center mb-12 md:mb-16">
                     <h3 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('missingPetsMapTitle')}</h3>
                     <p className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground font-medium">{t('missingPetsMapDesc')}</p>
@@ -359,7 +359,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
             </section>
 
-            <section className="scroll-animation container mx-auto px-6 py-20 md:py-32 z-10">
+            <section className="scroll-animation container mx-auto px-6 py-12 md:py-32 z-10">
                 <div className="glass-panel rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 relative overflow-hidden border border-emerald-500/20 bg-emerald-950/20 backdrop-blur-3xl shadow-2xl">
                     <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                     <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
@@ -384,7 +384,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             <DonorTicker onViewAll={() => setView('donors')} donations={donations} />
 
-            <section id="support-us" className="scroll-animation container mx-auto px-6 py-20 md:py-32 relative z-10">
+            <section id="support-us" className="scroll-animation container mx-auto px-6 py-12 md:py-32 relative z-10">
                 <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-stretch">
                     <GlassCard className="p-8 md:p-10 flex flex-col justify-between h-full border-white/10 bg-slate-900/40 backdrop-blur-3xl shadow-2xl">
                         <div className="space-y-4 md:space-y-6">

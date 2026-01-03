@@ -237,7 +237,7 @@ export default function App() {
                     />
 
                     {/* Main content padding adjusted to account for fixed marquee + fixed navbar */}
-                    <main className="flex-grow pt-40 pb-28 md:pb-20">
+                    <main className="flex-grow pt-32 md:pt-40 pb-28 md:pb-20">
                         {renderView()}
                     </main>
 
