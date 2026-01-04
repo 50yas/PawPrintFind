@@ -8,11 +8,11 @@
 - [~] Task: Conductor - User Manual Verification 'Unified Navigation & Routing' (Protocol in workflow.md)
 
 ## Phase 2: Adoption Center Map Integration [checkpoint: ]
-- [ ] Task: Create a new `AdoptionMap.tsx` component (reusing logic from `MissingPetsMap.tsx`) tailored for adoptable pets.
-- [ ] Task: Write tests for `AdoptionMap` to verify it correctly filters and displays only pets with `status: "forAdoption"`.
-- [ ] Task: Implement the "Locate Me" functionality using the `useGeolocation` hook within the map.
-- [ ] Task: Update `AdoptionCenter.tsx` to render the `AdoptionMap` and handle the "Adopt Me" callback from markers.
-- [ ] Task: Conductor - User Manual Verification 'Adoption Center Map Integration' (Protocol in workflow.md)
+- [x] Task: Create a new `AdoptionMap.tsx` component (reusing logic from `MissingPetsMap.tsx`) tailored for adoptable pets. c240feb
+- [x] Task: Write tests for `AdoptionMap` to verify it correctly filters and displays only pets with `status: "forAdoption"`. c240feb
+- [x] Task: Implement the "Locate Me" functionality using the `useGeolocation` hook within the map. c240feb
+- [x] Task: Update `AdoptionCenter.tsx` to render the `AdoptionMap` and handle the "Adopt Me" callback from markers. c240feb
+- [~] Task: Conductor - User Manual Verification 'Adoption Center Map Integration' (Protocol in workflow.md)
 
 ## Phase 3: Secure Chat & Smart Templates [checkpoint: ]
 - [ ] Task: Write unit tests for the localized "Smart Template" generator.
