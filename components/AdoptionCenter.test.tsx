@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 import { AdoptionCenter } from './AdoptionCenter';
@@ -29,28 +29,23 @@ vi.mock('./ui/SkeletonLoader', () => ({
   CardSkeleton: () => <div data-testid="card-skeleton">Skeleton</div>,
 }));
 
+vi.mock('./AdoptionMap', () => ({
+  AdoptionMap: () => <div data-testid="adoption-map">AdoptionMap</div>,
+}));
+
 const mockPets: PetProfile[] = [
   {
     id: '1',
     name: 'Buddy',
-    type: 'dog',
+    status: 'forAdoption',
     breed: 'Golden Retriever',
     age: '2 years',
-    gender: 'male',
-    size: 'Large',
-    color: 'Golden',
-    description: 'Friendly dog',
+    photos: [{ url: 'buddy.jpg' }],
     behavior: 'Playful',
-    photos: [{ url: 'buddy.jpg', id: 'p1' }],
-    status: 'adoptable',
-    lastSeenDate: '2023-01-01',
-    contactInfo: { name: 'Shelter', phone: '123' },
-    createdAt: 123,
-    updatedAt: 123
   }
-];
+] as any;
 
-describe('AdoptionCenter Skeleton Loading', () => {
+describe('AdoptionCenter Component', () => {
   it('should render skeletons when isLoading is true', () => {
     render(
       <AdoptionCenter 
@@ -62,7 +57,6 @@ describe('AdoptionCenter Skeleton Loading', () => {
       />
     );
     
-    // Expect 6 skeletons as per the code
     const skeletons = screen.getAllByTestId('card-skeleton');
     expect(skeletons).toHaveLength(6);
   });
@@ -80,5 +74,31 @@ describe('AdoptionCenter Skeleton Loading', () => {
     
     expect(screen.queryByTestId('card-skeleton')).toBeNull();
     expect(screen.getByText('Buddy')).toBeInTheDocument();
+  });
+
+  it('should switch to map view and render AdoptionMap', async () => {
+    const { container } = render(
+      <AdoptionCenter 
+        petsForAdoption={mockPets} 
+        onInquire={vi.fn()} 
+        goBack={vi.fn()} 
+        currentUser={null} 
+        isLoading={false} 
+      />
+    );
+
+    // Find all buttons inside the view mode toggle
+    const buttons = screen.getAllByRole('button');
+    // The map button is the one with the map icon (last one in the group)
+    // We can filter by SVG content or just index
+    const mapButton = buttons.find(b => b.innerHTML.includes('M5.05'));
+    
+    expect(mapButton).toBeDefined();
+
+    await act(async () => {
+        fireEvent.click(mapButton!);
+    });
+
+    expect(screen.getByTestId('adoption-map')).toBeInTheDocument();
   });
 });

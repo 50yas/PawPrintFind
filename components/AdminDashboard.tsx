@@ -268,7 +268,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                             PURGE
                                                         </button>
                                                     )}
-                                                </td>
+                                                </td></td>
                                             </tr>
                                         ))}
                                     </tbody>

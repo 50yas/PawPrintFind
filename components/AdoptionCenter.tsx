@@ -4,6 +4,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { CardSkeleton } from './ui/SkeletonLoader';
+import { AdoptionMap } from './AdoptionMap';
 
 interface AdoptionCenterProps {
   petsForAdoption: PetProfile[];
@@ -13,7 +14,7 @@ interface AdoptionCenterProps {
   isLoading?: boolean;
 }
 
-type ViewMode = 'grid' | 'list' | 'carousel';
+type ViewMode = 'grid' | 'list' | 'carousel' | 'map';
 
 export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading }) => {
   const { t } = useTranslations();
@@ -94,15 +95,16 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
 
             <div className="flex flex-col gap-4 w-full md:w-auto">
                 <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/10">
-                    {(['grid', 'list', 'carousel'] as ViewMode[]).map(m => (
+                    {(['grid', 'list', 'carousel', 'map'] as ViewMode[]).map(m => (
                         <button 
                             key={m}
                             onClick={() => setViewMode(m)}
                             className={`p-2 rounded-lg transition-all ${viewMode === m ? 'bg-primary text-black shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
                             {m === 'grid' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
-                            {m === 'list' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>}
+                            {m === 'list' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>}
                             {m === 'carousel' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>}
+                            {m === 'map' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>}
                         </button>
                     ))}
                 </div>
@@ -180,6 +182,12 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                 />
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {viewMode === 'map' && (
+                    <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 animate-fade-in">
+                        <AdoptionMap adoptablePets={filteredPets} onAdoptMe={handleInquire} isLoading={isLoading} />
                     </div>
                 )}
             </>
