@@ -15,11 +15,11 @@
 - [~] Task: Conductor - User Manual Verification 'Adoption Center Map Integration' (Protocol in workflow.md)
 
 ## Phase 3: Secure Chat & Smart Templates [checkpoint: ]
-- [ ] Task: Write unit tests for the localized "Smart Template" generator.
-- [ ] Task: Implement a utility function in `services/petService.ts` or similar to generate adoption inquiry templates based on the user's locale.
-- [ ] Task: Enhance the `handleStartChat` logic in `App.tsx` to support automated initial messages using the smart templates.
-- [ ] Task: Update the "Adopt Me" button in both the `AdoptionCenter` cards and the Map markers to trigger the enhanced chat protocol.
-- [ ] Task: Conductor - User Manual Verification 'Secure Chat & Smart Templates' (Protocol in workflow.md)
+- [x] Task: Write unit tests for the localized "Smart Template" generator. f460e39
+- [x] Task: Implement a utility function in `services/petService.ts` or similar to generate adoption inquiry templates based on the user's locale. f460e39
+- [x] Task: Enhance the `handleStartChat` logic in `App.tsx` to support automated initial messages using the smart templates. f460e39
+- [x] Task: Update the "Adopt Me" button in both the `AdoptionCenter` cards and the Map markers to trigger the enhanced chat protocol. f460e39
+- [~] Task: Conductor - User Manual Verification 'Secure Chat & Smart Templates' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & UX Audit [checkpoint: ]
 - [ ] Task: Conduct a mobile responsiveness audit for the new map and navigation elements.
