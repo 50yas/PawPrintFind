@@ -1,8 +1,8 @@
 # Plan: Unified Access & Enhanced Adoption Logic
 
 ## Phase 1: Unified Navigation & Routing [checkpoint: ]
-- [~] Task: Update `translations.ts` and locale files with new navigation and chat template strings.
-- [ ] Task: Write unit tests for the `Navbar` to ensure "Home" and "Adoption Center" links appear for authenticated users.
+- [x] Task: Update `translations.ts` and locale files with new navigation and chat template strings. 86b989a
+- [~] Task: Write unit tests for the `Navbar` to ensure "Home" and "Adoption Center" links appear for authenticated users.
 - [ ] Task: Refactor `Navbar.tsx` to display public navigation links for all user roles.
 - [ ] Task: Refactor `UserRouter.tsx`, `ShelterRouter.tsx`, `VetRouter.tsx`, and `VolunteerRouter.tsx` to handle the `adoptionCenter` and `home` views.
 - [ ] Task: Conductor - User Manual Verification 'Unified Navigation & Routing' (Protocol in workflow.md)
