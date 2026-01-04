@@ -101,4 +101,24 @@ describe('AdoptionCenter Component', () => {
 
     expect(screen.getByTestId('adoption-map')).toBeInTheDocument();
   });
+
+  it('calls onInquire when Adopt Me button is clicked in grid view', () => {
+    const mockOnInquire = vi.fn();
+    const authenticatedUser: User = { uid: '1', email: 'test@test.com' } as any;
+    
+    render(
+      <AdoptionCenter 
+        petsForAdoption={mockPets} 
+        onInquire={mockOnInquire} 
+        goBack={vi.fn()} 
+        currentUser={authenticatedUser} 
+        isLoading={false} 
+      />
+    );
+
+    const inquireBtn = screen.getByText('inquireToAdoptButton');
+    fireEvent.click(inquireBtn);
+
+    expect(mockOnInquire).toHaveBeenCalledWith(mockPets[0]);
+  });
 });

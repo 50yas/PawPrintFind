@@ -26,6 +26,8 @@ import { PublicRouter } from './components/routers/PublicRouter';
 import { useAppState } from './hooks/useAppState';
 import { useAuthSync } from './hooks/useAuthSync';
 import { useSnackbar } from './contexts/SnackbarContext';
+import { useTranslations } from './hooks/useTranslations';
+import { generateAdoptionInquiry } from './src/utils/templateUtils';
 
 const DevMarquee = () => {
     const devText = "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •";
@@ -51,6 +53,7 @@ export default function App() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
     const { addSnackbar } = useSnackbar();
+    const { t } = useTranslations();
     const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
     const {
         allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
@@ -103,9 +106,24 @@ export default function App() {
     const handleStartChat = async (pet: PetProfile) => {
         if (!currentUser) return;
         const sessionId = [pet.id, currentUser.uid].sort().join('_');
+        
+        // Check if session exists to determine if we should send initial message
+        const existingSession = chatSessions.find(s => s.id === sessionId);
+        const messages = existingSession?.messages || [];
+
+        if (messages.length === 0 && pet.status === 'forAdoption') {
+            const template = t('adoptionInquiryTemplate');
+            const initialMessage = generateAdoptionInquiry(template, pet.name);
+            messages.push({
+                senderEmail: currentUser.email,
+                text: initialMessage,
+                timestamp: Date.now()
+            });
+        }
+
         const newSession: ChatSession = {
             id: sessionId, petId: pet.id, petName: pet.name, petPhotoUrl: pet.photos[0]?.url || '',
-            ownerEmail: pet.ownerEmail || '', finderEmail: currentUser.email, messages: []
+            ownerEmail: pet.ownerEmail || '', finderEmail: currentUser.email, messages: messages
         };
         await dbService.saveChatSession(newSession);
         setActiveChatSession(newSession);
