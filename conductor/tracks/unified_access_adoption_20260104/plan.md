@@ -22,13 +22,13 @@
 - [~] Task: Conductor - User Manual Verification 'Secure Chat & Smart Templates' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & UX Audit [checkpoint: ]
-- [ ] Task: Conduct a mobile responsiveness audit for the new map and navigation elements.
-- [ ] Task: Ensure zero layout shifts when switching between the dashboard and the adoption map.
-- [ ] Task: Verify that unauthenticated users can still access all public pages as before.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & UX Audit' (Protocol in workflow.md)
+- [x] Task: Conduct a mobile responsiveness audit for the new map and navigation elements. f6da426
+- [x] Task: Ensure zero layout shifts when switching between the dashboard and the adoption map. f6da426
+- [x] Task: Verify that unauthenticated users can still access all public pages as before. f6da426
+- [x] Task: Conductor - User Manual Verification 'Final Polish & UX Audit' (Protocol in workflow.md) f6da426
 
 ## Phase 5: Global Translation Enhancement [checkpoint: ]
-- [ ] Task: Review and refine all strings in `translations/` (it, en, es, fr, de, ar, zh, ro) to ensure premium, natural phrasing.
-- [ ] Task: Ensure consistency in terminology (e.g., "Adopt" vs "Rescue") across all languages.
-- [ ] Task: Use the Gemini AI to verify cultural nuances and right-to-left (RTL) formatting for Arabic.
-- [ ] Task: Conductor - User Manual Verification 'Global Translation Enhancement' (Protocol in workflow.md)
+- [x] Task: Review and refine all strings in `translations/` (it, en, es, fr, de, ar, zh, ro) to ensure premium, natural phrasing. f6da426
+- [x] Task: Ensure consistency in terminology (e.g., "Adopt" vs "Rescue") across all languages. f6da426
+- [x] Task: Use the Gemini AI to verify cultural nuances and right-to-left (RTL) formatting for Arabic. f6da426
+- [x] Task: Conductor - User Manual Verification 'Global Translation Enhancement' (Protocol in workflow.md) f6da426
