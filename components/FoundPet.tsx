@@ -250,7 +250,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                   <h2 className="text-2xl font-bold text-foreground">{t('missingPetsMapTitle')}</h2>
                   <p className="text-muted-foreground">{t('missingPetsMapDesc')}</p>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[500px] lg:h-[600px]">
                   <div className="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
                       <MissingPetsMap lostPets={lostPets} />
                       

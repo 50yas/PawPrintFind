@@ -186,7 +186,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                 )}
 
                 {viewMode === 'map' && (
-                    <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 animate-fade-in">
+                    <div className="h-[50vh] md:h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 animate-fade-in">
                         <AdoptionMap adoptablePets={filteredPets} onAdoptMe={handleInquire} isLoading={isLoading} />
                     </div>
                 )}
