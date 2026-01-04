@@ -18,8 +18,8 @@
 - [x] Task: Implement "Skeleton Loaders" for the map sidebar and adoption center cards to prevent layout shifts during data loading. f35638c
 - [x] Task: Conductor - User Manual Verification 'Core Experience - Home & Maps' (Protocol in workflow.md) f0531e2
 
-## Phase 4: Polish & Performance
+## Phase 4: Polish & Performance [checkpoint: 251f1d6]
 - [x] Task: Conduct a responsive design audit on the Landing Page and fix layout issues on small screens (375px width). 09b9733
 - [x] Task: Replace standard browser alerts with the new `Snackbar` component throughout the application. ebb3a0b
 - [x] Task: Optimize image loading strategy (implement lazy loading and proper sizing) to improve LCP. 715cff0
-- [~] Task: Conductor - User Manual Verification 'Polish & Performance' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Polish & Performance' (Protocol in workflow.md) 251f1d6
