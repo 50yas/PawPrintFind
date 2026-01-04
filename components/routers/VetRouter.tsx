@@ -5,22 +5,36 @@ import { MyClinic } from '../MyClinic';
 import { MyPatients } from '../MyPatients';
 import { PatientDetail } from '../PatientDetail';
 import { SmartCalendar } from '../SmartCalendar';
-import { View, User, PetProfile, VetClinic, Appointment } from '../../types';
+import { View, User, PetProfile, VetClinic, Appointment, Donation, BlogPost } from '../../types';
 import { dbService } from '../../services/firebase';
+import { Home } from '../Home';
+import { AdoptionCenter } from '../AdoptionCenter';
+import { PressKit } from '../PressKit';
+import { Donors } from '../Donors';
+import { Blog } from '../Blog';
+import { BlogPostDetail } from '../BlogPostDetail';
 
 interface VetRouterProps {
     currentView: View;
     setView: (view: View) => void;
     currentUser: User;
     allPets: PetProfile[];
+    lostPets: PetProfile[];
+    petsForAdoption: PetProfile[];
     vetClinics: VetClinic[];
+    donations: Donation[];
     appointments: Appointment[];
     viewingPatient: PetProfile | null;
     setViewingPatient: (p: PetProfile | null) => void;
+    selectedPost: BlogPost | null;
+    setSelectedPost: (p: BlogPost | null) => void;
+    handleStartChat: (p: PetProfile) => Promise<void>;
+    setIsLoginModalOpen: (open: boolean) => void;
+    isLoading?: boolean;
 }
 
 export const VetRouter: React.FC<VetRouterProps> = ({
-    currentView, setView, currentUser, allPets, vetClinics, appointments, viewingPatient, setViewingPatient
+    currentView, setView, currentUser, allPets, lostPets, petsForAdoption, vetClinics, donations, appointments, viewingPatient, setViewingPatient, selectedPost, setSelectedPost, handleStartChat, setIsLoginModalOpen, isLoading
 }) => {
     const vetApps = appointments.filter(a => a.vetEmail === currentUser.email);
     const vetPatients = allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'linked');
@@ -57,7 +71,17 @@ export const VetRouter: React.FC<VetRouterProps> = ({
                     onStatusChange={(id, s) => dbService.saveAppointment({ ...vetApps.find(a => a.id === id)!, status: s })}
                 />
             );
-        default:
+        case 'adoptionCenter':
+            return <AdoptionCenter petsForAdoption={petsForAdoption} onInquire={handleStartChat} goBack={() => setView('home')} currentUser={currentUser} isLoading={isLoading} />;
+        case 'pressKit':
+            return <PressKit goBack={() => setView('home')} />;
+        case 'donors':
+            return <Donors goBack={() => setView('home')} donations={donations} />;
+        case 'blog':
+            return <Blog setView={setView} onSelectPost={(p) => { setSelectedPost(p); setView('blogPost'); }} />;
+        case 'blogPost':
+            return selectedPost ? <BlogPostDetail post={selectedPost} onBack={() => setView('blog')} /> : null;
+        case 'vetDashboard':
             return (
                 <VetDashboard
                     user={currentUser}
@@ -68,5 +92,7 @@ export const VetRouter: React.FC<VetRouterProps> = ({
                     todaysAppointments={vetApps.filter(a => a.date === new Date().toISOString().split('T')[0] && a.status === 'confirmed')}
                 />
             );
+        default:
+            return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} />;
     }
 };

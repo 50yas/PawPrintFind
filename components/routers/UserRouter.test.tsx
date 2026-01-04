@@ -11,6 +11,7 @@ vi.mock('../FoundPet', () => ({ FoundPet: () => <div data-testid="found-pet">Fou
 vi.mock('../FindVet', () => ({ FindVet: () => <div data-testid="find-vet">FindVet</div> }));
 vi.mock('../Community', () => ({ Community: () => <div data-testid="community">Community</div> }));
 vi.mock('../Home', () => ({ Home: () => <div data-testid="home">Home</div> }));
+vi.mock('../AdoptionCenter', () => ({ AdoptionCenter: () => <div data-testid="adoption-center">AdoptionCenter</div> }));
 
 describe('UserRouter', () => {
     const defaultProps = {
@@ -22,11 +23,15 @@ describe('UserRouter', () => {
         appointments: [],
         chatSessions: [],
         lostPets: [],
+        petsForAdoption: [],
+        donations: [],
         allUsers: [],
         editingPet: null,
         setEditingPet: vi.fn(),
         petToLink: null,
         setPetToLink: vi.fn(),
+        selectedPost: null,
+        setSelectedPost: vi.fn(),
         handleRegisterPet: vi.fn().mockResolvedValue(undefined),
         handleStartChat: vi.fn().mockResolvedValue(undefined),
         handleLogout: vi.fn(),
@@ -57,6 +62,11 @@ describe('UserRouter', () => {
     it('renders Community for community view', () => {
         render(<UserRouter {...defaultProps} currentView="community" />);
         expect(screen.getByTestId('community')).toBeInTheDocument();
+    });
+
+    it('renders AdoptionCenter for adoptionCenter view', () => {
+        render(<UserRouter {...defaultProps} currentView="adoptionCenter" />);
+        expect(screen.getByTestId('adoption-center')).toBeInTheDocument();
     });
 
     it('renders Home for home view', () => {

@@ -161,10 +161,18 @@ export default function App() {
                     setView={setCurrentView}
                     currentUser={currentUser}
                     allPets={allPets}
+                    lostPets={lostPets}
+                    petsForAdoption={petsForAdoption}
                     vetClinics={vetClinics}
+                    donations={donations}
                     appointments={appointments}
                     viewingPatient={viewingPatient}
                     setViewingPatient={setViewingPatient}
+                    selectedPost={selectedPost}
+                    setSelectedPost={setSelectedPost}
+                    handleStartChat={handleStartChat}
+                    setIsLoginModalOpen={setIsLoginModalOpen}
+                    isLoading={isLoading}
                 />
             );
         }
@@ -176,11 +184,19 @@ export default function App() {
                     setView={setCurrentView}
                     currentUser={currentUser}
                     allPets={allPets}
+                    lostPets={lostPets}
+                    petsForAdoption={petsForAdoption}
+                    donations={donations}
                     chatSessions={chatSessions}
                     editingPet={editingPet}
                     setEditingPet={setEditingPet}
+                    selectedPost={selectedPost}
+                    setSelectedPost={setSelectedPost}
                     handleRegisterPet={handleRegisterPet}
+                    handleStartChat={handleStartChat}
                     onOpenChat={(id) => setActiveChatSession(chatSessions.find(s => s.id === id) || null)}
+                    setIsLoginModalOpen={setIsLoginModalOpen}
+                    isLoading={isLoading}
                 />
             );
         }
@@ -195,11 +211,15 @@ export default function App() {
                 appointments={appointments}
                 chatSessions={chatSessions}
                 lostPets={lostPets}
+                petsForAdoption={petsForAdoption}
+                donations={donations}
                 allUsers={allUsers}
                 editingPet={editingPet}
                 setEditingPet={setEditingPet}
                 petToLink={petToLink}
                 setPetToLink={setPetToLink}
+                selectedPost={selectedPost}
+                setSelectedPost={setSelectedPost}
                 handleRegisterPet={handleRegisterPet}
                 handleStartChat={handleStartChat}
                 handleLogout={handleLogout}
