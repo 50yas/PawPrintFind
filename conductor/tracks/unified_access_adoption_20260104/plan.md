@@ -4,8 +4,8 @@
 - [x] Task: Update `translations.ts` and locale files with new navigation and chat template strings. 86b989a
 - [x] Task: Write unit tests for the `Navbar` to ensure "Home" and "Adoption Center" links appear for authenticated users. a4df805
 - [x] Task: Refactor `Navbar.tsx` to display public navigation links for all user roles. 7a75543
-- [~] Task: Refactor `UserRouter.tsx`, `ShelterRouter.tsx`, `VetRouter.tsx`, and `VolunteerRouter.tsx` to handle the `adoptionCenter` and `home` views.
-- [ ] Task: Conductor - User Manual Verification 'Unified Navigation & Routing' (Protocol in workflow.md)
+- [x] Task: Refactor `UserRouter.tsx`, `ShelterRouter.tsx`, `VetRouter.tsx`, and `VolunteerRouter.tsx` to handle the `adoptionCenter` and `home` views. e3f25fe
+- [~] Task: Conductor - User Manual Verification 'Unified Navigation & Routing' (Protocol in workflow.md)
 
 ## Phase 2: Adoption Center Map Integration [checkpoint: ]
 - [ ] Task: Create a new `AdoptionMap.tsx` component (reusing logic from `MissingPetsMap.tsx`) tailored for adoptable pets.
