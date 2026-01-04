@@ -5,10 +5,13 @@ import {
     setDoc,
     doc,
     deleteDoc,
-    addDoc
+    addDoc,
+    query,
+    orderBy,
+    limit
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { User } from '../types';
+import { User, AdminAuditLog } from '../types';
 import { authService } from './authService';
 import { logger } from './loggerService';
 
@@ -71,7 +74,7 @@ export const adminService = {
         }
     },
 
-    async logAdminAction(log: { adminEmail: string, action: string, targetId?: string, details: string }) {
+    async logAdminAction(log: Omit<AdminAuditLog, 'id' | 'timestamp'>) {
         try {
             await addDoc(collection(db, 'admin_audit_logs'), {
                 ...log,
@@ -81,6 +84,20 @@ export const adminService = {
             logger.error('Error logging admin action:', error);
             // We might not want to throw here to avoid interrupting the main action
             console.error("Failed to log admin action", error);
+        }
+    },
+
+    async getAuditLogs(max: number = 100): Promise<AdminAuditLog[]> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to fetch audit logs.");
+            }
+            const q = query(collection(db, 'admin_audit_logs'), orderBy('timestamp', 'desc'), limit(max));
+            const snap = await getDocs(q);
+            return snap.docs.map(d => ({ ...d.data(), id: d.id } as AdminAuditLog));
+        } catch (error) {
+            logger.error('Error fetching audit logs:', error);
+            throw error;
         }
     }
 };

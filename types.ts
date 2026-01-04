@@ -1,4 +1,3 @@
-
 export type UserRole = 'owner' | 'vet' | 'shelter' | 'volunteer' | 'super_admin';
 
 export type View = 'home' | 'register' | 'find' | 'dashboard' | 'editPet' |
@@ -16,13 +15,22 @@ export interface LogEntry {
   data?: Record<string, unknown>;
 }
 
+export interface AdminAuditLog {
+  id: string;
+  adminEmail: string;
+  action: string; // e.g. 'VERIFY_USER', 'DELETE_PET'
+  targetId: string; // uid of user or id of pet
+  details: string;
+  timestamp: number;
+}
+
 export interface AdminKey {
   id?: string;
-  keyHash: string; // SHA-256
-  createdBy: string; // uid of creator
+  keyHash: string;
+  createdBy: string;
   createdAt: number;
   status: 'active' | 'revoked' | 'used';
-  label?: string; // e.g. "For Marco"
+  label?: string;
 }
 
 export interface BlogPost {
@@ -64,7 +72,7 @@ export interface VetClinic {
   name: string;
   address: string;
   phone: string;
-  location?: Geolocation; // Added for map rendering
+  location?: Geolocation;
   isVerified?: boolean;
 }
 
@@ -96,7 +104,6 @@ export interface HealthCheck {
   advice: string;
 }
 
-// Added Vaccination and MedicalRecord interfaces to support complete pet health profiles
 export interface Vaccination {
   name: string;
   date: string;
@@ -132,7 +139,6 @@ export interface PetProfile {
   videoAnalysis: string;
   audioNotes: string;
   healthChecks: HealthCheck[];
-  // Added medicalRecord property to PetProfile interface
   medicalRecord?: MedicalRecord;
   aiIdentityCode?: string;
   aiPhysicalDescription?: string;
@@ -143,14 +149,6 @@ export interface Geolocation {
   longitude: number;
   lat?: number;
   lng?: number;
-}
-
-export interface MatchResult {
-  pet: PetProfile;
-  score: number;
-  reasoning: string;
-  keyMatches?: string[];
-  discrepancies?: string[];
 }
 
 export interface Appointment {
@@ -205,4 +203,3 @@ export interface ContactMessage {
   message: string;
   timestamp: number;
 }
-

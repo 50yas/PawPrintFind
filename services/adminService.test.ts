@@ -76,4 +76,50 @@ describe('adminService', () => {
             expect(logger.error).toHaveBeenCalledWith('Error saving user:', mockError);
         });
     });
+
+    describe('logAdminAction', () => {
+        it('should add a document to admin_audit_logs', async () => {
+            const mockLog = {
+                adminEmail: 'admin@test.com',
+                action: 'VERIFY_USER',
+                targetId: 'user-1',
+                details: 'Verified user credentials'
+            };
+            (addDoc as Mock).mockResolvedValue({ id: 'log-123' });
+
+            await adminService.logAdminAction(mockLog);
+            expect(addDoc).toHaveBeenCalled();
+        });
+
+        it('should log console error on failure but not throw', async () => {
+            const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            (addDoc as Mock).mockRejectedValue(new Error('Log failure'));
+
+            await adminService.logAdminAction({ adminEmail: 'a', action: 'b', details: 'c', targetId: 'd' });
+            expect(logger.error).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            spy.mockRestore();
+        });
+    });
+
+    describe('getAuditLogs', () => {
+        it('should throw error if user is not authenticated', async () => {
+            await expect(adminService.getAuditLogs()).rejects.toThrow('Authentication required');
+        });
+
+        it('should return audit logs if authenticated', async () => {
+            (auth.currentUser as any) = { uid: 'admin-123' };
+            const mockSnapshot = {
+                docs: [
+                    { id: 'l1', data: () => ({ action: 'DELETE_PET', timestamp: 123 }) },
+                    { id: 'l2', data: () => ({ action: 'VERIFY_USER', timestamp: 456 }) }
+                ]
+            };
+            (getDocs as Mock).mockResolvedValue(mockSnapshot);
+
+            const logs = await adminService.getAuditLogs();
+            expect(logs).toHaveLength(2);
+            expect(logs[0].id).toBe('l1');
+        });
+    });
 });

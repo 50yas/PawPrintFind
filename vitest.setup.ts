@@ -44,6 +44,8 @@ vi.mock('firebase/firestore', () => ({
   arrayUnion: vi.fn(),
   increment: vi.fn(),
   addDoc: vi.fn(),
+  orderBy: vi.fn(),
+  limit: vi.fn(),
 }));
 
 vi.mock('firebase/storage', () => ({
