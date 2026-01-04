@@ -132,5 +132,10 @@ export const ar = {
     addPatientButton: `إضافة مريض`,
     myPatientsTitle: `مرضاي`,
     myClinicTitle: `عيادتي`,
-    smartCalendarTitle: `التقويم الذكي`
+    smartCalendarTitle: `التقويم الذكي`,
+    adoptionMapTitle: `خريطة التبني`,
+    adoptionLink: `التبني`,
+    locateMeButton: `حدد موقعي`,
+    adoptMeButton: `تبناني`,
+    adoptionInquiryTemplate: `مرحبا! أنا مهتم جدا بتبني {{petName}}. هل يمكنك تقديم المزيد من المعلومات حول عملية التبني؟`
 };

@@ -1,0 +1,34 @@
+# Plan: Unified Access & Enhanced Adoption Logic
+
+## Phase 1: Unified Navigation & Routing [checkpoint: ]
+- [~] Task: Update `translations.ts` and locale files with new navigation and chat template strings.
+- [ ] Task: Write unit tests for the `Navbar` to ensure "Home" and "Adoption Center" links appear for authenticated users.
+- [ ] Task: Refactor `Navbar.tsx` to display public navigation links for all user roles.
+- [ ] Task: Refactor `UserRouter.tsx`, `ShelterRouter.tsx`, `VetRouter.tsx`, and `VolunteerRouter.tsx` to handle the `adoptionCenter` and `home` views.
+- [ ] Task: Conductor - User Manual Verification 'Unified Navigation & Routing' (Protocol in workflow.md)
+
+## Phase 2: Adoption Center Map Integration [checkpoint: ]
+- [ ] Task: Create a new `AdoptionMap.tsx` component (reusing logic from `MissingPetsMap.tsx`) tailored for adoptable pets.
+- [ ] Task: Write tests for `AdoptionMap` to verify it correctly filters and displays only pets with `status: "forAdoption"`.
+- [ ] Task: Implement the "Locate Me" functionality using the `useGeolocation` hook within the map.
+- [ ] Task: Update `AdoptionCenter.tsx` to render the `AdoptionMap` and handle the "Adopt Me" callback from markers.
+- [ ] Task: Conductor - User Manual Verification 'Adoption Center Map Integration' (Protocol in workflow.md)
+
+## Phase 3: Secure Chat & Smart Templates [checkpoint: ]
+- [ ] Task: Write unit tests for the localized "Smart Template" generator.
+- [ ] Task: Implement a utility function in `services/petService.ts` or similar to generate adoption inquiry templates based on the user's locale.
+- [ ] Task: Enhance the `handleStartChat` logic in `App.tsx` to support automated initial messages using the smart templates.
+- [ ] Task: Update the "Adopt Me" button in both the `AdoptionCenter` cards and the Map markers to trigger the enhanced chat protocol.
+- [ ] Task: Conductor - User Manual Verification 'Secure Chat & Smart Templates' (Protocol in workflow.md)
+
+## Phase 4: Final Polish & UX Audit [checkpoint: ]
+- [ ] Task: Conduct a mobile responsiveness audit for the new map and navigation elements.
+- [ ] Task: Ensure zero layout shifts when switching between the dashboard and the adoption map.
+- [ ] Task: Verify that unauthenticated users can still access all public pages as before.
+- [ ] Task: Conductor - User Manual Verification 'Final Polish & UX Audit' (Protocol in workflow.md)
+
+## Phase 5: Global Translation Enhancement [checkpoint: ]
+- [ ] Task: Review and refine all strings in `translations/` (it, en, es, fr, de, ar, zh, ro) to ensure premium, natural phrasing.
+- [ ] Task: Ensure consistency in terminology (e.g., "Adopt" vs "Rescue") across all languages.
+- [ ] Task: Use the Gemini AI to verify cultural nuances and right-to-left (RTL) formatting for Arabic.
+- [ ] Task: Conductor - User Manual Verification 'Global Translation Enhancement' (Protocol in workflow.md)

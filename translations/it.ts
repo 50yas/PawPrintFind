@@ -494,5 +494,10 @@ export const it = {
     
     // Navbar
     adoptionLink: `Adozioni`,
-    filterAgeLabel: `Età`
+    filterAgeLabel: `Età`,
+    blogButton: `Blog`,
+    adoptionMapTitle: `Mappa Adozioni`,
+    locateMeButton: `Trovami`,
+    adoptMeButton: `Adottami`,
+    adoptionInquiryTemplate: `Ciao! Sono molto interessato ad adottare {{petName}}. Potresti fornirmi maggiori informazioni sul processo di adozione?`
 };

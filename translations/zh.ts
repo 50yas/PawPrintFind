@@ -132,5 +132,10 @@ export const zh = {
     addPatientButton: `添加患者`,
     myPatientsTitle: `我的患者`,
     myClinicTitle: `我的诊所`,
-    smartCalendarTitle: `智能日历`
+    smartCalendarTitle: `智能日历`,
+    adoptionMapTitle: `领养地图`,
+    adoptionLink: `领养`,
+    locateMeButton: `定位我`,
+    adoptMeButton: `领养我`,
+    adoptionInquiryTemplate: `你好！我对领养 {{petName}} 非常感兴趣。你能提供更多关于领养流程的信息吗？`
 };

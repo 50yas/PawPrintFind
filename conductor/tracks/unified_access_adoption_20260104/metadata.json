@@ -1,0 +1,8 @@
+{
+  "track_id": "unified_access_adoption_20260104",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-04T15:30:00Z",
+  "updated_at": "2026-01-04T15:30:00Z",
+  "description": "Unify user logic for all roles to allow access to public pages while logged in, enhance adoption center with a dedicated map, and implement localized smart chat templates for adoptions."
+}

@@ -132,5 +132,10 @@ export const de = {
     addPatientButton: `Patient Hinzufügen`,
     myPatientsTitle: `Meine Patienten`,
     myClinicTitle: `Meine Klinik`,
-    smartCalendarTitle: `Intelligenter Kalender`
+    smartCalendarTitle: `Intelligenter Kalender`,
+    adoptionMapTitle: `Adoptionskarte`,
+    adoptionLink: `Adoptionen`,
+    locateMeButton: `Mich finden`,
+    adoptMeButton: `Adoptiere mich`,
+    adoptionInquiryTemplate: `Hallo! Ich bin sehr an der Adoption von {{petName}} interessiert. Könnten Sie mir weitere Informationen über den Adoptionsprozess geben?`
 };

@@ -132,5 +132,10 @@ export const ro = {
     addPatientButton: `Adaugă Pacient`,
     myPatientsTitle: `Pacienții Mei`,
     myClinicTitle: `Clinica Mea`,
-    smartCalendarTitle: `Calendar Inteligent`
+    smartCalendarTitle: `Calendar Inteligent`,
+    adoptionLink: `Adopții`,
+    adoptionMapTitle: `Hartă Adopții`,
+    locateMeButton: `Localizează-mă`,
+    adoptMeButton: `Adoptă-mă`,
+    adoptionInquiryTemplate: `Bună! Sunt foarte interesat să îl adopt pe {{petName}}. Mi-ați putea oferi mai multe informații despre procesul de adopție?`
 };

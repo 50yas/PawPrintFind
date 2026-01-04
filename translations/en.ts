@@ -131,5 +131,9 @@ export const en = {
     noPetsForAdoption: `No pets currently available for adoption.`,
     loginToAdoptWarning: `You must be logged in to inquire about adoption.`,
     filterBreedLabel: `Breed`,
-    filterAgeLabel: `Age`
+    filterAgeLabel: `Age`,
+    adoptionMapTitle: `Adoption Map`,
+    locateMeButton: `Locate Me`,
+    adoptMeButton: `Adopt Me`,
+    adoptionInquiryTemplate: `Hello! I am very interested in adopting {{petName}}. Could you provide more information about the adoption process?`
 };
