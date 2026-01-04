@@ -5,6 +5,7 @@ import { User, PetProfile, VetClinic, Donation } from '../../types';
 
 interface AdminRouterProps {
     users: User[];
+    currentUser: User;
     allPets: PetProfile[];
     vetClinics: VetClinic[];
     donations: Donation[];
@@ -17,6 +18,7 @@ export const AdminRouter: React.FC<AdminRouterProps> = (props) => {
     return (
         <AdminDashboard
             users={props.users}
+            currentUser={props.currentUser}
             allPets={props.allPets}
             vetClinics={props.vetClinics}
             donations={props.donations}

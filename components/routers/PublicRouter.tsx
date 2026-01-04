@@ -32,6 +32,6 @@ export const PublicRouter: React.FC<PublicRouterProps> = ({
         case 'blogPost': return selectedPost ? <BlogPostDetail post={selectedPost} onBack={() => setView('blog')} /> : null;
         case 'adoptionCenter': return <AdoptionCenter petsForAdoption={petsForAdoption} onInquire={handleStartChat} goBack={() => setView('home')} currentUser={null} isLoading={isLoading} />;
         case 'paymentSuccess': return <PaymentSuccess setView={setView} />;
-        default: return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={null} lostPets={lostPets} />;
+        default: return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={null} lostPets={lostPets} petsForAdoption={petsForAdoption} />;
     }
 };

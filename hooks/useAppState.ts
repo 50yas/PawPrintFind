@@ -43,12 +43,18 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
     }, []);
 
     useEffect(() => {
-        if (currentUser) {
+        if (currentUser && currentUser.email) {
             const unsubAppts = dbService.subscribeToAppointments(currentUser.email, setAppointments);
             const unsubChats = dbService.subscribeToChats(currentUser.email, setChatSessions);
 
             if (currentUser.activeRole === 'super_admin') {
-                dbService.getUsers().then(setAllUsers).catch(console.error);
+                // Wrap in try/catch to handle cases where local role != server role
+                dbService.getUsers()
+                    .then(setAllUsers)
+                    .catch(err => {
+                        console.warn("[Admin-Sync] Permission Denied for user list. Please verify your account clearance level in Firestore.", err.message);
+                        setAllUsers([]);
+                    });
             }
 
             return () => { unsubAppts(); unsubChats(); };
@@ -60,9 +66,13 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
 
     const handleRefreshAdminData = useCallback(async () => {
         setIsLoading(true);
-        const u = await dbService.getUsers();
+        try {
+            const u = await dbService.getUsers();
+            setAllUsers(u);
+        } catch (e) {
+            console.error("Manual Admin Sync Failed:", e);
+        }
         const p = await dbService.getPets();
-        setAllUsers(u);
         setAllPets(p);
         setIsLoading(false);
     }, []);

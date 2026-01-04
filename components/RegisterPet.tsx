@@ -299,14 +299,30 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             const storagePath = `${folder}/${ownerUid}/pets/${id}/${fileName}`;
             
             console.log(`[Bio-Sync] Uploading visual data to encrypted vault: ${storagePath}`);
-            const finalUrl = await dbService.uploadImage(p.file, storagePath);
             
-            return {
-                id: p.id || Date.now().toString(),
-                url: finalUrl,
-                marks: p.marks || [],
-                description: p.description || 'Pet Profile Photo'
-            };
+            try {
+                const finalUrl = await dbService.uploadImage(p.file, storagePath);
+                return {
+                    id: p.id || Date.now().toString(),
+                    url: finalUrl,
+                    marks: p.marks || [],
+                    description: p.description || 'Pet Profile Photo'
+                };
+            } catch (uploadError: any) {
+                // Fallback for legacy permissions or missing folder structure rules
+                if (uploadError.message?.includes('permission-denied') || uploadError.message?.includes('unauthorized')) {
+                    console.warn("[Bio-Sync] Primary vault access denied. Attempting fallback to legacy sector...");
+                    const legacyPath = `uploads/${fileName}`;
+                    const legacyUrl = await dbService.uploadImage(p.file, legacyPath);
+                     return {
+                        id: p.id || Date.now().toString(),
+                        url: legacyUrl,
+                        marks: p.marks || [],
+                        description: p.description || 'Pet Profile Photo'
+                    };
+                }
+                throw uploadError;
+            }
         }));
 
         const medicalRecord: MedicalRecord = { 
@@ -346,11 +362,21 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
         onRegister(newPet);
     } catch (error: any) {
         console.error("Critical Profile Sync Error:", error);
-        if (error.message?.includes('permission-denied') || error.code === 'storage/unauthorized') {
-            triggerFunnyWarning("Security Breach! Access to the storage vault was denied. Check your permissions.", []);
-        } else {
-            triggerFunnyWarning("The mainframe is resisting! Error: " + (error.message || "Unknown error"), []);
+        
+        let errorMsg = "The mainframe is resisting! " + (error.message || "Unknown error");
+        
+        // Handle specific Firebase Storage errors
+        if (error.message?.includes('permission-denied') || error.message?.includes('storage/unauthorized') || error.code === 'storage/unauthorized') {
+            errorMsg = "Security Access Denied: Unable to save pet photos. Please ensure you are logged in correctly and try again. (Storage Unauthorized)";
+        } else if (error.code === 'storage/canceled') {
+            errorMsg = "Upload canceled by user.";
+        } else if (error.code === 'storage/unknown') {
+            errorMsg = "Unknown storage error occurred. Please try a different photo.";
+        } else if (error.code === 'permission-denied') {
+            errorMsg = "You don't have permission to perform this action.";
         }
+
+        triggerFunnyWarning(errorMsg, []);
     } finally {
         setIsSaving(false);
     }

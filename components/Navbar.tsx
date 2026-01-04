@@ -104,6 +104,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
               {t('blogButton')}
             </button>
             <button
+              onClick={() => handleNavClick('adoptionCenter')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('adoptionLink')}
+            </button>
+            <button
               onClick={() => handleNavClick('home', 'how-it-works')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >

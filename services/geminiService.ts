@@ -15,7 +15,21 @@ const getAIClient = () => {
         return {
             models: {
                 generateContent: async () => ({
-                    text: "Gemini API Key missing. This is a mock response.",
+                    text: JSON.stringify({
+                        visualIdentityCode: "MOCK-12345",
+                        physicalDescription: "This is a mock description generated because the API key is missing.",
+                        score: 0.95,
+                        reasoning: "Mock reasoning",
+                        keyMatches: ["Match 1", "Match 2"],
+                        discrepancies: ["None"],
+                        suggestions: ["Check the park", "Post flyers"],
+                        title: "Mock Blog Post",
+                        summary: "Mock summary",
+                        content: "Mock content",
+                        seoTitle: "Mock SEO Title",
+                        seoDescription: "Mock SEO Description",
+                        tags: ["mock", "test"]
+                    }),
                     candidates: [{
                         content: { parts: [{ inlineData: { data: "" }, text: "Mock response" }] },
                         groundingMetadata: { groundingChunks: [] }

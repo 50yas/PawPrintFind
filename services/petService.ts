@@ -24,7 +24,23 @@ export const petService = {
             throw new Error('Authentication required to save a pet.');
         }
         try {
-            await setDoc(doc(db, 'pets', pet.id), pet, { merge: true });
+            // Helper to remove undefined fields which Firestore rejects
+            const removeUndefined = (obj: any): any => {
+                if (Array.isArray(obj)) {
+                    return obj.map(removeUndefined);
+                } else if (obj !== null && typeof obj === 'object') {
+                    return Object.entries(obj).reduce((acc, [key, value]) => {
+                        if (value !== undefined) {
+                            acc[key] = removeUndefined(value);
+                        }
+                        return acc;
+                    }, {} as any);
+                }
+                return obj;
+            };
+
+            const sanitizedPet = removeUndefined(pet);
+            await setDoc(doc(db, 'pets', pet.id), sanitizedPet, { merge: true });
         } catch (error) {
             logger.error('Error saving pet:', error);
             throw error;

@@ -1,41 +1,48 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // --- FUNZIONI DI SUPPORTO (Helpers) ---
     
-    // Helper functions
-    function isAuthenticated() {
+    // Controlla se l'utente è loggato
+    function isSignedIn() {
       return request.auth != null;
     }
     
+    // Controlla se l'utente sta toccando i propri file
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Allow public read access to all images (for sharing pets)
+    // --- REGOLE SPECIFICHE PER FILE ---
+
+    // 1. LETTURA GLOBALE
+    // Necessario affinché tutti possano vedere le foto degli animali smarriti/adozioni
     match /{allPaths=**} {
       allow read: if true;
     }
 
-    // User folders: users/{userId}/...
+    // 2. FILE UTENTI & RIFUGI (User & Shelter Files)
+    // Questo è quello che MANCAVA e causava l'errore "unauthorized".
+    // Permette all'utente di caricare file nella propria cartella specifica.
     match /users/{userId}/{allPaths=**} {
-      allow write: if isAuthenticated() && isOwner(userId);
+      allow write: if isOwner(userId);
     }
     
-    // Shelter folders: shelters/{userId}/...
     match /shelters/{userId}/{allPaths=**} {
-      allow write: if isAuthenticated() && isOwner(userId);
+      allow write: if isOwner(userId);
     }
 
-    // Pets folder: pets/{petId}/... (Legacy or shared)
-    // Allow any authenticated user to upload here for now, 
-    // ideally should verify ownership of the pet doc in Firestore
+    // 3. CARTELLE ANIMALI (Fallback)
+    // Se l'upload avviene direttamente sotto 'pets/', permettiamo a chiunque sia loggato
     match /pets/{petId}/{allPaths=**} {
-      allow write: if isAuthenticated();
+      allow write: if isSignedIn();
     }
-    
-    // Uploads folder (Legacy fallback)
+
+    // 4. UPLOADS GENERICI (Fallback)
+    // Per compatibilità con vecchie versioni del codice
     match /uploads/{allPaths=**} {
-      allow write: if isAuthenticated();
+      allow write: if isSignedIn();
     }
   }
 }

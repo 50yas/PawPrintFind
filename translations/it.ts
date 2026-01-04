@@ -478,4 +478,21 @@ export const it = {
     syncAllDataButton: `Sincronizza Tutto nel Profilo`,
     searchToSyncTitle: `Cerca per Sincronizzare`,
     searchToSyncDesc: `Trova la tua clinica su Google Maps per compilare automaticamente indirizzo, telefono e valutazioni.`,
+    
+    // --- New Translations ---
+    // Admin Tabs & Management
+    adminTabBlog: `Gestione Blog`,
+    adminTabPets: `Gestione Animali`,
+    deletePetButton: `Elimina Animale`,
+    deletePostButton: `Elimina Post`,
+    confirmDeletePet: `Sei sicuro di voler eliminare questo animale? Questa azione non può essere annullata.`,
+    confirmDeletePost: `Eliminare questo post del blog?`,
+    
+    // Map Filters
+    showLostPets: `Animali Smarriti`,
+    showAdoptablePets: `Adozioni`,
+    
+    // Navbar
+    adoptionLink: `Adozioni`,
+    filterAgeLabel: `Età`
 };

@@ -18,7 +18,6 @@ vi.mock('./components/routers/VetRouter', () => ({ VetRouter: () => <div data-te
 vi.mock('./components/routers/ShelterRouter', () => ({ ShelterRouter: () => <div data-testid="shelter-router">ShelterRouter</div> }));
 vi.mock('./components/routers/AdminRouter', () => ({ AdminRouter: () => <div data-testid="admin-router">AdminRouter</div> }));
 vi.mock('./components/LiveAssistantFAB', () => ({ LiveAssistantFAB: () => <div data-testid="fab">FAB</div> }));
-vi.mock('./components/NotificationToast', () => ({ NotificationToast: () => <div data-testid="toast">Toast</div> }));
 vi.mock('./components/AdminUplink', () => ({ AdminUplink: () => <div data-testid="admin-uplink">AdminUplink</div> }));
 vi.mock('./components/Auth', () => ({ Auth: () => <div data-testid="auth">Auth</div> }));
 vi.mock('./components/SecureChatModal', () => ({ SecureChatModal: () => <div data-testid="secure-chat">SecureChat</div> }));
@@ -30,6 +29,12 @@ vi.mock('./hooks/useAuthSync', () => ({
     useAuthSync: () => ({
         currentUser: null,
         setCurrentUser: vi.fn(),
+    })
+}));
+
+vi.mock('./contexts/SnackbarContext', () => ({
+    useSnackbar: () => ({
+        addSnackbar: vi.fn(),
     })
 }));
 

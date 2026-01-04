@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers: {
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
+        'Cross-Origin-Embedder-Policy': 'unsafe-none'
       }
     },
     test: { // Vitest configuration

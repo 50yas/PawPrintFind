@@ -25,6 +25,7 @@ import { PublicRouter } from './components/routers/PublicRouter';
 
 import { useAppState } from './hooks/useAppState';
 import { useAuthSync } from './hooks/useAuthSync';
+import { useSnackbar } from './contexts/SnackbarContext';
 
 const DevMarquee = () => {
     const devText = "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •";
@@ -49,6 +50,7 @@ export default function App() {
     const [showAdminInit, setShowAdminInit] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+    const { addSnackbar } = useSnackbar();
     const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
     const {
         allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
@@ -61,14 +63,6 @@ export default function App() {
     const [viewingPatient, setViewingPatient] = useState<PetProfile | null>(null);
     const [petToLink, setPetToLink] = useState<PetProfile | null>(null);
     const [healthCheckingPet, setHealthCheckingPet] = useState<PetProfile | null>(null);
-
-    const [notifications, setNotifications] = useState<{ id: number, message: string }[]>([]);
-
-    const addNotification = useCallback((message: string) => {
-        const id = Date.now();
-        setNotifications(prev => [...prev, { id, message }]);
-        setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 3000);
-    }, []);
 
     const lostPets = allPets.filter(p => p.isLost);
     const petsForAdoption = allPets.filter(p => p.status === 'forAdoption');
@@ -87,14 +81,14 @@ export default function App() {
         await dbService.logout();
         setCurrentUser(null);
         setCurrentView('home');
-        addNotification("Secure session closed.");
+        addSnackbar("Secure session closed.", 'info');
     };
 
     const handleRegisterPet = async (pet: PetProfile) => {
         try {
             console.log(`[App-Logic] Transmitting biometric data for ${pet.name}...`);
             await dbService.savePet(pet);
-            addNotification(`Sync Successful: ${pet.name} is now protected.`);
+            addSnackbar(`Sync Successful: ${pet.name} is now protected.`, 'success');
             setEditingPet(null);
             
             // Redirect based on active protocol
@@ -102,7 +96,7 @@ export default function App() {
             setCurrentView(nextView);
         } catch (err: any) { 
             console.error("App Register Error:", err);
-            addNotification("Critical Sync Failure: " + (err.message || "Network Timeout")); 
+            addSnackbar("Critical Sync Failure: " + (err.message || "Network Timeout"), 'error'); 
         }
     };
 
@@ -149,6 +143,7 @@ export default function App() {
             return (
                 <AdminRouter
                     users={allUsers}
+                    currentUser={currentUser}
                     allPets={allPets}
                     vetClinics={vetClinics}
                     donations={donations}
@@ -222,7 +217,6 @@ export default function App() {
 
             <ErrorBoundary>
                 <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><HeroScene /></div>
-                <NotificationToast notifications={notifications} />
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>

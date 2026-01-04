@@ -6,6 +6,15 @@ import React from 'react';
 import { MissingPetsMap } from './MissingPetsMap';
 import { PetProfile } from '../types';
 
+// Mock translations
+vi.mock('../hooks/useTranslations', () => ({
+  useTranslations: () => ({
+    t: (key: string) => key,
+    locale: 'en',
+    setLocale: vi.fn(),
+  }),
+}));
+
 // Mock ThemeContext
 vi.mock('../contexts/ThemeContext', () => ({
   useTheme: () => ({

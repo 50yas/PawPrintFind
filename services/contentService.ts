@@ -1,6 +1,6 @@
 
 import {
-    collection, getDocs, setDoc, doc, updateDoc, query, where, or, onSnapshot, orderBy, arrayUnion, addDoc, increment
+    collection, getDocs, setDoc, doc, updateDoc, query, where, or, onSnapshot, orderBy, arrayUnion, addDoc, increment, deleteDoc
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import { db, auth } from './firebase';
@@ -78,6 +78,26 @@ export const contentService = {
     },
 
     // --- BLOG ---
+    async saveBlogPost(post: BlogPost): Promise<void> {
+        try {
+            if (!auth.currentUser) throw new Error("Authentication required.");
+            await setDoc(doc(db, 'blog_posts', post.id), post, { merge: true });
+        } catch (error) {
+            logger.error('Error saving blog post:', error);
+            throw error;
+        }
+    },
+
+    async deleteBlogPost(id: string): Promise<void> {
+        try {
+            if (!auth.currentUser) throw new Error("Authentication required.");
+            await deleteDoc(doc(db, 'blog_posts', id));
+        } catch (error) {
+            logger.error('Error deleting blog post:', error);
+            throw error;
+        }
+    },
+
     async getBlogPosts(): Promise<BlogPost[]> {
         try {
             const q = query(collection(db, 'blog_posts'), orderBy('publishedAt', 'desc'));

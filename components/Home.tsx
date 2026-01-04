@@ -15,6 +15,7 @@ interface HomeProps {
     openLogin: () => void;
     currentUser: User | null;
     lostPets: PetProfile[];
+    petsForAdoption: PetProfile[];
 }
 
 const HeroHUD = memo(() => {
@@ -158,7 +159,7 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
     );
 });
 
-export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets }) => {
+export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets, petsForAdoption }) => {
     const { t } = useTranslations();
     useScrollAnimation();
     const [donations, setDonations] = useState<Donation[]>([]);
@@ -354,7 +355,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
                     <div className="rounded-[1.75rem] md:rounded-[2.25rem] overflow-hidden relative h-[400px] md:h-[650px] w-full">
-                        <MissingPetsMap lostPets={lostPets} />
+                        <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} />
                     </div>
                 </div>
             </section>

@@ -104,5 +104,32 @@ export const en = {
     supportUsDesc: `Your support helps us keep the servers running.`,
     donorsButton: `Our Donors`,
     donorsPageTitle: `Community Heroes`,
-    aiPoweredProtection: `AI-Powered Pet Protection`
+    aiPoweredProtection: `AI-Powered Pet Protection`,
+
+    // --- New Translations ---
+    adoptionInquiriesTitle: `Adoption Inquiries`,
+    inquiryAbout: `Inquiry about {{petName}}`,
+    
+    // Admin Tabs & Management
+    adminTabBlog: `Blog Mgmt`,
+    adminTabPets: `Pet Mgmt`,
+    deletePetButton: `Delete Pet`,
+    deletePostButton: `Delete Post`,
+    confirmDeletePet: `Are you sure you want to delete this pet? This action cannot be undone.`,
+    confirmDeletePost: `Delete this blog post?`,
+    
+    // Map Filters
+    showLostPets: `Lost Pets`,
+    showAdoptablePets: `Adoption`,
+    
+    // Navbar & Adoption Center
+    adoptionLink: `Adoption`,
+    adoptionCenterTitle: `Adoption Center`,
+    adoptionCenterDesc: `Find your new best friend.`,
+    adoptionCenterDescPublic: `Browse pets available for adoption from our partner shelters.`,
+    inquireToAdoptButton: `Inquire to Adopt`,
+    noPetsForAdoption: `No pets currently available for adoption.`,
+    loginToAdoptWarning: `You must be logged in to inquire about adoption.`,
+    filterBreedLabel: `Breed`,
+    filterAgeLabel: `Age`
 };

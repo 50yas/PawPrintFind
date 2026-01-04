@@ -1,53 +1,101 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
     
-    function isAuthenticated() {
+    function isSignedIn() {
       return request.auth != null;
     }
-
+    
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Default: Deny
-    match /{document=**} {
-      allow read, write: if false;
+    // Robust Admin Check
+    function isAdmin() {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'super_admin';
     }
-    
-    // Users
+
+    // --- COLLECTION RULES ---
+
+    // 1. USERS
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId) || (isAuthenticated() && request.resource.data.uid == request.auth.uid);
+      // Allow individual read for owner or admin
+      allow read: if isOwner(userId) || isAdmin();
+      // Allow write for owner or admin
+      allow write: if isOwner(userId) || isAdmin();
     }
     
-    // Pets
+    // Explicitly allow listing the users collection for admins
+    match /users {
+      allow list: if isAdmin();
+    }
+
+    // 2. PETS
     match /pets/{petId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && (resource.data.ownerEmail == request.auth.token.email || resource.data.guardianEmails[0] == request.auth.token.email);
+      allow read: if true; 
+      allow write: if isSignedIn();
     }
-    
-    // Clinics
+
+    // 3. CLINICS
     match /clinics/{clinicId} {
       allow read: if true;
-      allow write: if isAuthenticated(); // Refine for vet roles later
-    }
-    
-    // Appointments
-    match /appointments/{apptId} {
-      allow read, write: if isAuthenticated();
-    }
-    
-    // Contact Messages
-    match /contact_messages/{msgId} {
-      allow create: if true; // Allow public contact form
-      allow read, write: if false; // Only admin
+      allow write: if isSignedIn();
     }
 
-    // Chat Sessions
-    match /chat_sessions/{sessionId} {
-      allow read, write: if isAuthenticated();
+    // 4. DONATIONS
+    match /donations/{donationId} {
+      allow read: if true;
+      allow write: if true; 
+    }
+
+    // 5. APPOINTMENTS
+    match /appointments/{apptId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // 6. CHATS
+    match /chats/{chatId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // 7. BLOG POSTS
+    match /blog_posts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 8. CONTACT MESSAGES
+    match /contact_messages/{msgId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    
+    // 9. ADMIN AUDIT LOGS
+    match /admin_audit_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 10. SYSTEM/MAIL
+    match /mail/{mailId} {
+      allow write: if isSignedIn();
+    }
+
+    // --- STRIPE EXTENSION RULES ---
+    match /customers/{uid} {
+      allow read: if request.auth.uid == uid;
+
+      match /checkout_sessions/{id} {
+        allow read, write: if request.auth.uid == uid;
+      }
+      match /subscriptions/{id} {
+        allow read: if request.auth.uid == uid;
+      }
+      match /payments/{id} {
+        allow read: if request.auth.uid == uid;
+      }
     }
   }
 }

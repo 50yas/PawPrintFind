@@ -265,6 +265,14 @@ export const dbService = {
         return contentService.getBlogPosts();
     },
 
+    async saveBlogPost(post: BlogPost) {
+        return contentService.saveBlogPost(post);
+    },
+
+    async deleteBlogPost(id: string) {
+        return contentService.deleteBlogPost(id);
+    },
+
     async incrementBlogPostView(id: string) {
         return contentService.incrementBlogPostView(id);
     },

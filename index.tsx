@@ -5,6 +5,7 @@ import App from './App';
 import './index.css';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { SnackbarProvider } from './contexts/SnackbarContext';
 import { logger } from './services/loggerService';
 
 // Fix for missing JSX types in the environment
@@ -49,7 +50,9 @@ root.render(
   <React.StrictMode>
     <LanguageProvider>
       <ThemeProvider>
-        <App />
+        <SnackbarProvider>
+          <App />
+        </SnackbarProvider>
       </ThemeProvider>
     </LanguageProvider>
   </React.StrictMode>

@@ -4,11 +4,13 @@ import { PetProfile, VetClinic, Geolocation } from '../types';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTranslations } from '../hooks/useTranslations';
 
 declare var L: any;
 
 interface MissingPetsMapProps {
   lostPets: PetProfile[];
+  adoptablePets?: PetProfile[];
   vetClinics?: VetClinic[];
   userLocation?: Geolocation | null;
   isPostingMode?: boolean;
@@ -17,12 +19,15 @@ interface MissingPetsMapProps {
 
 type MapStyle = 'street' | 'satellite';
 
-export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetClinics = [], userLocation, isPostingMode, onMapClick }) => {
+export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adoptablePets = [], vetClinics = [], userLocation, isPostingMode, onMapClick }) => {
+  const { t } = useTranslations();
   const { colors } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any | null>(null);
   const markersGroupRef = useRef<any>(null);
   const [mapStyle, setMapStyle] = useState<MapStyle>('street');
+  const [showLost, setShowLost] = useState(true);
+  const [showAdoptable, setShowAdoptable] = useState(true);
   const tilesRef = useRef<any>(null);
 
   const STREET_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
@@ -80,41 +85,74 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
     group.clearLayers();
 
     // 1. RENDER LOST PETS
-    lostPets.forEach(pet => {
-        if (pet.lastSeenLocation) {
-            const iconHtml = `
-                <div class="pet-pin lost-pet-pulse">
-                    <div class="pet-pin-inner">
-                        <img src="${pet.photos[0]?.url || ''}" />
+    if (showLost) {
+        lostPets.forEach(pet => {
+            if (pet.lastSeenLocation) {
+                const iconHtml = `
+                    <div class="pet-pin lost-pet-pulse">
+                        <div class="pet-pin-inner">
+                            <img src="${pet.photos[0]?.url || ''}" />
+                        </div>
                     </div>
-                </div>
-            `;
-            const icon = L.divIcon({ 
-                className: 'custom-div-icon', 
-                html: iconHtml, 
-                iconSize: [46, 46], 
-                iconAnchor: [23, 46] 
-            });
-            
-            const marker = L.marker([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], { icon })
-                .bindPopup(`
-                    <div class="text-center p-1">
-                        <p class="font-bold text-slate-800">${pet.name}</p>
-                        <p class="text-[10px] text-red-500 font-bold uppercase">Signal Lost</p>
-                    </div>
-                `);
-            group.addLayer(marker);
+                `;
+                const icon = L.divIcon({ 
+                    className: 'custom-div-icon', 
+                    html: iconHtml, 
+                    iconSize: [46, 46], 
+                    iconAnchor: [23, 46] 
+                });
+                
+                const marker = L.marker([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], { icon })
+                    .bindPopup(`
+                        <div class="text-center p-1">
+                            <p class="font-bold text-slate-800">${pet.name}</p>
+                            <p class="text-[10px] text-red-500 font-bold uppercase">Signal Lost</p>
+                        </div>
+                    `);
+                group.addLayer(marker);
 
-            const circle = L.circle([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], {
-                color: colors.error, 
-                fillColor: colors.error, 
-                fillOpacity: 0.08, 
-                radius: pet.searchRadius || 1000, 
-                weight: 1
-            });
-            group.addLayer(circle);
-        }
-    });
+                const circle = L.circle([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], {
+                    color: colors.error, 
+                    fillColor: colors.error, 
+                    fillOpacity: 0.08, 
+                    radius: pet.searchRadius || 1000, 
+                    weight: 1
+                });
+                group.addLayer(circle);
+            }
+        });
+    }
+
+    // 1.5. RENDER ADOPTABLE PETS
+    if (showAdoptable) {
+        adoptablePets.forEach(pet => {
+            if (pet.homeLocations && pet.homeLocations.length > 0) {
+                const loc = pet.homeLocations[0];
+                const iconHtml = `
+                    <div class="pet-pin adoptable-pet-pulse">
+                        <div class="pet-pin-inner">
+                            <img src="${pet.photos[0]?.url || ''}" />
+                        </div>
+                    </div>
+                `;
+                const icon = L.divIcon({ 
+                    className: 'custom-div-icon', 
+                    html: iconHtml, 
+                    iconSize: [46, 46], 
+                    iconAnchor: [23, 46] 
+                });
+                
+                const marker = L.marker([loc.latitude, loc.longitude], { icon })
+                    .bindPopup(`
+                        <div class="text-center p-1">
+                            <p class="font-bold text-slate-800">${pet.name}</p>
+                            <p class="text-[10px] text-emerald-500 font-bold uppercase">Adopt Me</p>
+                        </div>
+                    `);
+                group.addLayer(marker);
+            }
+        });
+    }
 
     // 2. RENDER VET CLINICS
     vetClinics.forEach(clinic => {
@@ -149,15 +187,23 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
         }
     });
 
-    // 3. AUTO-FOCUS
-    if (!isPostingMode && group.getLayers().length > 0) {
-        mapInstance.current.fitBounds(group.getBounds().pad(0.3));
+    // 3. VIEW CONTROLLER
+    // User request: Avoid zooming in on single pets. Show country view (Zoom ~6).
+    if (mapInstance.current) {
+        if (userLocation) {
+            // If we have user location, center there but keep country view
+            mapInstance.current.setView([userLocation.latitude, userLocation.longitude], 6);
+        } else if (!isPostingMode && group.getLayers().length === 0) {
+            // Default fallback if no user loc and no markers (Rome/Italy default)
+            // This preserves the initial setView([41.9027, 12.4964], 6)
+        }
+        // We explicitly do NOT call fitBounds() here to prevent aggressive zooming
     }
 
-  }, [lostPets, vetClinics, isPostingMode, onMapClick, colors]);
+  }, [lostPets, adoptablePets, vetClinics, isPostingMode, onMapClick, colors, userLocation]);
 
   return (
-    <GlassCard variant="interactive" className="group relative w-full h-full overflow-hidden border-white/10" style={{ backgroundColor: colors.surfaceContainer }}>
+    <GlassCard variant="default" className="group relative w-full h-full overflow-hidden border-white/10" style={{ backgroundColor: colors.surfaceContainer }}>
         {/* MAP HUD CONTROLS */}
         <div className="absolute top-4 right-4 z-[1002] flex flex-col gap-2">
             <GlassCard className="p-1 flex border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
@@ -171,6 +217,25 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'satellite' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'satellite' ? { backgroundColor: colors.primary } : {}}
                 >Satellite</button>
+            </GlassCard>
+            
+            <GlassCard className="p-1 flex flex-col gap-1 border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
+                 <button 
+                    onClick={() => setShowLost(!showLost)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showLost ? 'text-white' : 'text-slate-400 opacity-50'}`}
+                    style={showLost ? { backgroundColor: colors.error } : {}}
+                >
+                    <span>{t('showLostPets')}</span>
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                </button>
+                <button 
+                    onClick={() => setShowAdoptable(!showAdoptable)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showAdoptable ? 'text-white' : 'text-slate-400 opacity-50'}`}
+                    style={showAdoptable ? { backgroundColor: colors.primary } : {}}
+                >
+                    <span>{t('showAdoptablePets')}</span>
+                    <span className="w-2 h-2 rounded-full bg-white"></span>
+                </button>
             </GlassCard>
             
             {vetClinics.length > 0 && (
@@ -221,6 +286,11 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, vetCli
             .lost-pet-pulse::after {
                 content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
                 border-radius: 50%; border: 4px solid ${colors.error}; opacity: 0;
+                animation: pulse-ring 2s infinite;
+            }
+            .adoptable-pet-pulse::after {
+                content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                border-radius: 50%; border: 4px solid ${colors.primary}; opacity: 0;
                 animation: pulse-ring 2s infinite;
             }
             @keyframes pulse-ring {
