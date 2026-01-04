@@ -14,16 +14,27 @@ This document outlines the design and communication principles for the Paw Print
 
 ## 2. Visual Identity & Design System
 
--   **Aesthetic:** "Glassmorphism 2.0". This involves the use of translucency, background blur, and deep, vibrant gradients to create a sense of depth and hierarchy.
--   **Core Principles:**
-    -   **Clean and Intuitive:** The interface should be uncluttered and easy to navigate, ensuring users can find what they need quickly and efficiently.
-    -   **Calm and Reassuring:** The color palette should be calming, using soft, natural colors complemented by the vibrant gradients of the Glassmorphism style. Animations should be smooth and gentle to create a feeling of comfort and trust.
-    -   **Accessibility:** Ensure high contrast for text, provide alt-text for all images, and ensure the application is fully navigable via keyboard.
--   **Color Palette:**
-    -   **Primary:** A soft, approachable color (e.g., a warm blue or green).
-    -   **Accents:** Vibrant gradients for key interactive elements and highlights.
-    -   **Neutral:** Shades of grey for text and backgrounds.
--   **Typography:** A clean, modern, and highly legible sans-serif font.
+
+
+- **Aesthetic:** "Glassmorphism 2.0" with **Material You** integration. This involves translucency and depth complemented by a dynamic, seed-based color system.
+
+- **Core Principles:**
+
+    - **Clean and Intuitive:** The interface should be uncluttered and easy to navigate, ensuring users can find what they need quickly and efficiently.
+
+    - **Dynamic and Harmonious:** The color palette is automatically generated from a seed color, ensuring visual harmony and a premium "Google-level" feel.
+
+    - **Accessibility:** Ensure high contrast for text, provide alt-text for all images, and ensure the application is fully navigable via keyboard.
+
+- **Color Palette:**
+
+    - **Primary Seed:** "Paw Print Teal" (`#008080`).
+
+    - **Dynamic Tokens:** System-wide use of `primary`, `secondary`, `tertiary`, `surface-container`, and `error` tokens.
+
+    - **State Layers:** Interaction feedback via ripple effects and elevation shifts.
+
+- **Typography:** A clean, modern, and highly legible sans-serif font.
 
 ## 3. Brand Messaging
 

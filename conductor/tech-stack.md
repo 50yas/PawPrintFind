@@ -13,7 +13,7 @@ This document outlines the core technologies used in the Paw Print application.
 - **Styling:** Tailwind CSS v4
     - **Description:** A utility-first CSS framework used with the @tailwindcss/postcss plugin for high-performance "Glassmorphism 2.0" styling.
 - **UI Utilities:** @material/material-color-utilities
-    - **Description:** Official Google library for generating Material Design 3 color schemes (Material You) from a source color.
+    - **Description:** Official Google library for generating dynamic Material Design 3 (Material You) palettes (Primary, Secondary, Tertiary, Surface, Error).
 
 ## 2. Backend & Database
 
