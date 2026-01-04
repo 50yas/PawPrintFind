@@ -1,11 +1,11 @@
 # Plan: Admin Command Center & Smart Blog Evolution
 
-## Phase 1: Foundation & Audit Logging [checkpoint: ]
-- [~] Task: Update `types.ts` to include `LogEntry`, `views` in `BlogPost`, and extended `User` fields.
-- [ ] Task: Create `services/adminService.ts` (if not exists) or extend it with `logAdminAction` and `getAuditLogs` methods.
-- [ ] Task: Write unit tests for `adminService` ensuring logs are correctly written to Firestore.
-- [ ] Task: Implement `logAdminAction` logic using Firestore `addDoc`.
-- [ ] Task: Conductor - User Manual Verification 'Foundation & Audit Logging' (Protocol in workflow.md)
+## Phase 1: Foundation & Audit Logging [checkpoint: bc5cd80]
+- [x] Task: Update `types.ts` to include `LogEntry`, `views` in `BlogPost`, and extended `User` fields. a109072
+- [x] Task: Create `services/adminService.ts` (if not exists) or extend it with `logAdminAction` and `getAuditLogs` methods. a109072
+- [x] Task: Write unit tests for `adminService` ensuring logs are correctly written to Firestore. a109072
+- [x] Task: Implement `logAdminAction` logic using Firestore `addDoc`. a109072
+- [x] Task: Conductor - User Manual Verification 'Foundation & Audit Logging' (Protocol in workflow.md) bc5cd80
 
 ## Phase 2: Cyber HUD & Growth Analytics [checkpoint: ]
 - [ ] Task: Refactor `AdminDashboard.tsx` layout to support the "Cyber HUD" aesthetic (glowing borders, status containers).
