@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { BlogPost } from '../types';
 import { dbService } from '../services/firebase';
+import { useTranslations } from '../hooks/useTranslations';
 
 interface BlogPostDetailProps {
     post: BlogPost;
@@ -9,23 +10,14 @@ interface BlogPostDetailProps {
 }
 
 export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) => {
-    
-    // Dynamic SEO Update & View Counter
-    useEffect(() => {
-        document.title = `${post.seoTitle} | Paw Print`;
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) {
-            metaDesc.setAttribute('content', post.seoDescription);
-        }
-        
-        // Increment view count
-        dbService.incrementBlogPostView(post.id);
+    const { t } = useTranslations();
 
-        // Reset on unmount
-        return () => {
-            document.title = "Paw Print | Pet Visual Passport";
-        };
-    }, [post]);
+    useEffect(() => {
+        if (post?.id) {
+            dbService.incrementBlogPostView(post.id);
+        }
+        window.scrollTo(0, 0);
+    }, [post?.id]);
 
     return (
         <article className="max-w-4xl mx-auto px-4 py-12 animate-fade-in pb-24">
