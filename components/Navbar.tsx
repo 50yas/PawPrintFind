@@ -6,6 +6,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { User, View } from '../types';
 import { RoleSwitcher } from './RoleSwitcher';
 import { GlassButton } from './ui/GlassButton';
+import { NavigationBottomSheet } from './NavigationBottomSheet';
 
 interface NavbarProps {
   currentUser: User | null;
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
   const { t } = useTranslations();
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
     : 'bg-transparent py-6';
 
   return (
-    <nav className={`fixed left-0 w-full z-[100] transition-all duration-500 border-b ${navContainerClass} ${className}`}>
+    <nav className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 border-b ${navContainerClass} ${className}`}>
       <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Branding */}
         <div
@@ -69,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-black tracking-tighter text-white leading-none">Paw<span className="text-primary">Print</span></span>
+            <span className="text-2xl font-black tracking-tighter text-white">Paw<span className="logo-print-text">Print</span></span>
             <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">Visual Biometrics</span>
           </div>
         </div>
@@ -128,6 +130,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
+          {/* Mobile Menu Trigger */}
+          <div className="lg:hidden">
+             <button
+              data-testid="mobile-menu-trigger"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="relative w-10 h-10 rounded-xl bg-slate-900/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary shadow-lg overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
+          </div>
+
           <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-white/10">
             <LanguageSwitcher className="text-white !text-[10px]" />
             <DarkModeToggle />
@@ -212,6 +228,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
           )}
         </div>
       </div>
+
+      <NavigationBottomSheet 
+        isOpen={showMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
+        setView={(view) => handleNavClick(view)}
+      />
     </nav>
   );
 };
