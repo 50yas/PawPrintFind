@@ -37,13 +37,13 @@ const HeroHUD = memo(() => {
 
     return (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            {/* Top Left System Status - Terminal Animation - RELOCATED TO BOTTOM LEFT */}
-            <div className="absolute bottom-24 left-4 md:bottom-8 md:left-12 p-3 md:p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[9px] md:text-[10px] font-mono-tech text-cyan-400 min-w-[140px] md:min-w-[180px] shadow-2xl z-20">
-                <div className="flex items-center gap-2 mb-2 md:mb-3 border-b border-white/10 pb-2">
-                    <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
+            {/* Top Left System Status - Terminal Animation - HIDDEN ON MOBILE TO REDUCE CHAOS */}
+            <div className="hidden md:block absolute bottom-8 left-12 p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[10px] font-mono-tech text-cyan-400 min-w-[180px] shadow-2xl z-20">
+                <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
                     <span className="text-white font-bold tracking-widest uppercase">Console Output</span>
                 </div>
-                <div className="space-y-1 md:space-y-1.5 opacity-90">
+                <div className="space-y-1.5 opacity-90">
                     {lines.slice(0, bootStep + 1).map((line, i) => (
                         <div key={i} className={`${i === bootStep ? 'animate-typewriter overflow-hidden whitespace-nowrap' : ''}`}>
                             <span className="text-cyan-600 mr-1">&gt;</span>

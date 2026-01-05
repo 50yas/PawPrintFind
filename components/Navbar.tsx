@@ -45,8 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
   };
 
   const navContainerClass = scrolled
-    ? 'bg-slate-950/40 backdrop-blur-3xl border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2'
-    : 'bg-transparent py-6';
+    ? 'bg-slate-950/40 backdrop-blur-3xl border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-3 lg:py-2'
+    : 'bg-transparent py-3 lg:py-6';
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 border-b ${navContainerClass} ${className}`}>
