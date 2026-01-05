@@ -14,17 +14,16 @@
 - [x] Task: Add the "Growth Analytics" summary cards to the Admin overview using the HUD style. 7fc197b
 - [x] Task: Conductor - User Manual Verification 'Cyber HUD & Growth Analytics' (Protocol in workflow.md) b705cb7
 
-## Phase 3: Professional Veterinarian Management [checkpoint: ]
+## Phase 3: Professional Veterinarian Management [checkpoint: 3cbf68e]
 - [x] Task: Create `AddClinicModal.tsx` for manual clinic registration. eb08aff
 - [x] Task: Write tests for `AddClinicModal` form submission and data validation. eb08aff
-- [x] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions. 7fc197b
+- [x] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions. fa29fa5
 - [x] Task: Update `adminService` to handle manual registration and verification toggles. 5ba81bd
-- [x] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks. 7fc197b
-- [~] Task: Conductor - User Manual Verification 'Professional Veterinarian Management' (Protocol in workflow.md)
-- [ ] Task: Conductor - User Manual Verification 'Professional Veterinarian Management' (Protocol in workflow.md)
+- [x] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks. d033de9
+- [x] Task: Conductor - User Manual Verification 'Professional Veterinarian Management' (Protocol in workflow.md) 3cbf68e
 
 ## Phase 4: Smart Blog Engagement Metrics [checkpoint: ]
-- [ ] Task: Create a utility `calculateReadingTime` in `src/utils/blogUtils.ts`.
+- [~] Task: Create a utility `calculateReadingTime` in `src/utils/blogUtils.ts`.
 - [ ] Task: Write tests for `calculateReadingTime` with various text lengths.
 - [ ] Task: Update `contentService.ts` to include `incrementPostViews` using Firestore `increment()`.
 - [ ] Task: Modify `BlogPostDetail.tsx` to trigger `incrementPostViews` on mount and display "Reading Time".
