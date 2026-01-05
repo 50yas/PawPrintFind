@@ -9,9 +9,10 @@ import { useTranslations } from '../hooks/useTranslations';
 interface AddVetModalProps {
     onClose: () => void;
     onSuccess: () => void;
+    adminEmail: string;
 }
 
-export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess }) => {
+export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess, adminEmail }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
     const [email, setEmail] = useState('');
@@ -28,7 +29,7 @@ export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess }) 
             });
 
             await dbService.logAdminAction({
-                adminEmail: 'SYSTEM_ADMIN',
+                adminEmail: adminEmail,
                 action: 'MANUAL_VET_REG',
                 targetId: email,
                 details: `Manually registered vet: ${email}`

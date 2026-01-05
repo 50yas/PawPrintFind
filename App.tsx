@@ -14,6 +14,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { HeroScene } from './components/HeroScene';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
+import { BlogPostDetail } from './components/BlogPostDetail';
 import { Auth } from './components/Auth';
 
 // Modular Routers
@@ -158,6 +159,13 @@ export default function App() {
         }
 
         if (currentUser.activeRole === 'super_admin') {
+            if (currentView === 'blogPost' && selectedPost) {
+                return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
+            }
+            if (currentView === 'blogDetail' && selectedPost) {
+                return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
+            }
+            
             return (
                 <AdminRouter
                     users={allUsers}
@@ -178,6 +186,10 @@ export default function App() {
                     }}
                     onLogout={handleLogout}
                     onRefresh={handleRefreshAdminData}
+                    onViewPost={(post) => {
+                        setSelectedPost(post);
+                        setCurrentView('blogPost');
+                    }}
                 />
             );
         }
@@ -259,31 +271,32 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden pb-safe">
             {/* Fixed Marquee at the very top */}
             <DevMarquee />
+
+            <Navbar
+                currentUser={currentUser}
+                setCurrentUser={setCurrentUser}
+                onLoginClick={() => setIsLoginModalOpen(true)}
+                onLogoutClick={handleLogout}
+                setView={setCurrentView}
+                className="!top-8"
+            />
 
             <ErrorBoundary>
                 <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><HeroScene /></div>
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
-                    {/* Navbar top offset matches marquee height (8 units / 32px) */}
-                    <Navbar
-                        currentUser={currentUser}
-                        setCurrentUser={setCurrentUser}
-                        onLoginClick={() => setIsLoginModalOpen(true)}
-                        onLogoutClick={handleLogout}
-                        setView={setCurrentView}
-                        className="!top-8"
-                    />
-
                     {/* Main content padding adjusted to account for fixed marquee + fixed navbar */}
-                    <main className="flex-grow pt-32 md:pt-40 pb-28 md:pb-20">
+                    <main className="flex-grow pt-32 md:pt-40 pb-32 md:pb-24">
                         {renderView()}
                     </main>
 
-                    <Footer setView={setCurrentView} currentUser={currentUser} />
+                    <div className="pb-32 md:pb-0">
+                        <Footer setView={setCurrentView} currentUser={currentUser} />
+                    </div>
                 </div>
             </ErrorBoundary>
 
@@ -322,8 +335,8 @@ export default function App() {
             )}
 
             {isLoginModalOpen && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setIsLoginModalOpen(false)}>
-                    <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative">
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto" onClick={() => setIsLoginModalOpen(false)}>
+                    <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative my-auto">
                         <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
                     </div>
                 </div>

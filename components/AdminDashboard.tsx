@@ -121,12 +121,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     };
 
     const handleDeleteUser = async (uid: string) => {
-        if (!confirm('TERMINATE IDENTITY? This will permanently delete the user document and cannot be undone.')) return;
+        if (!confirm(t('confirmDeleteUser') || 'TERMINATE IDENTITY?')) return;
         setIsRefreshing(true);
         try {
             await onDeleteUser(uid);
             addSnackbar("Identity Purged", 'success');
-            // onDeleteUser in App.tsx already calls refresh
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     };
@@ -157,7 +156,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     };
 
     const deleteClinic = async (id: string) => {
-        if (!confirm('DISMANTLE CLINIC NODE? This action is irreversible.')) return;
+        if (!confirm(t('confirmDeleteClinic') || 'DISMANTLE CLINIC NODE?')) return;
         setIsRefreshing(true);
         try {
             await dbService.deleteClinic(id);
@@ -192,10 +191,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
     const rejectUser = async (user: User) => {
         if (!user.uid) return;
-        if (!confirm(`Reject verification for ${user.email}?`)) return;
+        if (!confirm(t('confirmRejectVerification') || `Reject verification for ${user.email}?`)) return;
         setIsRefreshing(true);
         try {
-            // Remove verification data but keep the user
             const { verificationData, ...userWithoutVerification } = user;
             await dbService.saveUser({ ...userWithoutVerification, isVerified: false });
             
@@ -213,7 +211,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 pb-20 text-foreground transition-colors duration-500 relative">
+        <div className="min-h-screen bg-slate-950 pb-32 text-foreground transition-colors duration-500 relative">
             {/* Cyber HUD Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-primary/10">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(20,184,166,0.05),transparent_70%)]"></div>
@@ -221,9 +219,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             </div>
 
             {/* HUD HEADER */}
-            <div className="sticky top-0 z-[100] w-full px-6 py-4">
-                <GlassCard className="flex justify-between items-center px-6 py-3 border-primary/30 shadow-[0_0_30px_rgba(20,184,166,0.2)] bg-black/60 backdrop-blur-2xl">
-                    <div className="flex items-center gap-6">
+            <div className="sticky top-0 z-[100] w-full px-4 md:px-6 py-4">
+                <GlassCard className="flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-3 border-primary/30 shadow-[0_0_30px_rgba(20,184,166,0.2)] bg-black/60 backdrop-blur-2xl">
+                    <div className="flex items-center gap-6 w-full md:w-auto">
                         <div className="relative group">
                             <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse group-hover:bg-primary/40 transition-all"></div>
                             <div className="relative bg-slate-900 border border-primary/50 text-primary text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(20,184,166,0.3)]">
@@ -260,7 +258,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Nodes_Online</span>
+                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t('statTotalUsers')}</span>
                             <span className="text-xs font-mono text-white font-bold">{users.length}</span>
                         </div>
                         <div className="flex flex-col">
@@ -269,26 +267,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         </div>
                     </div>
 
-                    <div className="flex gap-3">
-                        <GlassButton onClick={handleRefresh} variant="primary" className="!py-2 !px-5 text-[10px] shadow-[0_0_15px_rgba(20,184,166,0.2)]">
+                    <div className="flex gap-3 w-full md:w-auto justify-center">
+                        <GlassButton onClick={handleRefresh} variant="primary" className="flex-1 md:flex-none !py-2 !px-5 text-[10px] shadow-[0_0_15px_rgba(20,184,166,0.2)]">
                             {isRefreshing ? <LoadingSpinner /> : 'SYNC_NODE'}
                         </GlassButton>
-                        <GlassButton onClick={onLogout} variant="danger" className="!py-2 !px-5 text-[10px]">EXIT_SESSION</GlassButton>
+                        <GlassButton onClick={onLogout} variant="danger" className="flex-1 md:flex-none !py-2 !px-5 text-[10px]">EXIT_SESSION</GlassButton>
                     </div>
                 </GlassCard>
             </div>
 
-            <div className="max-w-7xl mx-auto p-6 space-y-8 relative z-10">
+            <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 relative z-10">
                 {/* CYBER TABS */}
                 <div className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide">
                     {[
                         { id: 'overview', label: t('adminTabOverview'), icon: '📊' },
                         { id: 'users', label: t('adminTabUsers'), icon: '👥' },
-                        { id: 'clinics', label: 'CLINICS', icon: '🏥' },
+                        { id: 'clinics', label: t('adminTabClinics'), icon: '🏥' },
                         { id: 'pets', label: t('adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('adminTabBlog'), icon: '📰' },
                         { id: 'verification', label: t('pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
-                        { id: 'logs', label: 'SYSTEM_LOGS', icon: '📟' }
+                        { id: 'logs', label: t('adminTabLogs'), icon: '📟' }
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -313,7 +311,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <GlassCard className="p-6 border-primary/20 bg-primary/5 group relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-                                <p className="text-[10px] font-black text-primary uppercase mb-2 tracking-[0.2em] opacity-70">Global_Revenue</p>
+                                <p className="text-[10px] font-black text-primary uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalDonations')}</p>
                                 <h3 className="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{totalRevenue}</h3>
                                 <div className="mt-4 flex items-center gap-2">
                                     <span className="text-[8px] font-black text-emerald-400 uppercase">Status: Nominal</span>
@@ -321,7 +319,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             </GlassCard>
 
                             <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
-                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">Identities</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalUsers')}</p>
                                 <h3 className="text-4xl font-black text-white">{userStats.total}</h3>
                                 <div className="mt-4 flex items-center justify-between">
                                     <span className="text-[9px] font-bold text-primary">+{userStats.newLastWeek} NEW_7D</span>
@@ -330,7 +328,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             </GlassCard>
 
                             <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
-                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">Secure_Profiles</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalPets')}</p>
                                 <h3 className="text-4xl font-black text-white">{petStats.total}</h3>
                                 <div className="mt-4 flex items-center justify-between">
                                     <span className="text-[9px] font-bold text-primary">+{petStats.newLastWeek} NEW_7D</span>
@@ -340,7 +338,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                             <GlassCard className="p-6 border-red-500/20 bg-red-500/5 group relative overflow-hidden">
                                 <div className="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none"></div>
-                                <p className="text-[10px] font-black text-red-500 uppercase mb-2 tracking-[0.2em] opacity-70">Active_Alerts</p>
+                                <p className="text-[10px] font-black text-red-500 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statActiveAlerts')}</p>
                                 <h3 className="text-4xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]">{allPets.filter(p => p.isLost).length}</h3>
                                 <div className="mt-4 flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
@@ -379,14 +377,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <div className="text-6xl mb-6 drop-shadow-[0_0_20px_rgba(20,184,166,0.4)]">🚀</div>
                                     <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Platform Scale</h4>
                                     <p className="text-xs text-slate-400 font-medium mb-8 leading-relaxed">System is currently orchestrating {users.length} active neural nodes across {allPets.length} biometric profiles. Efficiency is at maximal levels.</p>
-                                    <GlassButton onClick={handleRefresh} variant="primary" className="w-full !py-4 shadow-xl">FORCE_RE-INITIALIZATION</GlassButton>
+                                    <GlassButton onClick={handleRefresh} variant="primary" className="w-full !py-4 shadow-xl uppercase font-black tracking-widest">Force_Sync</GlassButton>
                                 </div>
                             </GlassCard>
                         </div>
 
                         {/* Trending Blog Intelligence */}
                         <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
-                            <div className="flex justify-between items-center mb-8">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                                 <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
                                     <span className="text-xl">📈</span>
                                     Content_Intelligence
@@ -425,27 +423,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'users' && (
                         <div className="space-y-6 animate-fade-in">
                             <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Identity_Registry</h3>
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('adminTabUsers')}</h3>
                                 <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
                                     <select 
                                         value={roleFilter}
                                         onChange={(e) => setRoleFilter(e.target.value)}
                                         className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
-                                        <option value="all">ALL_ROLES</option>
-                                        <option value="owner">OWNER</option>
-                                        <option value="vet">VET</option>
-                                        <option value="shelter">SHELTER</option>
-                                        <option value="admin">ADMIN</option>
+                                        <option value="all">{t('allRoles')}</option>
+                                        <option value="owner">{t('loginAsOwner')}</option>
+                                        <option value="vet">{t('loginAsVet')}</option>
+                                        <option value="shelter">{t('loginAsShelter')}</option>
+                                        <option value="admin">{t('loginAsAdmin')}</option>
                                     </select>
                                     <select 
                                         value={verificationFilter}
                                         onChange={(e) => setVerificationFilter(e.target.value as any)}
                                         className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
-                                        <option value="all">ALL_STATUS</option>
-                                        <option value="verified">VERIFIED_ONLY</option>
-                                        <option value="unverified">UNVERIFIED_ONLY</option>
+                                        <option value="all">{t('allStatus')}</option>
+                                        <option value="verified">{t('verifiedOnly')}</option>
+                                        <option value="unverified">{t('unverifiedOnly')}</option>
                                     </select>
                                     <div className="relative flex-grow md:w-64 min-w-[200px]">
                                         <input 
@@ -463,10 +461,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <table className="w-full text-left text-xs min-w-[800px]">
                                         <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                             <tr className="border-b border-white/10">
-                                                <th className="p-5">Entity</th>
-                                                <th className="p-5">Clearance</th>
+                                                <th className="p-5">{t('tableEmail')}</th>
+                                                <th className="p-5">{t('tableRole')}</th>
                                                 <th className="p-5">Last Sync</th>
-                                                <th className="p-5 text-right">Protocol</th>
+                                                <th className="p-5 text-right">{t('tableActions')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/5">
@@ -516,7 +514,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                         onClick={() => handleDeleteUser(u.uid!)} 
                                                                         className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                                     >
-                                                                        PURGE
+                                                                        {t('purgeButton')}
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -548,29 +546,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'clinics' && (
                         <div className="space-y-8 animate-fade-in">
                             <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Veterinary_Infrastructure</h3>
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('infrastructureTitle')}</h3>
                                 <div className="flex flex-wrap items-center justify-center gap-3 w-full xl:w-auto">
                                     <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20 flex-grow md:flex-grow-0">
-                                        + NEW_VET_IDENTITY
+                                        + {t('newVetButton')}
                                     </GlassButton>
                                     <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px] flex-grow md:flex-grow-0">
-                                        + NEW_CLINIC_NODE
+                                        + {t('newClinicButton')}
                                     </GlassButton>
                                 </div>
                             </div>
 
                             {/* CLINICS TABLE */}
                             <div className="space-y-4">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Authorized_Facilities</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('authorizedFacilities')}</p>
                                 <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                     <div className="overflow-x-auto custom-scrollbar">
                                         <table className="w-full text-left text-xs min-w-[800px]">
                                             <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                                 <tr className="border-b border-white/10">
-                                                    <th className="p-5">Facility_Name</th>
-                                                    <th className="p-5">Contact_Vector</th>
-                                                    <th className="p-5">Coordinates</th>
-                                                    <th className="p-5 text-right">Override</th>
+                                                    <th className="p-5">{t('clinicNameLabel')}</th>
+                                                    <th className="p-5">{t('contactTitle')}</th>
+                                                    <th className="p-5">{t('addressLabel')}</th>
+                                                    <th className="p-5 text-right">{t('tableActions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/5">
@@ -585,7 +583,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                     <p className="font-bold text-white text-sm">{c.name}</p>
                                                                     <div className="flex items-center gap-2 mt-1">
                                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                                        <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-tighter">Verified_Link</p>
+                                                                        <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-tighter">{t('verifiedStatus')}</p>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -608,7 +606,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                 onClick={() => deleteClinic(c.id!)} 
                                                                 className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                             >
-                                                                DISMANTLE
+                                                                {t('dismantleButton')}
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -616,7 +614,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 {vetClinics.length === 0 && (
                                                     <tr>
                                                         <td colSpan={4} className="text-center py-10">
-                                                            <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.3em] opacity-50">No_Facilities_Online</p>
+                                                            <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.3em] opacity-50">{t('noVetsFound')}</p>
                                                         </td>
                                                     </tr>
                                                 )}
@@ -628,15 +626,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                             {/* VETS PENDING INFRASTRUCTURE */}
                             <div className="space-y-4">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Vets_Pending_Infrastructure_Link</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('pendingInfrastructure')}</p>
                                 <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                     <div className="overflow-x-auto custom-scrollbar">
                                         <table className="w-full text-left text-xs min-w-[800px]">
                                             <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                                 <tr className="border-b border-white/10">
-                                                    <th className="p-5">Professional_Identity</th>
-                                                    <th className="p-5">Clearance_Level</th>
-                                                    <th className="p-5 text-right">Protocol</th>
+                                                    <th className="p-5">{t('tableRole')}</th>
+                                                    <th className="p-5">{t('status')}</th>
+                                                    <th className="p-5 text-right">{t('tableActions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/5">
@@ -658,12 +656,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                             <td className="p-5">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${v.isVerified ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30'}`}>
-                                                                        {v.isVerified ? 'VERIFIED_PRO' : 'PENDING_VERIFICATION'}
+                                                                        {v.isVerified ? t('verifiedPro') : t('pendingVerification')}
                                                                     </span>
                                                                     {hasClinic ? (
-                                                                        <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">Linked</span>
+                                                                        <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">{t('linkedStatus')}</span>
                                                                     ) : (
-                                                                        <span className="text-[8px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 uppercase font-bold">Unlinked</span>
+                                                                        <span className="text-[8px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 uppercase font-bold">{t('unlinkedStatus')}</span>
                                                                     )}
                                                                 </div>
                                                             </td>
@@ -673,15 +671,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                         onClick={() => { setShowAddClinic(true); /* Ideally pre-fill email */ }}
                                                                         className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                                     >
-                                                                        CREATE_CLINIC
+                                                                        {t('createClinicAction')}
                                                                     </button>
                                                                 )}
                                                                 {!v.isVerified && v.verificationData && (
                                                                     <button 
                                                                         onClick={() => setActiveTab('verification')}
-                                                                        className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-emerald-500/20"
+                                                                        className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                                     >
-                                                                        VERIFY_NOW
+                                                                        {t('verifyNowAction')}
                                                                     </button>
                                                                 )}
                                                             </td>
@@ -699,17 +697,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'pets' && (
                         <div className="space-y-6 animate-fade-in">
                             <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Biometric_Database</h3>
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('adminTabPets')}</h3>
                                 <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
                                     <select 
                                         value={petStatusFilter}
                                         onChange={(e) => setPetStatusFilter(e.target.value as any)}
                                         className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
-                                        <option value="all">ALL_STATUS</option>
-                                        <option value="lost">LOST</option>
-                                        <option value="forAdoption">ADOPTION</option>
-                                        <option value="owned">OWNED</option>
+                                        <option value="all">{t('allStatus')}</option>
+                                        <option value="lost">{t('statusLost')}</option>
+                                        <option value="forAdoption">{t('statusAdoption')}</option>
+                                        <option value="owned">{t('statusOwned')}</option>
                                     </select>
                                     <div className="relative flex-grow md:w-64 min-w-[200px]">
                                         <input 
@@ -727,10 +725,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <table className="w-full text-left text-xs min-w-[800px]">
                                         <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                             <tr className="border-b border-white/10">
-                                                <th className="p-5">Pet Identity</th>
-                                                <th className="p-5">Status</th>
+                                                <th className="p-5">{t('petNameLabel')}</th>
+                                                <th className="p-5">{t('status')}</th>
                                                 <th className="p-5">Location</th>
-                                                <th className="p-5 text-right">Actions</th>
+                                                <th className="p-5 text-right">{t('tableActions')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/5">
@@ -757,7 +755,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                         p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                                                         'bg-slate-500/20 text-slate-400 border border-slate-500/30'
                                                     }`}>
-                                                        {p.isLost ? 'LOST' : p.status}
+                                                        {p.isLost ? t('statusLost') : p.status}
                                                     </span>
                                                 </td>
                                                 <td className="p-5 font-mono text-slate-500 tracking-tighter">
@@ -765,10 +763,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 </td>
                                                 <td className="p-5 text-right">
                                                     <button 
-                                                        onClick={() => { if(confirm('TERMINATE PROFILE?')) dbService.deletePet(p.id).then(() => onRefresh()); }}
+                                                        onClick={async () => { 
+                                                            if(confirm('TERMINATE PROFILE?')) {
+                                                                await dbService.deletePet(p.id);
+                                                                await dbService.logAdminAction({
+                                                                    adminEmail: currentUser.email,
+                                                                    action: 'DELETE_PET',
+                                                                    targetId: p.id,
+                                                                    details: `Terminated pet profile: ${p.name}`
+                                                                });
+                                                                await onRefresh(); 
+                                                            }
+                                                        }}
                                                         className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                     >
-                                                        TERMINATE
+                                                        {t('terminateButton')}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -793,9 +802,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 </GlassButton>
                             </div>
 
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                 <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[700px]">
+                                    <table className="w-full text-left text-xs min-w-[800px]">
                                         <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                             <tr className="border-b border-white/10">
                                                 <th className="p-5">Content Header</th>
@@ -832,13 +841,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                             onClick={() => { setEditingPost(p); setShowEditor(true); }}
                                                             className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                         >
-                                                            EDIT
+                                                            {t('editButton')}
                                                         </button>
                                                         <button 
-                                                            onClick={async () => { if(confirm('PURGE CONTENT?')) { await dbService.deleteBlogPost(p.id); onRefresh(); } }} 
+                                                            onClick={async () => { 
+                                                                if(confirm('PURGE CONTENT?')) { 
+                                                                    await dbService.deleteBlogPost(p.id); 
+                                                                    await dbService.logAdminAction({
+                                                                        adminEmail: currentUser.email,
+                                                                        action: 'DELETE_BLOG_POST',
+                                                                        targetId: p.id,
+                                                                        details: `Purged blog post: ${p.title}`
+                                                                    });
+                                                                    onRefresh(); 
+                                                                } 
+                                                            }} 
                                                             className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                         >
-                                                            DELETE
+                                                            {t('deleteUserButton')}
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -855,8 +875,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             <GlassCard className="bg-primary/10 border-primary/30 p-6 flex items-center gap-6 shadow-[0_0_30px_rgba(20,184,166,0.1)]">
                                 <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner border border-primary/20">🛡️</div>
                                 <div>
-                                    <h3 className="font-black text-white text-lg uppercase tracking-tighter">Verification Subsystem</h3>
-                                    <p className="text-sm text-primary/80 font-medium">Verify credentials for clinical and shelter clearance.</p>
+                                    <h3 className="font-black text-white text-lg uppercase tracking-tighter">{t('pendingVerificationsTitle')}</h3>
+                                    <p className="text-sm text-primary/80 font-medium">{t('pendingVerificationsDesc')}</p>
                                 </div>
                             </GlassCard>
 
@@ -876,8 +896,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 {u.verificationData?.docUrl && (
                                                     <a href={u.verificationData.docUrl} target="_blank" rel="noreferrer" className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black tracking-widest text-white hover:bg-white/10 transition-all uppercase">VIEW_DOCS</a>
                                                 )}
-                                                <button onClick={() => approveUser(u)} className="px-6 py-2 rounded-xl bg-primary text-black text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg uppercase">APPROVE</button>
-                                                <button onClick={() => rejectUser(u)} className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-black tracking-widest hover:bg-red-500 hover:text-white transition-all uppercase">REJECT</button>
+                                                <button onClick={() => approveUser(u)} className="px-6 py-2 rounded-xl bg-primary text-black text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg uppercase">{t('acceptButton')}</button>
+                                                <button onClick={() => rejectUser(u)} className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-black tracking-widest hover:bg-red-500 hover:text-white transition-all uppercase">{t('declineButton')}</button>
                                             </div>
                                         </GlassCard>
                                     ))}
@@ -895,7 +915,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5">
                                 <div className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-                                    <span className="font-mono text-[10px] font-black text-primary uppercase tracking-[0.3em]">System_Buffer_Live</span>
+                                    <span className="font-mono text-[10px] font-black text-primary uppercase tracking-[0.3em]">{t('adminTabLogs')}</span>
                                 </div>
                                 <button onClick={() => logger.clearLogs()} className="text-primary/50 hover:text-primary transition-colors font-mono text-[9px] uppercase tracking-widest">Flush_Memory</button>
                             </div>
@@ -937,6 +957,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 <AddClinicModal 
                     onClose={() => setShowAddClinic(false)}
                     onSuccess={handleRefresh}
+                    adminEmail={currentUser.email}
                 />
             )}
 
@@ -944,6 +965,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 <AddVetModal 
                     onClose={() => setShowAddVet(false)}
                     onSuccess={handleRefresh}
+                    adminEmail={currentUser.email}
                 />
             )}
 

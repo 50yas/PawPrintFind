@@ -111,18 +111,16 @@ export const contentService = {
 
     async incrementBlogPostView(id: string): Promise<void> {
         try {
-            await updateDoc(doc(db, 'blog_posts', id), { views: increment(1) });
+            await updateDoc(doc(db, 'blog_posts', id), { 
+                views: increment(1) 
+            });
         } catch (error) {
-            logger.error('Error incrementing blog view:', error);
-            // Non-critical, maybe don't throw? But standard is to throw.
-            // throw error; 
-            // Actually, for view increment, silencing error might be better for UX, 
-            // but for "refactoring for error handling" we usually want visibility.
-            // Let's log it but maybe catch it? No, keeping it consistent.
-            // If the UI doesn't await it, it won't break anything.
-            // If it does, it should handle it.
-            // `dbService.incrementBlogPostView` just calls this.
-            console.error("Failed to increment view", error);
+            // Se fallisce su 'blog_posts', prova su 'blog' (legacy fallback)
+            try {
+                await updateDoc(doc(db, 'blog', id), { views: increment(1) });
+            } catch (e) {
+                logger.error('Error incrementing blog view:', error);
+            }
         }
     },
 

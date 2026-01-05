@@ -12,27 +12,24 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Robust Admin Check
+    // Robust Admin Check - Handles both legacy and new roles for transition safety
     function isAdmin() {
       return isSignedIn() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'super_admin';
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'super_admin' ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'admin'
+        );
     }
 
     // --- COLLECTION RULES ---
 
     // 1. USERS
     match /users/{userId} {
-      // Allow individual read for owner or admin
-      allow read: if isOwner(userId) || isAdmin();
-      // Allow write for owner or admin
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
       allow write: if isOwner(userId) || isAdmin();
     }
     
-    // Explicitly allow listing the users collection for admins
-    match /users {
-      allow list: if isAdmin();
-    }
-
     // 2. PETS
     match /pets/{petId} {
       allow read: if true; 
@@ -40,7 +37,7 @@ service cloud.firestore {
     }
 
     // 3. CLINICS
-    match /clinics/{clinicId} {
+    match /vet_clinics/{clinicId} {
       allow read: if true;
       allow write: if isSignedIn();
     }
@@ -64,7 +61,9 @@ service cloud.firestore {
     // 7. BLOG POSTS
     match /blog_posts/{postId} {
       allow read: if true;
+      allow list: if true;
       allow write: if isAdmin();
+      allow update: if true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
     }
 
     // 8. CONTACT MESSAGES
@@ -81,6 +80,12 @@ service cloud.firestore {
     // 10. SYSTEM/MAIL
     match /mail/{mailId} {
       allow write: if isSignedIn();
+    }
+    
+    // 11. METADATA
+    match /metadata/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // --- STRIPE EXTENSION RULES ---

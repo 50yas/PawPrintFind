@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { View, UserRole } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
@@ -44,15 +43,11 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
             setView('home');
             setTimeout(() => {
                 const el = document.getElementById(sectionId);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth' });
-                }
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
             }, 300);
         } else {
             const el = document.getElementById(sectionId);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
@@ -65,7 +60,10 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
     };
 
     return (
-        <div className="fixed bottom-0 left-0 w-full bg-slate-950/60 backdrop-blur-3xl border-t border-white/10 z-[50] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-safe">
+        <div 
+            className="fixed bottom-0 left-0 right-0 w-full bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe"
+            style={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
+        >
             
             {/* Vertical Language Selector Overlay */}
             {showLangMenu && (
@@ -89,52 +87,37 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 </>
             )}
 
-            <div className="flex justify-around items-center px-2 h-[70px]">
-                {/* Home */}
+            <div className="flex justify-between items-center px-4 h-[75px] relative">
+                {/* 1. Home */}
                 <button 
                     onClick={() => setView('home')} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-1 ${isActive('home')}`}
-                    aria-label={t('homeButton')}
+                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${isActive('home')}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">{t('homeButton')}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">{t('homeButton')}</span>
                 </button>
 
-                {/* Adoption */}
+                {/* 2. Dashboard / Auth */}
                 <button 
-                    onClick={() => setView('adoptionCenter')} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-1 ${isActive('adoptionCenter')}`}
-                    aria-label={t('adoptionLink')}
+                    onClick={handleAuthAction} 
+                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${userRole ? isActive(dashboardView) : 'text-muted-foreground'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">{t('adoptionLink')}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">{userRole ? 'DASH' : 'LOGIN'}</span>
                 </button>
 
-                {/* Maps */}
-                <button 
-                    onClick={() => handleHomeSection('missing-pets-map')} 
-                    className="flex flex-col items-center gap-1 transition-all duration-300 relative px-1 text-muted-foreground hover:text-foreground"
-                    aria-label="Maps"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">MAPS</span>
-                </button>
-
-                {/* FAB - AI Assistant (Center) */}
-                <div className="relative -top-6">
+                {/* 3. CENTER FAB - AI Assistant */}
+                <div className="flex-1 flex justify-center -mt-8 relative z-10">
                     <button 
                         onClick={onAssistantClick}
-                        className="w-14 h-14 rounded-full bg-slate-900/80 backdrop-blur-xl border-4 border-slate-950 flex items-center justify-center shadow-[0_0_20px_rgba(45,212,191,0.4)] relative overflow-hidden active:scale-95 transition-transform"
-                        aria-label="AI Assistant"
+                        className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(45,212,191,0.5)] relative overflow-hidden active:scale-90 transition-all group"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-20 animate-pulse"></div>
-                        <div className="relative z-10 p-2.5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-20 group-hover:opacity-40 animate-pulse"></div>
+                        <div className="relative z-10 p-3">
                              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-white fill-current">
                                 <path d="M490.39,182.75c-5.55-13.19-14.77-22.7-26.67-27.49l-.16-.06a46.46,46.46,0,0,0-17-3.2h-.64c-27.24.41-55.05,23.56-69.19,57.61-10.37,24.9-11.56,51.68-3.18,71.64,5.54,13.2,14.78,22.71,26.73,27.5l.13.05a46.53,46.53,0,0,0,17,3.2c27.5,0,55.6-23.15,70-57.65C497.65,229.48,498.78,202.72,490.39,182.75Z"/>
                                 <path d="M381.55,329.61c-15.71-9.44-30.56-18.37-40.26-34.41C314.53,250.8,298.37,224,256,224s-58.57,26.8-85.39,71.2c-9.72,16.06-24.6,25-40.36,34.48-18.07,10.86-36.74,22.08-44.8,44.16a66.93,66.93,0,0,0-4.65,25c0,35.95,28,65.2,62.4,65.2,17.75,0,36.64-6.15,56.63-12.66,19.22-6.26,39.09-12.73,56.27-12.73s37,6.47,56.15,12.73C332.2,457.85,351,464,368.8,464c34.35,0,62.3-29.25,62.3-65.2a67,67,0,0,0-4.75-25C418.29,351.7,399.61,340.47,381.55,329.61Z"/>
@@ -146,43 +129,28 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     </button>
                 </div>
 
-                {/* Blog */}
+                {/* 4. Blog / Ecosystem */}
                 <button 
                     onClick={() => setView('blog')} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-1 ${isActive('blog')}`}
-                    aria-label={t('blogButton')}
+                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${isActive('blog')}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v5h5" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7 13h10M7 17h10" />
                     </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">{t('blogButton')}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">BLOG</span>
                 </button>
 
-                {/* Dashboard / Login */}
-                <button 
-                    onClick={handleAuthAction} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-1 ${userRole ? isActive(dashboardView) : 'text-muted-foreground'}`}
-                    aria-label={userRole ? 'Dashboard' : 'Login'}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">{userRole ? 'USER' : 'LOGIN'}</span>
-                    {userRole && currentView === dashboardView && <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_8px_#22d3ee]"></div>}
-                </button>
-
-                {/* Language Selection */}
+                {/* 5. Language */}
                 <button 
                     onClick={() => setShowLangMenu(!showLangMenu)} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 relative px-1 ${showLangMenu ? 'text-primary' : 'text-muted-foreground'}`}
-                    aria-label="Select Language"
+                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${showLangMenu ? 'text-primary' : 'text-muted-foreground'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5a18.022 18.022 0 01-3.827-5.802M6 9h10.762c-1.218 2.52-3.033 4.733-5.139 6.56M11 19l-5-5M11 19l5-5" />
                     </svg>
-                    <span className="text-[7px] font-black uppercase tracking-tighter">{locale.toUpperCase()}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">{locale.toUpperCase()}</span>
                 </button>
             </div>
         </div>

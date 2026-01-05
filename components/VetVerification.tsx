@@ -24,7 +24,8 @@ export const VetVerification: React.FC<VetVerificationProps> = ({ user, onVerifi
 
         setIsUploading(true);
         try {
-            const url = await dbService.uploadImage(file, `verifications/${user.email}/${Date.now()}_${file.name}`);
+            // Using user.uid in the path to match Storage security rules
+            const url = await dbService.uploadImage(file, `verifications/${user.uid}/${Date.now()}_${file.name}`);
             
             const updatedUser: User = {
                 ...user,

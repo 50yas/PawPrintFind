@@ -10,9 +10,10 @@ import { VetClinic } from '../types';
 interface AddClinicModalProps {
     onClose: () => void;
     onSuccess: () => void;
+    adminEmail: string;
 }
 
-export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSuccess }) => {
+export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSuccess, adminEmail }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
     const [name, setName] = useState('');
@@ -44,7 +45,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
             
             // Log the action
             await dbService.logAdminAction({
-                adminEmail: 'SYSTEM_ADMIN', // Ideally pass from props
+                adminEmail: adminEmail,
                 action: 'MANUAL_CLINIC_REG',
                 targetId: email,
                 details: `Manually registered clinic: ${name}`

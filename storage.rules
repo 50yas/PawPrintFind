@@ -33,6 +33,12 @@ service firebase.storage {
       allow write: if isOwner(userId);
     }
 
+    // 2.5. VERIFICATIONS
+    // Permette agli utenti di caricare i propri documenti di verifica
+    match /verifications/{userId}/{allPaths=**} {
+      allow write: if isOwner(userId);
+    }
+
     // 3. CARTELLE ANIMALI (Fallback)
     // Se l'upload avviene direttamente sotto 'pets/', permettiamo a chiunque sia loggato
     match /pets/{petId}/{allPaths=**} {

@@ -33,5 +33,5 @@
 ## Phase 5: Advanced Search & Polish [checkpoint: ]
 - [x] Task: Enhance the user and pet tables in AdminDashboard with search and "Verification Status" filters. da12bee
 - [x] Task: Perform a final mobile responsiveness audit for high-density HUD grids. b328454
-- [~] Task: Ensure all administrative actions trigger an `Audit Log` entry.
-- [ ] Task: Conductor - User Manual Verification 'Advanced Search & Polish' (Protocol in workflow.md)
+- [x] Task: Ensure all administrative actions trigger an `Audit Log` entry. fa29fa5
+- [~] Task: Conductor - User Manual Verification 'Advanced Search & Polish' (Protocol in workflow.md)

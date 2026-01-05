@@ -113,10 +113,37 @@ export const en = {
     // Admin Tabs & Management
     adminTabBlog: `Blog Mgmt`,
     adminTabPets: `Pet Mgmt`,
+    adminTabClinics: `Clinics`,
+    adminTabLogs: `System Logs`,
     deletePetButton: `Delete Pet`,
     deletePostButton: `Delete Post`,
     confirmDeletePet: `Are you sure you want to delete this pet? This action cannot be undone.`,
     confirmDeletePost: `Delete this blog post?`,
+    
+    // Admin Professional Mgmt
+    infrastructureTitle: `Veterinary Infrastructure`,
+    newVetButton: `New Vet Identity`,
+    newClinicButton: `New Clinic Node`,
+    authorizedFacilities: `Authorized Facilities`,
+    pendingInfrastructure: `Vets Pending Infrastructure Link`,
+    verifiedPro: `Verified Pro`,
+    pendingVerification: `Pending Verification`,
+    linkedStatus: `Linked`,
+    unlinkedStatus: `Unlinked`,
+    createClinicAction: `Create Clinic`,
+    verifyNowAction: `Verify Now`,
+    dismantleButton: `Dismantle`,
+    purgeButton: `Purge`,
+    terminateButton: `Terminate`,
+    
+    // Filters
+    allRoles: `All Roles`,
+    allStatus: `All Status`,
+    verifiedOnly: `Verified Only`,
+    unverifiedOnly: `Unverified Only`,
+    statusLost: `Lost`,
+    statusAdoption: `Adoption`,
+    statusOwned: `Owned`,
     
     // Map Filters
     showLostPets: `Lost Pets`,

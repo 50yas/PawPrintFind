@@ -13,7 +13,7 @@ Paw Print is a comprehensive, AI-powered platform designed to connect pet lovers
 ## 3. Core Features & Design
 Based on the file structure, the application includes the following features:
 - **Glassmorphism 2.0 & Material You:** A refined, futuristic aesthetic combining translucency and depth with a dynamic "Material You" (Material 3) color system derived from a "Paw Print Teal" seed color.
-- **Pet Adoption:** A central hub (`AdoptionCenter.tsx`) for users to browse and find pets available for adoption, with high-performance cinematic image loading.
+- **Pet Adoption:** A central hub (`AdoptionCenter.tsx`) for users to browse and find pets available for adoption, featuring an interactive map (`AdoptionMap.tsx`), high-performance cinematic image loading, and localized smart templates for secure inquiries.
 - **AI Health Check:** An AI-powered tool (`AIHealthCheckModal.tsx`) to provide preliminary health assessments for pets.
 - **Lost & Found Pets:**
     - A system for reporting lost pets (`ReportLostModal.tsx`).
@@ -27,9 +27,10 @@ Based on the file structure, the application includes the following features:
     - A community forum or social space (`Community.tsx`).
     - A blog (`Blog.tsx`) for sharing articles and information.
 - **Cinematic Backgrounds:** High-performance 3D neural network and biometric scenes powered by Three.js.
-- **User & Role Management:**
+- **User & Role Management & Navigation:**
     - Authentication for different user roles (`Auth.tsx`).
     - Dashboards tailored to different roles (Admin, Shelter, Vet, Volunteer).
+    - **Unified Access:** Authenticated users can access all public-facing pages (Home, Adoption Center, Blog) without logging out.
 
 ## 4. Technology Stack
 - **Frontend:** React, TypeScript, Vite

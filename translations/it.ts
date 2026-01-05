@@ -483,10 +483,37 @@ export const it = {
     // Admin Tabs & Management
     adminTabBlog: `Gestione Blog`,
     adminTabPets: `Gestione Animali`,
+    adminTabClinics: `Cliniche`,
+    adminTabLogs: `Log di Sistema`,
     deletePetButton: `Elimina Animale`,
     deletePostButton: `Elimina Post`,
     confirmDeletePet: `Sei sicuro di voler eliminare questo animale? Questa azione non può essere annullata.`,
     confirmDeletePost: `Eliminare questo post del blog?`,
+    
+    // Admin Professional Mgmt
+    infrastructureTitle: `Infrastruttura Veterinaria`,
+    newVetButton: `Nuova Identità Vet`,
+    newClinicButton: `Nuovo Nodo Clinica`,
+    authorizedFacilities: `Strutture Autorizzate`,
+    pendingInfrastructure: `Vet in Attesa di Collegamento`,
+    verifiedPro: `Pro Verificato`,
+    pendingVerification: `In Attesa di Verifica`,
+    linkedStatus: `Collegato`,
+    unlinkedStatus: `Scollegato`,
+    createClinicAction: `Crea Clinica`,
+    verifyNowAction: `Verifica Ora`,
+    dismantleButton: `Smantella`,
+    purgeButton: `Purga`,
+    terminateButton: `Termina`,
+    
+    // Filters
+    allRoles: `Tutti i Ruoli`,
+    allStatus: `Tutti gli Stati`,
+    verifiedOnly: `Solo Verificati`,
+    unverifiedOnly: `Solo Non Verificati`,
+    statusLost: `Smarrito`,
+    statusAdoption: `Adozione`,
+    statusOwned: `Proprietà`,
     
     // Map Filters
     showLostPets: `Animali Smarriti`,

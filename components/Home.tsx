@@ -230,13 +230,19 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 SISTEMA CORE ATTIVO: {t('aiPoweredProtection')}
                             </div>
 
-                            <div className="animate-fade-in mb-6 md:mb-8 relative" style={{ animationDelay: '100ms' }}>
                                 <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
                                     <span className="text-white drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)]">{t('homeTitle1')}</span>
-                                    {/* Fixed: Removed vertical transforms and added padding to prevent clipping in Brave/Safari */}
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-purple-400 pb-1" style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>{t('homeTitle2')}</span>
+                                    {/* Robust rendering: Cyan fallback for Brave, Gradient for others */}
+                                    <span className="inline-block text-cyan-400 sm:text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-purple-400 pb-2 brightness-110 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]" 
+                                          style={{ 
+                                            WebkitBackgroundClip: 'text', 
+                                            backgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            backgroundColor: 'currentColor' // Fallback
+                                          }}>
+                                        {t('homeTitle2')}
+                                    </span>
                                 </h1>
-                            </div>
 
                             <div className="space-y-6 mb-10 max-w-lg md:max-w-xl mx-auto lg:mx-0">
                                 <p className="text-base md:text-xl text-muted-foreground/90 font-medium leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>

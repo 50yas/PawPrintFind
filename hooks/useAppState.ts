@@ -52,7 +52,8 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
                 dbService.getUsers()
                     .then(setAllUsers)
                     .catch(err => {
-                        console.warn("[Admin-Sync] Permission Denied for user list. Please verify your account clearance level in Firestore.", err.message);
+                        console.warn(`[Admin-Sync] Permission Denied for user list. Code: ${err.code}. Message: ${err.message}`);
+                        console.log("Check if your Firestore document has activeRole: 'super_admin'");
                         setAllUsers([]);
                     });
             }

@@ -18,19 +18,6 @@ export const useAuthSync = (
                     const profile = await dbService.syncUserProfile(fbUser);
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-
-                    if (currentView === 'home') {
-                        // Redirect based on role
-                        if (profile.activeRole === 'super_admin') {
-                            setCurrentView('adminDashboard');
-                        } else if (profile.activeRole === 'vet') {
-                            setCurrentView('vetDashboard');
-                        } else if (profile.activeRole === 'shelter') {
-                            setCurrentView('shelterDashboard');
-                        } else {
-                            setCurrentView('dashboard');
-                        }
-                    }
                 } catch (e: any) {
                     console.error("Sync Error:", e.message);
                 }

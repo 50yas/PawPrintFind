@@ -107,65 +107,65 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
 
     return (
         <div className={`relative transition-all duration-500 ${isFullScreen ? 'w-full max-w-lg mx-auto z-50' : 'w-full'}`}>
-            <div className={`glass-panel p-10 rounded-[3rem] shadow-2xl border border-white/20 text-center relative overflow-hidden bg-slate-950/90 backdrop-blur-3xl`}>
+            <div className={`glass-panel p-6 sm:p-10 rounded-2xl sm:rounded-[3rem] shadow-2xl border border-white/20 text-center relative overflow-hidden bg-slate-950/90 backdrop-blur-3xl`}>
                 {isFullScreen && onClose && (
-                    <button onClick={onClose} className="absolute top-8 right-8 text-white/40 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all z-20">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <button onClick={onClose} className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/40 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-all z-20">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 )}
 
-                <div className="mb-10 relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary via-secondary to-primary bg-[length:200%_200%] animate-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/30 transform hover:scale-110 transition-transform duration-500 rotate-6 group">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                <div className="mb-6 sm:mb-10 relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary via-secondary to-primary bg-[length:200%_200%] animate-gradient rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl shadow-primary/30 transform hover:scale-110 transition-transform duration-500 rotate-6 group">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
-                    <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                    <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
                         {isForgotPassword ? 'Rescue Access' : isRegistering ? 'Join the Pack' : 'Identity Verified'}
                     </h2>
-                    <p className="text-sm text-slate-400 mt-3 font-medium px-4">{isForgotPassword ? 'Enter your email to recover your credentials' : isRegistering ? 'Create your profile to start protecting pets' : 'Access the global biometric pet network'}</p>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-2 sm:mt-3 font-medium px-4">{isForgotPassword ? 'Enter your email to recover your credentials' : isRegistering ? 'Create your profile to start protecting pets' : 'Access the global biometric pet network'}</p>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                     {errorMsg && (
-                        <div className="animate-shake flex items-center gap-3 bg-red-500/10 p-4 rounded-2xl border border-red-500/30 text-left">
-                            <span className="text-xl">⚠️</span>
-                            <p className="text-xs text-red-400 font-bold uppercase tracking-tight leading-tight">{errorMsg}</p>
+                        <div className="animate-shake flex items-center gap-3 bg-red-500/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-red-500/30 text-left">
+                            <span className="text-lg">⚠️</span>
+                            <p className="text-[10px] sm:text-xs text-red-400 font-bold uppercase tracking-tight leading-tight">{errorMsg}</p>
                         </div>
                     )}
                     {successMsg && (
-                        <div className="animate-fade-in flex items-center gap-3 bg-green-500/10 p-4 rounded-2xl border border-green-500/30 text-left">
-                            <span className="text-xl">✅</span>
-                            <p className="text-xs text-green-400 font-bold uppercase tracking-tight leading-tight">{successMsg}</p>
+                        <div className="animate-fade-in flex items-center gap-3 bg-green-500/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-green-500/30 text-left">
+                            <span className="text-lg">✅</span>
+                            <p className="text-[10px] sm:text-xs text-green-400 font-bold uppercase tracking-tight leading-tight">{successMsg}</p>
                         </div>
                     )}
 
                     {/* Protocol Selector */}
                     {!isForgotPassword && (
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <div className="flex justify-between items-end px-2">
-                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">Security Protocol</label>
-                                <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Verified</span>
+                                <label className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">Security Protocol</label>
+                                <span className="text-[7px] sm:text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Verified</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 {roles.map(role => (
                                     <button
                                         key={role.id}
                                         type="button"
                                         onClick={() => setSelectedRole(role.id)}
-                                        className={`group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 border overflow-hidden ${selectedRole === role.id
+                                        className={`group relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-500 border overflow-hidden ${selectedRole === role.id
                                             ? 'bg-primary/20 border-primary shadow-[0_0_30px_rgba(34,211,238,0.2)]'
                                             : 'bg-white/5 border-white/10 hover:border-white/30 grayscale hover:grayscale-0'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all duration-500 ${selectedRole === role.id ? 'bg-primary text-white shadow-lg' : 'bg-white/10 text-slate-400 group-hover:bg-white/20 group-hover:text-white'}`}>
+                                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-lg sm:text-xl transition-all duration-500 ${selectedRole === role.id ? 'bg-primary text-white shadow-lg' : 'bg-white/10 text-slate-400 group-hover:bg-white/20 group-hover:text-white'}`}>
                                             {role.icon}
                                         </div>
-                                        <div className="text-left">
-                                            <span className={`block text-[10px] font-black uppercase tracking-widest leading-none ${selectedRole === role.id ? 'text-white' : 'text-slate-400'}`}>{role.label}</span>
-                                            <span className="text-[8px] font-medium text-slate-500 mt-1 block leading-tight">{role.desc}</span>
+                                        <div className="text-left overflow-hidden">
+                                            <span className={`block text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none truncate ${selectedRole === role.id ? 'text-white' : 'text-slate-400'}`}>{role.label}</span>
+                                            <span className="text-[7px] sm:text-[8px] font-medium text-slate-500 mt-1 block leading-tight truncate">{role.desc}</span>
                                         </div>
                                         {selectedRole === role.id && (
-                                            <div className="absolute -right-2 -top-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center pt-1 pr-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-900" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                            <div className="absolute -right-2 -top-2 w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center pt-1 pr-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 text-slate-900" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                             </div>
                                         )}
                                     </button>
@@ -174,7 +174,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                         </div>
                     )}
 
-                    <form onSubmit={handleAuth} className="space-y-5">
+                    <form onSubmit={handleAuth} className="space-y-4 sm:space-y-5">
                         <div className="group relative transition-all duration-300">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
@@ -185,7 +185,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 onChange={(e) => setEmail(e.target.value)} 
                                 placeholder="Network Identifier (Email)" 
                                 required 
-                                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                             />
                         </div>
                         
@@ -200,7 +200,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     onChange={(e) => setPassword(e.target.value)} 
                                     placeholder="Access Credential (Password)" 
                                     required 
-                                    className="w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                    className="w-full pl-12 pr-12 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                                 />
                                 <button 
                                     type="button" 
@@ -227,7 +227,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     onChange={(e) => setConfirmPassword(e.target.value)} 
                                     placeholder="Confirm Access Credential" 
                                     required 
-                                    className="w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                    className="w-full pl-12 pr-12 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                                 />
                                 <button 
                                     type="button" 
@@ -242,25 +242,25 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 </button>
                             </div>
                         )}
-                        <button type="submit" disabled={loading} className="group w-full bg-gradient-to-r from-primary to-secondary p-[2px] rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-300">
-                            <div className="w-full h-full bg-slate-900 rounded-[14px] py-4 flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors">
+                        <button type="submit" disabled={loading} className="group w-full bg-gradient-to-r from-primary to-secondary p-[2px] rounded-xl sm:rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-300">
+                            <div className="w-full h-full bg-slate-900 rounded-[10px] sm:rounded-[14px] py-3 sm:py-4 flex items-center justify-center gap-2 group-hover:bg-transparent transition-colors">
                                 {loading ? <LoadingSpinner /> : (
                                     <>
-                                        <span className="text-sm font-black uppercase tracking-[0.2em] text-white">
+                                        <span className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white">
                                             {isForgotPassword ? 'Initiate Recovery' : isRegistering ? 'Authorize New Account' : 'Decrypt Dashboard'}
                                         </span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                                     </>
                                 )}
                             </div>
                         </button>
                     </form>
 
-                    <div className="flex flex-col gap-4 mt-6">
+                    <div className="flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6">
                         {!isForgotPassword && (
-                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">Lost Credentials?</button>
+                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">Lost Credentials?</button>
                         )}
-                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
                             {isRegistering ? (
                                 <><span>Already registered?</span> <span className="text-primary border-b border-primary/30">Sign In Protocol</span></>
                             ) : (
@@ -268,7 +268,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                             )}
                         </button>
                         {isForgotPassword && (
-                            <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[10px] text-slate-400 hover:text-white transition-all font-black uppercase tracking-[0.1em] w-fit mx-auto flex items-center gap-2">
+                            <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[9px] sm:text-[10px] text-slate-400 hover:text-white transition-all font-black uppercase tracking-[0.1em] w-fit mx-auto flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
                                 Back to Identification
                             </button>
@@ -276,15 +276,15 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     </div>
 
                     {!isForgotPassword && (
-                        <div className="pt-8 relative">
+                        <div className="pt-6 sm:pt-8 relative">
                             <div className="absolute inset-x-0 top-4 flex items-center">
                                 <div className="w-full border-t border-white/5"></div>
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-[#020617] px-4 text-slate-500 font-bold tracking-widest text-[9px]">External Uplink</span>
+                                <span className="bg-[#020617] px-4 text-slate-500 font-bold tracking-widest text-[8px] sm:text-[9px]">External Uplink</span>
                             </div>
-                            <button onClick={handleGoogleLogin} className="mt-6 w-full py-4 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-2xl border border-white/10 flex items-center justify-center gap-4 transition-all hover:scale-[1.02] shadow-sm group">
-                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="" />
+                            <button onClick={handleGoogleLogin} className="mt-4 sm:mt-6 w-full py-3 sm:py-4 bg-white/5 hover:bg-white/10 text-white font-bold text-[10px] sm:text-xs rounded-xl sm:rounded-2xl border border-white/10 flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-[1.02] shadow-sm group">
+                                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" alt="" />
                                 <span className="uppercase tracking-[0.15em]">Sync with Google ID</span>
                             </button>
                         </div>

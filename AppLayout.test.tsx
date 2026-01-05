@@ -24,11 +24,18 @@ vi.mock('./components/SecureChatModal', () => ({ SecureChatModal: () => <div dat
 vi.mock('./components/AIHealthCheckModal', () => ({ AIHealthCheckModal: () => <div data-testid="ai-health-check">AIHealthCheck</div> }));
 vi.mock('./components/ErrorBoundary', () => ({ ErrorBoundary: ({children}: {children: React.ReactNode}) => <div>{children}</div> }));
 
-// Mock hooks
 vi.mock('./hooks/useAuthSync', () => ({
     useAuthSync: () => ({
         currentUser: null,
         setCurrentUser: vi.fn(),
+    })
+}));
+
+vi.mock('./hooks/useTranslations', () => ({
+    useTranslations: () => ({
+        t: (k: string) => k,
+        locale: 'en',
+        setLocale: vi.fn(),
     })
 }));
 

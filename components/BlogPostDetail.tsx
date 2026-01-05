@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BlogPost } from '../types';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
@@ -12,10 +12,12 @@ interface BlogPostDetailProps {
 
 export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) => {
     const { t } = useTranslations();
+    const hasIncremented = useRef<string | null>(null);
 
     useEffect(() => {
-        if (post?.id) {
+        if (post?.id && hasIncremented.current !== post.id) {
             dbService.incrementBlogPostView(post.id);
+            hasIncremented.current = post.id;
         }
         window.scrollTo(0, 0);
     }, [post?.id]);

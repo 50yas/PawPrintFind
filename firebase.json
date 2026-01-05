@@ -1,4 +1,12 @@
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "bucket": "pawprint-50.firebasestorage.app",
+    "rules": "storage.rules"
+  },
   "hosting": {
     "public": "dist",
     "ignore": [
