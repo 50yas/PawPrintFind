@@ -30,7 +30,7 @@
 - [x] Task: Performance Optimization [dc603c9]
     - [ ] Implement adaptive particle counts based on device tier (Mobile vs Desktop).
     - [ ] Ensure `useFrame` loops are optimized.
-- [ ] Task: Integration & Polish
+- [x] Task: Integration - [ ] Task: Integration & Polish Polish [9899cfb]
     - [ ] Replace the old background in `App.tsx` or `components/HeroScene.tsx` with the new Biometric component.
     - [ ] Fine-tune colors to match the "Paw Print Teal" and Cyber HUD aesthetic.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Cinematic Background Redesign' (Protocol in workflow.md)
