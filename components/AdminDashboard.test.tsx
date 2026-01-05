@@ -169,6 +169,25 @@ describe('AdminDashboard Cyber HUD', () => {
        expect(screen.getByText('adminTabPets')).toBeInTheDocument();
    });
 
+   it('renders the Persistent Alert Feed when there are pending verifications', () => {
+        render(
+            <AdminDashboard 
+                users={[mockUser, mockPendingUser]}
+                currentUser={mockUser}
+                allPets={mockPets}
+                vetClinics={mockClinics}
+                donations={mockDonations}
+                onDeleteUser={vi.fn()}
+                onLogout={vi.fn()}
+                onRefresh={vi.fn()}
+            />
+        );
+
+        expect(screen.getByText('Urgent_Protocol:')).toBeInTheDocument();
+        expect(screen.getByText(/1 Verification Requests Pending/i)).toBeInTheDocument();
+        expect(screen.getByText('Resolve_Now')).toBeInTheDocument();
+   });
+
    it('handles user approval', async () => {
         const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
         render(
