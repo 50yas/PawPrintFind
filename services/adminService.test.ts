@@ -102,6 +102,41 @@ describe('adminService', () => {
         });
     });
 
+    describe('verifyUser', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.verifyUser({ uid: 'u1' } as any)).rejects.toThrow('Authentication required');
+        });
+
+        it('should call setDoc with isVerified: true', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            await adminService.verifyUser({ uid: 'u1', email: 'test@test.com' } as any);
+            expect(setDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ isVerified: true }), { merge: true });
+        });
+    });
+
+    describe('rejectVerification', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.rejectVerification({ uid: 'u1' } as any)).rejects.toThrow('Authentication required');
+        });
+
+        it('should call setDoc and remove verificationData', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            const userWithData = { 
+                uid: 'u1', 
+                email: 'test@test.com', 
+                verificationData: { doc: 'url' } 
+            };
+            await adminService.rejectVerification(userWithData as any);
+            
+            // setDoc should be called without verificationData
+            const callArgs = (setDoc as Mock).mock.calls[0][1];
+            expect(callArgs).not.toHaveProperty('verificationData');
+            expect(callArgs.isVerified).toBe(false);
+        });
+    });
+
     describe('getAuditLogs', () => {
         it('should throw error if user is not authenticated', async () => {
             await expect(adminService.getAuditLogs()).rejects.toThrow('Authentication required');

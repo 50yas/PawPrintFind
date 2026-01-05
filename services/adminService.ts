@@ -87,6 +87,32 @@ export const adminService = {
         }
     },
 
+    async verifyUser(user: User): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to verify user.");
+            }
+            await setDoc(doc(db, 'users', user.uid), { ...user, isVerified: true }, { merge: true });
+        } catch (error) {
+            logger.error('Error verifying user:', error);
+            throw error;
+        }
+    },
+
+    async rejectVerification(user: User): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to reject verification.");
+            }
+            // Logic to clear verificationData while keeping the user
+            const { verificationData, ...userWithoutVerification } = user;
+            await setDoc(doc(db, 'users', user.uid), { ...userWithoutVerification, isVerified: false });
+        } catch (error) {
+            logger.error('Error rejecting verification:', error);
+            throw error;
+        }
+    },
+
     async getAuditLogs(max: number = 100): Promise<AdminAuditLog[]> {
         try {
             if (!auth.currentUser) {
