@@ -17,13 +17,13 @@
     - [x] Refactor `components/HeroScene.tsx` (or where the Console widget resides).
     - [x] Change CSS positioning from absolute top-left to a non-obtrusive bottom location for ALL breakpoints (Web & Mobile).
     - [x] Ensure it aligns with the footer area or bottom corners, clear of central content.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Navigation & Layout Core Fixes' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Navigation & Layout Core Fixes' (Protocol in workflow.md) [checkpoint: 19664c2]
 
 ## Phase 2: Cinematic Background Redesign ("Biometric Data Stream")
-- [ ] Task: Three.js Scene Setup - TDD
-    - [ ] Create `components/BiometricBackground.test.tsx` (mocking Three.js/Canvas).
-    - [ ] Write tests verifying the component renders without crashing and accepts responsiveness props.
-- [ ] Task: Particle System Implementation
+- [x] Task: Three.js Scene Setup - TDD
+    - [x] Create `components/BiometricBackground.test.tsx` (mocking Three.js/Canvas).
+    - [x] Write tests verifying the component renders without crashing and accepts responsiveness props.
+- [x] Task: Particle System Implementation [e5b257b]
     - [ ] Create/Update `components/Background.tsx` or `components/BiometricBackground.tsx`.
     - [ ] Implement the "Digital Dust" particle system using `react-three-fiber`.
     - [ ] Add the "DNA Helix <-> Paw Print" morphing logic.
