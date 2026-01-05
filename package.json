@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "predeploy": "npm install && npm run build",
     "deploy": "firebase deploy"
   },
