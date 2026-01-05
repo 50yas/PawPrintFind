@@ -68,7 +68,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
     };
 
     return (
-        <Modal onClose={onClose} title={t('addPatientTitle')}>
+        <Modal isOpen={true} onClose={onClose} title={t('addPatientTitle')}>
             <form onSubmit={handleSubmit} className="space-y-6 p-2">
                 <div className="space-y-4">
                     <div>

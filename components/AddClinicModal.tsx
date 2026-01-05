@@ -62,7 +62,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
     };
 
     return (
-        <Modal onClose={onClose} title="Manual Clinic Registration">
+        <Modal isOpen={true} onClose={onClose} title="Manual Clinic Registration">
             <form onSubmit={handleSubmit} className="space-y-6 p-2">
                 <div className="space-y-4">
                     <div className="group">
