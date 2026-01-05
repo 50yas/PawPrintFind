@@ -37,8 +37,8 @@ const HeroHUD = memo(() => {
 
     return (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            {/* Top Left System Status - Terminal Animation */}
-            <div className="absolute top-20 left-4 md:top-8 md:left-12 p-3 md:p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[9px] md:text-[10px] font-mono-tech text-cyan-400 min-w-[140px] md:min-w-[180px] shadow-2xl z-20">
+            {/* Top Left System Status - Terminal Animation - RELOCATED TO BOTTOM LEFT */}
+            <div className="absolute bottom-24 left-4 md:bottom-8 md:left-12 p-3 md:p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[9px] md:text-[10px] font-mono-tech text-cyan-400 min-w-[140px] md:min-w-[180px] shadow-2xl z-20">
                 <div className="flex items-center gap-2 mb-2 md:mb-3 border-b border-white/10 pb-2">
                     <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
                     <span className="text-white font-bold tracking-widest uppercase">Console Output</span>
@@ -232,14 +232,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
                                 <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
                                     <span className="text-white drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)]">{t('homeTitle1')}</span>
-                                    {/* Robust rendering: Cyan fallback for Brave, Gradient for others */}
-                                    <span className="inline-block text-cyan-400 sm:text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-purple-400 pb-2 brightness-110 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]" 
-                                          style={{ 
-                                            WebkitBackgroundClip: 'text', 
-                                            backgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            backgroundColor: 'currentColor' // Fallback
-                                          }}>
+                                    <span className="hero-gradient-text">
                                         {t('homeTitle2')}
                                     </span>
                                 </h1>
