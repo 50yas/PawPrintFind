@@ -8,15 +8,15 @@
 - [x] Task: Conductor - User Manual Verification 'Foundation & Audit Logging' (Protocol in workflow.md) bc5cd80
 
 ## Phase 2: Cyber HUD & Growth Analytics [checkpoint: ]
-- [x] Task: Refactor `AdminDashboard.tsx` layout to support the "Cyber HUD" aesthetic (glowing borders, status containers). 4d8efa6
-- [x] Task: Implement a `SystemStats` utility to calculate growth velocity (users/pets per week). 4d8efa6
-- [x] Task: Write tests for `SystemStats` utility logic. 4d8efa6
-- [x] Task: Add the "Growth Analytics" summary cards to the Admin overview using the HUD style. 4d8efa6
+- [x] Task: Refactor `AdminDashboard.tsx` layout to support the "Cyber HUD" aesthetic (glowing borders, status containers). 7fc197b
+- [x] Task: Implement a `SystemStats` utility to calculate growth velocity (users/pets per week). 3a0525e
+- [x] Task: Write tests for `SystemStats` utility logic. 3a0525e
+- [x] Task: Add the "Growth Analytics" summary cards to the Admin overview using the HUD style. 7fc197b
 - [~] Task: Conductor - User Manual Verification 'Cyber HUD & Growth Analytics' (Protocol in workflow.md)
 
 ## Phase 3: Professional Veterinarian Management [checkpoint: ]
-- [ ] Task: Create `AddClinicModal.tsx` for manual clinic registration.
-- [ ] Task: Write tests for `AddClinicModal` form submission and data validation.
+- [x] Task: Create `AddClinicModal.tsx` for manual clinic registration. eb08aff
+- [x] Task: Write tests for `AddClinicModal` form submission and data validation. eb08aff
 - [ ] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions.
 - [ ] Task: Update `adminService` to handle manual registration and verification toggles.
 - [ ] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks.
