@@ -18,8 +18,8 @@
 - [x] Task: Create `AddClinicModal.tsx` for manual clinic registration. eb08aff
 - [x] Task: Write tests for `AddClinicModal` form submission and data validation. eb08aff
 - [x] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions. 7fc197b
-- [~] Task: Update `adminService` to handle manual registration and verification toggles.
-- [ ] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks.
+- [x] Task: Update `adminService` to handle manual registration and verification toggles. 5ba81bd
+- [~] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks.
 - [ ] Task: Conductor - User Manual Verification 'Professional Veterinarian Management' (Protocol in workflow.md)
 
 ## Phase 4: Smart Blog Engagement Metrics [checkpoint: ]
