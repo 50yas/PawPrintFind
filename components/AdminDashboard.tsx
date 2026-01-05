@@ -424,13 +424,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 <div className="animate-fade-in">
                     {activeTab === 'users' && (
                         <div className="space-y-6 animate-fade-in">
-                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Identity_Registry</h3>
-                                <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
                                     <select 
                                         value={roleFilter}
                                         onChange={(e) => setRoleFilter(e.target.value)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
                                         <option value="all">ALL_ROLES</option>
                                         <option value="owner">OWNER</option>
@@ -441,13 +441,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <select 
                                         value={verificationFilter}
                                         onChange={(e) => setVerificationFilter(e.target.value as any)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
                                         <option value="all">ALL_STATUS</option>
                                         <option value="verified">VERIFIED_ONLY</option>
                                         <option value="unverified">UNVERIFIED_ONLY</option>
                                     </select>
-                                    <div className="relative flex-grow md:w-64">
+                                    <div className="relative flex-grow md:w-64 min-w-[200px]">
                                         <input 
                                             value={userSearch}
                                             onChange={e => setUserSearch(e.target.value)}
@@ -458,9 +458,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     </div>
                                 </div>
                             </div>
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                 <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[700px]">
+                                    <table className="w-full text-left text-xs min-w-[800px]">
                                         <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                             <tr className="border-b border-white/10">
                                                 <th className="p-5">Entity</th>
@@ -547,13 +547,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {activeTab === 'clinics' && (
                         <div className="space-y-8 animate-fade-in">
-                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Veterinary_Infrastructure</h3>
-                                <div className="flex gap-3">
-                                    <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20">
+                                <div className="flex flex-wrap items-center justify-center gap-3 w-full xl:w-auto">
+                                    <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20 flex-grow md:flex-grow-0">
                                         + NEW_VET_IDENTITY
                                     </GlassButton>
-                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px]">
+                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px] flex-grow md:flex-grow-0">
                                         + NEW_CLINIC_NODE
                                     </GlassButton>
                                 </div>
@@ -562,9 +562,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             {/* CLINICS TABLE */}
                             <div className="space-y-4">
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Authorized_Facilities</p>
-                                <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                     <div className="overflow-x-auto custom-scrollbar">
-                                        <table className="w-full text-left text-xs min-w-[700px]">
+                                        <table className="w-full text-left text-xs min-w-[800px]">
                                             <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                                 <tr className="border-b border-white/10">
                                                     <th className="p-5">Facility_Name</th>
@@ -629,9 +629,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             {/* VETS PENDING INFRASTRUCTURE */}
                             <div className="space-y-4">
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Vets_Pending_Infrastructure_Link</p>
-                                <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                     <div className="overflow-x-auto custom-scrollbar">
-                                        <table className="w-full text-left text-xs min-w-[700px]">
+                                        <table className="w-full text-left text-xs min-w-[800px]">
                                             <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                                 <tr className="border-b border-white/10">
                                                     <th className="p-5">Professional_Identity</th>
@@ -698,20 +698,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {activeTab === 'pets' && (
                         <div className="space-y-6 animate-fade-in">
-                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Biometric_Database</h3>
-                                <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
                                     <select 
                                         value={petStatusFilter}
                                         onChange={(e) => setPetStatusFilter(e.target.value as any)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
                                     >
                                         <option value="all">ALL_STATUS</option>
                                         <option value="lost">LOST</option>
                                         <option value="forAdoption">ADOPTION</option>
                                         <option value="owned">OWNED</option>
                                     </select>
-                                    <div className="relative w-full md:w-64">
+                                    <div className="relative flex-grow md:w-64 min-w-[200px]">
                                         <input 
                                             value={petSearch}
                                             onChange={e => setPetSearch(e.target.value)}
@@ -722,9 +722,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     </div>
                                 </div>
                             </div>
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
                                 <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[700px]">
+                                    <table className="w-full text-left text-xs min-w-[800px]">
                                         <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
                                             <tr className="border-b border-white/10">
                                                 <th className="p-5">Pet Identity</th>
