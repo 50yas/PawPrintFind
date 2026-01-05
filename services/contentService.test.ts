@@ -67,4 +67,20 @@ describe('contentService', () => {
             expect(logger.error).toHaveBeenCalledWith('Error recording donation:', mockError);
         });
     });
+
+    describe('incrementBlogPostView', () => {
+        it('should call updateDoc with increment', async () => {
+            const { updateDoc, increment } = await import('firebase/firestore');
+            await contentService.incrementBlogPostView('post-1');
+            expect(updateDoc).toHaveBeenCalled();
+            expect(increment).toHaveBeenCalledWith(1);
+        });
+
+        it('should log error if both attempts fail', async () => {
+            const { updateDoc } = await import('firebase/firestore');
+            (updateDoc as Mock).mockRejectedValue(new Error('fail'));
+            await contentService.incrementBlogPostView('post-1');
+            expect(logger.error).toHaveBeenCalled();
+        });
+    });
 });
