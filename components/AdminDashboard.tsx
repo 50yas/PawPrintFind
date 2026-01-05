@@ -111,6 +111,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         setIsRefreshing(false);
     }
 
+    const rejectUser = async (user: User) => {
+        if (!user.uid) return;
+        if (!confirm(`Reject verification for ${user.email}?`)) return;
+        setIsRefreshing(true);
+        try {
+            // Remove verification data but keep the user
+            const { verificationData, ...userWithoutVerification } = user;
+            await dbService.saveUser({ ...userWithoutVerification, isVerified: false });
+            
+            await dbService.logAdminAction({
+                adminEmail: currentUser.email,
+                action: 'REJECT_VERIFICATION',
+                targetId: user.uid,
+                details: `Rejected credentials for ${user.email}`
+            });
+            
+            addSnackbar("Verification Rejected", 'info');
+            await onRefresh();
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
+        setIsRefreshing(false);
+    }
+
     return (
         <div className="min-h-screen bg-slate-950 pb-20 text-foreground transition-colors duration-500 relative">
             {/* Cyber HUD Background Effects */}
@@ -556,7 +578,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                     <a href={u.verificationData.docUrl} target="_blank" rel="noreferrer" className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black tracking-widest text-white hover:bg-white/10 transition-all uppercase">VIEW_DOCS</a>
                                                 )}
                                                 <button onClick={() => approveUser(u)} className="px-6 py-2 rounded-xl bg-primary text-black text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg uppercase">APPROVE</button>
-                                                <button className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-black tracking-widest hover:bg-red-500 hover:text-white transition-all uppercase">REJECT</button>
+                                                <button onClick={() => rejectUser(u)} className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-black tracking-widest hover:bg-red-500 hover:text-white transition-all uppercase">REJECT</button>
                                             </div>
                                         </GlassCard>
                                     ))}
