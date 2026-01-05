@@ -188,6 +188,40 @@ describe('AdminDashboard Cyber HUD', () => {
         expect(screen.getByText('Resolve_Now')).toBeInTheDocument();
    });
 
+   it('renders Trending Blog Intelligence card in overview', async () => {
+        const mockPosts = [
+            { id: 'p1', title: 'Article One', author: 'Author A', views: 100, tags: [], content: '', publishedAt: Date.now() },
+            { id: 'p2', title: 'Article Two', author: 'Author B', views: 50, tags: [], content: '', publishedAt: Date.now() }
+        ];
+
+        vi.mocked(dbService.getBlogPosts).mockResolvedValue(mockPosts as any);
+
+        render(
+            <AdminDashboard 
+                users={[mockUser]}
+                currentUser={mockUser}
+                allPets={mockPets}
+                vetClinics={mockClinics}
+                donations={mockDonations}
+                onDeleteUser={vi.fn()}
+                onLogout={vi.fn()}
+                onRefresh={vi.fn()}
+            />
+        );
+
+        // Ensure Overview tab is clicked (though it's default)
+        fireEvent.click(screen.getByText('adminTabOverview'));
+
+        expect(screen.getByText('Content_Intelligence')).toBeInTheDocument();
+        
+        await waitFor(() => {
+            expect(screen.getByText('Article One')).toBeInTheDocument();
+            expect(screen.getByText(/100 VIEWS/i)).toBeInTheDocument();
+            // Check for Rank label
+            expect(screen.getByText(/Rank: ALPHA/i)).toBeInTheDocument();
+        });
+   });
+
    it('handles user approval', async () => {
         const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
         render(

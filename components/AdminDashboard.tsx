@@ -47,6 +47,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             targetId: currentUser.uid,
             details: 'Admin Command Center initialized'
         });
+        dbService.getBlogPosts().then(setBlogPosts).catch(err => {
+            console.error("Initial Blog Fetch Error:", err);
+        });
         return logger.subscribe(setLogs);
     }, []);
 
@@ -81,12 +84,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     }, [allPets, petSearch]);
 
     useEffect(() => {
-        if (activeTab === 'blog') {
-            dbService.getBlogPosts().then(setBlogPosts).catch(err => {
+        const fetchBlog = async () => {
+            try {
+                const posts = await dbService.getBlogPosts();
+                setBlogPosts(posts);
+            } catch (err) {
                 console.error("Blog Fetch Error:", err);
                 addSnackbar("Access Denied: Blog collection unreachable.", 'error');
-            });
-        }
+            }
+        };
+        fetchBlog();
     }, [activeTab]);
 
     const handleRefresh = async () => {
