@@ -49,7 +49,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
     : 'bg-transparent py-3 lg:py-6';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 border-b ${navContainerClass} ${className}`}>
+    <nav 
+      className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
+      style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
+    >
       <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Branding */}
         <div
