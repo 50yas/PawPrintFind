@@ -165,7 +165,17 @@ export default function App() {
                     allPets={allPets}
                     vetClinics={vetClinics}
                     donations={donations}
-                    onDeleteUser={(uid) => dbService.deleteUser(uid)}
+                    onDeleteUser={async (uid) => {
+                        const targetUser = allUsers.find(u => u.uid === uid);
+                        await dbService.deleteUser(uid);
+                        await dbService.logAdminAction({
+                            adminEmail: currentUser.email,
+                            action: 'DELETE_USER',
+                            targetId: uid,
+                            details: `Deleted user ${targetUser?.email || 'unknown'}`
+                        });
+                        await handleRefreshAdminData();
+                    }}
                     onLogout={handleLogout}
                     onRefresh={handleRefreshAdminData}
                 />

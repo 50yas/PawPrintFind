@@ -179,12 +179,16 @@ export const dbService = {
         return vetService.saveClinic(clinic);
     },
 
+    async deleteClinic(id: string) {
+        return vetService.deleteClinic(id);
+    },
+
     async getClinics() {
         return vetService.getVetClinics();
     },
 
     subscribeToClinics(callback: (clinics: VetClinic[]) => void) {
-        return onSnapshot(collection(db, 'clinics'), (s) => callback(s.docs.map(d => d.data() as VetClinic)));
+        return onSnapshot(collection(db, 'vet_clinics'), (s) => callback(s.docs.map(d => d.data() as VetClinic)));
     },
 
     // --- SYSTEM MESSAGES ---

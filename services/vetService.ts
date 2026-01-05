@@ -30,6 +30,18 @@ export const vetService = {
         }
     },
 
+    async deleteClinic(id: string): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to delete clinic.");
+            }
+            await deleteDoc(doc(db, 'vet_clinics', id));
+        } catch (error) {
+            logger.error('Error deleting vet clinic:', error);
+            throw error;
+        }
+    },
+
     async getAppointments(): Promise<Appointment[]> {
         try {
             if (!auth.currentUser) {

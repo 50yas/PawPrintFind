@@ -10,6 +10,7 @@ import { BlogPostEditor } from './BlogPostEditor';
 import { GlassCard, GlassButton } from './ui';
 import { AddPatientModal } from './AddPatientModal';
 import { AddClinicModal } from './AddClinicModal';
+import { AddVetModal } from './AddVetModal';
 import { calculateGrowth } from '../src/utils/adminUtils';
 
 interface AdminDashboardProps {
@@ -26,7 +27,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'pets' | 'blog' | 'verification' | 'logs'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'verification' | 'logs'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -34,8 +35,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
     const [showAddVetPet, setShowAddVetPet] = useState<{show: boolean, email: string}>({ show: false, email: '' });
     const [showAddClinic, setShowAddClinic] = useState(false);
+    const [showAddVet, setShowAddVet] = useState(false);
     const [userSearch, setUserSearch] = useState('');
     const [petSearch, setPetSearch] = useState('');
+    const [roleFilter, setRoleFilter] = useState<string>('all');
 
     useEffect(() => {
         dbService.logAdminAction({
@@ -57,12 +60,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const petStats = useMemo(() => calculateGrowth(allPets), [allPets]);
 
     const filteredUsers = useMemo(() => {
-        return users.filter(u => 
-            u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-            u.activeRole?.toLowerCase().includes(userSearch.toLowerCase()) ||
-            u.uid.toLowerCase().includes(userSearch.toLowerCase())
-        );
-    }, [users, userSearch]);
+        return users.filter(u => {
+            const matchesSearch = 
+                u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+                u.activeRole?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                u.uid.toLowerCase().includes(userSearch.toLowerCase());
+            
+            const matchesRole = roleFilter === 'all' || (u.roles || []).includes(roleFilter as any);
+            
+            return matchesSearch && matchesRole;
+        });
+    }, [users, userSearch, roleFilter]);
 
     const filteredPets = useMemo(() => {
         return allPets.filter(p => 
@@ -91,6 +99,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         } catch (e: any) {
             addSnackbar("Refresh failed: " + e.message, 'error');
         }
+        setIsRefreshing(false);
+    };
+
+    const handleDeleteUser = async (uid: string) => {
+        if (!confirm('TERMINATE IDENTITY? This will permanently delete the user document and cannot be undone.')) return;
+        setIsRefreshing(true);
+        try {
+            await onDeleteUser(uid);
+            addSnackbar("Identity Purged", 'success');
+            // onDeleteUser in App.tsx already calls refresh
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
+        setIsRefreshing(false);
+    };
+
+    const toggleUserRole = async (user: User, newRole: string) => {
+        setIsRefreshing(true);
+        try {
+            const updatedRoles = [...(user.roles || [])];
+            if (!updatedRoles.includes(newRole as any)) updatedRoles.push(newRole as any);
+            
+            await dbService.saveUser({ 
+                ...user, 
+                activeRole: newRole as any,
+                roles: updatedRoles as any
+            });
+
+            await dbService.logAdminAction({
+                adminEmail: currentUser.email,
+                action: 'UPDATE_USER_ROLE',
+                targetId: user.uid,
+                details: `Changed role for ${user.email} to ${newRole}`
+            });
+
+            addSnackbar("Clearance Updated", 'success');
+            await onRefresh();
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
+        setIsRefreshing(false);
+    };
+
+    const deleteClinic = async (id: string) => {
+        if (!confirm('DISMANTLE CLINIC NODE? This action is irreversible.')) return;
+        setIsRefreshing(true);
+        try {
+            await dbService.deleteClinic(id);
+            await dbService.logAdminAction({
+                adminEmail: currentUser.email,
+                action: 'DELETE_CLINIC',
+                targetId: id,
+                details: `Deleted clinic ${id}`
+            });
+            addSnackbar("Clinic Node Dismantled", 'success');
+            await onRefresh();
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     };
 
@@ -205,6 +266,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {[
                         { id: 'overview', label: t('adminTabOverview'), icon: '📊' },
                         { id: 'users', label: t('adminTabUsers'), icon: '👥' },
+                        { id: 'clinics', label: 'CLINICS', icon: '🏥' },
                         { id: 'pets', label: t('adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('adminTabBlog'), icon: '📰' },
                         { id: 'verification', label: t('pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
@@ -341,6 +403,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Identity_Registry</h3>
                                 <div className="flex items-center gap-4 w-full md:w-auto">
+                                    <select 
+                                        value={roleFilter}
+                                        onChange={(e) => setRoleFilter(e.target.value)}
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                    >
+                                        <option value="all">ALL_ROLES</option>
+                                        <option value="owner">OWNER</option>
+                                        <option value="vet">VET</option>
+                                        <option value="shelter">SHELTER</option>
+                                        <option value="admin">ADMIN</option>
+                                    </select>
                                     <div className="relative flex-grow md:w-64">
                                         <input 
                                             value={userSearch}
@@ -350,9 +423,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                         />
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
                                     </div>
-                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px]">
-                                        + NEW_CLINIC
-                                    </GlassButton>
                                 </div>
                             </div>
                             <GlassCard className="overflow-hidden border-white/10 bg-black/20">
@@ -381,32 +451,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                         </div>
                                                     </td>
                                                     <td className="p-5">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${(u.roles || []).includes('super_admin') ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-primary/20 text-primary border border-primary/30'
-                                                                }`}>
-                                                                {u.activeRole || 'User'}
-                                                            </span>
-                                                            {u.isVerified && <span className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" title="Verified Professional">🛡️</span>}
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${(u.roles || []).includes('super_admin') ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-primary/20 text-primary border border-primary/30'
+                                                                    }`}>
+                                                                    {u.activeRole || 'User'}
+                                                                </span>
+                                                                {u.isVerified && <span className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" title="Verified Professional">🛡️</span>}
+                                                            </div>
+                                                            <div className="flex gap-1 flex-wrap">
+                                                                {(u.roles || []).map(r => (
+                                                                    <span key={r} className="text-[7px] text-slate-500 font-mono uppercase bg-white/5 px-1 rounded">{r}</span>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td className="p-5 font-mono text-slate-500">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : '---'}</td>
-                                                    <td className="p-5 text-right space-x-2">
-                                                        {(u.activeRole === 'vet' || (u.roles || []).includes('vet')) && (
-                                                            <button 
-                                                                onClick={() => setShowAddVetPet({ show: true, email: u.email })}
-                                                                className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                            >
-                                                                +PATIENT
-                                                            </button>
-                                                        )}
-                                                        {!(u.roles || []).includes('super_admin') && (
-                                                            <button 
-                                                                onClick={() => onDeleteUser(u.uid!)} 
-                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                            >
-                                                                PURGE
-                                                            </button>
-                                                        )}
+                                                    <td className="p-5 text-right">
+                                                        <div className="flex flex-col gap-2 items-end">
+                                                            <div className="flex gap-2">
+                                                                {(u.activeRole === 'vet' || (u.roles || []).includes('vet')) && (
+                                                                    <button 
+                                                                        onClick={() => setShowAddVetPet({ show: true, email: u.email })}
+                                                                        className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                    >
+                                                                        +PATIENT
+                                                                    </button>
+                                                                )}
+                                                                {!(u.roles || []).includes('super_admin') && (
+                                                                    <button 
+                                                                        onClick={() => handleDeleteUser(u.uid!)} 
+                                                                        className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                                    >
+                                                                        PURGE
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                            {!(u.roles || []).includes('super_admin') && (
+                                                                <div className="flex gap-1">
+                                                                    <select 
+                                                                        value={u.activeRole}
+                                                                        onChange={(e) => toggleUserRole(u, e.target.value)}
+                                                                        className="bg-black/40 border border-white/10 rounded px-2 py-0.5 text-[8px] font-mono text-slate-400 outline-none"
+                                                                    >
+                                                                        <option value="owner">Role: OWNER</option>
+                                                                        <option value="vet">Role: VET</option>
+                                                                        <option value="shelter">Role: SHELTER</option>
+                                                                        <option value="admin">Role: ADMIN</option>
+                                                                    </select>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -414,6 +509,157 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     </table>
                                 </div>
                             </GlassCard>
+                        </div>
+                    )}
+
+                    {activeTab === 'clinics' && (
+                        <div className="space-y-8 animate-fade-in">
+                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Veterinary_Infrastructure</h3>
+                                <div className="flex gap-3">
+                                    <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20">
+                                        + NEW_VET_IDENTITY
+                                    </GlassButton>
+                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px]">
+                                        + NEW_CLINIC_NODE
+                                    </GlassButton>
+                                </div>
+                            </div>
+
+                            {/* CLINICS TABLE */}
+                            <div className="space-y-4">
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Authorized_Facilities</p>
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                    <div className="overflow-x-auto custom-scrollbar">
+                                        <table className="w-full text-left text-xs min-w-[700px]">
+                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                <tr className="border-b border-white/10">
+                                                    <th className="p-5">Facility_Name</th>
+                                                    <th className="p-5">Contact_Vector</th>
+                                                    <th className="p-5">Coordinates</th>
+                                                    <th className="p-5 text-right">Override</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {vetClinics.map(c => (
+                                                    <tr key={c.id} className="hover:bg-white/5 transition-colors group">
+                                                        <td className="p-5">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center font-black text-emerald-500 border border-emerald-500/20 group-hover:border-emerald-500/50 transition-colors shadow-lg">
+                                                                    🏥
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-white text-sm">{c.name}</p>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                                        <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-tighter">Verified_Link</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-5">
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex items-center gap-2 text-slate-400">
+                                                                    <span className="text-[10px]">📧</span>
+                                                                    <span className="text-[10px] font-mono">{c.vetEmail}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-slate-400">
+                                                                    <span className="text-[10px]">📞</span>
+                                                                    <span className="text-[10px] font-mono">{c.phone}</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-5 font-mono text-slate-500 text-[10px]">{c.address}</td>
+                                                        <td className="p-5 text-right">
+                                                            <button 
+                                                                onClick={() => deleteClinic(c.id!)} 
+                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                            >
+                                                                DISMANTLE
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                {vetClinics.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={4} className="text-center py-10">
+                                                            <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.3em] opacity-50">No_Facilities_Online</p>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </GlassCard>
+                            </div>
+
+                            {/* VETS PENDING INFRASTRUCTURE */}
+                            <div className="space-y-4">
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">Vets_Pending_Infrastructure_Link</p>
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                    <div className="overflow-x-auto custom-scrollbar">
+                                        <table className="w-full text-left text-xs min-w-[700px]">
+                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                <tr className="border-b border-white/10">
+                                                    <th className="p-5">Professional_Identity</th>
+                                                    <th className="p-5">Clearance_Level</th>
+                                                    <th className="p-5 text-right">Protocol</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {users.filter(u => (u.roles || []).includes('vet')).map(v => {
+                                                    const hasClinic = vetClinics.some(c => c.vetEmail === v.email);
+                                                    return (
+                                                        <tr key={v.uid} className="hover:bg-white/5 transition-colors group">
+                                                            <td className="p-5">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
+                                                                        {v.email.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="font-bold text-white text-sm">{v.email}</p>
+                                                                        <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{v.uid}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-5">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${v.isVerified ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30'}`}>
+                                                                        {v.isVerified ? 'VERIFIED_PRO' : 'PENDING_VERIFICATION'}
+                                                                    </span>
+                                                                    {hasClinic ? (
+                                                                        <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">Linked</span>
+                                                                    ) : (
+                                                                        <span className="text-[8px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 uppercase font-bold">Unlinked</span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-5 text-right space-x-2">
+                                                                {!hasClinic && (
+                                                                    <button 
+                                                                        onClick={() => { setShowAddClinic(true); /* Ideally pre-fill email */ }}
+                                                                        className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                    >
+                                                                        CREATE_CLINIC
+                                                                    </button>
+                                                                )}
+                                                                {!v.isVerified && v.verificationData && (
+                                                                    <button 
+                                                                        onClick={() => setActiveTab('verification')}
+                                                                        className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-emerald-500/20"
+                                                                    >
+                                                                        VERIFY_NOW
+                                                                    </button>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </GlassCard>
+                            </div>
                         </div>
                     )}
 
@@ -637,6 +883,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             {showAddClinic && (
                 <AddClinicModal 
                     onClose={() => setShowAddClinic(false)}
+                    onSuccess={handleRefresh}
+                />
+            )}
+
+            {showAddVet && (
+                <AddVetModal 
+                    onClose={() => setShowAddVet(false)}
                     onSuccess={handleRefresh}
                 />
             )}
