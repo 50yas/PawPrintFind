@@ -27,7 +27,7 @@
     - [ ] Create/Update `components/Background.tsx` or `components/BiometricBackground.tsx`.
     - [ ] Implement the "Digital Dust" particle system using `react-three-fiber`.
     - [ ] Add the "DNA Helix <-> Paw Print" morphing logic.
-- [ ] Task: Performance Optimization
+- [x] Task: Performance Optimization [dc603c9]
     - [ ] Implement adaptive particle counts based on device tier (Mobile vs Desktop).
     - [ ] Ensure `useFrame` loops are optimized.
 - [ ] Task: Integration & Polish
