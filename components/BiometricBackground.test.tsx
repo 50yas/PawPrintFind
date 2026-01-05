@@ -22,6 +22,17 @@ vi.mock('@react-three/drei', () => ({
   shaderMaterial: vi.fn(() => function MockMaterial() {}),
 }));
 
+// Mock useTheme
+vi.mock('../contexts/ThemeContext', () => ({
+  useTheme: () => ({
+    colors: {
+      primary: '#22d3ee',
+      background: '#020617',
+      secondary: '#c084fc',
+    }
+  }),
+}));
+
 describe('BiometricBackground', () => {
   it('renders the canvas container', () => {
     render(<BiometricBackground />);

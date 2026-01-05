@@ -11,7 +11,7 @@ import { AIHealthCheckModal } from './components/AIHealthCheckModal';
 import { MobileNavigation } from './components/MobileNavigation';
 import { dbService } from './services/firebase';
 import { LoadingScreen } from './components/LoadingScreen';
-import { HeroScene } from './components/HeroScene';
+import { BiometricBackground } from './components/BiometricBackground';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
 import { BlogPostDetail } from './components/BlogPostDetail';
@@ -52,6 +52,16 @@ export default function App() {
     const [showSplash, setShowSplash] = useState(true);
     const [showAdminInit, setShowAdminInit] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+    useEffect(() => {
+        // Detect Brave to apply specific rendering fallbacks
+        const checkBrave = async () => {
+            if ((navigator as any).brave && await (navigator as any).brave.isBrave()) {
+                document.documentElement.classList.add('is-brave');
+            }
+        };
+        checkBrave();
+    }, []);
 
     const { addSnackbar } = useSnackbar();
     const { t } = useTranslations();
@@ -285,7 +295,7 @@ export default function App() {
             />
 
             <ErrorBoundary>
-                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><HeroScene /></div>
+                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><BiometricBackground /></div>
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>

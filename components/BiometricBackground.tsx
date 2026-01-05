@@ -7,6 +7,7 @@ import { generateSphere, generateHelix, generatePaw } from '../src/utils/particl
 import { Points, PointMaterial, Float, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { extend } from '@react-three/fiber';
+import { useTheme } from '../contexts/ThemeContext';
 
 import { generateSphere, generateHelix, generatePaw } from '../src/utils/particleGenerators';
 
@@ -24,11 +25,12 @@ const MorphMaterial = shaderMaterial(
   uniform float uTime;
   uniform float uMorph;
   uniform float uSize;
+  uniform vec3 uColor;
   attribute vec3 targetPosition;
   attribute vec3 sourcePosition;
 
   void main() {
-    vColor = vec3(0.13, 0.83, 0.93); // Cyan-400
+    vColor = uColor;
     
     // Smooth interpolation
     vec3 pos = mix(sourcePosition, targetPosition, uMorph);
@@ -57,9 +59,10 @@ const MorphMaterial = shaderMaterial(
 extend({ MorphMaterial });
 
 // Particle Component
-const Particles = (props: any) => {
+const Particles = ({ color }: { color: string }) => {
   const ref = useRef<any>();
   const materialRef = useRef<any>();
+  const threeColor = useMemo(() => new THREE.Color(color), [color]);
   
   // Adaptive particle count based on device
   const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 2000 : 5000;
@@ -72,9 +75,6 @@ const Particles = (props: any) => {
       paw: generatePaw(count)
     };
   }, [count]);
-
-  const [source, setSource] = useState(shapes.sphere);
-  const [target, setTarget] = useState(shapes.helix);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -105,15 +105,13 @@ const Particles = (props: any) => {
     if (materialRef.current) {
       materialRef.current.uTime = time;
       materialRef.current.uMorph = factor;
+      materialRef.current.uColor = threeColor;
     }
 
     if (ref.current) {
       ref.current.rotation.x = time / 20;
       ref.current.rotation.y = time / 25;
       
-      // We still need to update the attributes if the source/target changed
-      // But we can do it only when they actually change.
-      // For now, let's just use the factor in the shader.
       if (ref.current.geometry.attributes.sourcePosition.array !== currentSource) {
         ref.current.geometry.attributes.sourcePosition.array = currentSource;
         ref.current.geometry.attributes.sourcePosition.needsUpdate = true;
@@ -157,16 +155,18 @@ const Particles = (props: any) => {
 
 // Main Component
 export const BiometricBackground = () => {
+  const { colors } = useTheme();
+
   return (
-    <div className="fixed inset-0 z-[-1] bg-slate-950 w-full h-full">
-      <Canvas camera={{ position: [0, 0, 1] }}>
+    <div className="fixed inset-0 z-[-1] bg-slate-950 w-full h-full" style={{ backgroundColor: colors.background }}>
+      <Canvas camera={{ position: [0, 0, 1.5] }}>
         <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
-           <Particles />
+           <Particles color={colors.primary} />
         </Float>
       </Canvas>
       {/* Cinematic Overlay Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-slate-950/0 to-slate-950/0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent pointer-events-none" style={{ background: `linear-gradient(to top, ${colors.background}, ${colors.background}80, transparent)` }} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-slate-950/0 to-slate-950/0 pointer-events-none" style={{ backgroundImage: `radial-gradient(ellipse at top, ${colors.primary}33, ${colors.background}00, ${colors.background}00)` }} />
     </div>
   );
 };
