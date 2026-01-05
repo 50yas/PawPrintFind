@@ -222,6 +222,62 @@ describe('AdminDashboard Cyber HUD', () => {
         });
    });
 
+   it('filters users by verification status', async () => {
+        const mockUsers = [
+            { uid: 'u1', email: 'v1@test.com', roles: ['vet'], isVerified: true, friends: [], createdAt: new Date() },
+            { uid: 'u2', email: 'v2@test.com', roles: ['vet'], isVerified: false, friends: [], createdAt: new Date() }
+        ];
+
+        render(
+            <AdminDashboard 
+                users={mockUsers as any}
+                currentUser={mockUser}
+                allPets={mockPets}
+                vetClinics={mockClinics}
+                donations={mockDonations}
+                onDeleteUser={vi.fn()}
+                onLogout={vi.fn()}
+                onRefresh={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByText('adminTabUsers'));
+
+        const verifyFilter = screen.getByDisplayValue('ALL_STATUS');
+        fireEvent.change(verifyFilter, { target: { value: 'verified' } });
+
+        expect(screen.getByText('v1@test.com')).toBeInTheDocument();
+        expect(screen.queryByText('v2@test.com')).not.toBeInTheDocument();
+   });
+
+   it('filters pets by status', async () => {
+        const mockAllPets = [
+            { id: 'p1', name: 'LostPet', status: 'lost', photos: [], breed: 'Dog', age: '1' },
+            { id: 'p2', name: 'AdoptMe', status: 'forAdoption', photos: [], breed: 'Cat', age: '2' }
+        ];
+
+        render(
+            <AdminDashboard 
+                users={[mockUser]}
+                currentUser={mockUser}
+                allPets={mockAllPets as any}
+                vetClinics={mockClinics}
+                donations={mockDonations}
+                onDeleteUser={vi.fn()}
+                onLogout={vi.fn()}
+                onRefresh={vi.fn()}
+            />
+        );
+
+        fireEvent.click(screen.getByText('adminTabPets'));
+
+        const statusFilter = screen.getByDisplayValue('ALL_STATUS');
+        fireEvent.change(statusFilter, { target: { value: 'lost' } });
+
+        expect(screen.getByText('LostPet')).toBeInTheDocument();
+        expect(screen.queryByText('AdoptMe')).not.toBeInTheDocument();
+   });
+
    it('handles user approval', async () => {
         const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
         render(

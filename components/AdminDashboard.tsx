@@ -22,9 +22,10 @@ interface AdminDashboardProps {
     onDeleteUser: (uid: string) => Promise<void>;
     onLogout: () => void;
     onRefresh: () => Promise<void>;
+    onViewPost?: (post: BlogPost) => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'verification' | 'logs'>('overview');
@@ -39,6 +40,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [userSearch, setUserSearch] = useState('');
     const [petSearch, setPetSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState<string>('all');
+    const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unverified'>('all');
+    const [petStatusFilter, setPetStatusFilter] = useState<'all' | 'lost' | 'forAdoption' | 'owned'>('all');
 
     useEffect(() => {
         dbService.logAdminAction({
@@ -70,18 +73,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 u.uid.toLowerCase().includes(userSearch.toLowerCase());
             
             const matchesRole = roleFilter === 'all' || (u.roles || []).includes(roleFilter as any);
+            const matchesVerification = verificationFilter === 'all' || 
+                (verificationFilter === 'verified' && u.isVerified) || 
+                (verificationFilter === 'unverified' && !u.isVerified);
             
-            return matchesSearch && matchesRole;
+            return matchesSearch && matchesRole && matchesVerification;
         });
-    }, [users, userSearch, roleFilter]);
+    }, [users, userSearch, roleFilter, verificationFilter]);
 
     const filteredPets = useMemo(() => {
-        return allPets.filter(p => 
-            p.name.toLowerCase().includes(petSearch.toLowerCase()) ||
-            p.breed.toLowerCase().includes(petSearch.toLowerCase()) ||
-            p.id.toLowerCase().includes(petSearch.toLowerCase())
-        );
-    }, [allPets, petSearch]);
+        return allPets.filter(p => {
+            const matchesSearch = 
+                p.name.toLowerCase().includes(petSearch.toLowerCase()) ||
+                p.breed.toLowerCase().includes(petSearch.toLowerCase()) ||
+                p.id.toLowerCase().includes(petSearch.toLowerCase());
+            
+            const matchesStatus = petStatusFilter === 'all' || p.status === petStatusFilter;
+            
+            return matchesSearch && matchesStatus;
+        });
+    }, [allPets, petSearch, petStatusFilter]);
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -380,7 +391,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <span className="text-xl">📈</span>
                                     Content_Intelligence
                                 </h4>
-                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Trending_Articles</span>
+                                <div className="flex gap-4 items-center">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[8px] text-slate-500 uppercase font-black">Total_Engagement</span>
+                                        <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} VIEWS</span>
+                                    </div>
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Trending_Articles</span>
+                                </div>
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -420,6 +437,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                         <option value="vet">VET</option>
                                         <option value="shelter">SHELTER</option>
                                         <option value="admin">ADMIN</option>
+                                    </select>
+                                    <select 
+                                        value={verificationFilter}
+                                        onChange={(e) => setVerificationFilter(e.target.value as any)}
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                    >
+                                        <option value="all">ALL_STATUS</option>
+                                        <option value="verified">VERIFIED_ONLY</option>
+                                        <option value="unverified">UNVERIFIED_ONLY</option>
                                     </select>
                                     <div className="relative flex-grow md:w-64">
                                         <input 
@@ -674,14 +700,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         <div className="space-y-6 animate-fade-in">
                             <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Biometric_Database</h3>
-                                <div className="relative w-full md:w-64">
-                                    <input 
-                                        value={petSearch}
-                                        onChange={e => setPetSearch(e.target.value)}
-                                        placeholder="SEARCH_BY_NAME_OR_BREED..."
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
-                                    />
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
+                                <div className="flex items-center gap-4 w-full md:w-auto">
+                                    <select 
+                                        value={petStatusFilter}
+                                        onChange={(e) => setPetStatusFilter(e.target.value as any)}
+                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider"
+                                    >
+                                        <option value="all">ALL_STATUS</option>
+                                        <option value="lost">LOST</option>
+                                        <option value="forAdoption">ADOPTION</option>
+                                        <option value="owned">OWNED</option>
+                                    </select>
+                                    <div className="relative w-full md:w-64">
+                                        <input 
+                                            value={petSearch}
+                                            onChange={e => setPetSearch(e.target.value)}
+                                            placeholder="SEARCH_BY_NAME_OR_BREED..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
+                                        />
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
+                                    </div>
                                 </div>
                             </div>
                             <GlassCard className="overflow-hidden border-white/10 bg-black/20">
@@ -782,6 +820,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                         </span>
                                                     </td>
                                                     <td className="p-5 text-right flex justify-end gap-3 pt-7">
+                                                        {onViewPost && (
+                                                            <button 
+                                                                onClick={() => onViewPost(p)}
+                                                                className="px-3 py-1 rounded-md bg-white/5 text-white hover:bg-white/10 transition-all font-black text-[9px] tracking-widest border border-white/10"
+                                                            >
+                                                                VIEW
+                                                            </button>
+                                                        )}
                                                         <button 
                                                             onClick={() => { setEditingPost(p); setShowEditor(true); }}
                                                             className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
