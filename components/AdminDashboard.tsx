@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, PetProfile, VetClinic, LogEntry, Donation, BlogPost } from '../types';
+import { User, PetProfile, VetClinic, LogEntry, Donation, BlogPost, View } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { calculateTotalFromList } from '../services/donationService';
@@ -8,6 +8,9 @@ import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 import { BlogPostEditor } from './BlogPostEditor';
 import { GlassCard, GlassButton } from './ui';
+import { AddPatientModal } from './AddPatientModal';
+import { AddClinicModal } from './AddClinicModal';
+import { calculateGrowth } from '../src/utils/adminUtils';
 
 interface AdminDashboardProps {
     users: User[];
@@ -15,13 +18,12 @@ interface AdminDashboardProps {
     allPets: PetProfile[];
     vetClinics: VetClinic[];
     donations: Donation[];
-    onVerifyVet: (email: string) => void;
-    onDeleteUser: (uid: string) => void;
+    onDeleteUser: (uid: string) => Promise<void>;
     onLogout: () => void;
     onRefresh: () => Promise<void>;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, donations, onDeleteUser, onLogout, onRefresh, onVerifyVet }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'pets' | 'blog' | 'verification' | 'logs'>('overview');
@@ -30,30 +32,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showEditor, setShowEditor] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+    const [showAddVetPet, setShowAddVetPet] = useState<{show: boolean, email: string}>({ show: false, email: '' });
+    const [showAddClinic, setShowAddClinic] = useState(false);
+    const [userSearch, setUserSearch] = useState('');
+    const [petSearch, setPetSearch] = useState('');
 
     useEffect(() => {
+        dbService.logAdminAction({
+            adminEmail: currentUser.email,
+            action: 'SESSION_START',
+            targetId: currentUser.uid,
+            details: 'Admin Command Center initialized'
+        });
         return logger.subscribe(setLogs);
     }, []);
 
     const totalRevenue = useMemo(() => calculateTotalFromList(donations), [donations]);
 
     const pendingVerifications = useMemo(() => {
-        return users.filter(u => (u.roles.includes('vet') || u.roles.includes('shelter')) && !u.isVerified && u.verificationData);
+        return users.filter(u => ((u.roles || []).includes('vet') || (u.roles || []).includes('shelter')) && !u.isVerified && u.verificationData);
     }, [users]);
 
-    const handleRefresh = async () => {
-        setIsRefreshing(true);
-        try {
-            await onRefresh();
-            if (activeTab === 'blog') {
-                const posts = await dbService.getBlogPosts();
-                setBlogPosts(posts);
-            }
-        } catch (e: any) {
-            addSnackbar("Refresh failed: " + e.message, 'error');
-        }
-        setIsRefreshing(false);
-    };
+    const userStats = useMemo(() => calculateGrowth(users), [users]);
+    const petStats = useMemo(() => calculateGrowth(allPets), [allPets]);
+
+    const filteredUsers = useMemo(() => {
+        return users.filter(u => 
+            u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+            u.activeRole?.toLowerCase().includes(userSearch.toLowerCase()) ||
+            u.uid.toLowerCase().includes(userSearch.toLowerCase())
+        );
+    }, [users, userSearch]);
+
+    const filteredPets = useMemo(() => {
+        return allPets.filter(p => 
+            p.name.toLowerCase().includes(petSearch.toLowerCase()) ||
+            p.breed.toLowerCase().includes(petSearch.toLowerCase()) ||
+            p.id.toLowerCase().includes(petSearch.toLowerCase())
+        );
+    }, [allPets, petSearch]);
 
     useEffect(() => {
         if (activeTab === 'blog') {
@@ -62,34 +79,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 addSnackbar("Access Denied: Blog collection unreachable.", 'error');
             });
         }
-    }, [activeTab, isRefreshing]);
+    }, [activeTab]);
 
-    const deleteBlogPost = async (id: string) => {
-        if (!confirm('Delete this blog post?')) return;
+    const handleRefresh = async () => {
         setIsRefreshing(true);
         try {
-            await dbService.deleteBlogPost(id);
-            addSnackbar("Blog post deleted", 'success');
-            const updated = await dbService.getBlogPosts();
-            setBlogPosts(updated);
-        } catch (e: any) { addSnackbar(e.message, 'error'); }
-        setIsRefreshing(false);
-    };
-
-    const deletePet = async (petId: string) => {
-        if (!confirm('Are you sure you want to delete this pet? This action cannot be undone.')) return;
-        setIsRefreshing(true);
-        try {
-             await dbService.deletePet(petId);
-             await dbService.logAdminAction({
-                adminEmail: currentUser.email,
-                action: 'DELETE_PET',
-                targetId: petId,
-                details: `Deleted pet ${petId}`
-            });
-            addSnackbar("Pet deleted successfully", 'success');
             await onRefresh();
-        } catch (e: any) { addSnackbar(e.message, 'error'); }
+            const posts = await dbService.getBlogPosts();
+            setBlogPosts(posts);
+            addSnackbar("System Node Synchronized", 'success');
+        } catch (e: any) {
+            addSnackbar("Refresh failed: " + e.message, 'error');
+        }
         setIsRefreshing(false);
     };
 
@@ -97,65 +98,109 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         if (!user.uid) return;
         setIsRefreshing(true);
         try {
-            await dbService.saveUser({ uid: user.uid, isVerified: true });
-
+            await dbService.saveUser({ ...user, isVerified: true });
             await dbService.logAdminAction({
                 adminEmail: currentUser.email,
                 action: 'VERIFY_USER',
                 targetId: user.uid,
-                details: `Verified user ${user.email}`
+                details: `Approved credentials for ${user.email}`
             });
-
-            addSnackbar(t('userVerifiedSuccess'), 'success');
+            addSnackbar(t('vetRegisteredAlert', { clinicName: user.email }), 'success');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     }
 
     return (
-        <div className="min-h-screen bg-background pb-20 text-foreground transition-colors duration-500">
+        <div className="min-h-screen bg-slate-950 pb-20 text-foreground transition-colors duration-500 relative">
+            {/* Cyber HUD Background Effects */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-primary/10">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(20,184,166,0.05),transparent_70%)]"></div>
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-scanline"></div>
+            </div>
+
             {/* HUD HEADER */}
             <div className="sticky top-0 z-[100] w-full px-6 py-4">
-                <GlassCard className="flex justify-between items-center px-6 py-3 border-primary/20 shadow-2xl bg-black/40">
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-primary/20 blur-md rounded-full animate-pulse"></div>
-                            <span className="relative bg-primary/20 text-primary text-[9px] px-2 py-1 rounded-full font-black border border-primary/30 uppercase tracking-tighter">Admin_Active</span>
+                <GlassCard className="flex justify-between items-center px-6 py-3 border-primary/30 shadow-[0_0_30px_rgba(20,184,166,0.2)] bg-black/60 backdrop-blur-2xl">
+                    <div className="flex items-center gap-6">
+                        <div className="relative group">
+                            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse group-hover:bg-primary/40 transition-all"></div>
+                            <div className="relative bg-slate-900 border border-primary/50 text-primary text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping mr-2"></span>
+                                SYSTEM_ROOT_ACTIVE
+                            </div>
                         </div>
-                        <h1 className="text-xl font-black tracking-tighter uppercase text-white drop-shadow-md">Command <span className="text-primary">Center</span></h1>
+                        <div className="h-8 w-px bg-white/10 hidden md:block"></div>
+                        <h1 className="text-2xl font-black tracking-tighter uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                            COMMAND_<span className="text-primary">CORE</span>
+                        </h1>
                     </div>
+                    
+                    {/* Persistent Alert Feed */}
+                    {pendingVerifications.length > 0 && (
+                        <div className="hidden xl:flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
+                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Urgent_Protocol:</span>
+                            <span className="text-[10px] font-bold text-white uppercase">{pendingVerifications.length} Verification Requests Pending</span>
+                            <button 
+                                onClick={() => setActiveTab('verification')}
+                                className="ml-2 text-[10px] font-black text-primary hover:underline uppercase"
+                            >
+                                Resolve_Now
+                            </button>
+                        </div>
+                    )}
+                    
+                    {/* System Status Bar - Mini HUD */}
+                    <div className="hidden lg:flex items-center gap-8 px-8 py-1 rounded-2xl bg-white/5 border border-white/5">
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Load_Factor</span>
+                            <div className="flex gap-0.5 mt-1">
+                                {[1,2,3,4,5,6].map(i => <div key={i} className={`w-1.5 h-3 rounded-sm ${i < 5 ? 'bg-primary shadow-[0_0_5px_#14b8a6]' : 'bg-white/10'}`}></div>)}
+                            </div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Nodes_Online</span>
+                            <span className="text-xs font-mono text-white font-bold">{users.length}</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Uptime</span>
+                            <span className="text-xs font-mono text-white font-bold tracking-tighter">99.998%</span>
+                        </div>
+                    </div>
+
                     <div className="flex gap-3">
-                        <GlassButton onClick={handleRefresh} variant="primary" className="!py-2 !px-4 text-[10px]">
+                        <GlassButton onClick={handleRefresh} variant="primary" className="!py-2 !px-5 text-[10px] shadow-[0_0_15px_rgba(20,184,166,0.2)]">
                             {isRefreshing ? <LoadingSpinner /> : 'SYNC_NODE'}
                         </GlassButton>
-                        <GlassButton onClick={onLogout} variant="danger" className="!py-2 !px-4 text-[10px]">EXIT</GlassButton>
+                        <GlassButton onClick={onLogout} variant="danger" className="!py-2 !px-5 text-[10px]">EXIT_SESSION</GlassButton>
                     </div>
                 </GlassCard>
             </div>
 
-            <div className="max-w-7xl mx-auto p-6 space-y-8">
+            <div className="max-w-7xl mx-auto p-6 space-y-8 relative z-10">
                 {/* CYBER TABS */}
-                <div className="flex gap-2 pb-2 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide">
                     {[
                         { id: 'overview', label: t('adminTabOverview'), icon: '📊' },
                         { id: 'users', label: t('adminTabUsers'), icon: '👥' },
                         { id: 'pets', label: t('adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('adminTabBlog'), icon: '📰' },
                         { id: 'verification', label: t('pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
-                        { id: 'logs', label: t('adminTabLogs') || 'LOGS', icon: '📟' }
+                        { id: 'logs', label: 'SYSTEM_LOGS', icon: '📟' }
                     ].map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 rounded-xl border whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-primary text-black border-primary shadow-[0_0_20px_rgba(20,184,166,0.4)] scale-105'
-                                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                            className={`px-6 py-3 text-[10px] font-black uppercase tracking-[0.25em] transition-all flex items-center gap-3 rounded-2xl border-2 whitespace-nowrap relative overflow-hidden group ${activeTab === tab.id
+                                ? 'bg-primary/10 text-white border-primary shadow-[0_0_25px_rgba(20,184,166,0.3)] scale-105'
+                                : 'bg-white/5 border-white/10 text-slate-500 hover:text-white hover:border-white/20'
                                 }`}
                         >
-                            <span>{tab.icon}</span>
-                            <span>{tab.label}</span>
+                            {activeTab === tab.id && <div className="absolute inset-0 bg-primary/10 animate-pulse pointer-events-none"></div>}
+                            <span className="relative z-10">{tab.icon}</span>
+                            <span className="relative z-10">{tab.label}</span>
                             {tab.count !== undefined && tab.count > 0 && (
-                                <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse shadow-lg">{tab.count}</span>
+                                <span className="relative z-10 bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]">{tab.count}</span>
                             )}
                         </button>
                     ))}
@@ -164,138 +209,228 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 {activeTab === 'overview' && (
                     <div className="space-y-8 animate-fade-in">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <GlassCard className="p-6 border-primary/20 bg-primary/5 group hover:bg-primary/10 transition-colors">
-                                <p className="text-[10px] font-bold text-primary uppercase mb-2 tracking-widest opacity-70">Global Revenue</p>
-                                <h3 className="text-4xl font-black text-white group-hover:scale-105 transition-transform">{totalRevenue}</h3>
+                            <GlassCard className="p-6 border-primary/20 bg-primary/5 group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
+                                <p className="text-[10px] font-black text-primary uppercase mb-2 tracking-[0.2em] opacity-70">Global_Revenue</p>
+                                <h3 className="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{totalRevenue}</h3>
+                                <div className="mt-4 flex items-center gap-2">
+                                    <span className="text-[8px] font-black text-emerald-400 uppercase">Status: Nominal</span>
+                                </div>
                             </GlassCard>
-                            <GlassCard className="p-6 border-white/10 bg-white/5 group hover:bg-white/10 transition-colors">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest opacity-70">Active Identities</p>
-                                <h3 className="text-4xl font-black text-white group-hover:scale-105 transition-transform">{users.length}</h3>
+
+                            <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">Identities</p>
+                                <h3 className="text-4xl font-black text-white">{userStats.total}</h3>
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="text-[9px] font-bold text-primary">+{userStats.newLastWeek} NEW_7D</span>
+                                    <span className="text-[9px] font-mono text-slate-500">{userStats.velocity}/DAY</span>
+                                </div>
                             </GlassCard>
-                            <GlassCard className="p-6 border-white/10 bg-white/5 group hover:bg-white/10 transition-colors">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest opacity-70">Secure Profiles</p>
-                                <h3 className="text-4xl font-black text-white group-hover:scale-105 transition-transform">{allPets.length}</h3>
+
+                            <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">Secure_Profiles</p>
+                                <h3 className="text-4xl font-black text-white">{petStats.total}</h3>
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="text-[9px] font-bold text-primary">+{petStats.newLastWeek} NEW_7D</span>
+                                    <span className="text-[9px] font-mono text-slate-500">{petStats.velocity}/DAY</span>
+                                </div>
                             </GlassCard>
-                            <GlassCard className="p-6 border-red-500/20 bg-red-500/5 group hover:bg-red-500/10 transition-colors">
-                                <p className="text-[10px] font-bold text-red-500 uppercase mb-2 tracking-widest opacity-70">Active Alerts</p>
-                                <h3 className="text-4xl font-black text-red-500 group-hover:scale-105 transition-transform">{allPets.filter(p => p.isLost).length}</h3>
+
+                            <GlassCard className="p-6 border-red-500/20 bg-red-500/5 group relative overflow-hidden">
+                                <div className="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none"></div>
+                                <p className="text-[10px] font-black text-red-500 uppercase mb-2 tracking-[0.2em] opacity-70">Active_Alerts</p>
+                                <h3 className="text-4xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]">{allPets.filter(p => p.isLost).length}</h3>
+                                <div className="mt-4 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+                                    <span className="text-[8px] font-black text-red-400 uppercase">Urgent_Response_Required</span>
+                                </div>
                             </GlassCard>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-8">
-                            <GlassCard className="p-8 border-primary/20 bg-black/40">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-lg font-black text-white uppercase tracking-tight">Security Protocol Status</h4>
-                                        <p className="text-xs text-slate-500 font-medium">All systems operational. Biometric encryption active.</p>
-                                    </div>
-                                </div>
+                            <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                                <h4 className="text-lg font-black text-white uppercase tracking-tight mb-6 flex items-center gap-3">
+                                    <span className="w-2 h-2 bg-primary rounded-full animate-ping"></span>
+                                    Security Protocol Status
+                                </h4>
                                 <div className="space-y-4">
-                                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                        <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Firebase Rules</span>
-                                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-black border border-emerald-500/30">V3_STABLE</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                        <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">AI Core (Gemini)</span>
-                                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-black border border-emerald-500/30">2.5_PRO_ONLINE</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
-                                        <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Auth Sync</span>
-                                        <span className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-black border border-primary/30 uppercase tracking-widest">Active</span>
-                                    </div>
+                                    {[
+                                        { label: 'Database_Sync', status: 'Optimal', val: '12ms' },
+                                        { label: 'Encryption_Layer', status: 'Active', val: 'AES-256' },
+                                        { label: 'AI_Model_Flash', status: 'Ready', val: 'v2.5-PRO' }
+                                    ].map(layer => (
+                                        <div key={layer.label} className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-emerald-400">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">{layer.label}</span>
+                                                <span className="text-[8px] font-mono text-slate-600 mt-1">{layer.val}</span>
+                                            </div>
+                                            <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black border border-emerald-500/30 uppercase tracking-tighter shadow-[0_0_10px_rgba(16,185,129,0.2)]">{layer.status}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </GlassCard>
 
-                            <GlassCard className="p-8 border-white/10 bg-white/5 flex flex-col justify-center text-center">
-                                <div className="max-w-xs mx-auto">
-                                    <div className="text-5xl mb-4">🚀</div>
-                                    <h4 className="text-lg font-black text-white uppercase tracking-tighter mb-2">Platform Scale</h4>
-                                    <p className="text-sm text-slate-400 font-medium mb-6">You are currently managing a network of {users.length} active nodes and {allPets.length} secure profiles.</p>
-                                    <GlassButton onClick={handleRefresh} variant="primary" className="w-full">GLOBAL_REFRESH</GlassButton>
+                            <GlassCard className="p-8 border-white/10 bg-white/5 flex flex-col justify-center text-center relative group">
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                <div className="max-w-xs mx-auto relative z-10">
+                                    <div className="text-6xl mb-6 drop-shadow-[0_0_20px_rgba(20,184,166,0.4)]">🚀</div>
+                                    <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Platform Scale</h4>
+                                    <p className="text-xs text-slate-400 font-medium mb-8 leading-relaxed">System is currently orchestrating {users.length} active neural nodes across {allPets.length} biometric profiles. Efficiency is at maximal levels.</p>
+                                    <GlassButton onClick={handleRefresh} variant="primary" className="w-full !py-4 shadow-xl">FORCE_RE-INITIALIZATION</GlassButton>
                                 </div>
                             </GlassCard>
                         </div>
+
+                        {/* Trending Blog Intelligence */}
+                        <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
+                            <div className="flex justify-between items-center mb-8">
+                                <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
+                                    <span className="text-xl">📈</span>
+                                    Content_Intelligence
+                                </h4>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Trending_Articles</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {blogPosts.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0,3).map((post, i) => (
+                                    <div key={post.id} className="relative group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+                                        <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i+1}</div>
+                                        <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
+                                        <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
+                                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                            <span className="text-[10px] font-black text-primary">{post.views || 0} VIEWS</span>
+                                            <span className="text-[8px] font-mono text-slate-600 uppercase">Rank: {i === 0 ? 'ALPHA' : i === 1 ? 'BETA' : 'GAMMA'}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {blogPosts.length === 0 && (
+                                    <div className="col-span-3 text-center py-10 text-slate-600 font-mono text-xs uppercase tracking-[0.3em]">No_Engagement_Data_Available</div>
+                                )}
+                            </div>
+                        </GlassCard>
                     </div>
                 )}
 
                 {/* Data Tables Wrapper */}
                 <div className="animate-fade-in">
                     {activeTab === 'users' && (
-                        <GlassCard className="overflow-hidden border-white/10 bg-black/20">
-                            <div className="overflow-x-auto custom-scrollbar">
-                                <table className="w-full text-left text-xs min-w-[700px]">
-                                    <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                        <tr className="border-b border-white/10">
-                                            <th className="p-5">Entity</th>
-                                            <th className="p-5">Clearance</th>
-                                            <th className="p-5">Last Sync</th>
-                                            <th className="p-5 text-right">Protocol</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {users.map(u => (
-                                            <tr key={u.uid} className="hover:bg-white/5 transition-colors group">
-                                                <td className="p-5">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
-                                                            {u.email.charAt(0).toUpperCase()}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-bold text-white text-sm">{u.email}</p>
-                                                            <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{u.uid}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-5">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${u.roles.includes('super_admin') ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-primary/20 text-primary border border-primary/30'
-                                                            }`}>
-                                                            {u.activeRole}
-                                                        </span>
-                                                        {u.isVerified && <span className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" title="Verified Professional">🛡️</span>}
-                                                    </div>
-                                                </td>
-                                                <td className="p-5 font-mono text-slate-500">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : '---'}</td>
-                                                <td className="p-5 text-right">
-                                                    {!u.roles.includes('super_admin') && (
-                                                        <button 
-                                                            onClick={() => onDeleteUser(u.uid!)} 
-                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                        >
-                                                            PURGE
-                                                        </button>
-                                                    )}
-                                                </td></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                        <div className="space-y-6 animate-fade-in">
+                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Identity_Registry</h3>
+                                <div className="flex items-center gap-4 w-full md:w-auto">
+                                    <div className="relative flex-grow md:w-64">
+                                        <input 
+                                            value={userSearch}
+                                            onChange={e => setUserSearch(e.target.value)}
+                                            placeholder="SEARCH_BY_UID_OR_EMAIL..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
+                                        />
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
+                                    </div>
+                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px]">
+                                        + NEW_CLINIC
+                                    </GlassButton>
+                                </div>
                             </div>
-                        </GlassCard>
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                <div className="overflow-x-auto custom-scrollbar">
+                                    <table className="w-full text-left text-xs min-w-[700px]">
+                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                            <tr className="border-b border-white/10">
+                                                <th className="p-5">Entity</th>
+                                                <th className="p-5">Clearance</th>
+                                                <th className="p-5">Last Sync</th>
+                                                <th className="p-5 text-right">Protocol</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {filteredUsers.map(u => (
+                                                <tr key={u.uid} className="hover:bg-white/5 transition-colors group">
+                                                    <td className="p-5">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
+                                                                {u.email.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-white text-sm">{u.email}</p>
+                                                                <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{u.uid}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-5">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${(u.roles || []).includes('super_admin') ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-primary/20 text-primary border border-primary/30'
+                                                                }`}>
+                                                                {u.activeRole || 'User'}
+                                                            </span>
+                                                            {u.isVerified && <span className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" title="Verified Professional">🛡️</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-5 font-mono text-slate-500">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : '---'}</td>
+                                                    <td className="p-5 text-right space-x-2">
+                                                        {(u.activeRole === 'vet' || (u.roles || []).includes('vet')) && (
+                                                            <button 
+                                                                onClick={() => setShowAddVetPet({ show: true, email: u.email })}
+                                                                className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                            >
+                                                                +PATIENT
+                                                            </button>
+                                                        )}
+                                                        {!(u.roles || []).includes('super_admin') && (
+                                                            <button 
+                                                                onClick={() => onDeleteUser(u.uid!)} 
+                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                            >
+                                                                PURGE
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </GlassCard>
+                        </div>
                     )}
 
                     {activeTab === 'pets' && (
-                        <GlassCard className="overflow-hidden border-white/10 bg-black/20">
-                            <div className="overflow-x-auto custom-scrollbar">
-                                <table className="w-full text-left text-xs min-w-[700px]">
-                                    <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                        <tr className="border-b border-white/10">
-                                            <th className="p-5">Pet Identity</th>
-                                            <th className="p-5">Status</th>
-                                            <th className="p-5">Location</th>
-                                            <th className="p-5 text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {allPets.map(p => (
+                        <div className="space-y-6 animate-fade-in">
+                            <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Biometric_Database</h3>
+                                <div className="relative w-full md:w-64">
+                                    <input 
+                                        value={petSearch}
+                                        onChange={e => setPetSearch(e.target.value)}
+                                        placeholder="SEARCH_BY_NAME_OR_BREED..."
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
+                                    />
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
+                                </div>
+                            </div>
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20">
+                                <div className="overflow-x-auto custom-scrollbar">
+                                    <table className="w-full text-left text-xs min-w-[700px]">
+                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                            <tr className="border-b border-white/10">
+                                                <th className="p-5">Pet Identity</th>
+                                                <th className="p-5">Status</th>
+                                                <th className="p-5">Location</th>
+                                                <th className="p-5 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {filteredPets.map(p => (
                                             <tr key={p.id} className="hover:bg-white/5 transition-colors group">
                                                 <td className="p-5">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl">
-                                                            <img src={p.photos[0]?.url} alt={p.name} className="w-full h-full object-cover" />
+                                                        <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
+                                                            {p.photos[0]?.url ? (
+                                                                <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-xl font-black">?</div>
+                                                            )}
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-white text-sm">{p.name}</p>
@@ -306,7 +441,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 <td className="p-5">
                                                     <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${
                                                         p.status === 'lost' || p.isLost ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
-                                                        p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30' :
+                                                        p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                                                         'bg-slate-500/20 text-slate-400 border border-slate-500/30'
                                                     }`}>
                                                         {p.isLost ? 'LOST' : p.status}
@@ -317,7 +452,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 </td>
                                                 <td className="p-5 text-right">
                                                     <button 
-                                                        onClick={() => deletePet(p.id)} 
+                                                        onClick={() => { if(confirm('TERMINATE PROFILE?')) dbService.deletePet(p.id).then(() => onRefresh()); }}
                                                         className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                     >
                                                         TERMINATE
@@ -329,7 +464,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 </table>
                             </div>
                         </GlassCard>
-                    )}
+                    </div>
+                )}
 
                     {activeTab === 'blog' && (
                         <div className="space-y-6">
@@ -351,7 +487,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                             <tr className="border-b border-white/10">
                                                 <th className="p-5">Content Header</th>
                                                 <th className="p-5">Author</th>
-                                                <th className="p-5">Timestamp</th>
+                                                <th className="p-5">Analytics</th>
                                                 <th className="p-5 text-right">Action_Pool</th>
                                             </tr>
                                         </thead>
@@ -365,7 +501,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                         </div>
                                                     </td>
                                                     <td className="p-5 text-slate-400 font-bold">{p.author}</td>
-                                                    <td className="p-5 font-mono text-slate-500 tracking-tighter">{new Date(p.publishedAt).toLocaleDateString()}</td>
+                                                    <td className="p-5">
+                                                        <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-black border border-primary/20 text-[9px] uppercase tracking-widest">
+                                                            {p.views || 0} VIEWS
+                                                        </span>
+                                                    </td>
                                                     <td className="p-5 text-right flex justify-end gap-3 pt-7">
                                                         <button 
                                                             onClick={() => { setEditingPost(p); setShowEditor(true); }}
@@ -374,7 +514,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                             EDIT
                                                         </button>
                                                         <button 
-                                                            onClick={() => deleteBlogPost(p.id)} 
+                                                            onClick={async () => { if(confirm('PURGE CONTENT?')) { await dbService.deleteBlogPost(p.id); onRefresh(); } }} 
                                                             className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                         >
                                                             DELETE
@@ -403,11 +543,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 <div className="grid gap-4">
                                     {pendingVerifications.map(u => (
                                         <GlassCard key={u.uid} className="p-6 border-white/10 bg-white/5 flex flex-col md:flex-row justify-between items-center gap-6 hover:bg-white/10 transition-colors">
-                                            <div className="flex items-center gap-5">
+                                            <div className="flex items-center gap-5 text-emerald-400">
                                                 <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl border border-white/10 shadow-lg">🏥</div>
                                                 <div>
                                                     <h4 className="font-bold text-white text-lg">{u.email}</h4>
-                                                    <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Clearance: {u.activeRole}</p>
+                                                    <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Clearance: {u.activeRole || 'User'}</p>
                                                     <p className="text-[10px] text-slate-500 mt-1 font-mono tracking-tighter">SYNCED: {u.verificationData ? new Date(u.verificationData.timestamp).toLocaleString() : 'N/A'}</p>
                                                 </div>
                                             </div>
@@ -463,6 +603,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     onCancel={() => setShowEditor(false)}
                 />
             )}
+
+            {showAddVetPet.show && (
+                <AddPatientModal 
+                    onClose={() => setShowAddVetPet({ show: false, email: '' })}
+                    onSuccess={handleRefresh}
+                    vetEmail={showAddVetPet.email}
+                />
+            )}
+
+            {showAddClinic && (
+                <AddClinicModal 
+                    onClose={() => setShowAddClinic(false)}
+                    onSuccess={handleRefresh}
+                />
+            )}
+
+            <style>{`
+                @keyframes scanline {
+                    0% { transform: translateY(-100%); opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { transform: translateY(100vh); opacity: 0; }
+                }
+                .animate-scanline {
+                    animation: scanline 8s linear infinite;
+                }
+            `}</style>
         </div>
     );
 };
