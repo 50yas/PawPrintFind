@@ -27,8 +27,8 @@
 - [x] Task: Write tests for `calculateReadingTime` with various text lengths. 3193ef2
 - [x] Task: Update `contentService.ts` to include `incrementPostViews` using Firestore `increment()`. 23da311
 - [x] Task: Modify `BlogPostDetail.tsx` to trigger `incrementPostViews` on mount and display "Reading Time". b6c3ab5
-- [~] Task: Add "Trending Posts" analytics card to the Admin Dashboard.
-- [ ] Task: Conductor - User Manual Verification 'Smart Blog Engagement Metrics' (Protocol in workflow.md)
+- [x] Task: Add "Trending Posts" analytics card to the Admin Dashboard. 39fdaa6
+- [~] Task: Conductor - User Manual Verification 'Smart Blog Engagement Metrics' (Protocol in workflow.md)
 
 ## Phase 5: Advanced Search & Polish [checkpoint: ]
 - [ ] Task: Enhance the user and pet tables in AdminDashboard with search and "Verification Status" filters.
