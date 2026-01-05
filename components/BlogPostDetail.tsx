@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { BlogPost } from '../types';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
+import { calculateReadingTime } from '../src/utils/blogUtils';
 
 interface BlogPostDetailProps {
     post: BlogPost;
@@ -49,6 +50,10 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
                             <span className="font-bold">{post.author}</span>
                         </div>
                         <time>{new Date(post.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+                        <span className="hidden sm:block">•</span>
+                        <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter border border-primary/20">
+                            {calculateReadingTime(post.content)} MIN READ
+                        </span>
                     </div>
                 </div>
             </header>
