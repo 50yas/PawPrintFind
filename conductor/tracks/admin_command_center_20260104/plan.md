@@ -17,8 +17,8 @@
 ## Phase 3: Professional Veterinarian Management [checkpoint: ]
 - [x] Task: Create `AddClinicModal.tsx` for manual clinic registration. eb08aff
 - [x] Task: Write tests for `AddClinicModal` form submission and data validation. eb08aff
-- [ ] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions.
-- [ ] Task: Update `adminService` to handle manual registration and verification toggles.
+- [x] Task: Implement the "Verification Workflow" tab in AdminDashboard with "Approve/Reject" actions. 7fc197b
+- [~] Task: Update `adminService` to handle manual registration and verification toggles.
 - [ ] Task: Integrate "Persistent Alert Feed" into the Admin header for pending tasks.
 - [ ] Task: Conductor - User Manual Verification 'Professional Veterinarian Management' (Protocol in workflow.md)
 
