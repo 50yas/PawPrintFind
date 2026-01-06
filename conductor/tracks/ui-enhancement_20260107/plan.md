@@ -8,7 +8,7 @@
     - [ ] Sub-task: Update `tailwind.config.js` and CSS variables to adjust "Paw Print Teal" and surface colors for higher contrast.
     - [ ] Sub-task: Rerun tests to ensure all color combinations now pass.
 - [x] Task: Apply global text color fixes [d5aacbf]
-- [~] Task: Fix Day Theme regression
+- [x] Task: Fix Day Theme regression [e0b2e00]
     - [ ] Sub-task: Revert forced `dark` class in `App.tsx` to restore Light Mode capability.
     - [ ] Sub-task: Verify `index.css` Dark Mode variables are correctly applied when `html` has `dark` class.
 - [ ] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md)
