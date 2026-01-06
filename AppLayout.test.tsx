@@ -10,8 +10,23 @@ vi.mock('./components/Navbar', () => ({ Navbar: () => <div data-testid="navbar">
 vi.mock('./components/MobileNavigation', () => ({ MobileNavigation: () => <div data-testid="mobile-nav">MobileNav</div> }));
 vi.mock('./components/Footer', () => ({ Footer: () => <div data-testid="footer">Footer</div> }));
 vi.mock('./components/Background', () => ({ Background: () => <div data-testid="background">Background</div> }));
-vi.mock('./components/HeroScene', () => ({ HeroScene: () => <div data-testid="hero-scene">HeroScene</div> }));
-vi.mock('./components/LoadingScreen', () => ({ LoadingScreen: () => <div data-testid="loading">Loading</div> }));
+vi.mock('./components/LoadingScreen', () => ({ LoadingScreen: () => <div data-testid="splash">Splash</div> }));
+vi.mock('./components/HeroScene', () => ({ HeroScene: () => <div data-testid="heroscene">HeroScene</div> }));
+vi.mock('./components/BiometricBackground', () => ({ BiometricBackground: () => <div data-testid="biometric-background">BiometricBackground</div> }));
+
+// Mock useTheme
+vi.mock('./contexts/ThemeContext', () => ({
+  useTheme: () => ({
+    colors: {
+      primary: '#22d3ee',
+      background: '#020617',
+      secondary: '#c084fc',
+    }
+  }),
+  ThemeProvider: ({ children }: any) => <div>{children}</div>
+}));
+
+const mockTranslation = (key: string) => key;
 vi.mock('./components/routers/PublicRouter', () => ({ PublicRouter: () => <div data-testid="public-router">PublicRouter</div> }));
 vi.mock('./components/routers/UserRouter', () => ({ UserRouter: () => <div data-testid="user-router">UserRouter</div> }));
 vi.mock('./components/routers/VetRouter', () => ({ VetRouter: () => <div data-testid="vet-router">VetRouter</div> }));
@@ -59,25 +74,22 @@ vi.mock('./hooks/useAppState', () => ({
 }));
 
 describe('App Layout Refactor', () => {
-    it('renders HeroScene instead of Background', () => {
+    it('renders BiometricBackground instead of Background', () => {
         render(<App />);
         
-        // Should fail initially as App uses Background
-        const heroScene = screen.queryByTestId('hero-scene');
+        const biometricBackground = screen.queryByTestId('biometric-background');
         const background = screen.queryByTestId('background');
         
-        expect(heroScene).toBeInTheDocument();
+        expect(biometricBackground).toBeInTheDocument();
         expect(background).not.toBeInTheDocument();
     });
 
-    it('has correct z-index structure for background container', () => {
-        render(<App />);
-        // Use a more specific selector or data-testid if possible, 
-        // but for now we look for the container wrapping the background component
-        // Current App.tsx: <div className="fixed inset-0 z-0 ..."><Background /></div>
-        
-        // We want to ensure it remains optimized.
-        // If we switch to HeroScene, we might assume the wrapper class is maintained or improved.
-        // Let's just verify the component switch first.
+    it('applies dark mode class to root container for high contrast', () => {
+        const { container } = render(<App />);
+        // The root div in App.tsx
+        const rootDiv = container.firstChild as HTMLElement;
+        expect(rootDiv).toHaveClass('dark');
+        expect(rootDiv).toHaveClass('text-foreground');
+        expect(rootDiv).toHaveClass('bg-background');
     });
 });

@@ -7,7 +7,7 @@
     - [ ] Sub-task: Run tests and verify they fail for existing low-contrast combinations.
     - [ ] Sub-task: Update `tailwind.config.js` and CSS variables to adjust "Paw Print Teal" and surface colors for higher contrast.
     - [ ] Sub-task: Rerun tests to ensure all color combinations now pass.
-- [ ] Task: Apply global text color fixes
+- [~] Task: Apply global text color fixes
     - [ ] Sub-task: Create a visual regression test or a component test `AppLayout.test.tsx` that checks for default text color visibility on dark backgrounds.
     - [ ] Sub-task: Update `index.css` or root layout components to enforce high-contrast default text colors.
 - [ ] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md)
