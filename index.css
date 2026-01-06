@@ -59,8 +59,53 @@
   }
 
   .dark {
-    /* ... existing dark variables ... */
-    --md-sys-color-surface-container-highest: #191c1c;
+    --background: #020617; /* Slate 950 */
+    --foreground: #F8FAFC; /* Slate 50 */
+    --card: rgba(2, 6, 23, 0.6);
+    --card-foreground: #F8FAFC;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --muted: rgba(30, 41, 59, 0.5);
+    --muted-foreground: #94A3B8;
+    --border: rgba(255, 255, 255, 0.1);
+    --ring: 191 100% 50%;
+    
+    /* Material 3 Dark Colors */
+    --md-sys-color-primary: #4cdada;
+    --md-sys-color-on-primary: #003737;
+    --md-sys-color-primary-container: #004f4f;
+    --md-sys-color-on-primary-container: #6ff7f6;
+    --md-sys-color-secondary: #b0ccca;
+    --md-sys-color-on-secondary: #1b3534;
+    --md-sys-color-secondary-container: #324b4b;
+    --md-sys-color-on-secondary-container: #cce8e7;
+    --md-sys-color-tertiary: #b3c8e8;
+    --md-sys-color-on-tertiary: #1c324b;
+    --md-sys-color-tertiary-container: #334863;
+    --md-sys-color-on-tertiary-container: #d3e4ff;
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error-container: #ffdad6;
+    --md-sys-color-background: #020617; /* Matches --background */
+    --md-sys-color-on-background: #e0e3e3;
+    --md-sys-color-surface: #020617; /* Matches --background */
+    --md-sys-color-on-surface: #e0e3e3;
+    --md-sys-color-surface-variant: #3f4948;
+    --md-sys-color-on-surface-variant: #bec9c8;
+    --md-sys-color-outline: #899392;
+    --md-sys-color-outline-variant: #3f4948;
+    --md-sys-color-shadow: #000000;
+    --md-sys-color-scrim: #000000;
+    --md-sys-color-inverse-surface: #e0e3e3;
+    --md-sys-color-inverse-on-surface: #2d3131;
+    --md-sys-color-inverse-primary: #006a6a;
+    --md-sys-color-surface-dim: #020617;
+    --md-sys-color-surface-bright: #343a40;
+    --md-sys-color-surface-container-lowest: #0b0f19;
+    --md-sys-color-surface-container-low: #191c1c;
+    --md-sys-color-surface-container: #1d2024;
+    --md-sys-color-surface-container-high: #282a2f;
+    --md-sys-color-surface-container-highest: #333537;
   }
 
   html, body {
