@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { Float, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -12,6 +12,7 @@ const MorphMaterial = shaderMaterial(
     uMorph: 0,
     uColor: new THREE.Color('#22d3ee'),
     uSize: 0.003,
+    uMouse: new THREE.Vector2(0, 0),
   },
   // Vertex Shader
   `
@@ -20,6 +21,7 @@ const MorphMaterial = shaderMaterial(
   uniform float uMorph;
   uniform float uSize;
   uniform vec3 uColor;
+  uniform vec2 uMouse;
   attribute vec3 targetPosition;
   attribute vec3 sourcePosition;
 
@@ -29,10 +31,15 @@ const MorphMaterial = shaderMaterial(
     // Smooth interpolation
     vec3 pos = mix(sourcePosition, targetPosition, uMorph);
     
-    // Add some subtle waving animation with more complexity
+    // Add some subtle waving animation
     pos.x += sin(uTime * 0.4 + pos.y * 2.0) * 0.08;
     pos.y += cos(uTime * 0.3 + pos.x * 2.0) * 0.08;
     pos.z += sin(uTime * 0.5 + pos.z * 2.0) * 0.08;
+
+    // Subtle particle repulsion from mouse
+    float distToMouse = distance(pos.xy, uMouse * 2.0);
+    float repulsion = smoothstep(0.5, 0.0, distToMouse);
+    pos.xy += (pos.xy - uMouse * 2.0) * repulsion * 0.2;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_PointSize = uSize * (400.0 / -mvPosition.z);
@@ -54,13 +61,13 @@ const MorphMaterial = shaderMaterial(
 extend({ MorphMaterial });
 
 // Particle Component
-const Particles = ({ color }: { color: string }) => {
+const Particles = ({ color, scrollProgress }: { color: string, scrollProgress: number }) => {
   const ref = useRef<any>();
   const materialRef = useRef<any>();
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   const { mouse, viewport } = useThree();
   
-  // Adaptive particle count based on device
+  // Adaptive particle count
   const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 3000 : 8000;
   
   // Generate shapes
@@ -74,7 +81,7 @@ const Particles = ({ color }: { color: string }) => {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const t = (time % 15) / 15; // Slower cycles
+    const t = (time % 15) / 15;
     
     let currentSource: Float32Array;
     let currentTarget: Float32Array;
@@ -102,16 +109,21 @@ const Particles = ({ color }: { color: string }) => {
       materialRef.current.uTime = time;
       materialRef.current.uMorph = factor;
       materialRef.current.uColor = threeColor;
+      materialRef.current.uMouse.set(mouse.x, mouse.y);
     }
 
     if (ref.current) {
-      // Rotation based on mouse
-      const targetRotationX = (mouse.y * viewport.height) / 10;
-      const targetRotationY = (mouse.x * viewport.width) / 10;
+      // Rotation based on mouse + scroll
+      const targetRotationX = (mouse.y * viewport.height) / 10 + scrollProgress * 2;
+      const targetRotationY = (mouse.x * viewport.width) / 10 + scrollProgress * Math.PI;
       
       ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, targetRotationX + time / 20, 0.05);
       ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, targetRotationY + time / 25, 0.05);
       
+      // Scale based on scroll
+      const targetScale = 1 + scrollProgress * 0.5;
+      ref.current.scale.setScalar(THREE.MathUtils.lerp(ref.current.scale.x, targetScale, 0.05));
+
       if (ref.current.geometry.attributes.sourcePosition.array !== currentSource) {
         ref.current.geometry.attributes.sourcePosition.array = currentSource;
         ref.current.geometry.attributes.sourcePosition.needsUpdate = true;
@@ -156,13 +168,25 @@ const Particles = ({ color }: { color: string }) => {
 // Main Component
 export const BiometricBackground = () => {
   const { colors, isDark } = useTheme();
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll <= 0) return;
+      setScrollProgress(window.scrollY / maxScroll);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[-1] transition-colors duration-1000 w-full h-full" style={{ backgroundColor: colors.background }}>
       <Canvas camera={{ position: [0, 0, 1.8] }}>
-        <fog attach="fog" args={[colors.background, 1, 3.5]} />
+        <fog attach="fog" args={[colors.background, 1, 4.5]} />
         <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8}>
-           <Particles color={colors.primary} />
+           <Particles color={colors.primary} scrollProgress={scrollProgress} />
         </Float>
       </Canvas>
       
@@ -181,12 +205,14 @@ export const BiometricBackground = () => {
           mixBlendingMode: 'screen'
         } as any} 
       />
+      
+      {/* Scroll-Reactive Vignette */}
       <div 
         className="absolute inset-0 pointer-events-none" 
         style={{ 
-          backgroundImage: `radial-gradient(ellipse at bottom left, ${colors.primary}22, transparent, transparent)`,
-          mixBlendingMode: 'overlay'
-        } as any} 
+          backgroundImage: `radial-gradient(circle, transparent 40%, ${colors.background} ${100 - scrollProgress * 20}%)`,
+          opacity: 0.6 + scrollProgress * 0.4
+        }} 
       />
       
       {/* Noise Texture Overlay */}
