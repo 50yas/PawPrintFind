@@ -39,12 +39,10 @@ describe('BiometricBackground', () => {
     expect(screen.getByTestId('three-canvas')).toBeInTheDocument();
   });
 
-  it('renders in a fixed full-screen container', () => {
+  it('renders cinematic overlay gradients', () => {
     const { container } = render(<BiometricBackground />);
-    // Check for the wrapper div class
-    const wrapper = container.firstChild;
-    expect(wrapper).toHaveClass('fixed');
-    expect(wrapper).toHaveClass('inset-0');
-    expect(wrapper).toHaveClass('z-[-1]');
+    // There should be at least two overlay divs (gradient-to-t and radial-gradient)
+    const overlays = container.querySelectorAll('div.absolute.inset-0');
+    expect(overlays.length).toBeGreaterThanOrEqual(2);
   });
 });

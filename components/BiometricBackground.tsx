@@ -1,5 +1,5 @@
-import React, { useRef, useMemo, useState } from 'react';
-import { Canvas, useFrame, extend } from '@react-three/fiber';
+import React, { useRef, useMemo } from 'react';
+import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
 import { Float, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../contexts/ThemeContext';
@@ -29,12 +29,13 @@ const MorphMaterial = shaderMaterial(
     // Smooth interpolation
     vec3 pos = mix(sourcePosition, targetPosition, uMorph);
     
-    // Add some subtle waving animation
-    pos.x += sin(uTime * 0.5 + pos.y) * 0.05;
-    pos.z += cos(uTime * 0.5 + pos.x) * 0.05;
+    // Add some subtle waving animation with more complexity
+    pos.x += sin(uTime * 0.4 + pos.y * 2.0) * 0.08;
+    pos.y += cos(uTime * 0.3 + pos.x * 2.0) * 0.08;
+    pos.z += sin(uTime * 0.5 + pos.z * 2.0) * 0.08;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-    gl_PointSize = uSize * (300.0 / -mvPosition.z);
+    gl_PointSize = uSize * (400.0 / -mvPosition.z);
     gl_Position = projectionMatrix * mvPosition;
   }
   `,
@@ -44,8 +45,8 @@ const MorphMaterial = shaderMaterial(
   void main() {
     float dist = distance(gl_PointCoord, vec2(0.5));
     if (dist > 0.5) discard;
-    float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-    gl_FragColor = vec4(vColor, alpha * 0.8);
+    float alpha = 1.0 - smoothstep(0.1, 0.5, dist);
+    gl_FragColor = vec4(vColor, alpha * 0.9);
   }
   `
 );
@@ -57,9 +58,10 @@ const Particles = ({ color }: { color: string }) => {
   const ref = useRef<any>();
   const materialRef = useRef<any>();
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
+  const { mouse, viewport } = useThree();
   
   // Adaptive particle count based on device
-  const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 2000 : 5000;
+  const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 3000 : 8000;
   
   // Generate shapes
   const shapes = useMemo(() => {
@@ -72,7 +74,7 @@ const Particles = ({ color }: { color: string }) => {
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
-    const t = (time % 10) / 10;
+    const t = (time % 15) / 15; // Slower cycles
     
     let currentSource: Float32Array;
     let currentTarget: Float32Array;
@@ -103,8 +105,12 @@ const Particles = ({ color }: { color: string }) => {
     }
 
     if (ref.current) {
-      ref.current.rotation.x = time / 20;
-      ref.current.rotation.y = time / 25;
+      // Rotation based on mouse
+      const targetRotationX = (mouse.y * viewport.height) / 10;
+      const targetRotationY = (mouse.x * viewport.width) / 10;
+      
+      ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, targetRotationX + time / 20, 0.05);
+      ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, targetRotationY + time / 25, 0.05);
       
       if (ref.current.geometry.attributes.sourcePosition.array !== currentSource) {
         ref.current.geometry.attributes.sourcePosition.array = currentSource;
@@ -149,18 +155,42 @@ const Particles = ({ color }: { color: string }) => {
 
 // Main Component
 export const BiometricBackground = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   return (
-    <div className="fixed inset-0 z-[-1] bg-slate-950 w-full h-full" style={{ backgroundColor: colors.background }}>
-      <Canvas camera={{ position: [0, 0, 1.5] }}>
-        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
+    <div className="fixed inset-0 z-[-1] transition-colors duration-1000 w-full h-full" style={{ backgroundColor: colors.background }}>
+      <Canvas camera={{ position: [0, 0, 1.8] }}>
+        <fog attach="fog" args={[colors.background, 1, 3.5]} />
+        <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8}>
            <Particles color={colors.primary} />
         </Float>
       </Canvas>
-      {/* Cinematic Overlay Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent pointer-events-none" style={{ background: `linear-gradient(to top, ${colors.background}, ${colors.background}80, transparent)` }} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-slate-950/0 to-slate-950/0 pointer-events-none" style={{ backgroundImage: `radial-gradient(ellipse at top, ${colors.primary}33, ${colors.background}00, ${colors.background}00)` }} />
+      
+      {/* Cinematic Overlay Gradients: Nebula Depth */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-opacity duration-1000" 
+        style={{ 
+          background: `linear-gradient(to top, ${colors.background}, ${colors.background}cc, transparent)`,
+          opacity: isDark ? 0.8 : 0.4
+        }} 
+      />
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{ 
+          backgroundImage: `radial-gradient(ellipse at top, ${colors.primary}44, transparent, transparent)`,
+          mixBlendingMode: 'screen'
+        } as any} 
+      />
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{ 
+          backgroundImage: `radial-gradient(ellipse at bottom left, ${colors.primary}22, transparent, transparent)`,
+          mixBlendingMode: 'overlay'
+        } as any} 
+      />
+      
+      {/* Noise Texture Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
     </div>
   );
 };
