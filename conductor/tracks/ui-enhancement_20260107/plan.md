@@ -18,7 +18,7 @@
     - [ ] Sub-task: Create `Background.test.tsx` to test the existence and basic properties of the Three.js scene.
     - [ ] Sub-task: Update `Background.tsx` (or equivalent Three.js component) to use smoother gradients and organic motion.
     - [ ] Sub-task: Verify 60fps performance target using a performance monitoring utility or test.
-- [~] Task: Implement Interactive Background
+- [x] Task: Implement Interactive Background [fa491e8]
     - [ ] Sub-task: Add tests in `Background.test.tsx` for mouse movement event listeners.
     - [ ] Sub-task: Implement parallax effects and particle attraction/repulsion in `Background.tsx`.
 - [ ] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md)
