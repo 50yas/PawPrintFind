@@ -84,12 +84,13 @@ describe('App Layout Refactor', () => {
         expect(background).not.toBeInTheDocument();
     });
 
-    it('applies dark mode class to root container for high contrast', () => {
+    it('applies basic layout classes to root container', () => {
         const { container } = render(<App />);
         // The root div in App.tsx
         const rootDiv = container.firstChild as HTMLElement;
-        expect(rootDiv).toHaveClass('dark');
         expect(rootDiv).toHaveClass('text-foreground');
         expect(rootDiv).toHaveClass('bg-background');
+        // We do NOT expect 'dark' class here anymore, as it's managed by ThemeContext on 'html'
     });
 });
+

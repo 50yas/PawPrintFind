@@ -281,7 +281,7 @@ export default function App() {
     };
 
     return (
-        <div className="dark min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden pb-safe">
+        <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden pb-safe">
             {/* Fixed Marquee at the very top */}
             <DevMarquee />
 

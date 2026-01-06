@@ -8,8 +8,9 @@
     - [ ] Sub-task: Update `tailwind.config.js` and CSS variables to adjust "Paw Print Teal" and surface colors for higher contrast.
     - [ ] Sub-task: Rerun tests to ensure all color combinations now pass.
 - [x] Task: Apply global text color fixes [d5aacbf]
-    - [ ] Sub-task: Create a visual regression test or a component test `AppLayout.test.tsx` that checks for default text color visibility on dark backgrounds.
-    - [ ] Sub-task: Update `index.css` or root layout components to enforce high-contrast default text colors.
+- [~] Task: Fix Day Theme regression
+    - [ ] Sub-task: Revert forced `dark` class in `App.tsx` to restore Light Mode capability.
+    - [ ] Sub-task: Verify `index.css` Dark Mode variables are correctly applied when `html` has `dark` class.
 - [ ] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md)
 
 ## Phase 2: "Cinematic" Background Refinement
