@@ -14,7 +14,7 @@
 - [x] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md) [bccd342]
 
 ## Phase 2: "Cinematic" Background Refinement
-- [~] Task: Refine 3D Particles & Motion
+- [x] Task: Refine 3D Particles & Motion [372d482]
     - [ ] Sub-task: Create `Background.test.tsx` to test the existence and basic properties of the Three.js scene.
     - [ ] Sub-task: Update `Background.tsx` (or equivalent Three.js component) to use smoother gradients and organic motion.
     - [ ] Sub-task: Verify 60fps performance target using a performance monitoring utility or test.
