@@ -1,7 +1,7 @@
 # Plan: UI Enhancement & Contrast Audit
 
 ## Phase 1: Contrast Audit & Global Theme Update
-- [~] Task: Audit and update Tailwind config for accessible color palette
+- [x] Task: Audit and update Tailwind config for accessible color palette [d090c7c]
     - [ ] Sub-task: Create a new test file `tailwind.contrast.test.ts` to programmatically check contrast ratios of defined colors.
     - [ ] Sub-task: Implement the contrast check logic using a library like `tinycolor2` or custom logic to ensure WCAG 2.1 AA compliance (4.5:1).
     - [ ] Sub-task: Run tests and verify they fail for existing low-contrast combinations.
