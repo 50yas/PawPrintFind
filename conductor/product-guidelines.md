@@ -16,7 +16,7 @@ This document outlines the design and communication principles for the Paw Print
 
 
 
-- **Aesthetic:** "Glassmorphism 2.0" with **Material You** integration. This involves translucency and depth complemented by a dynamic, seed-based color system.
+- **Aesthetic:** "Glassmorphism 2.0" with **Material You** integration and specialized **Cyber HUD** administrative interfaces. This involves translucency and depth complemented by a dynamic, seed-based color system.
 
 - **Core Principles:**
 
@@ -25,6 +25,8 @@ This document outlines the design and communication principles for the Paw Print
     - **Dynamic and Harmonious:** The color palette is automatically generated from a seed color, ensuring visual harmony and a premium "Google-level" feel.
 
     - **Accessibility:** Ensure high contrast for text, provide alt-text for all images, and ensure the application is fully navigable via keyboard.
+
+    - **Information Density:** Administrative views prioritize data density and system status via high-contrast HUD grids, animated indicators, and glowing accents.
 
 - **Color Palette:**
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, UserRole } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { Language } from '../contexts/LanguageContext';
+import DarkModeToggle from './DarkModeToggle';
+import { NavigationBottomSheet } from './NavigationBottomSheet';
 
 interface MobileNavigationProps {
     currentView: View;
@@ -13,9 +15,10 @@ interface MobileNavigationProps {
 export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView, setView, userRole, onAssistantClick }) => {
     const { t, locale, setLocale } = useTranslations();
     const [showLangMenu, setShowLangMenu] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // Helper for active class
-    const isActive = (view: View) => currentView === view ? 'text-primary scale-110' : 'text-muted-foreground hover:text-foreground';
+    const isActive = (view: View) => currentView === view ? 'text-primary scale-110' : 'text-slate-400 hover:text-white';
 
     // Role based default dashboard
     const getDashboardView = () => {
@@ -38,19 +41,6 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
         { code: 'ro', name: 'Română' }
     ];
 
-    const handleHomeSection = (sectionId: string) => {
-        if (currentView !== 'home') {
-            setView('home');
-            setTimeout(() => {
-                const el = document.getElementById(sectionId);
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }, 300);
-        } else {
-            const el = document.getElementById(sectionId);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
     const handleAuthAction = () => {
         if (userRole) {
             setView(dashboardView);
@@ -61,15 +51,23 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
 
     return (
         <div 
-            className="fixed bottom-0 left-0 right-0 w-full bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe"
-            style={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
+            className="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe"
+            style={{ 
+                position: 'fixed', 
+                bottom: 0, 
+                left: 0, 
+                right: 0, 
+                zIndex: 9999,
+                WebkitTransform: 'translate3d(0,0,0)',
+                transform: 'translate3d(0,0,0)',
+                height: 'auto'
+            }}
         >
-            
             {/* Vertical Language Selector Overlay */}
             {showLangMenu && (
                 <>
                     <div className="fixed inset-0 bg-black/60 z-[-1]" onClick={() => setShowLangMenu(false)} aria-hidden="true"></div>
-                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[60vh] overflow-y-auto custom-scrollbar">
                         <div className="px-3 py-2 border-b border-white/10 mb-1">
                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Select Language</span>
                         </div>
@@ -77,7 +75,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                             <button
                                 key={lang.code}
                                 onClick={() => { setLocale(lang.code as Language); setShowLangMenu(false); }}
-                                className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${locale === lang.code ? 'bg-primary/20 text-white border border-primary/30' : 'text-muted-foreground hover:bg-white/5 border border-transparent'}`}
+                                className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${locale === lang.code ? 'bg-primary/20 text-white border border-primary/30' : 'text-slate-400 hover:bg-white/5 border border-transparent'}`}
                             >
                                 <span>{lang.name}</span>
                                 {locale === lang.code && <span className="w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_#22d3ee]"></span>}
@@ -87,11 +85,17 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 </>
             )}
 
-            <div className="flex justify-between items-center px-4 h-[75px] relative">
+            <NavigationBottomSheet 
+                isOpen={isMenuOpen} 
+                onClose={() => setIsMenuOpen(false)} 
+                setView={setView} 
+            />
+
+            <div className="flex justify-around items-center px-2 h-[75px] relative">
                 {/* 1. Home */}
                 <button 
                     onClick={() => setView('home')} 
-                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${isActive('home')}`}
+                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('home')}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -99,19 +103,19 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     <span className="text-[8px] font-black uppercase tracking-tighter">{t('homeButton')}</span>
                 </button>
 
-                {/* 2. Dashboard / Auth */}
+                {/* 2. More / Grid */}
                 <button 
-                    onClick={handleAuthAction} 
-                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${userRole ? isActive(dashboardView) : 'text-muted-foreground'}`}
+                    onClick={() => setIsMenuOpen(true)} 
+                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${isMenuOpen ? 'text-primary' : 'text-slate-400'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">{userRole ? 'DASH' : 'LOGIN'}</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">{t('moreButton') || 'MORE'}</span>
                 </button>
 
                 {/* 3. CENTER FAB - AI Assistant */}
-                <div className="flex-1 flex justify-center -mt-8 relative z-10">
+                <div className="flex justify-center -mt-8 relative z-10">
                     <button 
                         onClick={onAssistantClick}
                         className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(45,212,191,0.5)] relative overflow-hidden active:scale-90 transition-all group"
@@ -129,29 +133,27 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     </button>
                 </div>
 
-                {/* 4. Blog / Ecosystem */}
+                {/* 4. Dashboard / Auth */}
                 <button 
-                    onClick={() => setView('blog')} 
-                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${isActive('blog')}`}
+                    onClick={handleAuthAction} 
+                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${userRole ? isActive(dashboardView) : 'text-slate-400'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 4v5h5" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 13h10M7 17h10" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">BLOG</span>
+                    <span className="text-[8px] font-black uppercase tracking-tighter">{userRole ? 'DASH' : 'LOGIN'}</span>
                 </button>
 
-                {/* 5. Language */}
-                <button 
-                    onClick={() => setShowLangMenu(!showLangMenu)} 
-                    className={`flex-1 flex flex-col items-center gap-1 transition-all duration-300 ${showLangMenu ? 'text-primary' : 'text-muted-foreground'}`}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5a18.022 18.022 0 01-3.827-5.802M6 9h10.762c-1.218 2.52-3.033 4.733-5.139 6.56M11 19l-5-5M11 19l5-5" />
-                    </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">{locale.toUpperCase()}</span>
-                </button>
+                {/* 5. Language / Theme */}
+                <div className="flex flex-col items-center gap-1">
+                    <button 
+                        onClick={() => setShowLangMenu(!showLangMenu)} 
+                        className={`transition-all duration-300 ${showLangMenu ? 'text-primary' : 'text-slate-400'}`}
+                    >
+                        <span className="text-[10px] font-black">{locale.toUpperCase()}</span>
+                    </button>
+                    <DarkModeToggle />
+                </div>
             </div>
         </div>
     );

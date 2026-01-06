@@ -14,11 +14,29 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('./LanguageSwitcher', () => ({ LanguageSwitcher: () => <div data-testid="lang-switch">Lang</div> }));
+vi.mock('./DarkModeToggle', () => ({ 
+  __esModule: true,
+  default: () => <div data-testid="dark-toggle">Dark</div> 
+}));
+
+// Mock useTheme
+vi.mock('../contexts/ThemeContext', () => ({
+  useTheme: () => ({
+    colors: {
+      primary: '#22d3ee',
+      background: '#020617',
+    },
+    isDark: true,
+    toggleTheme: vi.fn(),
+  })
+}));
+
 describe('MobileNavigation Navigation Links', () => {
   const mockSetView = vi.fn();
   const mockAssistantClick = vi.fn();
 
-  it('renders Home, Adoption, and Blog links', () => {
+  it('renders Home, More, and Login links', () => {
     render(
       <MobileNavigation 
         currentView="home" 
@@ -28,11 +46,11 @@ describe('MobileNavigation Navigation Links', () => {
     );
 
     expect(screen.getByText('homeButton')).toBeInTheDocument();
-    expect(screen.getByText('adoptionLink')).toBeInTheDocument();
-    expect(screen.getByText('blogButton')).toBeInTheDocument();
+    expect(screen.getByText('moreButton')).toBeInTheDocument();
+    expect(screen.getByText('LOGIN')).toBeInTheDocument();
   });
 
-  it('shows USER when role is provided', () => {
+  it('shows DASH when role is provided', () => {
     render(
       <MobileNavigation 
         currentView="home" 
@@ -42,7 +60,7 @@ describe('MobileNavigation Navigation Links', () => {
       />
     );
 
-    expect(screen.getByText('USER')).toBeInTheDocument();
+    expect(screen.getByText('DASH')).toBeInTheDocument();
     expect(screen.queryByText('LOGIN')).not.toBeInTheDocument();
   });
 

@@ -61,7 +61,7 @@ export const LoadingScreen: React.FC = () => {
 
             {/* Typography */}
             <h1 className="text-6xl font-extrabold tracking-tighter mb-4 text-white">
-                Paw<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bc13fe] animate-pulse filter drop-shadow-[0_0_10px_rgba(188,19,254,0.5)]">Print</span>
+                Paw<span className="logo-print-text bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bc13fe] animate-pulse filter drop-shadow-[0_0_10px_rgba(188,19,254,0.5)]">Print</span>
             </h1>
             
             {/* Loading Bar */}

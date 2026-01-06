@@ -35,6 +35,9 @@ This document outlines the core technologies used in the Paw Print application.
 
     - **Description:** Core components of the "Cinematic" UI, providing interactive 3D backgrounds and biometric scanning effects.
 
+- **Math Utilities:** maath
+    - **Description:** A collection of useful math helpers, used for generating random particle distributions (spheres, helixes) in the 3D environment.
+
 
 -   **Mapping:** Leaflet
     -   **Description:** An open-source JavaScript library for mobile-friendly interactive maps.

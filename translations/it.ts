@@ -511,9 +511,6 @@ export const it = {
     allStatus: `Tutti gli Stati`,
     verifiedOnly: `Solo Verificati`,
     unverifiedOnly: `Solo Non Verificati`,
-    statusLost: `Smarrito`,
-    statusAdoption: `Adozione`,
-    statusOwned: `Proprietà`,
     
     // Map Filters
     showLostPets: `Animali Smarriti`,

@@ -1,14 +1,8 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Points, PointMaterial, Float } from '@react-three/drei';
-
-import { generateSphere, generateHelix, generatePaw } from '../src/utils/particleGenerators';
-
-import { Points, PointMaterial, Float, shaderMaterial } from '@react-three/drei';
+import React, { useRef, useMemo, useState } from 'react';
+import { Canvas, useFrame, extend } from '@react-three/fiber';
+import { Float, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { extend } from '@react-three/fiber';
 import { useTheme } from '../contexts/ThemeContext';
-
 import { generateSphere, generateHelix, generatePaw } from '../src/utils/particleGenerators';
 
 // Custom Shader Material for Morphing

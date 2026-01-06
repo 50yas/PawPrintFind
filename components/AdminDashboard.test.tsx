@@ -145,7 +145,7 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        expect(screen.getByText('Nodes_Online')).toBeInTheDocument();
+        expect(screen.getAllByText('statTotalUsers').length).toBeGreaterThan(0);
         expect(screen.getByText('Uptime')).toBeInTheDocument();
         expect(screen.getByText('Load_Factor')).toBeInTheDocument();
     });
@@ -243,7 +243,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
         fireEvent.click(screen.getByText('adminTabUsers'));
 
-        const verifyFilter = screen.getByDisplayValue('ALL_STATUS');
+        const verifyFilter = screen.getByDisplayValue('allStatus');
         fireEvent.change(verifyFilter, { target: { value: 'verified' } });
 
         expect(screen.getByText('v1@test.com')).toBeInTheDocument();
@@ -271,7 +271,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
         fireEvent.click(screen.getByText('adminTabPets'));
 
-        const statusFilter = screen.getByDisplayValue('ALL_STATUS');
+        const statusFilter = screen.getByDisplayValue('allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
@@ -297,7 +297,7 @@ describe('AdminDashboard Cyber HUD', () => {
         fireEvent.click(screen.getByText('pendingVerificationsTitle'));
 
         // Click Approve
-        const approveBtn = screen.getByText('APPROVE');
+        const approveBtn = screen.getByText('acceptButton');
         fireEvent.click(approveBtn);
 
         await waitFor(() => {
@@ -331,7 +331,7 @@ describe('AdminDashboard Cyber HUD', () => {
         fireEvent.click(screen.getByText('pendingVerificationsTitle'));
 
         // Click Reject
-        const rejectBtn = screen.getByText('REJECT');
+        const rejectBtn = screen.getByText('declineButton');
         fireEvent.click(rejectBtn);
 
         await waitFor(() => {

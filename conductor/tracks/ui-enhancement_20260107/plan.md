@@ -11,7 +11,7 @@
 - [x] Task: Fix Day Theme regression [e0b2e00]
     - [ ] Sub-task: Revert forced `dark` class in `App.tsx` to restore Light Mode capability.
     - [ ] Sub-task: Verify `index.css` Dark Mode variables are correctly applied when `html` has `dark` class.
-- [ ] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md) [bccd342]
 
 ## Phase 2: "Cinematic" Background Refinement
 - [ ] Task: Refine 3D Particles & Motion
