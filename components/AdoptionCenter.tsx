@@ -48,51 +48,50 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
   const prevSlide = () => setCarouselIndex(prev => (prev - 1 + filteredPets.length) % filteredPets.length);
 
   const AdoptionCard: React.FC<{ pet: PetProfile; mode?: ViewMode }> = ({ pet, mode = 'grid' }) => (
-    <GlassCard variant="interactive" className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/5 overflow-hidden group`}>
-        <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
-            <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-               <span className="text-white text-xs font-bold uppercase tracking-widest">{pet.breed}</span>
-            </div>
-        </div>
-        <div className="p-6 flex flex-col flex-grow">
-            <div className="flex justify-between items-start">
-                <div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">{pet.name}</h3>
-                    <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1">{pet.breed}</p>
+        <GlassCard variant="interactive" className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl`}>
+            <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
+                <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                   <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
                 </div>
-                <span className="bg-primary/20 text-primary px-2 py-1 rounded text-[10px] font-bold uppercase">{pet.age}</span>
             </div>
+            <div className="p-6 flex flex-col flex-grow">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md">{pet.name}</h3>
+                        <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{pet.breed}</p>
+                    </div>
+                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md">{pet.age}</span>
+                </div>
+                
+                <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
+                
+                <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                     <div className="flex gap-2">
+                        {pet.weight && <span className="bg-white/10 text-slate-300 px-2 py-1 rounded text-[10px] uppercase font-bold border border-white/5">{pet.weight}</span>}
+                     </div>
+                     <GlassButton onClick={() => handleInquire(pet)} className="text-[10px] uppercase tracking-[0.2em] font-black shadow-lg" variant="primary">
+                        {t('inquireToAdoptButton')}
+                     </GlassButton>
+                </div>
+            </div>
+        </GlassCard>
+    );
+    
+      return (
+        <div className="min-h-screen bg-transparent pb-20 pt-24 px-6 relative">
+          <div className="max-w-7xl mx-auto space-y-8 relative z-10">
             
-            <p className="text-sm text-slate-400 mt-4 flex-grow leading-relaxed line-clamp-3">{pet.behavior}</p>
-            
-            <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
-                 <div className="flex gap-2">
-                    {pet.weight && <span className="bg-white/5 text-slate-400 px-2 py-1 rounded text-[10px] uppercase font-bold">{pet.weight}</span>}
-                 </div>
-                 <GlassButton onClick={() => handleInquire(pet)} className="text-[10px] uppercase tracking-[0.2em] font-black" variant="primary">
-                    {t('inquireToAdoptButton')}
-                 </GlassButton>
-            </div>
-        </div>
-    </GlassCard>
-  );
-
-  return (
-    <div className="min-h-screen bg-background pb-20 pt-24 px-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* Header & Controls */}
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-8 border-b border-white/10">
-            <div>
-                <button onClick={goBack} className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    {t('homeButton')}
-                </button>
-                <h1 className="text-4xl md:text-6xl font-black text-foreground uppercase tracking-tighter">{t('adoptionCenterTitle')}</h1>
-                <p className="text-lg text-muted-foreground mt-2 max-w-2xl">{t('adoptionCenterDescPublic')}</p>
-            </div>
-
+            {/* Header & Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-8 border-b border-white/10">
+                <div>
+                    <button onClick={goBack} className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        {t('homeButton')}
+                    </button>
+                    <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-xl">{t('adoptionCenterTitle')}</h1>
+                    <p className="text-lg text-slate-200 mt-2 max-w-2xl drop-shadow-md font-medium">{t('adoptionCenterDescPublic')}</p>
+                </div>
             <div className="flex flex-col gap-4 w-full md:w-auto">
                 <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/10">
                     {(['grid', 'list', 'carousel', 'map'] as ViewMode[]).map(m => (

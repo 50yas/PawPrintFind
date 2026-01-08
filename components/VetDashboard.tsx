@@ -15,12 +15,12 @@ interface VetDashboardProps {
 }
 
 const StatWidget: React.FC<{ title: string; value: number; icon: React.ReactNode; colorClass: string; onClick: () => void }> = ({ title, value, icon, colorClass, onClick }) => (
-    <div onClick={onClick} className="glass-panel p-6 rounded-2xl cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-white/20 flex items-center justify-center md:justify-between group text-center md:text-left">
+    <div onClick={onClick} className="glass-panel p-6 rounded-2xl cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-white/20 bg-white/10 backdrop-blur-xl flex items-center justify-center md:justify-between group text-center md:text-left">
         <div>
-            <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-2">{title}</p>
-            <h3 className="text-4xl font-bold text-foreground tracking-tight">{value}</h3>
+            <p className="text-slate-200 text-xs font-bold uppercase tracking-wider mb-2 drop-shadow-sm">{title}</p>
+            <h3 className="text-4xl font-bold text-white tracking-tight drop-shadow-md">{value}</h3>
         </div>
-        <div className={`p-4 rounded-xl ${colorClass} group-hover:scale-110 transition-transform hidden md:block`}>
+        <div className={`p-4 rounded-xl ${colorClass} group-hover:scale-110 transition-transform hidden md:block shadow-lg`}>
             {icon}
         </div>
     </div>

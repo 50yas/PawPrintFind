@@ -24,12 +24,12 @@
 - [x] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md) [7b63f94]
 
 ## Phase 3: Component-Specific Visibility Fixes
-- [ ] Task: Fix visibility in Dashboard components
-    - [ ] Sub-task: Create `DashboardVisibility.test.tsx` to check text visibility in `Dashboard.tsx`, `VetDashboard.tsx`, etc.
-    - [ ] Sub-task: Apply glassmorphism overlays or text shadows to ensuring readability.
-- [ ] Task: Fix visibility in Adoption Center
-    - [ ] Sub-task: Create `AdoptionCenterVisibility.test.tsx` to check text visibility in `AdoptionCenter.tsx` and `AdoptionMap.tsx`.
-    - [ ] Sub-task: specific overrides for map labels and card text.
+- [x] Task: Fix visibility in Dashboard components [8499252]
+    - [x] Sub-task: Create `DashboardVisibility.test.tsx` to check text visibility in `Dashboard.tsx`, `VetDashboard.tsx`, etc.
+    - [x] Sub-task: Apply glassmorphism overlays or text shadows to ensuring readability.
+- [x] Task: Fix visibility in Adoption Center [8499252]
+    - [x] Sub-task: Create `AdoptionCenterVisibility.test.tsx` to check text visibility in `AdoptionCenter.tsx` and `AdoptionMap.tsx`.
+    - [x] Sub-task: specific overrides for map labels and card text.
 - [ ] Task: Conductor - User Manual Verification 'Component-Specific Visibility Fixes' (Protocol in workflow.md)
 
 ## Phase 4: Final Polish & Accessibility Review

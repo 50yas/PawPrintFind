@@ -253,11 +253,11 @@ const PetCard: React.FC<{
 });
 
 const QuickAction: React.FC<{ title: string; icon: React.ReactNode; onClick: () => void; colorClass: string }> = ({ title, icon, onClick, colorClass }) => (
-    <GlassCard variant="interactive" onClick={onClick} className="flex flex-col items-center justify-center p-4 transform hover:-translate-y-1 duration-300 h-full group border-white/10 bg-white/5">
+    <GlassCard variant="interactive" onClick={onClick} className="flex flex-col items-center justify-center p-4 transform hover:-translate-y-1 duration-300 h-full group border-white/10 bg-white/10 backdrop-blur-xl">
         <div className={`p-3 rounded-xl ${colorClass} mb-2 group-hover:scale-110 transition-transform shadow-lg`}>
             {icon}
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white text-center">{title}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-200 drop-shadow-sm group-hover:text-white text-center">{title}</span>
     </GlassCard>
 )
 
@@ -422,9 +422,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
 
       {/* My Pets Grid */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-white drop-shadow-md flex items-center gap-2">
             {t('dashboardTitle')}
-            <span className="text-sm font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full border border-border">{userPets.length}</span>
+            <span className="text-sm font-normal text-slate-300 bg-white/10 px-2 py-1 rounded-full border border-white/10">{userPets.length}</span>
         </h2>
         
         {userPets.length > 0 ? (
@@ -448,12 +448,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
               ))}
               
               {/* Add New Pet Card Placeholder */}
-               <GlassCard variant="interactive" onClick={onRegisterNew} className="p-6 flex flex-col items-center justify-center min-h-[480px] group border-white/10 bg-white/5 border-2 border-dashed">
-                    <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-primary/20 text-slate-500 group-hover:text-primary flex items-center justify-center transition-colors mb-4 shadow-sm group-hover:scale-110">
+               <GlassCard variant="interactive" onClick={onRegisterNew} className="p-6 flex flex-col items-center justify-center min-h-[480px] group border-white/10 bg-white/10 backdrop-blur-xl border-2 border-dashed">
+                    <div className="w-16 h-16 rounded-full bg-white/5 group-hover:bg-primary/20 text-slate-300 group-hover:text-primary flex items-center justify-center transition-colors mb-4 shadow-sm group-hover:scale-110">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     </div>
-                    <p className="font-black text-slate-300 group-hover:text-primary transition-colors text-lg uppercase tracking-widest">{t('addNewImprontaButton')}</p>
-                    <p className="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">Register biometrics</p>
+                    <p className="font-black text-white group-hover:text-primary transition-colors text-lg uppercase tracking-widest drop-shadow-md">{t('addNewImprontaButton')}</p>
+                    <p className="text-[10px] font-mono text-slate-300 mt-1 uppercase tracking-widest">Register biometrics</p>
                </GlassCard>
           </div>
         ) : (
