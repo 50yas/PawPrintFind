@@ -21,7 +21,7 @@
 - [x] Task: Implement Interactive Background [fa491e8]
     - [ ] Sub-task: Add tests in `Background.test.tsx` for mouse movement event listeners.
     - [ ] Sub-task: Implement parallax effects and particle attraction/repulsion in `Background.tsx`.
-- [ ] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md)
 
 ## Phase 3: Component-Specific Visibility Fixes
 - [ ] Task: Fix visibility in Dashboard components

@@ -11,7 +11,7 @@ const MorphMaterial = shaderMaterial(
     uTime: 0,
     uMorph: 0,
     uColor: new THREE.Color('#22d3ee'),
-    uSize: 0.003,
+    uSize: 0.005,
     uMouse: new THREE.Vector2(0, 0),
   },
   // Vertex Shader
@@ -68,7 +68,7 @@ const Particles = ({ color, scrollProgress }: { color: string, scrollProgress: n
   const { mouse, viewport } = useThree();
   
   // Adaptive particle count
-  const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 3000 : 8000;
+  const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 1500 : 5000;
   
   // Generate shapes
   const shapes = useMemo(() => {
@@ -195,7 +195,7 @@ export const BiometricBackground = () => {
         className="absolute inset-0 pointer-events-none transition-opacity duration-1000" 
         style={{ 
           background: `linear-gradient(to top, ${colors.background}, ${colors.background}cc, transparent)`,
-          opacity: isDark ? 0.8 : 0.4
+          opacity: isDark ? 0.6 : 0.3
         }} 
       />
       <div 
@@ -211,7 +211,7 @@ export const BiometricBackground = () => {
         className="absolute inset-0 pointer-events-none" 
         style={{ 
           backgroundImage: `radial-gradient(circle, transparent 40%, ${colors.background} ${100 - scrollProgress * 20}%)`,
-          opacity: 0.6 + scrollProgress * 0.4
+          opacity: 0.4 + scrollProgress * 0.4
         }} 
       />
       
