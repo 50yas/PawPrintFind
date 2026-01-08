@@ -13,15 +13,15 @@
     - [ ] Sub-task: Verify `index.css` Dark Mode variables are correctly applied when `html` has `dark` class.
 - [x] Task: Conductor - User Manual Verification 'Contrast Audit & Global Theme Update' (Protocol in workflow.md) [bccd342]
 
-## Phase 2: "Cinematic" Background Refinement
+## Phase 2: "Cinematic" Background Refinement [checkpoint: 7b63f94]
 - [x] Task: Refine 3D Particles & Motion [372d482]
-    - [ ] Sub-task: Create `Background.test.tsx` to test the existence and basic properties of the Three.js scene.
-    - [ ] Sub-task: Update `Background.tsx` (or equivalent Three.js component) to use smoother gradients and organic motion.
-    - [ ] Sub-task: Verify 60fps performance target using a performance monitoring utility or test.
+    - [x] Sub-task: Create `Background.test.tsx` to test the existence and basic properties of the Three.js scene.
+    - [x] Sub-task: Update `Background.tsx` (or equivalent Three.js component) to use smoother gradients and organic motion.
+    - [x] Sub-task: Verify 60fps performance target using a performance monitoring utility or test.
 - [x] Task: Implement Interactive Background [fa491e8]
-    - [ ] Sub-task: Add tests in `Background.test.tsx` for mouse movement event listeners.
-    - [ ] Sub-task: Implement parallax effects and particle attraction/repulsion in `Background.tsx`.
-- [~] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md)
+    - [x] Sub-task: Add tests in `Background.test.tsx` for mouse movement event listeners.
+    - [x] Sub-task: Implement parallax effects and particle attraction/repulsion in `Background.tsx`.
+- [x] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md) [7b63f94]
 
 ## Phase 3: Component-Specific Visibility Fixes
 - [ ] Task: Fix visibility in Dashboard components
