@@ -1,6 +1,5 @@
-
-import React, { createContext, useState, useMemo, ReactNode, useEffect } from 'react';
-import { translations } from '../translations';
+import React, { createContext, ReactNode, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type Language = 'en' | 'it' | 'es' | 'fr' | 'de' | 'zh' | 'ar' | 'ro';
 
@@ -12,48 +11,27 @@ type LanguageContextType = {
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const getInitialLocale = (): Language => {
-  if (typeof window !== 'undefined' && window.navigator) {
-    const supportedLangs: Language[] = ['en', 'it', 'es', 'fr', 'de', 'zh', 'ar', 'ro'];
-    const browserLang = navigator.language.split('-')[0] as Language;
-    return supportedLangs.includes(browserLang) ? browserLang : 'en';
-  }
-  return 'en';
-};
-
-
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [locale, setLocale] = useState<Language>(getInitialLocale());
+  const { t, i18n } = useTranslation();
+  
+  const locale = (i18n.language?.split('-')[0] || 'en') as Language;
 
-  // Handle RTL languages
+  const setLocale = (language: Language) => {
+    i18n.changeLanguage(language);
+  };
+
+  // Handle RTL languages and HTML lang attribute
   useEffect(() => {
-    if (locale === 'ar') {
-      document.documentElement.dir = 'rtl';
-      document.documentElement.lang = 'ar';
-    } else {
-      document.documentElement.dir = 'ltr';
-      document.documentElement.lang = locale;
-    }
-  }, [locale]);
+    const dir = i18n.dir(locale);
+    document.documentElement.dir = dir;
+    document.documentElement.lang = locale;
+  }, [locale, i18n]);
 
-  const contextValue = useMemo(() => {
-    const t = (key: string, values?: Record<string, string | number>) => {
-      // @ts-ignore - dynamic access
-      let translation = translations[locale]?.[key] || translations.en[key as keyof typeof translations.en] || key;
-      if (values) {
-        Object.keys(values).forEach((k) => {
-          translation = translation.replace(`{{${k}}}`, String(values[k]));
-        });
-      }
-      return translation;
-    };
-
-    return {
-      locale,
-      setLocale,
-      t,
-    };
-  }, [locale]);
+  const contextValue = {
+    locale,
+    setLocale,
+    t: (key: string, values?: Record<string, string | number>) => t(key, values) as string,
+  };
 
   return (
     <LanguageContext.Provider value={contextValue}>
