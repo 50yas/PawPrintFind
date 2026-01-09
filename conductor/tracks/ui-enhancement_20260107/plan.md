@@ -23,14 +23,14 @@
     - [x] Sub-task: Implement parallax effects and particle attraction/repulsion in `Background.tsx`.
 - [x] Task: Conductor - User Manual Verification '"Cinematic" Background Refinement' (Protocol in workflow.md) [7b63f94]
 
-## Phase 3: Component-Specific Visibility Fixes
+## Phase 3: Component-Specific Visibility Fixes [checkpoint: 69c51df]
 - [x] Task: Fix visibility in Dashboard components [3a35906]
     - [x] Sub-task: Create `DashboardVisibility.test.tsx` to check text visibility in `Dashboard.tsx`, `VetDashboard.tsx`, etc.
     - [x] Sub-task: Apply glassmorphism overlays or text shadows to ensuring readability.
 - [x] Task: Fix visibility in Adoption Center [3a35906]
     - [x] Sub-task: Create `AdoptionCenterVisibility.test.tsx` to check text visibility in `AdoptionCenter.tsx` and `AdoptionMap.tsx`.
     - [x] Sub-task: specific overrides for map labels and card text.
-- [ ] Task: Conductor - User Manual Verification 'Component-Specific Visibility Fixes' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Component-Specific Visibility Fixes' (Protocol in workflow.md) [69c51df]
 
 ## Phase 4: Final Polish & Accessibility Review
 - [ ] Task: Material 3 State Layers
