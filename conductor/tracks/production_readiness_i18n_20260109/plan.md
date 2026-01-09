@@ -5,10 +5,10 @@ This plan outlines the steps to achieve Google-standard production readiness and
 ## Phase 1: Foundation - Strict Type Safety & Runtime Validation
 Goal: Establish 100% type safety and robust API boundaries using TypeScript Strict Mode and Zod.
 
-- [x] Task: Enable TypeScript Strict Mode
+- [x] Task: Enable TypeScript Strict Mode (1502629)
     - [x] Sub-task: Update `tsconfig.json` to set `strict: true`.
     - [x] Sub-task: Fix all resulting type errors project-wide (excluding node_modules).
-- [x] Task: Implement Zod for Runtime Validation
+- [x] Task: Implement Zod for Runtime Validation (1502629)
     - [x] Sub-task: Define Zod schemas for all Firestore data models in `types.ts`.
     - [x] Sub-task: Integrate Zod validation into `services/firebase.ts` (e.g., in `getDoc` and `onSnapshot` wrappers).
     - [x] Sub-task: Create unit tests in `services/validationService.test.ts` to verify Zod schema enforcement.
