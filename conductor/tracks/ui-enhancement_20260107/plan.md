@@ -32,11 +32,11 @@
     - [x] Sub-task: specific overrides for map labels and card text.
 - [x] Task: Conductor - User Manual Verification 'Component-Specific Visibility Fixes' (Protocol in workflow.md) [69c51df]
 
-## Phase 4: Final Polish & Accessibility Review
+## Phase 4: Final Polish & Accessibility Review [checkpoint: d85495d]
 - [x] Task: Material 3 State Layers [15f1180]
     - [x] Sub-task: Create `InteractiveElements.test.tsx` to verify hover/focus states on buttons and links.
     - [x] Sub-task: Implement proper Material 3 state layer styles (ripples, elevation changes) across all shared UI components.
 - [x] Task: Final Accessibility Audit [b775199]
     - [x] Sub-task: Run a full accessibility audit using a tool like `axe-core` in a test suite `Accessibility.test.tsx`.
     - [x] Sub-task: Fix any remaining WCAG 2.1 AA violations.
-- [~] Task: Conductor - User Manual Verification 'Final Polish & Accessibility Review' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Final Polish & Accessibility Review' (Protocol in workflow.md) [d85495d]
