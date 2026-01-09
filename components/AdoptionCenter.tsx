@@ -55,13 +55,12 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                    <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
                 </div>
             </div>
-            <div className="p-6 flex flex-col flex-grow">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md">{pet.name}</h3>
-                        <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{pet.breed}</p>
-                    </div>
-                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md">{pet.age}</span>
+                    <div className="p-6 flex flex-col flex-grow">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md">{pet.name}</h2>
+                                <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{pet.breed}</p>
+                            </div>                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md">{pet.age}</span>
                 </div>
                 
                 <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
@@ -82,58 +81,129 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         <div className="min-h-screen bg-transparent pb-20 pt-24 px-6 relative">
           <div className="max-w-7xl mx-auto space-y-8 relative z-10">
             
-            {/* Header & Controls */}
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-8 border-b border-white/10">
-                <div>
-                    <button onClick={goBack} className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                        {t('homeButton')}
-                    </button>
-                    <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-xl">{t('adoptionCenterTitle')}</h1>
-                    <p className="text-lg text-slate-200 mt-2 max-w-2xl drop-shadow-md font-medium">{t('adoptionCenterDescPublic')}</p>
-                </div>
-            <div className="flex flex-col gap-4 w-full md:w-auto">
-                <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/10">
-                    {(['grid', 'list', 'carousel', 'map'] as ViewMode[]).map(m => (
-                        <button 
-                            key={m}
-                            onClick={() => setViewMode(m)}
-                            className={`p-2 rounded-lg transition-all ${viewMode === m ? 'bg-primary text-black shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                        >
-                            {m === 'grid' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
-                            {m === 'list' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>}
-                            {m === 'carousel' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>}
-                            {m === 'map' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 items-center">
-            <select 
-                value={filterBreed} 
-                onChange={(e) => setFilterBreed(e.target.value)}
-                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-            >
-                <option value="">All Breeds</option>
-                {uniqueBreeds.map(b => <option key={b} value={b}>{b}</option>)}
-            </select>
+                    {/* Header & Controls */}
             
-            <select 
-                value={filterAge} 
-                onChange={(e) => setFilterAge(e.target.value)}
-                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-            >
-                <option value="">All Ages</option>
-                {uniqueAges.map(a => <option key={a} value={a}>{a}</option>)}
-            </select>
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 pb-8 border-b border-white/10">
             
-            <div className="ml-auto text-sm text-muted-foreground font-mono">
-                {filteredPets.length} matches found
-            </div>
-        </div>
+                        <div>
+            
+                            <button onClick={goBack} className="text-primary hover:text-primary/80 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2 transition-colors">
+            
+                                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            
+                                {t('homeButton')}
+            
+                            </button>
+            
+                            <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-xl">{t('adoptionCenterTitle')}</h1>
+            
+                            <p className="text-lg text-slate-200 mt-2 max-w-2xl drop-shadow-md font-medium">{t('adoptionCenterDescPublic')}</p>
+            
+                        </div>
+            
+            
+            
+                        <div className="flex flex-col gap-4 w-full md:w-auto">
+            
+                            <div role="group" aria-label="View selection" className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/10">
+            
+                                {(['grid', 'list', 'carousel', 'map'] as ViewMode[]).map(m => (
+            
+                                    <button 
+            
+                                        key={m}
+            
+                                        onClick={() => setViewMode(m)}
+            
+                                        aria-label={`Switch to ${m} view`}
+            
+                                        className={`p-2 rounded-lg transition-all ${viewMode === m ? 'bg-primary text-black shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            
+                                    >
+            
+                                        {m === 'grid' && <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
+            
+                                        {m === 'list' && <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>}
+            
+                                        {m === 'carousel' && <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>}
+            
+                                        {m === 'map' && <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>}
+            
+                                    </button>
+            
+                                ))}
+            
+                            </div>
+            
+                        </div>
+            
+                    </div>
+            
+            
+            
+                    {/* Filters */}
+            
+                    <div className="flex flex-wrap gap-4 items-center">
+            
+                        <div className="flex flex-col gap-1">
+            
+                            <label htmlFor="breed-filter" className="sr-only">Filter by breed</label>
+            
+                            <select 
+            
+                                id="breed-filter"
+            
+                                value={filterBreed} 
+            
+                                onChange={(e) => setFilterBreed(e.target.value)}
+            
+                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+            
+                            >
+            
+                                <option value="">All Breeds</option>
+            
+                                {uniqueBreeds.map(b => <option key={b} value={b}>{b}</option>)}
+            
+                            </select>
+            
+                        </div>
+            
+                        
+            
+                        <div className="flex flex-col gap-1">
+            
+                            <label htmlFor="age-filter" className="sr-only">Filter by age</label>
+            
+                            <select 
+            
+                                id="age-filter"
+            
+                                value={filterAge} 
+            
+                                onChange={(e) => setFilterAge(e.target.value)}
+            
+                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+            
+                            >
+            
+                                <option value="">All Ages</option>
+            
+                                {uniqueAges.map(a => <option key={a} value={a}>{a}</option>)}
+            
+                            </select>
+            
+                        </div>
+            
+                        
+            
+                        <div className="ml-auto text-sm text-muted-foreground font-mono">
+            
+                            {filteredPets.length} matches found
+            
+                        </div>
+            
+                    </div>
         
         {/* Content */}
         {isLoading ? (

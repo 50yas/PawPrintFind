@@ -33,10 +33,10 @@
 - [x] Task: Conductor - User Manual Verification 'Component-Specific Visibility Fixes' (Protocol in workflow.md) [69c51df]
 
 ## Phase 4: Final Polish & Accessibility Review
-- [x] Task: Material 3 State Layers [06d7e0d]
+- [x] Task: Material 3 State Layers [15f1180]
     - [x] Sub-task: Create `InteractiveElements.test.tsx` to verify hover/focus states on buttons and links.
     - [x] Sub-task: Implement proper Material 3 state layer styles (ripples, elevation changes) across all shared UI components.
-- [~] Task: Final Accessibility Audit
-    - [ ] Sub-task: Run a full accessibility audit using a tool like `axe-core` in a test suite `Accessibility.test.tsx`.
-    - [ ] Sub-task: Fix any remaining WCAG 2.1 AA violations.
-- [ ] Task: Conductor - User Manual Verification 'Final Polish & Accessibility Review' (Protocol in workflow.md)
+- [x] Task: Final Accessibility Audit [99d7a22]
+    - [x] Sub-task: Run a full accessibility audit using a tool like `axe-core` in a test suite `Accessibility.test.tsx`.
+    - [x] Sub-task: Fix any remaining WCAG 2.1 AA violations.
+- [~] Task: Conductor - User Manual Verification 'Final Polish & Accessibility Review' (Protocol in workflow.md)
