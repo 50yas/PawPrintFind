@@ -32,8 +32,8 @@ Goal: Implement Google-level SRE standards for logging and performance monitorin
 ## Phase 3: Core - i18n Framework Migration
 Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
 
-- [ ] Task: Install and Initialize `react-i18next`
-    - [ ] Sub-task: Install `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
+- [~] Task: Install and Initialize `react-i18next`
+    - [x] Sub-task: Install `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
     - [ ] Sub-task: Create `i18n.ts` configuration with support for namespaces (`common`, `auth`, `dashboard`).
 - [ ] Task: Refactor `LanguageContext` to use `react-i18next`
     - [ ] Sub-task: Replace internal state with `i18next` hooks.
