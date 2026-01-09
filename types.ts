@@ -15,6 +15,7 @@ export interface LogEntry {
   level: 'info' | 'warn' | 'error';
   message: string;
   data?: Record<string, unknown>;
+  traceId?: string;
 }
 
 export interface AdminAuditLog {

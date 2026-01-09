@@ -1,13 +1,35 @@
 
 import { LogEntry } from '../types';
 
+// Capture original console methods to prevent infinite loops if console is patched (e.g. by index.tsx)
+const rawConsole = {
+    log: console.log.bind(console),
+    info: console.info.bind(console),
+    warn: console.warn.bind(console),
+    error: console.error.bind(console)
+};
+
 class LoggerService {
     private logs: LogEntry[] = [];
     private listeners: ((logs: LogEntry[]) => void)[] = [];
+    private currentTraceId: string | null = null;
 
     constructor() {
-        // Capture original console methods to prevent infinite loops if we were to override them directly in this class
-        // In this architecture, we will manually call logger.info/error, or use the interceptor in index.tsx
+        // Initial trace ID for session start
+        this.generateNewTraceId();
+    }
+
+    public generateNewTraceId(): string {
+        this.currentTraceId = `tr_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+        return this.currentTraceId;
+    }
+
+    public setTraceId(id: string) {
+        this.currentTraceId = id;
+    }
+
+    public getTraceId(): string | null {
+        return this.currentTraceId;
     }
 
     private notify() {
@@ -16,12 +38,17 @@ class LoggerService {
 
     public addLog(level: 'info' | 'warn' | 'error', message: string, data?: any) {
         const entry: LogEntry = {
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
             timestamp: Date.now(),
             level,
             message,
-            data
+            data,
+            traceId: this.currentTraceId || undefined
         };
+        
+        // NDJSON Output for Cloud Logging using raw console to avoid interceptors
+        rawConsole.log(JSON.stringify(entry));
+
         this.logs.push(entry);
         // Keep log size manageable
         if (this.logs.length > 500) {

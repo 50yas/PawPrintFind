@@ -1,5 +1,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '../services/loggerService';
 
 interface Props {
     children: ReactNode;
@@ -23,9 +24,12 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error("Uncaught error:", error, errorInfo);
         this.setState({ error, errorInfo });
-        // Log to service if needed
+        logger.error("CRITICAL_SYSTEM_ANOMALY", {
+            error: error.message,
+            stack: error.stack,
+            componentStack: errorInfo.componentStack
+        });
     }
 
     public render() {

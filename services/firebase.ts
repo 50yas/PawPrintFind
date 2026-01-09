@@ -35,6 +35,7 @@ import {
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
+import { getPerformance } from "firebase/performance";
 import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage } from '../types';
 import { logger } from './loggerService';
 
@@ -58,6 +59,12 @@ const db = initializeFirestore(app, {
 const auth = getAuth(app);
 const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
+
+// Initialize Performance and Analytics only in browser
+if (typeof window !== 'undefined') {
+    getAnalytics(app);
+    getPerformance(app);
+}
 
 setPersistence(auth, browserLocalPersistence).catch(console.error);
 

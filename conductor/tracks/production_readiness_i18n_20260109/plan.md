@@ -17,17 +17,17 @@ Goal: Establish 100% type safety and robust API boundaries using TypeScript Stri
 ## Phase 2: Infrastructure - Structured Logging & Observability
 Goal: Implement Google-level SRE standards for logging and performance monitoring.
 
-- [ ] Task: Implement Structured JSON Logger
-    - [ ] Sub-task: Create `services/loggerService.ts` with support for NDJSON output and `trace_id`.
-    - [ ] Sub-task: Add Trace ID generation/propagation logic.
-    - [ ] Sub-task: Write tests in `services/loggerService.test.ts`.
-- [ ] Task: Integrate Firebase Performance Monitoring
-    - [ ] Sub-task: Initialize Firebase Performance SDK in `services/firebase.ts`.
-    - [ ] Sub-task: Verify automatic traces for network requests and page loads in Firebase Console.
-- [ ] Task: Global Error Boundary
-    - [ ] Sub-task: Enhance `components/ErrorBoundary.tsx` to log errors using the new structured logger.
-    - [ ] Sub-task: Write integration tests to ensure errors are captured and logged correctly.
-- [ ] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md)
+- [x] Task: Implement Structured JSON Logger
+    - [x] Sub-task: Create `services/loggerService.ts` with support for NDJSON output and `trace_id`.
+    - [x] Sub-task: Add Trace ID generation/propagation logic.
+    - [x] Sub-task: Write tests in `services/loggerService.test.ts`.
+- [x] Task: Integrate Firebase Performance Monitoring
+    - [x] Sub-task: Initialize Firebase Performance SDK in `services/firebase.ts`.
+    - [x] Sub-task: Verify automatic traces for network requests and page loads in Firebase Console.
+- [x] Task: Global Error Boundary
+    - [x] Sub-task: Enhance `components/ErrorBoundary.tsx` to log errors using the new structured logger.
+    - [x] Sub-task: Write integration tests to ensure errors are captured and logged correctly.
+- [~] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md)
 
 ## Phase 3: Core - i18n Framework Migration
 Goal: Migrate from the custom `LanguageContext` to `react-i18next`.

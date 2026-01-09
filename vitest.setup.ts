@@ -55,6 +55,14 @@ vi.mock('firebase/storage', () => ({
   getDownloadURL: vi.fn(),
 }));
 
+vi.mock('firebase/analytics', () => ({
+  getAnalytics: vi.fn(),
+}));
+
+vi.mock('firebase/performance', () => ({
+  getPerformance: vi.fn(),
+}));
+
 // Mock loggerService
 vi.mock('./services/loggerService', () => ({
   logger: {
