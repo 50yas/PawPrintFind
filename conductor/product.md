@@ -30,7 +30,7 @@ Based on the file structure, the application includes the following features:
     - **Dynamic Interaction:** Full support for Material 3 state layers (ripples, elevation, focus states) across all interactive components.
     - A community forum or social space (`Community.tsx`).
     - **Smart Blog:** A content hub featuring real-time engagement metrics (view counters), estimated reading times, and trending article analytics.
-- **Cinematic Backgrounds:** High-performance 3D neural network and "Biometric Data Stream" scenes powered by Three.js, featuring adaptive particle systems and DNA-to-Paw morphing effects.
+- **Cinematic Backgrounds:** High-performance, interactive 3D neural network and "Biometric Data Stream" scenes powered by Three.js, featuring adaptive particle systems, DNA-to-Paw morphing, and mouse-reactive parallax effects.
 - **User & Role Management & Navigation:**
     - Authentication for different user roles (`Auth.tsx`).
     - Dashboards tailored to different roles (Admin, Shelter, Vet, Volunteer).

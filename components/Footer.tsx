@@ -67,9 +67,9 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
         setIsLoading(false);
     };
 
-    const handleSecretKeySubmit = (e: React.FormEvent) => {
+    const handleSecretKeySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (dbService.verifyAdminSecret(secretKey)) {
+        if (await dbService.verifyAdminSecret(secretKey)) {
             setSetupStep('register');
             setError('');
         } else {

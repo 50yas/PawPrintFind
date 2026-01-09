@@ -32,23 +32,26 @@ vi.mock('./ui/SkeletonLoader', () => ({
 
 const mockPets: PetProfile[] = [
   {
-    id: '1',
+    id: 'p1',
     name: 'Buddy',
-    type: 'dog',
     breed: 'Golden Retriever',
     age: '2 years',
-    gender: 'male',
-    size: 'Large',
-    color: 'Golden',
-    description: 'Friendly dog',
-    behavior: 'Playful',
-    photos: [{ url: 'buddy.jpg', id: 'p1' }],
-    status: 'adoptable',
-    lastSeenDate: '2023-01-01',
-    contactInfo: { name: 'Shelter', phone: '123' },
-    createdAt: 123,
-    updatedAt: 123
-  }
+    photos: [{ id: 'p1', url: 'buddy.jpg', marks: [], description: 'buddy' }],
+    status: 'forAdoption',
+    isLost: false,
+    ownerEmail: 'shelter@test.com',
+    guardianEmails: [],
+    vetLinkStatus: 'unlinked',
+    weight: '25kg',
+    behavior: 'Calm',
+    homeLocations: [],
+    lastSeenLocation: null,
+    searchRadius: null,
+    sightings: [],
+    videoAnalysis: '',
+    audioNotes: '',
+    healthChecks: [],
+  },
 ];
 
 describe('AdoptionCenter Alerts Replacement', () => {

@@ -28,25 +28,36 @@ vi.mock('./OwnerPetDetailModal', () => ({ OwnerPetDetailModal: () => <div data-t
 const mockUser: User = {
     uid: '123',
     email: 'test@example.com',
-    activeRole: 'user',
-    roles: ['user'],
-    createdAt: new Date(),
-    friends: []
+    activeRole: 'owner',
+    roles: ['owner'],
+    friends: [],
+    friendRequests: [],
+    points: 100,
+    badges: [],
+    createdAt: Date.now(),
 };
 
 const mockPets: PetProfile[] = [
     {
         id: 'pet1',
         name: 'Buddy',
-        species: 'Dog',
         breed: 'Golden Retriever',
-        age: '3',
+        age: '2 years',
         ownerEmail: 'test@example.com',
-        photos: [{ url: 'buddy.jpg', timestamp: Date.now() }],
+        guardianEmails: [],
+        photos: [{ id: '1', url: 'buddy.jpg', marks: [], description: 'buddy', timestamp: Date.now() }],
         isLost: false,
-        status: 'with_owner',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+        status: 'owned',
+        vetLinkStatus: 'unlinked',
+        weight: '20kg',
+        behavior: 'Friendly',
+        homeLocations: [],
+        lastSeenLocation: null,
+        searchRadius: null,
+        sightings: [],
+        videoAnalysis: '',
+        audioNotes: '',
+        healthChecks: [],
     }
 ];
 

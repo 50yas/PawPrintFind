@@ -33,24 +33,24 @@ vi.mock('../hooks/useTranslations', () => ({
 const mockPets: PetProfile[] = [
   {
     id: 'pet1',
-    name: 'Luna',
-    type: 'cat',
-    breed: 'Siamese',
-    age: '1 year',
-    photos: [{ url: 'test.jpg', timestamp: Date.now(), isAIValidated: true }],
-    ownerId: 'shelter1',
-    ownerEmail: 'shelter@example.com',
+    name: 'Fido',
+    breed: 'Golden Retriever',
+    age: '2 years',
+    photos: [{ id: '1', url: 'test.jpg', marks: [], description: 'test', timestamp: Date.now(), isAIValidated: true }],
+    ownerEmail: 'test@example.com',
+    guardianEmails: [],
     isLost: false,
-    status: 'active',
+    status: 'forAdoption',
+    vetLinkStatus: 'unlinked',
+    weight: '20kg',
     behavior: 'Friendly and playful',
-    microchipId: 'MC456',
-    sex: 'female',
-    weight: '4kg',
-    medications: [],
-    vaccinations: [],
-    lastHealthCheck: Date.now(),
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    homeLocations: [],
+    lastSeenLocation: null,
+    searchRadius: null,
+    sightings: [],
+    videoAnalysis: '',
+    audioNotes: '',
+    healthChecks: [],
   },
 ];
 
@@ -83,7 +83,7 @@ describe('AdoptionCenter Visibility', () => {
 
     it('AdoptionCard text has high contrast', () => {
         renderAdoptionCenter();
-        const petName = screen.getByText('Luna');
+        const petName = screen.getByText('Fido');
         expect(petName).toHaveClass('text-white');
         
         const behavior = screen.getByText('Friendly and playful');

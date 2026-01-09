@@ -9,8 +9,9 @@ import {
     arrayUnion, increment, addDoc
 } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
-import { User, UserRole, AdminKey } from '../types';
+import { User, UserRole, AdminKey, UserSchema } from '../types';
 import { logger } from './loggerService';
+import { validationService } from './validationService';
 
 export const authService = {
     async loginWithEmail(email: string, pass: string) {
@@ -73,6 +74,7 @@ export const authService = {
                 ...additionalData
             };
             console.log(`[Auth-Registry] Establishing user identity: ${email} (${user.uid})`);
+            validationService.validate(UserSchema, profile, 'registerUser');
             await setDoc(doc(db, 'users', user.uid), profile);
         } catch (error: any) {
             logger.error("Registration Protocol Failure:", error);
@@ -140,12 +142,15 @@ export const authService = {
 
                 if (needsUpdate) {
                     console.log(`[Auth-Sync] Upgrading profile security protocols for ${fbUser.email}`);
-                    await setDoc(userRef, { ...data, ...updates }, { merge: true });
+                    const updatedData = { ...data, ...updates };
+                    validationService.validate(UserSchema, updatedData, `syncUserProfile:${fbUser.uid}`);
+                    await setDoc(userRef, updatedData, { merge: true });
                 } else {
                     await updateDoc(userRef, { lastLoginAt: Date.now() });
                 }
 
-                return { ...data, ...updates, uid: fbUser.uid };
+                const finalData = { ...data, ...updates, uid: fbUser.uid };
+                return validationService.validate(UserSchema, finalData, `syncUserProfile:final:${fbUser.uid}`);
             } else {
                 // Initialize new profile if missing (fallback)
                 const newUser: User = {
@@ -161,6 +166,7 @@ export const authService = {
                     lastLoginAt: Date.now()
                 };
                 console.log(`[Auth-Sync] Initializing fresh profile for ${fbUser.email}`);
+                validationService.validate(UserSchema, newUser, 'syncUserProfile:new');
                 await setDoc(userRef, newUser);
                 return newUser;
             }

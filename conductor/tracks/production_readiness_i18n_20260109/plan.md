@@ -1,0 +1,69 @@
+# Implementation Plan: Enterprise Production Readiness & Global i18n Overhaul
+
+This plan outlines the steps to achieve Google-standard production readiness and a comprehensive internationalization overhaul for Paw Print.
+
+## Phase 1: Foundation - Strict Type Safety & Runtime Validation
+Goal: Establish 100% type safety and robust API boundaries using TypeScript Strict Mode and Zod.
+
+- [x] Task: Enable TypeScript Strict Mode
+    - [x] Sub-task: Update `tsconfig.json` to set `strict: true`.
+    - [x] Sub-task: Fix all resulting type errors project-wide (excluding node_modules).
+- [x] Task: Implement Zod for Runtime Validation
+    - [x] Sub-task: Define Zod schemas for all Firestore data models in `types.ts`.
+    - [x] Sub-task: Integrate Zod validation into `services/firebase.ts` (e.g., in `getDoc` and `onSnapshot` wrappers).
+    - [x] Sub-task: Create unit tests in `services/validationService.test.ts` to verify Zod schema enforcement.
+- [ ] Task: Conductor - User Manual Verification 'Foundation - Strict Type Safety & Runtime Validation' (Protocol in workflow.md)
+
+## Phase 2: Infrastructure - Structured Logging & Observability
+Goal: Implement Google-level SRE standards for logging and performance monitoring.
+
+- [ ] Task: Implement Structured JSON Logger
+    - [ ] Sub-task: Create `services/loggerService.ts` with support for NDJSON output and `trace_id`.
+    - [ ] Sub-task: Add Trace ID generation/propagation logic.
+    - [ ] Sub-task: Write tests in `services/loggerService.test.ts`.
+- [ ] Task: Integrate Firebase Performance Monitoring
+    - [ ] Sub-task: Initialize Firebase Performance SDK in `services/firebase.ts`.
+    - [ ] Sub-task: Verify automatic traces for network requests and page loads in Firebase Console.
+- [ ] Task: Global Error Boundary
+    - [ ] Sub-task: Enhance `components/ErrorBoundary.tsx` to log errors using the new structured logger.
+    - [ ] Sub-task: Write integration tests to ensure errors are captured and logged correctly.
+- [ ] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md)
+
+## Phase 3: Core - i18n Framework Migration
+Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
+
+- [ ] Task: Install and Initialize `react-i18next`
+    - [ ] Sub-task: Install `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
+    - [ ] Sub-task: Create `i18n.ts` configuration with support for namespaces (`common`, `auth`, `dashboard`).
+- [ ] Task: Refactor `LanguageContext` to use `react-i18next`
+    - [ ] Sub-task: Replace internal state with `i18next` hooks.
+    - [ ] Sub-task: Migrate existing translations from `translations/*.ts` to JSON files for better `i18next` integration.
+    - [ ] Sub-task: Update `LanguageContext.test.tsx` to verify the new implementation.
+- [ ] Task: Conductor - User Manual Verification 'Core - i18n Framework Migration' (Protocol in workflow.md)
+
+## Phase 4: Content - Global Localization Overhaul
+Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.
+
+- [ ] Task: Hardcoded String Extraction
+    - [ ] Sub-task: Scan all components for hardcoded UI strings.
+    - [ ] Sub-task: Move all strings to `en` locale files and replace with `t('key')` calls.
+- [ ] Task: AI-Powered Translation Gap Filling
+    - [ ] Sub-task: Use Gemini (via `geminiService.ts`) to identify missing keys in other locales (es, fr, de, zh, ar, it).
+    - [ ] Sub-task: Generate contextually accurate, gender-neutral, and plural-aware translations for all missing keys.
+- [ ] Task: Verify RTL Support
+    - [ ] Sub-task: Perform a UI audit for the `ar` (Arabic) locale to ensure correct layout and alignment.
+- [ ] Task: Conductor - User Manual Verification 'Content - Global Localization Overhaul' (Protocol in workflow.md)
+
+## Phase 5: Quality & Performance - Bundle Optimization & Final Audit
+Goal: Ensure the 90% coverage threshold and optimize performance.
+
+- [ ] Task: Performance & Bundle Audit
+    - [ ] Sub-task: Analyze bundle size using `vite-bundle-analyzer`.
+    - [ ] Sub-task: Implement further lazy loading for large components (e.g., 3D HeroScene, Maps).
+- [ ] Task: Enforce 90% Code Coverage
+    - [ ] Sub-task: Run coverage reports and identify gaps.
+    - [ ] Sub-task: Write additional tests (prioritizing integration tests) to reach the 90% threshold.
+    - [ ] Sub-task: Update `vitest.config.ts` to enforce the 90% threshold as a build failure.
+- [ ] Task: Final Code Audit
+    - [ ] Sub-task: Scan for architectural anti-patterns and performance bottlenecks.
+- [ ] Task: Conductor - User Manual Verification 'Quality & Performance - Bundle Optimization & Final Audit' (Protocol in workflow.md)

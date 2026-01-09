@@ -139,7 +139,8 @@ export const generatePetIdentikit = async (photo: File): Promise<{ code: string,
 export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> => {
     return retryWithBackoff(async () => {
         const ai = getAIClient();
-        const lostPetPhotoParts = await Promise.all(lostPet.photos.map(p => fileToGenerativePart(p.file)));
+        const validPhotos = lostPet.photos.filter(p => p.file !== undefined);
+        const lostPetPhotoParts = await Promise.all(validPhotos.map(p => fileToGenerativePart(p.file!)));
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
 
         const response = await ai.models.generateContent({
@@ -379,9 +380,14 @@ export const generateImage = async (prompt: string): Promise<string> => {
             config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
         });
 
-        for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData) {
-                return `data:image/png;base64,${part.inlineData.data}`;
+        const candidate = response.candidates?.[0];
+        const parts = candidate?.content?.parts;
+
+        if (parts) {
+            for (const part of parts) {
+                if (part.inlineData) {
+                    return `data:image/png;base64,${part.inlineData.data}`;
+                }
             }
         }
         throw new Error("No image generated");

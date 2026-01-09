@@ -46,7 +46,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
     setIsDrafting(false);
   };
   const sendMessage = () => {
-    addSnackbar(t('messageSentToOwnerAlert', { ownerEmail: patient.ownerEmail }), 'success');
+    addSnackbar(t('messageSentToOwnerAlert', { ownerEmail: patient.ownerEmail || '' }), 'success');
     setShowContactModal(false);
     setGeneratedMessage('');
     setMessageTopic('');

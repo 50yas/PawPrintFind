@@ -186,8 +186,8 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
           console.error("Gemini API Key is missing. Please set VITE_GEMINI_API_KEY in your .env file.");
-          addMessage({ id: Date.now().toString(), text: "System Error: AI Identity Module not initialized (Missing API Key).", sender: 'ai', timestamp: Date.now() });
-          setIsTyping(false);
+          setChatLog(prev => [...prev, { speaker: 'model', text: "System Error: AI Identity Module not initialized (Missing API Key)." }]);
+          setStatus(t('statusError'));
           return;
       }
       const ai = new GoogleGenAI({ apiKey });
@@ -234,7 +234,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                         currentOutputTranscriptionRef.current = '';
                     }
 
-                    const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+                    const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                     if (base64Audio) {
                         if (!outputAudioContextRef.current || outputAudioContextRef.current.state === 'closed') {
                             outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -250,7 +250,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                     }
 
                     // Handle Tool Calls
-                    if (message.toolCall) {
+                    if (message.toolCall?.functionCalls) {
                         for (const fc of message.toolCall.functionCalls) {
                             let result = { result: "ok" };
 

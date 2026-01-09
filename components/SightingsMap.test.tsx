@@ -53,29 +53,29 @@ describe('SightingsMap', () => {
   });
 
   it('should render and initialize map with pet data', () => {
-    const mockPet: PetProfile = {
-        id: '1',
-        name: 'Buddy',
-        type: 'dog',
-        breed: 'Lab',
-        age: '2',
-        gender: 'male',
-        size: 'Medium',
-        color: 'Black',
-        description: 'Lost dog',
-        behavior: 'Friendly',
-        photos: [],
-        status: 'missing',
-        lastSeenDate: '2023',
-        contactInfo: { name: 'Owner', phone: '123' },
-        homeLocations: [{ latitude: 10, longitude: 10, address: 'Home' }],
-        lastSeenLocation: { latitude: 11, longitude: 11, address: 'Lost' },
-        sightings: [
-            { id: 's1', petId: '1', location: { latitude: 12, longitude: 12, address: 'Sighting' }, timestamp: 123456789, reporterId: 'u1' }
-        ],
-        createdAt: 1,
-        updatedAt: 1
-    };
+const mockPet: PetProfile = {
+    id: '1',
+    name: 'Buddy',
+    breed: 'Golden Retriever',
+    age: '2y',
+    photos: [{ id: '1', url: 'img.jpg', marks: [], description: 'buddy' }],
+    status: 'stray',
+    isLost: true,
+    ownerEmail: 'test@test.com',
+    guardianEmails: [],
+    vetLinkStatus: 'unlinked',
+    weight: '20kg',
+    behavior: 'Friendly',
+    homeLocations: [{ latitude: 10, longitude: 10, address: 'Home' }],
+    lastSeenLocation: { latitude: 11, longitude: 11, address: 'Lost' },
+    searchRadius: 10,
+    sightings: [
+        { id: 's1', location: { latitude: 12, longitude: 12, address: 'Sighting' }, timestamp: 123456789, notes: 'Spotted near park' }
+    ],
+    videoAnalysis: '',
+    audioNotes: '',
+    healthChecks: [],
+};
 
     render(<SightingsMap pet={mockPet} />);
 

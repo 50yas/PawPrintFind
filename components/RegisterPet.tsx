@@ -227,10 +227,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
   };
 
   const handleGenerateIdentikit = async () => {
-      const validPhotos = photos.filter((p): p is PhotoWithMarks => p !== undefined);
+      const validPhotos = photos.filter((p): p is PhotoWithMarks => p !== undefined && p.file !== undefined);
       if (validPhotos.length === 0) return;
       setIsGeneratingIdentity(true);
-      const result = await generatePetIdentikit(validPhotos[0].file);
+      const result = await generatePetIdentikit(validPhotos[0].file!);
       setAiIdentityCode(result.code);
       setAiPhysicalDescription(result.description);
       setIsGeneratingIdentity(false);

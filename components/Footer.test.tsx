@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Footer } from './Footer';
 import React from 'react';
@@ -109,10 +109,14 @@ describe('Footer Component', () => {
         
         const keyInput = screen.getByPlaceholderText('••••••••');
         fireEvent.change(keyInput, { target: { value: 'secret-key' } });
-        fireEvent.click(screen.getByText('Validate Key'));
+        await act(async () => {
+            fireEvent.click(screen.getByText('Validate Key'));
+        });
         
-        expect(dbService.verifyAdminSecret).toHaveBeenCalledWith('secret-key');
-        expect(screen.getByText('KEY VALIDATED // CREATE ROOT ACCOUNT')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(dbService.verifyAdminSecret).toHaveBeenCalledWith('secret-key');
+            expect(screen.getByText('KEY VALIDATED // CREATE ROOT ACCOUNT')).toBeInTheDocument();
+        });
         
         const emailInput = screen.getByPlaceholderText('root@pawprint.ai');
         const passwordInput = screen.getByPlaceholderText('Min. 8 characters');

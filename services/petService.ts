@@ -4,14 +4,18 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from './firebase';
-import { PetProfile, Geolocation } from '../types';
+import { PetProfile, Geolocation, PetProfileSchema } from '../types';
 import { logger } from './loggerService';
+import { validationService } from './validationService';
 
 export const petService = {
     async getPets(): Promise<PetProfile[]> {
         try {
             const snap = await getDocs(collection(db, 'pets'));
-            return snap.docs.map(d => ({ ...d.data(), id: d.id } as PetProfile));
+            return snap.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(PetProfileSchema, data, `getPets:${d.id}`);
+            });
         } catch (error) {
             logger.error('Error fetching pets:', error);
             throw error;
@@ -24,6 +28,9 @@ export const petService = {
             throw new Error('Authentication required to save a pet.');
         }
         try {
+            // Validate before saving
+            validationService.validate(PetProfileSchema, pet, 'savePet');
+
             // Helper to remove undefined fields which Firestore rejects
             const removeUndefined = (obj: any): any => {
                 if (Array.isArray(obj)) {

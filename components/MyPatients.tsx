@@ -8,13 +8,14 @@ import { CinematicImage } from './ui/CinematicImage';
 interface MyPatientsProps {
   vetPatients: PetProfile[];
   pendingRequests: PetProfile[];
+  vetEmail: string;
   onAccept: (petId: string) => void;
   onDecline: (petId: string) => void;
   onViewPatient: (pet: PetProfile) => void;
   onAddPatient: (data: { name: string; breed: string; ownerEmail: string; ownerPhone: string }) => void;
 }
 
-export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequests, onAccept, onDecline, onViewPatient, onAddPatient }) => {
+export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequests, vetEmail, onAccept, onDecline, onViewPatient, onAddPatient }) => {
   const { t } = useTranslations();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddingPatient, setIsAddingPatient] = useState(false);
@@ -30,10 +31,10 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
         {isAddingPatient && (
             <AddPatientModal 
                 onClose={() => setIsAddingPatient(false)} 
-                onConfirm={(data) => {
-                    onAddPatient(data);
+                onSuccess={() => {
                     setIsAddingPatient(false);
-                }} 
+                }}
+                vetEmail={vetEmail}
             />
         )}
 

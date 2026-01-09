@@ -72,7 +72,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                                     Key Matches
                                 </h4>
                                 <ul className="text-xs space-y-1 text-green-800 dark:text-green-300/80 list-disc pl-4">
-                                    {result.keyMatches.map((m, i) => <li key={i}>{m}</li>)}
+                                    {result.keyMatches.map((m: string, i: number) => <li key={i}>{m}</li>)}
                                 </ul>
                             </div>
                         )}
@@ -84,7 +84,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                                     Differences
                                 </h4>
                                 <ul className="text-xs space-y-1 text-orange-800 dark:text-orange-300/80 list-disc pl-4">
-                                    {result.discrepancies.map((d, i) => <li key={i}>{d}</li>)}
+                                    {result.discrepancies.map((d: string, i: number) => <li key={i}>{d}</li>)}
                                 </ul>
                             </div>
                         )}

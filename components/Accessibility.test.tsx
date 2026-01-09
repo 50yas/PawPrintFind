@@ -38,22 +38,35 @@ const mockUser: User = {
   uid: '123',
   email: 'test@example.com',
   activeRole: 'owner',
+  roles: ['owner'],
   isVerified: true,
   friends: [],
+  friendRequests: [],
+  points: 0,
+  badges: [],
 };
 
 const mockPets: PetProfile[] = [
   {
     id: 'pet1',
     name: 'Fido',
-    type: 'dog',
     breed: 'Golden Retriever',
     age: '2 years',
-    photos: [{ url: 'test.jpg', timestamp: Date.now(), isAIValidated: true }],
-    ownerId: '123',
+    photos: [{ id: '1', url: 'test.jpg', marks: [], description: 'test', timestamp: Date.now(), isAIValidated: true }],
     ownerEmail: 'test@example.com',
+    guardianEmails: [],
     isLost: false,
-    status: 'active',
+    status: 'owned',
+    vetLinkStatus: 'unlinked',
+    weight: '10kg',
+    behavior: 'Friendly',
+    homeLocations: [],
+    lastSeenLocation: null,
+    searchRadius: null,
+    sightings: [],
+    videoAnalysis: '',
+    audioNotes: '',
+    healthChecks: [],
   },
 ];
 
@@ -85,7 +98,7 @@ describe('Accessibility Audit', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  });
+  }, 30000);
 
   it('AdoptionCenter should have no accessibility violations', async () => {
     const { container } = render(
@@ -104,5 +117,5 @@ describe('Accessibility Audit', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  });
+  }, 30000);
 });

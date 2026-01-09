@@ -86,25 +86,29 @@ describe('MissingPetsMap', () => {
   });
 
   it('should render lost pets markers', () => {
-    const mockPets: PetProfile[] = [{
+const mockPets: PetProfile[] = [
+    {
         id: '1',
         name: 'Buddy',
-        type: 'dog',
-        breed: 'Lab',
-        age: '2',
-        gender: 'male',
-        size: 'Medium',
-        color: 'Black',
-        description: 'Lost dog',
+        breed: 'Golden Retriever',
+        age: '2y',
+        photos: [{ id: '1', url: 'img.jpg', marks: [], description: 'buddy' }],
+        status: 'stray',
+        isLost: true,
+        ownerEmail: 'test@test.com',
+        guardianEmails: [],
+        vetLinkStatus: 'unlinked',
+        weight: '20kg',
         behavior: 'Friendly',
-        photos: [{ url: 'img.jpg', id: '1' }],
-        status: 'missing',
-        lastSeenDate: '2023',
-        contactInfo: { name: 'Owner', phone: '123' },
+        homeLocations: [],
         lastSeenLocation: { latitude: 10, longitude: 10, address: 'Home' },
-        createdAt: 1,
-        updatedAt: 1
-    }];
+        searchRadius: null,
+        sightings: [],
+        videoAnalysis: '',
+        audioNotes: '',
+        healthChecks: [],
+    }
+];
 
     render(
         <MissingPetsMap 

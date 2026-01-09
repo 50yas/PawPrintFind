@@ -41,3 +41,8 @@ This document outlines the core technologies used in the Paw Print application.
 
 -   **Mapping:** Leaflet
     -   **Description:** An open-source JavaScript library for mobile-friendly interactive maps.
+
+## 5. Testing & Quality
+- **Unit & Integration Testing:** Vitest
+- **Accessibility Audit:** vitest-axe / axe-core
+    - **Description:** Integrated automated accessibility testing to ensure WCAG 2.1 AA compliance across all components.

@@ -4,7 +4,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 import { AdoptionCenter } from './AdoptionCenter';
-import { PetProfile } from '../types';
+import { PetProfile, User } from '../types';
 
 // Mock Dependencies
 vi.mock('../hooks/useTranslations', () => ({
@@ -104,7 +104,7 @@ describe('AdoptionCenter Component', () => {
 
   it('calls onInquire when Adopt Me button is clicked in grid view', () => {
     const mockOnInquire = vi.fn();
-    const authenticatedUser: User = { uid: '1', email: 'test@test.com' } as any;
+    const authenticatedUser: User = { uid: '1', email: 'test@test.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 0, badges: [] };
     
     render(
       <AdoptionCenter 

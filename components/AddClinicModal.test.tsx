@@ -32,11 +32,10 @@ describe('AddClinicModal', () => {
         vi.clearAllMocks();
     });
 
-    it('submits the form with correct data', async () => {
-        const mockOnSuccess = vi.fn();
+    it('renders correctly', async () => {
         const mockOnClose = vi.fn();
-        
-        render(<AddClinicModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
+        const mockOnSuccess = vi.fn();
+        render(<AddClinicModal onClose={mockOnClose} onSuccess={mockOnSuccess} adminEmail="admin@test.com" />);
 
         fireEvent.change(screen.getByPlaceholderText(/Quantum Veterinary Care/i), { target: { value: 'Test Clinic' } });
         fireEvent.change(screen.getByPlaceholderText(/lead@clinic.ai/i), { target: { value: 'test@clinic.com' } });
@@ -57,8 +56,8 @@ describe('AddClinicModal', () => {
         });
     });
 
-    it('shows error if fields are missing', async () => {
-        render(<AddClinicModal onClose={vi.fn()} onSuccess={vi.fn()} />);
+    it('validates required fields', async () => {
+        render(<AddClinicModal onClose={vi.fn()} onSuccess={vi.fn()} adminEmail="admin@test.com" />);
         
         fireEvent.click(screen.getByText(/AUTHORIZE_CLINIC/i));
         // HTML5 validation might prevent submit, but our basic validation also handles it
