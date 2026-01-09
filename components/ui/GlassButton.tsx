@@ -15,13 +15,13 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
     disabled,
     ...props 
 }, ref) => {
-    const baseStyles = "relative overflow-hidden backdrop-blur-md px-6 py-3 rounded-xl font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseStyles = "relative overflow-hidden backdrop-blur-md px-6 py-3 rounded-xl font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950";
     
     const variants = {
-        primary: "bg-primary text-on-primary shadow-lg shadow-primary/20 border border-primary/30 hover:shadow-xl hover:shadow-primary/30",
-        secondary: "bg-secondary-container text-on-secondary-container border border-secondary/20 hover:bg-secondary-container/80",
-        danger: "bg-error text-on-error shadow-lg shadow-error/20 border border-error/30 hover:shadow-xl hover:shadow-error/30",
-        ghost: "hover:bg-surface-container-highest text-on-surface hover:text-primary"
+        primary: "bg-primary text-on-primary shadow-lg shadow-primary/20 border border-primary/30 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30",
+        secondary: "bg-secondary-container text-on-secondary-container border border-secondary/20 hover:bg-secondary-container/90",
+        danger: "bg-error text-on-error shadow-lg shadow-error/20 border border-error/30 hover:bg-error/90 hover:shadow-xl hover:shadow-error/30",
+        ghost: "hover:bg-surface-container-highest/80 text-on-surface hover:text-primary focus-visible:bg-surface-container-highest/80"
     };
 
     return (
