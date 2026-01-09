@@ -14,7 +14,7 @@ Goal: Establish 100% type safety and robust API boundaries using TypeScript Stri
     - [x] Sub-task: Create unit tests in `services/validationService.test.ts` to verify Zod schema enforcement.
 - [x] Task: Conductor - User Manual Verification 'Foundation - Strict Type Safety & Runtime Validation' (Protocol in workflow.md) (65d67d9)
 
-## Phase 2: Infrastructure - Structured Logging & Observability
+## Phase 2: Infrastructure - Structured Logging & Observability [checkpoint: 3a6df4d]
 Goal: Implement Google-level SRE standards for logging and performance monitoring.
 
 - [x] Task: Implement Structured JSON Logger
@@ -27,7 +27,7 @@ Goal: Implement Google-level SRE standards for logging and performance monitorin
 - [x] Task: Global Error Boundary
     - [x] Sub-task: Enhance `components/ErrorBoundary.tsx` to log errors using the new structured logger.
     - [x] Sub-task: Write integration tests to ensure errors are captured and logged correctly.
-- [~] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md) (3a6df4d)
 
 ## Phase 3: Core - i18n Framework Migration
 Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
