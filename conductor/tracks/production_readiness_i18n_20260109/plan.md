@@ -44,20 +44,20 @@ Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
 ## Phase 4: Content - Global Localization Overhaul
 Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.
 
-- [ ] Task: Hardcoded String Extraction
-    - [ ] Sub-task: Scan all components for hardcoded UI strings.
-    - [ ] Sub-task: Move all strings to `en` locale files and replace with `t('key')` calls.
-- [ ] Task: AI-Powered Translation Gap Filling
-    - [ ] Sub-task: Use Gemini (via `geminiService.ts`) to identify missing keys in other locales (es, fr, de, zh, ar, it).
-    - [ ] Sub-task: Generate contextually accurate, gender-neutral, and plural-aware translations for all missing keys.
-- [ ] Task: Verify RTL Support
-    - [ ] Sub-task: Perform a UI audit for the `ar` (Arabic) locale to ensure correct layout and alignment.
-- [ ] Task: Conductor - User Manual Verification 'Content - Global Localization Overhaul' (Protocol in workflow.md)
+- [x] Task: Hardcoded String Extraction
+    - [x] Sub-task: Scan all components for hardcoded UI strings.
+    - [x] Sub-task: Move all strings to `en` locale files and replace with `t('key')` calls.
+- [x] Task: AI-Powered Translation Gap Filling
+    - [x] Sub-task: Use Gemini (via `geminiService.ts`) to identify missing keys in other locales (es, fr, de, zh, ar, it).
+    - [x] Sub-task: Generate contextually accurate, gender-neutral, and plural-aware translations for all missing keys.
+- [x] Task: Verify RTL Support
+    - [x] Sub-task: Perform a UI audit for the `ar` (Arabic) locale to ensure correct layout and alignment.
+- [~] Task: Conductor - User Manual Verification 'Content - Global Localization Overhaul' (Protocol in workflow.md)
 
 ## Phase 5: Quality & Performance - Bundle Optimization & Final Audit
 Goal: Ensure the 90% coverage threshold and optimize performance.
 
-- [ ] Task: Performance & Bundle Audit
+- [~] Task: Performance & Bundle Audit
     - [ ] Sub-task: Analyze bundle size using `vite-bundle-analyzer`.
     - [ ] Sub-task: Implement further lazy loading for large components (e.g., 3D HeroScene, Maps).
 - [ ] Task: Enforce 90% Code Coverage

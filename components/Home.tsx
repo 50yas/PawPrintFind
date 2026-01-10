@@ -39,7 +39,7 @@ const HeroHUD = memo(() => {
     return (
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
             {/* Top Left System Status - Terminal Animation - HIDDEN ON MOBILE TO REDUCE CHAOS */}
-            <div className="hidden md:block absolute bottom-8 left-12 p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[10px] font-mono-tech text-cyan-400 min-w-[180px] shadow-2xl z-20">
+            <div className="hidden md:block absolute bottom-8 start-12 p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[10px] font-mono-tech text-cyan-400 min-w-[180px] shadow-2xl z-20">
                 <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
                     <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
                     <span className="text-white font-bold tracking-widest uppercase">{t('consoleOutput')}</span>
@@ -47,11 +47,11 @@ const HeroHUD = memo(() => {
                 <div className="space-y-1.5 opacity-90">
                     {lines.slice(0, bootStep + 1).map((line, i) => (
                         <div key={i} className={`${i === bootStep ? 'animate-typewriter overflow-hidden whitespace-nowrap' : ''}`}>
-                            <span className="text-cyan-600 mr-1">&gt;</span>
+                            <span className="text-cyan-600 me-1">&gt;</span>
                             <span className={i === lines.length - 1 ? 'text-emerald-400 font-bold' : ''}>
                                 {line}
                             </span>
-                            {i === bootStep && <span className="inline-block w-1 h-2.5 md:w-1.5 md:h-3 bg-cyan-400 ml-1 animate-blink"></span>}
+                            {i === bootStep && <span className="inline-block w-1 h-2.5 md:w-1.5 md:h-3 bg-cyan-400 ms-1 animate-blink"></span>}
                         </div>
                     ))}
                 </div>
@@ -66,8 +66,8 @@ const HeroHUD = memo(() => {
                 )}
             </div>
 
-            <div className="absolute top-1/2 -left-12 w-24 h-[1px] bg-cyan-500/10 rotate-90 hidden lg:block"></div>
-            <div className="absolute bottom-40 right-12 w-24 h-24 border-b border-r border-purple-500/10 rounded-br-3xl hidden lg:block"></div>
+            <div className="absolute top-1/2 -start-12 w-24 h-[1px] bg-cyan-500/10 rotate-90 hidden lg:block"></div>
+            <div className="absolute bottom-40 end-12 w-24 h-24 border-b border-e border-purple-500/10 rounded-be-3xl hidden lg:block"></div>
         </div>
     );
 });
@@ -129,7 +129,7 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
             <div className={`relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 border-[4px] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
                 <CinematicImage src={pet.img} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
 
-                <div className="absolute top-4 left-4 z-20">
+                <div className="absolute top-4 start-4 z-20">
                     <div className={`px-2 py-1 text-[8px] md:text-[9px] font-mono-tech rounded-md bg-black/70 backdrop-blur-md border border-white/20 text-cyan-400 tracking-[0.2em] shadow-lg ${phase === 'scanning' ? 'animate-pulse' : ''}`}>
                         {t(phase === 'scanning' ? 'scanning' : phase === 'analyzing' ? 'analyzing' : 'identified')}
                     </div>
@@ -153,8 +153,8 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
                     </div>
                 )}
 
-                <div className="absolute top-0 left-0 w-6 h-6 md:w-8 md:h-8 border-t-2 border-l-2 border-cyan-500/40 m-3 rounded-tl-xl pointer-events-none"></div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 md:w-8 md:h-8 border-b-2 border-r-2 border-cyan-500/40 m-3 rounded-br-xl pointer-events-none"></div>
+                <div className="absolute top-0 start-0 w-6 h-6 md:w-8 md:h-8 border-t-2 border-s-2 border-cyan-500/40 m-3 rounded-ts-xl pointer-events-none"></div>
+                <div className="absolute bottom-0 end-0 w-6 h-6 md:w-8 md:h-8 border-b-2 border-e-2 border-cyan-500/40 m-3 rounded-be-xl pointer-events-none"></div>
             </div>
         </div>
     );
@@ -220,11 +220,11 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                     <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-center">
 
                         {/* Hero Text Content */}
-                        <div className="lg:col-span-7 text-center lg:text-left relative">
+                        <div className="lg:col-span-7 text-center lg:text-start relative">
 
                             {/* Desktop Status Badge - High Right */}
-                            <div className="hidden lg:inline-flex absolute right-0 -top-20 items-center px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.15em] animate-fade-in shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                                <span className="relative flex h-2 w-2 mr-3">
+                            <div className="hidden lg:inline-flex absolute end-0 -top-20 items-center px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.15em] animate-fade-in shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                                <span className="relative flex h-2 w-2 me-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                                 </span>
@@ -245,7 +245,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
                                 {/* Mobile Status Badge - Under Subtitle */}
                                 <div className="lg:hidden inline-flex items-center px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.15em] animate-fade-in shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                                    <span className="relative flex h-2 w-2 mr-3">
+                                    <span className="relative flex h-2 w-2 me-3">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                                     </span>
@@ -293,7 +293,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             <section className="scroll-animation relative z-10 py-10 md:py-20 container mx-auto px-6">
                 <div className="glass-panel p-4 rounded-[2rem] border border-cyan-500/30 bg-black/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
                     <div className="text-center mb-8">
-                  <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
+                  <div className="absolute top-6 start-6 z-20 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                     <span className="text-xs font-bold tracking-widest text-white uppercase">{t('demoVideo')}</span>
                   </div>
@@ -315,7 +315,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </video>
 
                         {/* Custom Control Overlay */}
-                        <div className={`absolute bottom-6 right-6 flex flex-col gap-3 transition-opacity duration-500 ${!isMuted ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
+                        <div className={`absolute bottom-6 end-6 flex flex-col gap-3 transition-opacity duration-500 ${!isMuted ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
 
                             {/* Audio Toggle */}
                             <button
@@ -362,7 +362,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             <section className="scroll-animation container mx-auto px-6 py-12 md:py-32 z-10">
                 <div className="glass-panel rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 relative overflow-hidden border border-emerald-500/20 bg-emerald-950/20 backdrop-blur-3xl shadow-2xl">
-                    <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                    <div className="absolute top-0 end-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                     <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
                         <div className="space-y-4 md:space-y-6">
                             <h3 className="text-3xl md:text-5xl font-black text-white leading-[1] tracking-tighter">{t('forVetsTitle')}</h3>

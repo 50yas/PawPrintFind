@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
   return (
     <nav 
-      className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
+      className={`fixed top-0 inset-x-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
       style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
     >
       <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
@@ -147,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-white/10">
+          <div className="hidden sm:flex items-center gap-2 pe-4 border-e border-white/10">
             <LanguageSwitcher className="text-white !text-[10px]" />
             <DarkModeToggle />
           </div>
@@ -179,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                 {showProfileMenu && (
                   <>
                     <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
-                    <div className="absolute top-14 right-0 w-72 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-up-mobile">
+                    <div className="absolute top-14 end-0 w-72 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-up-mobile">
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-4 pb-4 border-b border-white/10">
                           <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-xl font-black text-primary border border-primary/20">

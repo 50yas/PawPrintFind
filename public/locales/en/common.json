@@ -206,5 +206,20 @@
   "keyValidatedCreateRoot": "KEY VALIDATED // CREATE ROOT ACCOUNT",
   "newAdminEmail": "New Admin Email",
   "newAdminPassword": "New Admin Password",
-  "donateWithBitcoin": "Donate with Bitcoin"
+  "donateWithBitcoin": "Donate with Bitcoin",
+  "vetVerificationTitle": "Verification Required",
+  "vetVerificationDesc": "To access the Veterinarian Dashboard, we need to verify your professional license.",
+  "uploadLicenseLabel": "1. Upload Professional License / ID",
+  "clickToUpload": "Click to upload",
+  "dragAndDrop": "or drag and drop",
+  "vetTermsTitle": "2. Terms & Conditions",
+  "vetTermsHeader": "Paw Print Veterinarian Terms of Service",
+  "vetTermsIntro": "By registering as a Veterinarian on Paw Print, you agree to:",
+  "vetTermsItem1": "Provide accurate and up-to-date medical information for pets linked to your clinic.",
+  "vetTermsItem2": "Use the platform solely for professional purposes related to animal welfare.",
+  "vetTermsItem3": "Maintain the confidentiality of pet owner data in compliance with GDPR and local privacy laws.",
+  "vetTermsItem4": "Not use the platform for unauthorized advertising or spam.",
+  "vetTermsItem5": "Acknowledge that your account status is subject to verification of your professional credentials.",
+  "acceptTermsLabel": "I accept the Terms and Conditions and certify that I am a licensed veterinarian.",
+  "submitVerification": "Submit for Verification"
 }
