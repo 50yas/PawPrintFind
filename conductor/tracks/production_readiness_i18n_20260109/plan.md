@@ -29,7 +29,7 @@ Goal: Implement Google-level SRE standards for logging and performance monitorin
     - [x] Sub-task: Write integration tests to ensure errors are captured and logged correctly.
 - [x] Task: Conductor - User Manual Verification 'Infrastructure - Structured Logging & Observability' (Protocol in workflow.md) (3a6df4d)
 
-## Phase 3: Core - i18n Framework Migration
+## Phase 3: Core - i18n Framework Migration [checkpoint: ff8f1a6]
 Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
 
 - [x] Task: Install and Initialize `react-i18next` (0354963)
@@ -39,7 +39,7 @@ Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
     - [x] Sub-task: Replace internal state with `i18next` hooks.
     - [x] Sub-task: Migrate existing translations from `translations/*.ts` to JSON files for better `i18next` integration.
     - [x] Sub-task: Update `LanguageContext.test.tsx` to verify the new implementation.
-- [~] Task: Conductor - User Manual Verification 'Core - i18n Framework Migration' (Protocol in workflow.md) (9a6d9bb)
+- [x] Task: Conductor - User Manual Verification 'Core - i18n Framework Migration' (Protocol in workflow.md) (3fe5af4)
 
 ## Phase 4: Content - Global Localization Overhaul
 Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.
