@@ -77,8 +77,8 @@ describe('MissingPetsMap', () => {
     // Check if container is rendered
     // The component returns a GlassCard which we assume renders a div
     // We can look for the HUD controls which are hardcoded text
-    expect(screen.getByText('Street')).toBeInTheDocument();
-    expect(screen.getByText('Satellite')).toBeInTheDocument();
+    expect(screen.getByText('mapStreet')).toBeInTheDocument();
+    expect(screen.getByText('mapSatellite')).toBeInTheDocument();
 
     // Verify map initialization
     expect(global.L.map).toHaveBeenCalled();

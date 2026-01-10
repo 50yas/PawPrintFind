@@ -63,7 +63,7 @@ describe('Footer Component', () => {
         fireEvent.click(adminButton);
         
         expect(screen.getByTestId('modal')).toBeInTheDocument();
-        expect(screen.getByText('Admin Console')).toBeInTheDocument();
+        expect(screen.getByText('adminConsole')).toBeInTheDocument();
     });
 
     it('handles admin login submission', async () => {
@@ -74,7 +74,7 @@ describe('Footer Component', () => {
         
         const emailInput = screen.getByPlaceholderText('admin@pawprint.ai');
         const passwordInput = screen.getByPlaceholderText('••••••••••••');
-        const submitButton = screen.getByText('Authenticate');
+        const submitButton = screen.getByText('authenticate');
         
         fireEvent.change(emailInput, { target: { value: 'admin@test.com' } });
         fireEvent.change(passwordInput, { target: { value: 'password123' } });
@@ -91,10 +91,10 @@ describe('Footer Component', () => {
         render(<Footer />);
         fireEvent.click(screen.getByLabelText('Admin Access'));
         
-        const setupButton = screen.getByText('Initialize / Reset System Control');
+        const setupButton = screen.getByText('initializeResetSystem');
         fireEvent.click(setupButton);
         
-        expect(screen.getByText('System Initialization')).toBeInTheDocument();
+        expect(screen.getByText('systemInitialization')).toBeInTheDocument();
         expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
     });
 
@@ -105,17 +105,17 @@ describe('Footer Component', () => {
         
         render(<Footer />);
         fireEvent.click(screen.getByLabelText('Admin Access'));
-        fireEvent.click(screen.getByText('Initialize / Reset System Control'));
+        fireEvent.click(screen.getByText('initializeResetSystem'));
         
         const keyInput = screen.getByPlaceholderText('••••••••');
         fireEvent.change(keyInput, { target: { value: 'secret-key' } });
         await act(async () => {
-            fireEvent.click(screen.getByText('Validate Key'));
+            fireEvent.click(screen.getByText('validateKey'));
         });
         
         await waitFor(() => {
             expect(dbService.verifyAdminSecret).toHaveBeenCalledWith('secret-key');
-            expect(screen.getByText('KEY VALIDATED // CREATE ROOT ACCOUNT')).toBeInTheDocument();
+            expect(screen.getByText('keyValidatedCreateRoot')).toBeInTheDocument();
         });
         
         const emailInput = screen.getByPlaceholderText('root@pawprint.ai');
@@ -124,7 +124,7 @@ describe('Footer Component', () => {
         fireEvent.change(passwordInput, { target: { value: 'rootpassword' } });
         
         await act(async () => {
-            fireEvent.click(screen.getByText('Establish Super Admin'));
+            fireEvent.click(screen.getByText('establishSuperAdmin'));
         });
         
         expect(dbService.registerUser).toHaveBeenCalledWith('root@test.com', 'rootpassword', ['super_admin'], expect.any(Object));

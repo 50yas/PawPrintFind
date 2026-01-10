@@ -28,7 +28,7 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
   const [mapStyle, setMapStyle] = useState<MapStyle>('street');
   const tilesRef = useRef<any>(null);
 
-  const STREET_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const STREET_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   const SATELLITE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   const SATELLITE_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
@@ -43,7 +43,7 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
 
           tilesRef.current = L.tileLayer(style === 'street' ? STREET_URL : SATELLITE_URL, {
               maxZoom: 20,
-              attribution: style === 'street' ? '&copy; CartoDB' : 'Esri, ArcGIS'
+              attribution: style === 'street' ? '&copy; OpenStreetMap contributors' : 'Esri, ArcGIS'
           }).addTo(mapInstance.current);
 
           if (style === 'satellite') {
@@ -64,7 +64,7 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
           zoomControl: false 
       }).setView([41.9027, 12.4964], 6);
 
-      tilesRef.current = L.tileLayer(STREET_URL, { maxZoom: 20 }).addTo(mapInstance.current);
+      tilesRef.current = L.tileLayer(STREET_URL, { maxZoom: 20, attribution: '&copy; OpenStreetMap contributors' }).addTo(mapInstance.current);
       L.control.zoom({ position: 'bottomright' }).addTo(mapInstance.current);
 
       markersGroupRef.current = L.featureGroup().addTo(mapInstance.current);

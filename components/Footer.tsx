@@ -184,7 +184,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                 </div>
             </div>
 
-            <Modal isOpen={showAdminModal} onClose={() => setShowAdminModal(false)} title={authMode === 'login' ? "Admin Console" : "System Initialization"}>
+            <Modal isOpen={showAdminModal} onClose={() => setShowAdminModal(false)} title={authMode === 'login' ? t('adminConsole') : t('systemInitialization')}>
                 <div className="space-y-6">
                     <div className={`p-4 rounded-xl text-center border transition-colors ${authMode === 'setup' ? 'bg-primary/10 border-primary/30' : 'bg-red-900/10 border-red-500/20'}`}>
                         <p className={`${authMode === 'setup' ? 'text-primary' : 'text-red-500'} text-xs font-bold uppercase tracking-widest`}>
@@ -233,7 +233,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     disabled={isLoading}
                                     className="w-full btn btn-primary py-3 flex justify-center items-center font-bold tracking-wide"
                                 >
-                                    {isLoading ? <LoadingSpinner /> : 'Authenticate'}
+                                    {isLoading ? <LoadingSpinner /> : t('authenticate')}
                                 </button>
                             </form>
                             
@@ -243,7 +243,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     onClick={() => setAuthMode('setup')}
                                     className="text-primary text-xs font-bold hover:underline uppercase tracking-tighter"
                                 >
-                                    Initialize / Reset System Control
+                                    {t('initializeResetSystem')}
                                 </button>
                             </div>
                         </div>
@@ -298,7 +298,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     </div>
                                     {error && <p className="text-xs text-red-500 font-bold text-center">{error}</p>}
                                     <button type="submit" disabled={isLoading} className="w-full btn btn-primary py-3 flex justify-center font-bold">
-                                        {isLoading ? <LoadingSpinner /> : 'Establish Super Admin'}
+                                        {isLoading ? <LoadingSpinner /> : t('establishSuperAdmin')}
                                     </button>
                                 </form>
                             )}

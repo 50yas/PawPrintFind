@@ -30,7 +30,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
   const [showAdoptable, setShowAdoptable] = useState(true);
   const tilesRef = useRef<any>(null);
 
-  const STREET_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const STREET_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   const SATELLITE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   const SATELLITE_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
 
@@ -45,7 +45,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
 
           tilesRef.current = L.tileLayer(style === 'street' ? STREET_URL : SATELLITE_URL, {
               maxZoom: 20,
-              attribution: style === 'street' ? '&copy; CartoDB' : 'Esri, ArcGIS'
+              attribution: style === 'street' ? '&copy; OpenStreetMap contributors' : 'Esri, ArcGIS'
           }).addTo(mapInstance.current);
 
           if (style === 'satellite') {
@@ -66,7 +66,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
           zoomControl: false 
       }).setView([41.9027, 12.4964], 6);
 
-      tilesRef.current = L.tileLayer(STREET_URL, { maxZoom: 20 }).addTo(mapInstance.current);
+      tilesRef.current = L.tileLayer(STREET_URL, { maxZoom: 20, attribution: '&copy; OpenStreetMap contributors' }).addTo(mapInstance.current);
       L.control.zoom({ position: 'bottomright' }).addTo(mapInstance.current);
 
       markersGroupRef.current = L.featureGroup().addTo(mapInstance.current);
@@ -211,12 +211,12 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     onClick={() => switchStyle('street')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'street' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'street' ? { backgroundColor: colors.primary } : {}}
-                >Street</button>
+                >{t('mapStreet')}</button>
                 <button 
                     onClick={() => switchStyle('satellite')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'satellite' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'satellite' ? { backgroundColor: colors.primary } : {}}
-                >Satellite</button>
+                >{t('mapSatellite')}</button>
             </GlassCard>
             
             <GlassCard className="p-1 flex flex-col gap-1 border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
