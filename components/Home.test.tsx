@@ -106,7 +106,7 @@ describe('Home Component', () => {
     expect(mockOpenLogin).not.toHaveBeenCalled();
   });
 
-  it('renders sub-sections like Map, RoleExplorer and DonorTicker', () => {
+  it('renders sub-sections like Map, RoleExplorer and DonorTicker', async () => {
     render(
       <Home 
         setView={mockSetView} 
@@ -117,8 +117,8 @@ describe('Home Component', () => {
       />
     );
 
-    expect(screen.getByTestId('missing-pets-map')).toBeInTheDocument();
-    expect(screen.getByTestId('role-explorer')).toBeInTheDocument();
-    expect(screen.getByTestId('donor-ticker')).toBeInTheDocument();
+    expect(await screen.findByTestId('missing-pets-map')).toBeInTheDocument();
+    expect(await screen.findByTestId('role-explorer')).toBeInTheDocument();
+    expect(await screen.findByTestId('donor-ticker')).toBeInTheDocument();
   });
 });

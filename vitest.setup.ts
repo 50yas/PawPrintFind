@@ -107,3 +107,5 @@ vi.stubGlobal('crypto', {
     digest: mockDigest,
   },
 });
+
+vi.stubGlobal('scrollTo', vi.fn());

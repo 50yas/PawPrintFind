@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { View, User, PetProfile, VetClinic, Appointment, ChatSession, Geolocation, UserRole, Donation, BlogPost } from './types';
 
@@ -11,18 +11,21 @@ import { AIHealthCheckModal } from './components/AIHealthCheckModal';
 import { MobileNavigation } from './components/MobileNavigation';
 import { dbService } from './services/firebase';
 import { LoadingScreen } from './components/LoadingScreen';
-import { BiometricBackground } from './components/BiometricBackground';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
 import { BlogPostDetail } from './components/BlogPostDetail';
 import { Auth } from './components/Auth';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
-// Modular Routers
-import { AdminRouter } from './components/routers/AdminRouter';
-import { VetRouter } from './components/routers/VetRouter';
-import { ShelterRouter } from './components/routers/ShelterRouter';
-import { UserRouter } from './components/routers/UserRouter';
-import { PublicRouter } from './components/routers/PublicRouter';
+// Lazy Loaded Components
+const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
+
+// Modular Routers (Lazy)
+const AdminRouter = lazy(() => import('./components/routers/AdminRouter').then(m => ({ default: m.AdminRouter })));
+const VetRouter = lazy(() => import('./components/routers/VetRouter').then(m => ({ default: m.VetRouter })));
+const ShelterRouter = lazy(() => import('./components/routers/ShelterRouter').then(m => ({ default: m.ShelterRouter })));
+const UserRouter = lazy(() => import('./components/routers/UserRouter').then(m => ({ default: m.UserRouter })));
+const PublicRouter = lazy(() => import('./components/routers/PublicRouter').then(m => ({ default: m.PublicRouter })));
 
 import { useAppState } from './hooks/useAppState';
 import { useAuthSync } from './hooks/useAuthSync';
@@ -295,13 +298,23 @@ export default function App() {
             />
 
             <ErrorBoundary>
-                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}><BiometricBackground /></div>
+                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}>
+                    <Suspense fallback={<div className="w-full h-full bg-background" />}>
+                        <BiometricBackground />
+                    </Suspense>
+                </div>
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
                     {/* Main content padding adjusted to account for fixed marquee + fixed navbar */}
                     <main className="flex-grow pt-32 md:pt-40 pb-32 md:pb-24">
-                        {renderView()}
+                        <Suspense fallback={
+                            <div className="flex items-center justify-center h-full">
+                                <LoadingSpinner />
+                            </div>
+                        }>
+                            {renderView()}
+                        </Suspense>
                     </main>
 
                     <div className="pb-32 md:pb-0">

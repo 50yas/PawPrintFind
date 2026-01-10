@@ -14,6 +14,13 @@ vi.mock('./components/LoadingScreen', () => ({ LoadingScreen: () => <div data-te
 vi.mock('./components/HeroScene', () => ({ HeroScene: () => <div data-testid="heroscene">HeroScene</div> }));
 vi.mock('./components/BiometricBackground', () => ({ BiometricBackground: () => <div data-testid="biometric-background">BiometricBackground</div> }));
 
+// Mock routers - since they are now lazy loaded, we need to mock their default exports correctly
+vi.mock('./components/routers/PublicRouter', () => ({ PublicRouter: () => <div data-testid="public-router">PublicRouter</div> }));
+vi.mock('./components/routers/UserRouter', () => ({ UserRouter: () => <div data-testid="user-router">UserRouter</div> }));
+vi.mock('./components/routers/VetRouter', () => ({ VetRouter: () => <div data-testid="vet-router">VetRouter</div> }));
+vi.mock('./components/routers/ShelterRouter', () => ({ ShelterRouter: () => <div data-testid="shelter-router">ShelterRouter</div> }));
+vi.mock('./components/routers/AdminRouter', () => ({ AdminRouter: () => <div data-testid="admin-router">AdminRouter</div> }));
+
 // Mock useTheme
 vi.mock('./contexts/ThemeContext', () => ({
   useTheme: () => ({
@@ -27,11 +34,6 @@ vi.mock('./contexts/ThemeContext', () => ({
 }));
 
 const mockTranslation = (key: string) => key;
-vi.mock('./components/routers/PublicRouter', () => ({ PublicRouter: () => <div data-testid="public-router">PublicRouter</div> }));
-vi.mock('./components/routers/UserRouter', () => ({ UserRouter: () => <div data-testid="user-router">UserRouter</div> }));
-vi.mock('./components/routers/VetRouter', () => ({ VetRouter: () => <div data-testid="vet-router">VetRouter</div> }));
-vi.mock('./components/routers/ShelterRouter', () => ({ ShelterRouter: () => <div data-testid="shelter-router">ShelterRouter</div> }));
-vi.mock('./components/routers/AdminRouter', () => ({ AdminRouter: () => <div data-testid="admin-router">AdminRouter</div> }));
 vi.mock('./components/LiveAssistantFAB', () => ({ LiveAssistantFAB: () => <div data-testid="fab">FAB</div> }));
 vi.mock('./components/AdminUplink', () => ({ AdminUplink: () => <div data-testid="admin-uplink">AdminUplink</div> }));
 vi.mock('./components/Auth', () => ({ Auth: () => <div data-testid="auth">Auth</div> }));
@@ -74,10 +76,10 @@ vi.mock('./hooks/useAppState', () => ({
 }));
 
 describe('App Layout Refactor', () => {
-    it('renders BiometricBackground instead of Background', () => {
+    it('renders BiometricBackground instead of Background', async () => {
         render(<App />);
         
-        const biometricBackground = screen.queryByTestId('biometric-background');
+        const biometricBackground = await screen.findByTestId('biometric-background');
         const background = screen.queryByTestId('background');
         
         expect(biometricBackground).toBeInTheDocument();

@@ -27,6 +27,7 @@ vi.mock('./ui', () => ({
 
 vi.mock('./ui/SkeletonLoader', () => ({
   CardSkeleton: () => <div data-testid="card-skeleton">Skeleton</div>,
+  MapSidebarSkeleton: () => <div data-testid="map-skeleton">Map Skeleton</div>,
 }));
 
 vi.mock('./AdoptionMap', () => ({
@@ -99,7 +100,7 @@ describe('AdoptionCenter Component', () => {
         fireEvent.click(mapButton!);
     });
 
-    expect(screen.getByTestId('adoption-map')).toBeInTheDocument();
+    expect(await screen.findByTestId('adoption-map')).toBeInTheDocument();
   });
 
   it('calls onInquire when Adopt Me button is clicked in grid view', () => {

@@ -57,13 +57,13 @@ Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.
 ## Phase 5: Quality & Performance - Bundle Optimization & Final Audit
 Goal: Ensure the 90% coverage threshold and optimize performance.
 
-- [~] Task: Performance & Bundle Audit
-    - [ ] Sub-task: Analyze bundle size using `vite-bundle-analyzer`.
-    - [ ] Sub-task: Implement further lazy loading for large components (e.g., 3D HeroScene, Maps).
-- [ ] Task: Enforce 90% Code Coverage
-    - [ ] Sub-task: Run coverage reports and identify gaps.
-    - [ ] Sub-task: Write additional tests (prioritizing integration tests) to reach the 90% threshold.
-    - [ ] Sub-task: Update `vitest.config.ts` to enforce the 90% threshold as a build failure.
-- [ ] Task: Final Code Audit
-    - [ ] Sub-task: Scan for architectural anti-patterns and performance bottlenecks.
-- [ ] Task: Conductor - User Manual Verification 'Quality & Performance - Bundle Optimization & Final Audit' (Protocol in workflow.md)
+- [x] Task: Performance & Bundle Audit
+    - [x] Sub-task: Analyze bundle size using `vite-bundle-analyzer` (used `rollup-plugin-visualizer`).
+    - [x] Sub-task: Implement further lazy loading for large components (e.g., 3D HeroScene, Maps).
+- [x] Task: Enforce 90% Code Coverage
+    - [x] Sub-task: Run coverage reports and identify gaps.
+    - [x] Sub-task: Write additional tests (prioritizing integration tests) to reach the 90% threshold.
+    - [x] Sub-task: Update `vitest.config.ts` to enforce the 90% threshold as a build failure.
+- [x] Task: Final Code Audit
+    - [x] Sub-task: Scan for architectural anti-patterns and performance bottlenecks.
+- [x] Task: Conductor - User Manual Verification 'Quality & Performance - Bundle Optimization & Final Audit' (Protocol in workflow.md)

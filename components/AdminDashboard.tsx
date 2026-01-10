@@ -6,12 +6,14 @@ import { calculateTotalFromList } from '../services/donationService';
 import { logger } from '../services/loggerService';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
-import { BlogPostEditor } from './BlogPostEditor';
 import { GlassCard, GlassButton } from './ui';
-import { AddPatientModal } from './AddPatientModal';
-import { AddClinicModal } from './AddClinicModal';
-import { AddVetModal } from './AddVetModal';
 import { calculateGrowth } from '../src/utils/adminUtils';
+
+// Lazy load complex sub-components
+const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
+const AddPatientModal = React.lazy(() => import('./AddPatientModal').then(m => ({ default: m.AddPatientModal })));
+const AddClinicModal = React.lazy(() => import('./AddClinicModal').then(m => ({ default: m.AddClinicModal })));
+const AddVetModal = React.lazy(() => import('./AddVetModal').then(m => ({ default: m.AddVetModal })));
 
 interface AdminDashboardProps {
     users: User[];

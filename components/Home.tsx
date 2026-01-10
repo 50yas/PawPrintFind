@@ -1,14 +1,17 @@
 
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef, memo, lazy, Suspense } from 'react';
 import { View, User, PetProfile, UserRole, Donation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { MissingPetsMap } from './MissingPetsMap';
-import { DonorTicker } from './DonorTicker';
-import { RoleExplorer } from './RoleExplorer';
-import { SupportCard } from './SupportCard';
 import { dbService } from '../services/firebase';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
+import { LoadingSpinner } from './LoadingSpinner';
+import { MapSidebarSkeleton, CardSkeleton } from './ui/SkeletonLoader';
+
+const MissingPetsMap = lazy(() => import('./MissingPetsMap').then(m => ({ default: m.MissingPetsMap })));
+const DonorTicker = lazy(() => import('./DonorTicker').then(m => ({ default: m.DonorTicker })));
+const RoleExplorer = lazy(() => import('./RoleExplorer').then(m => ({ default: m.RoleExplorer })));
+const SupportCard = lazy(() => import('./SupportCard').then(m => ({ default: m.SupportCard })));
 
 interface HomeProps {
     setView: (view: View) => void;
@@ -285,7 +288,9 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         <div className="h-1 w-16 md:w-20 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 md:mb-8 rounded-full"></div>
                         <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">{t('ecosystemDesc')}</p>
                     </div>
-                    <RoleExplorer />
+                    <Suspense fallback={<div className="flex justify-center py-20"><LoadingSpinner /></div>}>
+                        <RoleExplorer />
+                    </Suspense>
                 </div>
             </section>
 
@@ -355,7 +360,9 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
                     <div className="rounded-[1.75rem] md:rounded-[2.25rem] overflow-hidden relative h-[400px] md:h-[650px] w-full">
-                        <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} />
+                        <Suspense fallback={<MapSidebarSkeleton />}>
+                            <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} />
+                        </Suspense>
                     </div>
                 </div>
             </section>
@@ -383,7 +390,9 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
             </section>
 
-            <DonorTicker onViewAll={() => setView('donors')} donations={donations} />
+            <Suspense fallback={<div className="h-20 bg-white/5 animate-pulse" />}>
+                <DonorTicker onViewAll={() => setView('donors')} donations={donations} />
+            </Suspense>
 
             <section id="support-us" className="scroll-animation container mx-auto px-6 py-12 md:py-32 relative z-10">
                 <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-stretch">
@@ -405,7 +414,9 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                             </a>
                         </div>
                     </GlassCard>
-                    <SupportCard />
+                    <Suspense fallback={<CardSkeleton />}>
+                        <SupportCard />
+                    </Suspense>
                 </div>
             </section>
 

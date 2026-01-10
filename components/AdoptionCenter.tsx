@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
-import { CardSkeleton } from './ui/SkeletonLoader';
-import { AdoptionMap } from './AdoptionMap';
+import { CardSkeleton, MapSidebarSkeleton } from './ui/SkeletonLoader';
+
+const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
 interface AdoptionCenterProps {
   petsForAdoption: PetProfile[];
@@ -256,7 +257,9 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
 
                 {viewMode === 'map' && (
                     <div className="h-[50vh] md:h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 animate-fade-in">
-                        <AdoptionMap adoptablePets={filteredPets} onAdoptMe={handleInquire} isLoading={isLoading} />
+                        <Suspense fallback={<MapSidebarSkeleton />}>
+                            <AdoptionMap adoptablePets={filteredPets} onAdoptMe={handleInquire} isLoading={isLoading} />
+                        </Suspense>
                     </div>
                 )}
             </>

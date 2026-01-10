@@ -6,7 +6,7 @@ export const validationService = {
     const result = schema.safeParse(data);
     if (!result.success) {
       logger.warn(`[Validation] [${context}] Data integrity issue detected:`, {
-        errors: result.error.errors,
+        errors: result.error.issues,
         data: data
       });
       // For now, we return data as T but log the warning.

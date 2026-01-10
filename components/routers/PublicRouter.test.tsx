@@ -26,39 +26,39 @@ describe('PublicRouter', () => {
         setIsLoginModalOpen: vi.fn()
     };
 
-    it('renders Home by default', () => {
+    it('renders Home by default', async () => {
         render(<PublicRouter {...defaultProps} />);
-        expect(screen.getByTestId('home')).toBeInTheDocument();
+        expect(await screen.findByTestId('home')).toBeInTheDocument();
     });
 
-    it('renders PressKit for pressKit view', () => {
+    it('renders PressKit for pressKit view', async () => {
         render(<PublicRouter {...defaultProps} currentView="pressKit" />);
-        expect(screen.getByTestId('press-kit')).toBeInTheDocument();
+        expect(await screen.findByTestId('press-kit')).toBeInTheDocument();
     });
 
-    it('renders Donors for donors view', () => {
+    it('renders Donors for donors view', async () => {
         render(<PublicRouter {...defaultProps} currentView="donors" />);
-        expect(screen.getByTestId('donors')).toBeInTheDocument();
+        expect(await screen.findByTestId('donors')).toBeInTheDocument();
     });
 
-    it('renders Blog for blog view', () => {
+    it('renders Blog for blog view', async () => {
         render(<PublicRouter {...defaultProps} currentView="blog" />);
-        expect(screen.getByTestId('blog')).toBeInTheDocument();
+        expect(await screen.findByTestId('blog')).toBeInTheDocument();
     });
 
-    it('renders BlogPostDetail for blogPost view if selectedPost exists', () => {
+    it('renders BlogPostDetail for blogPost view if selectedPost exists', async () => {
         const post = { id: '1', title: 'Test Post' } as any;
         render(<PublicRouter {...defaultProps} currentView="blogPost" selectedPost={post} />);
-        expect(screen.getByTestId('blog-post-detail')).toBeInTheDocument();
+        expect(await screen.findByTestId('blog-post-detail')).toBeInTheDocument();
     });
 
-    it('renders AdoptionCenter for adoptionCenter view', () => {
+    it('renders AdoptionCenter for adoptionCenter view', async () => {
         render(<PublicRouter {...defaultProps} currentView="adoptionCenter" />);
-        expect(screen.getByTestId('adoption-center')).toBeInTheDocument();
+        expect(await screen.findByTestId('adoption-center')).toBeInTheDocument();
     });
 
-    it('renders PaymentSuccess for paymentSuccess view', () => {
+    it('renders PaymentSuccess for paymentSuccess view', async () => {
         render(<PublicRouter {...defaultProps} currentView="paymentSuccess" />);
-        expect(screen.getByTestId('payment-success')).toBeInTheDocument();
+        expect(await screen.findByTestId('payment-success')).toBeInTheDocument();
     });
 });

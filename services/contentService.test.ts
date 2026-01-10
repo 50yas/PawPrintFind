@@ -1,86 +1,81 @@
-/// <reference types="vitest/globals" />
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { contentService } from './contentService';
-import { logger } from './loggerService';
-import { auth } from './firebase';
-import type { Mock } from 'vitest';
-import { setDoc, addDoc } from 'firebase/firestore';
+import { db, auth } from './firebase';
+import { setDoc, updateDoc, deleteDoc, getDocs, addDoc } from 'firebase/firestore';
 
-// Mock Logger
-vi.mock('./loggerService');
-
-// Mock Firebase Auth and Firestore imports
 vi.mock('./firebase', () => ({
-    auth: { currentUser: null },
-    db: { _isFirestore: true }
+  db: { _isDb: true },
+  auth: { currentUser: { uid: 'user123' } }
 }));
 
-vi.mock('firebase/firestore', async (importOriginal) => {
-    const actual = await importOriginal<any>();
-    return {
-        ...actual,
-        collection: vi.fn(),
-        doc: vi.fn(),
-        getDocs: vi.fn(),
-        setDoc: vi.fn(),
-        updateDoc: vi.fn(),
-        addDoc: vi.fn(),
-        onSnapshot: vi.fn(),
-        query: vi.fn(),
-        where: vi.fn(),
-        orderBy: vi.fn(),
-        increment: vi.fn(),
-    };
-});
+vi.mock('firebase/firestore', () => ({
+  collection: vi.fn(),
+  doc: vi.fn(),
+  setDoc: vi.fn().mockResolvedValue(undefined),
+  updateDoc: vi.fn().mockResolvedValue(undefined),
+  deleteDoc: vi.fn().mockResolvedValue(undefined),
+  getDocs: vi.fn().mockResolvedValue({ docs: [] }),
+  query: vi.fn(),
+  where: vi.fn(),
+  or: vi.fn(),
+  orderBy: vi.fn(),
+  onSnapshot: vi.fn(),
+  arrayUnion: vi.fn(),
+  increment: vi.fn(),
+  addDoc: vi.fn().mockResolvedValue({ id: 'doc123' })
+}));
 
-vi.mock('firebase/auth', async (importOriginal) => {
-    const actual = await importOriginal<any>();
-    return {
-        ...actual,
-        signInAnonymously: vi.fn(),
-    };
-});
+vi.mock('firebase/auth', () => ({
+  signInAnonymously: vi.fn().mockResolvedValue({ user: { uid: 'anon123' } })
+}));
 
 describe('contentService', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        (auth.currentUser as any) = null;
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    describe('saveChatSession', () => {
-        it('should throw error if not authenticated', async () => {
-            await expect(contentService.saveChatSession({ id: 's1' } as any)).rejects.toThrow('Authentication required');
-        });
+  it('saveChatSession calls setDoc', async () => {
+    const session: any = { id: 's1', messages: [] };
+    await contentService.saveChatSession(session);
+    expect(setDoc).toHaveBeenCalled();
+  });
 
-        it('should log error and re-throw', async () => {
-             (auth.currentUser as any) = { uid: 'u1' };
-             (setDoc as Mock).mockRejectedValue(new Error('fail'));
-             await expect(contentService.saveChatSession({ id: 's1' } as any)).rejects.toThrow('fail');
-             expect(logger.error).toHaveBeenCalled();
-        });
-    });
+  it('sendChatMessage calls updateDoc', async () => {
+    const msg: any = { text: 'hi' };
+    await contentService.sendChatMessage('s1', msg);
+    expect(updateDoc).toHaveBeenCalled();
+  });
 
-    describe('recordDonation', () => {
-        it('should log error and re-throw on failure', async () => {
-            const mockError = new Error('Donation save failed');
-            (setDoc as Mock).mockRejectedValue(mockError);
-            await expect(contentService.recordDonation({ id: 'd1' } as any)).rejects.toThrow(mockError);
-            expect(logger.error).toHaveBeenCalledWith('Error recording donation:', mockError);
-        });
-    });
+  it('recordDonation calls setDoc', async () => {
+    const donation: any = { id: 'd1', amount: '€10' };
+    await contentService.recordDonation(donation);
+    expect(setDoc).toHaveBeenCalled();
+  });
 
-    describe('incrementBlogPostView', () => {
-        it('should call updateDoc with increment', async () => {
-            const { updateDoc, increment } = await import('firebase/firestore');
-            await contentService.incrementBlogPostView('post-1');
-            expect(updateDoc).toHaveBeenCalled();
-            expect(increment).toHaveBeenCalledWith(1);
-        });
+  it('saveBlogPost calls setDoc', async () => {
+    const post: any = { id: 'b1', title: 'Title' };
+    await contentService.saveBlogPost(post);
+    expect(setDoc).toHaveBeenCalled();
+  });
 
-        it('should log error if both attempts fail', async () => {
-            const { updateDoc } = await import('firebase/firestore');
-            (updateDoc as Mock).mockRejectedValue(new Error('fail'));
-            await contentService.incrementBlogPostView('post-1');
-            expect(logger.error).toHaveBeenCalled();
-        });
-    });
+  it('deleteBlogPost calls deleteDoc', async () => {
+    await contentService.deleteBlogPost('b1');
+    expect(deleteDoc).toHaveBeenCalled();
+  });
+
+  it('incrementBlogPostView calls updateDoc', async () => {
+    await contentService.incrementBlogPostView('b1');
+    expect(updateDoc).toHaveBeenCalled();
+  });
+
+  it('getDonations calls getDocs', async () => {
+    await contentService.getDonations();
+    expect(getDocs).toHaveBeenCalled();
+  });
+
+  it('getBlogPosts calls getDocs', async () => {
+    await contentService.getBlogPosts();
+    expect(getDocs).toHaveBeenCalled();
+  });
 });

@@ -42,6 +42,7 @@ vi.mock('../services/firebase', () => ({
         saveUser: vi.fn(),
         deletePet: vi.fn(),
         deleteBlogPost: vi.fn(),
+        deleteClinic: vi.fn(),
         auth: {
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
         }
@@ -343,6 +344,36 @@ describe('AdminDashboard Cyber HUD', () => {
                 uid: '456',
                 isVerified: false
             }));
+        });
+   });
+
+   it('handles clinic deletion', async () => {
+        const mockClinics = [{ id: 'c1', name: 'Test Clinic', address: '123 St', phone: '123', vetEmail: 'v@t.com' }];
+        const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
+        
+        vi.mocked(dbService.deleteClinic).mockResolvedValue(undefined);
+
+        render(
+            <AdminDashboard 
+                users={[mockUser]}
+                currentUser={mockUser}
+                allPets={mockPets}
+                vetClinics={mockClinics as any}
+                donations={mockDonations}
+                onDeleteUser={vi.fn()}
+                onLogout={vi.fn()}
+                onRefresh={mockOnRefresh}
+            />
+        );
+
+        fireEvent.click(screen.getByText('adminTabClinics'));
+        
+        const deleteBtn = screen.getByText('dismantleButton');
+        fireEvent.click(deleteBtn);
+
+        await waitFor(() => {
+            expect(dbService.deleteClinic).toHaveBeenCalledWith('c1');
+            expect(mockOnRefresh).toHaveBeenCalled();
         });
    });
 });
