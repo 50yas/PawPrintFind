@@ -35,11 +35,11 @@ Goal: Migrate from the custom `LanguageContext` to `react-i18next`.
 - [x] Task: Install and Initialize `react-i18next` (0354963)
     - [x] Sub-task: Install `i18next`, `react-i18next`, and `i18next-browser-languagedetector`.
     - [x] Sub-task: Create `i18n.ts` configuration with support for namespaces (`common`, `auth`, `dashboard`).
-- [~] Task: Refactor `LanguageContext` to use `react-i18next`
-    - [ ] Sub-task: Replace internal state with `i18next` hooks.
-    - [ ] Sub-task: Migrate existing translations from `translations/*.ts` to JSON files for better `i18next` integration.
-    - [ ] Sub-task: Update `LanguageContext.test.tsx` to verify the new implementation.
-- [ ] Task: Conductor - User Manual Verification 'Core - i18n Framework Migration' (Protocol in workflow.md)
+- [x] Task: Refactor `LanguageContext` to use `react-i18next` (9a6d9bb)
+    - [x] Sub-task: Replace internal state with `i18next` hooks.
+    - [x] Sub-task: Migrate existing translations from `translations/*.ts` to JSON files for better `i18next` integration.
+    - [x] Sub-task: Update `LanguageContext.test.tsx` to verify the new implementation.
+- [~] Task: Conductor - User Manual Verification 'Core - i18n Framework Migration' (Protocol in workflow.md) (9a6d9bb)
 
 ## Phase 4: Content - Global Localization Overhaul
 Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.

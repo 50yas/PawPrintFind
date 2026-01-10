@@ -153,12 +153,12 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
                     onClick={() => switchStyle('street')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'street' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'street' ? { backgroundColor: colors.primary } : {}}
-                >Street</button>
+                >{t('mapStreet')}</button>
                 <button 
                     onClick={() => switchStyle('satellite')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'satellite' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'satellite' ? { backgroundColor: colors.primary } : {}}
-                >Satellite</button>
+                >{t('mapSatellite')}</button>
             </GlassCard>
 
             <GlassButton 

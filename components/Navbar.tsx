@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-black tracking-tighter text-white">Paw<span className="logo-print-text">Print</span></span>
-            <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">Visual Biometrics</span>
+            <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">{t('visualBiometrics')}</span>
           </div>
         </div>
 
@@ -193,17 +193,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
-                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">Karma</p>
+                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('karma')}</p>
                             <p className="text-sm font-black text-white">{currentUser.points || 0}</p>
                           </div>
                           <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
-                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">Rank</p>
-                            <p className="text-[10px] font-black text-primary uppercase">Alpha</p>
+                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('rank')}</p>
+                            <p className="text-[10px] font-black text-primary uppercase">{t('rankAlpha')}</p>
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest px-1">Active Badges</p>
+                          <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest px-1">{t('activeBadges')}</p>
                           <div className="flex flex-wrap gap-1">
                             {(currentUser.badges || ['Tester']).map(badge => (
                               <span key={badge} className="px-2 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[8px] font-black text-primary uppercase tracking-tighter">

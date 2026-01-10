@@ -173,7 +173,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                         </button>
                         
                         {setView && (
-                            <button onClick={() => setView('pressKit')} className="hover:text-primary transition-colors font-bold uppercase tracking-tighter">Press Kit</button>
+                            <button onClick={() => setView('pressKit')} className="hover:text-primary transition-colors font-bold uppercase tracking-tighter">{t('pressKit')}</button>
                         )}
                     </div>
                     <p className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest">
@@ -199,7 +199,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                         <div className="space-y-6 animate-fade-in">
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">Email</label>
+                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('emailLabel')}</label>
                                     <input 
                                         type="email" 
                                         value={email}
@@ -210,7 +210,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">Password</label>
+                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('passwordLabel')}</label>
                                     <input 
                                         type="password" 
                                         value={password}
@@ -238,7 +238,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                             </form>
                             
                             <div className="pt-4 border-t border-white/5 flex flex-col items-center">
-                                <p className="text-[10px] text-muted-foreground mb-2 font-mono uppercase tracking-widest">CRITICAL LOSS RECOVERY</p>
+                                <p className="text-[10px] text-muted-foreground mb-2 font-mono uppercase tracking-widest">{t('criticalRecovery')}</p>
                                 <button 
                                     onClick={() => setAuthMode('setup')}
                                     className="text-primary text-xs font-bold hover:underline uppercase tracking-tighter"
@@ -255,7 +255,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         Enter the Private Security Key to unlock the system root initialization flow.
                                     </p>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">Security Key</label>
+                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('securityKey')}</label>
                                         <input 
                                             type="password" 
                                             value={secretKey}
@@ -267,14 +267,14 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         />
                                     </div>
                                     {error && <p className="text-xs text-red-500 font-bold text-center">{error}</p>}
-                                    <button type="submit" className="w-full btn btn-primary py-3 font-bold">Validate Key</button>
-                                    <button type="button" onClick={() => setAuthMode('login')} className="w-full text-[10px] text-muted-foreground hover:text-foreground underline font-mono tracking-widest">BACK TO LOGIN</button>
+                                    <button type="submit" className="w-full btn btn-primary py-3 font-bold">{t('validateKey')}</button>
+                                    <button type="button" onClick={() => setAuthMode('login')} className="w-full text-[10px] text-muted-foreground hover:text-foreground underline font-mono tracking-widest">{t('backToLogin')}</button>
                                 </form>
                             ) : (
                                 <form onSubmit={handleInitializeAdmin} className="space-y-4">
-                                    <p className="text-xs text-primary text-center font-bold font-mono tracking-widest">KEY VALIDATED // CREATE ROOT ACCOUNT</p>
+                                    <p className="text-xs text-primary text-center font-bold font-mono tracking-widest">{t('keyValidatedCreateRoot')}</p>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">New Admin Email</label>
+                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('newAdminEmail')}</label>
                                         <input 
                                             type="email" 
                                             value={email}
@@ -285,7 +285,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">New Admin Password</label>
+                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('newAdminPassword')}</label>
                                         <input 
                                             type="password" 
                                             value={password}

@@ -34,7 +34,7 @@ export const SupportCard: React.FC = () => {
                 {/* Server Goal Widget */}
                 <div className="w-full bg-muted/50 rounded-xl p-4 mb-6 border border-white/5">
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
-                        <span className="text-muted-foreground">Monthly Server Goal</span>
+                        <span className="text-muted-foreground">{t('monthlyServerGoal')}</span>
                         <span className="text-primary">{progress}%</span>
                     </div>
                     <div className="w-full h-2 bg-black/20 rounded-full overflow-hidden">
@@ -46,7 +46,7 @@ export const SupportCard: React.FC = () => {
                         </div>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                        Help us keep the servers running for lost pets.
+                        {t('serverGoalDesc')}
                     </p>
                 </div>
                 
@@ -57,7 +57,7 @@ export const SupportCard: React.FC = () => {
                     >
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                         <span className="relative flex items-center justify-center gap-2">
-                            <span>{t('donateWithBitcoin')} / Card</span>
+                            <span>{t('donateWithBitcoin')} / {t('paymentMethodCard')}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
                         </span>
                     </button>

@@ -72,6 +72,23 @@ vi.mock('./services/loggerService', () => ({
   },
 }));
 
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: {
+      changeLanguage: vi.fn().mockResolvedValue(undefined),
+      dir: vi.fn(() => 'ltr'),
+      language: 'en',
+    },
+  }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: vi.fn(),
+  },
+  Trans: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 // Mock crypto subtle for verifyAdminKey
 const mockDigest = vi.fn(async (algorithm, data) => {
   // Simple mock: just return a fixed buffer or a hash of the data

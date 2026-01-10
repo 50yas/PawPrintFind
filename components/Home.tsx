@@ -19,6 +19,7 @@ interface HomeProps {
 }
 
 const HeroHUD = memo(() => {
+    const { t } = useTranslations();
     const [bootStep, setBootStep] = useState(0);
     const lines = [
         "INITIALIZING CORE...",
@@ -41,7 +42,7 @@ const HeroHUD = memo(() => {
             <div className="hidden md:block absolute bottom-8 left-12 p-4 rounded-xl border border-white/10 bg-black/60 backdrop-blur-md text-[10px] font-mono-tech text-cyan-400 min-w-[180px] shadow-2xl z-20">
                 <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
                     <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
-                    <span className="text-white font-bold tracking-widest uppercase">Console Output</span>
+                    <span className="text-white font-bold tracking-widest uppercase">{t('consoleOutput')}</span>
                 </div>
                 <div className="space-y-1.5 opacity-90">
                     {lines.slice(0, bootStep + 1).map((line, i) => (
@@ -58,8 +59,8 @@ const HeroHUD = memo(() => {
                 {bootStep === lines.length - 1 && (
                     <div className="mt-2 md:mt-3 pt-2 border-t border-white/5 animate-fade-in hidden xs:block">
                         <div className="flex justify-between items-center text-[7px] md:text-[8px] text-cyan-500/50">
-                            <span>UPLINK: STABLE</span>
-                            <span>NODE: 0x50YAS</span>
+                            <span>{t('uplinkStable')}</span>
+                            <span>{t('systemNode')}</span>
                         </div>
                     </div>
                 )}
@@ -227,7 +228,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                                 </span>
-                                SISTEMA CORE ATTIVO: {t('aiPoweredProtection')}
+                                {t('coreSystemActive')}: {t('aiPoweredProtection')}
                             </div>
 
                                 <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
@@ -248,7 +249,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                                     </span>
-                                    SISTEMA CORE ATTIVO: {t('aiPoweredProtection')}
+                                    {t('coreSystemActive')}: {t('aiPoweredProtection')}
                                 </div>
                             </div>
 
@@ -292,11 +293,11 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             <section className="scroll-animation relative z-10 py-10 md:py-20 container mx-auto px-6">
                 <div className="glass-panel p-4 rounded-[2rem] border border-cyan-500/30 bg-black/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-4">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                            Video Dimostrativo
-                        </div>
-                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Ecosistema Paw Print AI</h3>
+                  <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-xs font-bold tracking-widest text-white uppercase">{t('demoVideo')}</span>
+                  </div>
+                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">{t('ecosystemTitle')}</h3>
                     </div>
                     <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black group">
                         <video
@@ -324,12 +325,12 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 {isMuted ? (
                                     <>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-                                        <span>Attiva Audio</span>
+                                        <span>{t('enableAudio')}</span>
                                     </>
                                 ) : (
                                     <>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
-                                        <span>Disattiva Audio</span>
+                                        <span>{t('disableAudio')}</span>
                                     </>
                                 )}
                             </button>
@@ -340,7 +341,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 className="flex items-center justify-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-md text-white rounded-full font-bold uppercase tracking-widest text-[10px] hover:scale-105 transition-all w-full"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                <span>Riavvia Video</span>
+                                <span>{t('restartVideo')}</span>
                             </button>
                         </div>
                     </div>
@@ -400,7 +401,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 aria-label="Visit Paw Print GitHub Repository"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-4.51-2-7-2"></path></svg>
-                                <span>GITHUB REPO</span>
+                                <span>{t('githubRepo')}</span>
                             </a>
                         </div>
                     </GlassCard>

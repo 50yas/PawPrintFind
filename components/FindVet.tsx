@@ -74,7 +74,7 @@ const VetCard: React.FC<{
                         className="w-full sm:w-auto !py-2 !px-5 text-[10px] uppercase tracking-widest"
                         onClick={() => window.open(gmapsUri, '_blank')}
                     >
-                        Map
+                        {t('mapLabel')}
                     </GlassButton>
                 )}
             </div>

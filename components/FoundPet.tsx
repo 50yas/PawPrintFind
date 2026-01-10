@@ -48,7 +48,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                     <CinematicImage src={result.pet.photos[0]?.url} alt={result.pet.name} className="w-full h-full object-cover" />
                     <div className="absolute top-0 left-0 bg-black/50 p-2">
                         <span className={`text-sm font-bold px-2 py-1 rounded text-white ${scoreColor}`}>
-                            {result.score}% Match
+                            {result.score}{t('matchPercentage')}
                         </span>
                     </div>
                 </div>
@@ -69,7 +69,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                             <div className="bg-green-50 dark:bg-green-900/10 p-3 rounded-lg border border-green-100 dark:border-green-900/30">
                                 <h4 className="text-xs font-bold text-green-700 dark:text-green-400 flex items-center mb-2 uppercase tracking-wider">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                    Key Matches
+                                    {t('keyMatchesTitle')}
                                 </h4>
                                 <ul className="text-xs space-y-1 text-green-800 dark:text-green-300/80 list-disc pl-4">
                                     {result.keyMatches.map((m: string, i: number) => <li key={i}>{m}</li>)}
@@ -81,7 +81,7 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                             <div className="bg-orange-50 dark:bg-orange-900/10 p-3 rounded-lg border border-orange-100 dark:border-orange-900/30">
                                 <h4 className="text-xs font-bold text-orange-700 dark:text-orange-400 flex items-center mb-2 uppercase tracking-wider">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                    Differences
+                                    {t('differencesTitle')}
                                 </h4>
                                 <ul className="text-xs space-y-1 text-orange-800 dark:text-orange-300/80 list-disc pl-4">
                                     {result.discrepancies.map((d: string, i: number) => <li key={i}>{d}</li>)}
@@ -233,13 +233,13 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                     onClick={() => setMode('map')} 
                     className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'map' ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                    Explorer Map
+                    {t('explorerMapButton')}
                 </button>
                 <button 
                     onClick={() => setMode('scan')} 
                     className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'scan' ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                    AI Scanner
+                    {t('aiScannerButton')}
                 </button>
             </div>
         </div>
@@ -268,7 +268,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
 
                   <GlassCard className="lg:col-span-1 flex flex-col border-white/10 bg-white/5 overflow-hidden">
                       <div className="p-4 border-b border-white/10 bg-white/5">
-                          <h3 className="text-sm font-black uppercase tracking-widest text-white">Active Alerts</h3>
+                          <h3 className="text-sm font-black uppercase tracking-widest text-white">{t('activeAlertsTitle')}</h3>
                       </div>
                       <div className="flex-grow overflow-y-auto custom-scrollbar">
                           {isLoading ? (
@@ -290,7 +290,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                               </div>
                           ) : (
                               <div className="p-8 text-center">
-                                  <p className="text-xs text-muted-foreground uppercase font-mono tracking-widest">No active alerts in this area</p>
+                                  <p className="text-xs text-muted-foreground uppercase font-mono tracking-widest">{t('noAlertsArea')}</p>
                               </div>
                           )}
                       </div>
@@ -303,7 +303,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
       <div className="animate-fade-in max-w-4xl mx-auto space-y-8">
         <div className="bg-card p-8 rounded-xl shadow-lg border border-border">
             <button onClick={() => setMode('map')} className="text-sm text-muted-foreground hover:text-primary mb-4 flex items-center gap-1">
-                &larr; Back to Map
+                &larr; {t('backToMap')}
             </button>
             <h2 className="text-3xl font-bold mb-4 text-center text-card-foreground">{t('foundPetTitle')}</h2>
             <p className="text-muted-foreground mb-6 text-center">{t('foundPetDesc')}</p>
@@ -337,7 +337,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                                     value={filterBreed} 
                                     onChange={(e) => setFilterBreed(e.target.value)} 
                                     className="input-base text-sm" 
-                                    placeholder="e.g. Labrador"
+                                    placeholder={t('breedPlaceholder')}
                                 />
                             </div>
                             <div>
@@ -347,7 +347,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                                     value={filterColor} 
                                     onChange={(e) => setFilterColor(e.target.value)} 
                                     className="input-base text-sm" 
-                                    placeholder="e.g. Black"
+                                    placeholder={t('colorPlaceholder')}
                                 />
                             </div>
                             <div>

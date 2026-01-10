@@ -12,27 +12,27 @@ interface DonationModalProps {
 }
 
 // Strategia dei "Tagli" per incentivare le donazioni (Stripe)
-const DONATION_TIERS = [
+const getDonationTiers = (t: any) => [
     { 
         id: 'tier_coffee', 
         amount: 5, 
         emoji: '☕', 
-        label: 'Caffè Sospeso', 
-        desc: 'Offri un caffè al team.' 
+        label: t('tierCoffeeLabel'), 
+        desc: t('tierCoffeeDesc') 
     },
     { 
         id: 'tier_supporter', 
         amount: 25, 
         emoji: '🌟', 
-        label: 'Sostenitore', 
-        desc: 'Copri i costi server.' 
+        label: t('tierSupporterLabel'), 
+        desc: t('tierSupporterDesc') 
     },
     { 
         id: 'tier_hero', 
         amount: 100, 
         emoji: '🦁', 
-        label: 'Eroe dei Pet', 
-        desc: 'Contributo massiccio.' 
+        label: t('tierHeroLabel'), 
+        desc: t('tierHeroDesc') 
     }
 ];
 
@@ -167,12 +167,14 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
       setTimeout(() => setCryptoCopied(false), 2000);
   };
 
+  const donationTiers = getDonationTiers(t);
+
   const handleStripePayment = async (e: React.FormEvent) => {
       e.preventDefault();
       setErrorMsg(null);
 
       if (selectedAmount < 1) {
-          setErrorMsg("Minimum donation is €1.00");
+          setErrorMsg(t('minDonationError'));
           return;
       }
 
@@ -183,7 +185,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
           
           await dbService.recordDonation({
               id: donationId,
-              donorName: isPublic ? (donorName || "Anonymous") : "Anonymous",
+              donorName: isPublic ? (donorName || t('anonymousName')) : t('anonymousName'),
               realName: donorName, 
               email: donorEmail,   
               amount: `€${selectedAmount.toFixed(2)}`,
@@ -200,9 +202,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
       } catch (error: any) {
           console.error("Payment error:", error);
-          let msg = "Connection error. Please try again.";
+          let msg = t('paymentConnectionError');
           if (error.code === 'auth/admin-restricted-operation' || error.message.includes('auth')) {
-             msg = "Auth Error. Please ensure Anonymous Auth is enabled in Firebase Console.";
+             msg = t('firebaseAuthError');
           }
           setErrorMsg(msg);
           setIsProcessing(false);
@@ -234,7 +236,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                 <form onSubmit={handleStripePayment} className="space-y-6">
                     {/* Tiers */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {DONATION_TIERS.map((tier) => (
+                        {donationTiers.map((tier) => (
                             <button
                                 key={tier.id}
                                 type="button"
@@ -300,7 +302,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                         <button type="submit" disabled={isProcessing} className="w-full btn btn-primary py-4 text-lg shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3">
                             {isProcessing ? <LoadingSpinner /> : <><span className="text-xl">💳</span><span>{t('payWithStripe')} {selectedAmount > 0 ? `€${selectedAmount.toFixed(2)}` : ''}</span></>}
                         </button>
-                        <p className="text-[10px] text-center text-muted-foreground mt-3 opacity-70">Secured by Stripe SSL</p>
+                        <p className="text-[10px] text-center text-muted-foreground mt-3 opacity-70">{t('securedByStripe')}</p>
                     </div>
                 </form>
             )}
@@ -363,7 +365,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                         </div>
                         
                         <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                            Support Paw Print directly via Blockchain.
+                            {t('supportViaBlockchain')}
                         </p>
                     </div>
                 </div>
