@@ -17,7 +17,7 @@
     - [ ] Sub-task: Update `geminiService.ts` with `translateContent(text: string, targetLangs: string[])`.
     - [ ] Sub-task: Implement the "Save & Translate" flow in `contentService.createBlogPost()`.
     - [ ] Sub-task: Update `BlogPost` type definition to support localized content.
-- [ ] Task: Public Blog Update
+- [x] Task: Public Blog Update [25f412c]
     - [ ] Sub-task: Update public `Blog.tsx` to display the post in the user's current language (falling back to English).
 
 ## Phase 3: System Health & Polish
