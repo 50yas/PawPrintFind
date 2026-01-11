@@ -49,6 +49,13 @@ export interface BlogPost {
   seoTitle: string;
   seoDescription: string;
   views: number;
+  translations?: {
+    [lang: string]: {
+      title: string;
+      summary: string;
+      content: string;
+    }
+  };
 }
 
 export interface User {
@@ -348,6 +355,11 @@ export const BlogPostSchema = z.object({
   seoTitle: z.string(),
   seoDescription: z.string(),
   views: z.number(),
+  translations: z.record(z.object({
+    title: z.string(),
+    summary: z.string(),
+    content: z.string(),
+  })).optional(),
 });
 
 export const AdminAuditLogSchema = z.object({

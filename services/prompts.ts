@@ -184,3 +184,24 @@ export const getBlogGenerationParts = (topic: string): { systemInstruction: stri
     `;
     return { systemInstruction, userPrompt };
 };
+
+export const getTranslationPrompt = (text: string, targetLangs: string[]): { systemInstruction: string; userPrompt: string } => {
+    const systemInstruction = "You are a professional translator fluent in multiple languages, specializing in pet care and technical content. Your translations are accurate, culturally appropriate, and preserve the original tone and HTML formatting.";
+
+    const userPrompt = `
+    **Original Content:**
+    "${text}"
+
+    **Target Languages:**
+    ${targetLangs.join(', ')}
+
+    **Task:**
+    Translate the original content into each of the target languages.
+    - If the content is HTML, preserve the tags exactly.
+    - Do NOT translate proper nouns like "Paw Print" unless typically localized.
+    
+    Return the result in a JSON object where keys are the language codes (e.g., "es", "fr") and values are the translated strings.
+    Example: { "es": "Hola", "fr": "Bonjour" }
+    `;
+    return { systemInstruction, userPrompt };
+};

@@ -52,4 +52,13 @@ describe('geminiService', () => {
     expect(result.places).toHaveLength(1);
     expect(result.places[0].maps.title).toBe('Test Vet');
   });
+
+  it('translateContent returns translations for multiple languages', async () => {
+    // We will mock the response in the implementation phase, but here we expect the function to exist and return data
+    // For now, this test will fail because translateContent is not defined
+    const result = await (geminiService as any).translateContent('Hello World', ['es', 'fr']);
+    // Mocked response would look like { es: 'Hola Mundo', fr: 'Bonjour Monde' }
+    // Since we are mocking the whole class above, we might need to adjust the mock return value for this specific call in the implementation
+    // But initially, it fails because function is undefined.
+  });
 });

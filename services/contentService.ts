@@ -4,6 +4,7 @@ import {
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import { db, auth } from './firebase';
+import { translateContent } from './geminiService';
 import { ChatSession, ChatMessage, Donation, BlogPost } from '../types';
 import { logger } from './loggerService';
 
@@ -81,7 +82,37 @@ export const contentService = {
     async saveBlogPost(post: BlogPost): Promise<void> {
         try {
             if (!auth.currentUser) throw new Error("Authentication required.");
-            await setDoc(doc(db, 'blog_posts', post.id), post, { merge: true });
+
+            // Auto-Translation Logic
+            // We verify if content has changed to avoid unnecessary API calls? 
+            // For now, we assume if save is called, we want to update/translate.
+            // Ideally we should check if fields changed.
+            
+            const targetLangs = ['es', 'fr', 'de', 'it', 'nl'];
+            const translations: Record<string, { title: string, summary: string, content: string }> = {};
+
+            try {
+                // Execute translations in parallel
+                const [titles, summaries, contents] = await Promise.all([
+                    translateContent(post.title, targetLangs),
+                    translateContent(post.summary, targetLangs),
+                    translateContent(post.content, targetLangs)
+                ]);
+
+                targetLangs.forEach(lang => {
+                    translations[lang] = {
+                        title: titles[lang] || post.title,
+                        summary: summaries[lang] || post.summary,
+                        content: contents[lang] || post.content
+                    };
+                });
+            } catch (translationError) {
+                logger.warn('Auto-translation failed, saving without translations:', translationError);
+                // Proceed to save without translations if AI fails
+            }
+
+            const postToSave = { ...post, translations: Object.keys(translations).length > 0 ? translations : post.translations };
+            await setDoc(doc(db, 'blog_posts', post.id), postToSave, { merge: true });
         } catch (error) {
             logger.error('Error saving blog post:', error);
             throw error;

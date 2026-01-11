@@ -413,3 +413,26 @@ export const calculateProfileCompleteness = (pet: PetProfile): number => {
     if (pet.aiIdentityCode || pet.videoAnalysis) score += 10;
     return Math.min(100, score);
 };
+
+export const translateContent = async (text: string, targetLangs: string[]): Promise<Record<string, string>> => {
+    const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
+    return retryWithBackoff(async () => {
+        const ai = getAIClient();
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
+            contents: userPrompt,
+            config: {
+                systemInstruction,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    // Note: We can't strictly define properties for dynamic languages in schema, 
+                    // so we rely on the prompt instructions and a loose object schema or just JSON parsing.
+                    // However, for strict typing if possible we could list all supported langs.
+                    // For now, we'll try to let it generate a map.
+                }
+            }
+        });
+        return JSON.parse(response.text?.trim() || "{}");
+    });
+};

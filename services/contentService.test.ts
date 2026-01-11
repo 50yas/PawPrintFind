@@ -30,6 +30,14 @@ vi.mock('firebase/auth', () => ({
   signInAnonymously: vi.fn().mockResolvedValue({ user: { uid: 'anon123' } })
 }));
 
+vi.mock('./geminiService', () => ({
+  translateContent: vi.fn().mockImplementation(async (text, langs) => {
+    const res: any = {};
+    langs.forEach((l: string) => res[l] = `Translated ${text} to ${l}`);
+    return res;
+  })
+}));
+
 describe('contentService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -53,10 +61,14 @@ describe('contentService', () => {
     expect(setDoc).toHaveBeenCalled();
   });
 
-  it('saveBlogPost calls setDoc', async () => {
-    const post: any = { id: 'b1', title: 'Title' };
+  it('saveBlogPost calls setDoc and includes translations', async () => {
+    const post: any = { id: 'b1', title: 'Title', summary: 'Summary', content: 'Content' };
     await contentService.saveBlogPost(post);
     expect(setDoc).toHaveBeenCalled();
+    const saveCall = vi.mocked(setDoc).mock.calls[0];
+    const savedData = saveCall[1] as any;
+    expect(savedData.translations).toBeDefined();
+    expect(savedData.translations.es.title).toBe('Translated Title to es');
   });
 
   it('deleteBlogPost calls deleteDoc', async () => {
