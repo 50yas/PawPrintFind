@@ -11,7 +11,7 @@ interface BlogProps {
 }
 
 export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -27,17 +27,27 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
         fetchPosts();
     }, []);
 
+    const getLocalizedPost = (post: BlogPost) => {
+        if (!post.translations || !locale) return post;
+        // Use exact locale match or fallback to base language if locale has region (e.g. en-US -> en)
+        const langCode = locale.split('-')[0];
+        const localized = post.translations[langCode];
+        return localized ? { ...post, ...localized } : post;
+    };
+
     useEffect(() => {
         const lower = searchQuery.toLowerCase();
-        setFilteredPosts(posts.filter(p => 
-            p.title.toLowerCase().includes(lower) || 
-            p.summary.toLowerCase().includes(lower) || 
-            p.tags.some(t => t.toLowerCase().includes(lower))
-        ));
-    }, [searchQuery, posts]);
+        setFilteredPosts(posts.filter(p => {
+            const localized = getLocalizedPost(p);
+            return localized.title.toLowerCase().includes(lower) || 
+            localized.summary.toLowerCase().includes(lower) || 
+            localized.tags.some(t => t.toLowerCase().includes(lower));
+        }));
+    }, [searchQuery, posts, locale]);
 
-    const featuredPost = filteredPosts[0];
-    const otherPosts = filteredPosts.slice(1);
+    const displayPosts = filteredPosts.map(getLocalizedPost);
+    const featuredPost = displayPosts[0];
+    const otherPosts = displayPosts.slice(1);
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-12 pb-24">

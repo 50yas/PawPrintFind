@@ -11,8 +11,17 @@ interface BlogPostDetailProps {
 }
 
 export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) => {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
     const hasIncremented = useRef<string | null>(null);
+
+    const getLocalizedPost = (p: BlogPost) => {
+        if (!p.translations || !locale) return p;
+        const langCode = locale.split('-')[0];
+        const localized = p.translations[langCode];
+        return localized ? { ...p, ...localized } : p;
+    };
+
+    const displayPost = getLocalizedPost(post);
 
     useEffect(() => {
         if (post?.id && hasIncremented.current !== post.id) {
@@ -30,31 +39,31 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
 
             {/* Header with Hero Image */}
             <header className="mb-10 text-center relative">
-                {post.imageUrl && (
+                {displayPost.imageUrl && (
                     <div className="w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-8 shadow-2xl relative">
-                        <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+                        <img src={displayPost.imageUrl} alt={displayPost.title} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
                     </div>
                 )}
                 
                 <div className="relative z-10 -mt-20 px-4">
                     <div className="flex items-center justify-center gap-2 mb-6">
-                        {post.tags.map(tag => (
+                        {displayPost.tags.map(tag => (
                             <span key={tag} className="bg-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm border border-primary/30">{tag}</span>
                         ))}
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight drop-shadow-sm">{post.title}</h1>
+                    <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight drop-shadow-sm">{displayPost.title}</h1>
                     <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground font-mono">
                         <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-[10px]">
-                                {post.author.charAt(0)}
+                                {displayPost.author.charAt(0)}
                             </div>
-                            <span className="font-bold">{post.author}</span>
+                            <span className="font-bold">{displayPost.author}</span>
                         </div>
-                        <time>{new Date(post.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+                        <time>{new Date(displayPost.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</time>
                         <span className="hidden sm:block">•</span>
                         <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter border border-primary/20">
-                            {calculateReadingTime(post.content)} MIN READ
+                            {calculateReadingTime(displayPost.content)} MIN READ
                         </span>
                     </div>
                 </div>
@@ -62,15 +71,15 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
 
             {/* Content Area */}
             <div className="prose prose-lg dark:prose-invert prose-teal mx-auto prose-img:rounded-2xl prose-img:shadow-xl prose-headings:font-extrabold">
-                <p className="lead text-xl text-muted-foreground font-medium mb-8 border-l-4 border-primary pl-4">{post.summary}</p>
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                <p className="lead text-xl text-muted-foreground font-medium mb-8 border-l-4 border-primary pl-4">{displayPost.summary}</p>
+                <div dangerouslySetInnerHTML={{ __html: displayPost.content }} />
             </div>
 
             {/* Footer */}
             <div className="mt-20 pt-10 border-t border-border text-center">
                 <p className="text-muted-foreground text-sm italic mb-6">Found this helpful? Share it with your community.</p>
                 <div className="flex justify-center gap-4">
-                    <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank')} className="btn btn-secondary text-xs px-6">Twitter</button>
+                    <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayPost.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank')} className="btn btn-secondary text-xs px-6">Twitter</button>
                     <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')} className="btn btn-secondary text-xs px-6">Facebook</button>
                 </div>
             </div>
