@@ -10,10 +10,15 @@ This document outlines the core technologies used in the Paw Print application.
     -   **Description:** A fast build tool that provides an extremely quick development experience.
 -   **Language:** TypeScript
     -   **Description:** A strongly typed superset of JavaScript that compiles to plain JavaScript, enhancing code quality and developer experience.
+    -   **Configuration:** Strict Mode enabled for robust type safety.
 - **Styling:** Tailwind CSS v4
     - **Description:** A utility-first CSS framework used with the @tailwindcss/postcss plugin for high-performance "Glassmorphism 2.0" styling.
 - **UI Utilities:** @material/material-color-utilities
     - **Description:** Official Google library for generating dynamic Material Design 3 (Material You) palettes (Primary, Secondary, Tertiary, Surface, Error).
+- **Internationalization:** react-i18next / i18next
+    - **Description:** Industry-standard i18n framework supporting namespace separation, browser language detection, and dynamic loading.
+- **Validation:** Zod
+    - **Description:** TypeScript-first schema declaration and validation library for runtime data integrity.
 
 ## 2. Backend & Database
 
@@ -23,6 +28,7 @@ This document outlines the core technologies used in the Paw Print application.
     -   **Services Used:**
         -   **Firestore:** A NoSQL cloud database to store and sync data.
         -   **Authentication:** Provides backend services, easy-to-use SDKs, and ready-made UI libraries to authenticate users.
+        -   **Performance Monitoring:** Real-time insight into the app's performance and latency.
 
 ## 3. AI / Machine Learning
 
