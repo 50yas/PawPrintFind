@@ -28,14 +28,17 @@ vi.mock('../src/utils/blogUtils', () => ({
 describe('BlogPostDetail Component', () => {
   const mockPost: BlogPost = {
     id: '1',
-    title: 'Test Post Title',
-    summary: 'Test Summary',
-    content: '<p>Test Content</p>',
-    author: 'Test Author',
+    title: 'Test Blog Post',
+    slug: 'test-blog-post',
+    summary: 'This is a summary',
+    content: '<p>This is the content</p>',
+    author: 'Dr. Smith',
     publishedAt: Date.now(),
-    tags: ['tag1', 'tag2'],
-    imageUrl: 'test.jpg',
-    views: 10
+    tags: ['health', 'dogs'],
+    imageUrl: 'https://example.com/image.jpg',
+    views: 100,
+    seoTitle: 'Test Blog Post - SEO',
+    seoDescription: 'SEO Description'
   };
 
   const mockOnBack = vi.fn();

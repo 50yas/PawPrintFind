@@ -11,7 +11,7 @@ import {
     limit
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { User, AdminAuditLog } from '../types';
+import { User, AdminAuditLog, UserRole } from '../types';
 import { authService } from './authService';
 import { logger } from './loggerService';
 
@@ -49,6 +49,49 @@ export const adminService = {
             await deleteDoc(doc(db, 'users', uid));
         } catch (error) {
             logger.error('Error deleting user:', error);
+            throw error;
+        }
+    },
+
+    async updateUserRole(uid: string, newRole: UserRole): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to update user role.");
+            }
+            // Update both the roles array and activeRole for simplicity in this context
+            // In a real app, you might want more complex logic
+            await setDoc(doc(db, 'users', uid), { 
+                roles: [newRole], 
+                activeRole: newRole 
+            }, { merge: true });
+            
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'UPDATE_ROLE',
+                targetId: uid,
+                details: `Updated role to ${newRole}`
+            });
+        } catch (error) {
+            logger.error('Error updating user role:', error);
+            throw error;
+        }
+    },
+
+    async toggleUserStatus(uid: string, newStatus: 'active' | 'suspended' | 'banned'): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to update user status.");
+            }
+            await setDoc(doc(db, 'users', uid), { status: newStatus }, { merge: true });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'UPDATE_STATUS',
+                targetId: uid,
+                details: `Updated status to ${newStatus}`
+            });
+        } catch (error) {
+            logger.error('Error updating user status:', error);
             throw error;
         }
     },

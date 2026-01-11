@@ -68,6 +68,7 @@ export interface User {
   joinedAt?: number;
   lastLoginAt?: number;
   createdAt?: number;
+  status?: 'active' | 'suspended' | 'banned';
 }
 
 export interface MatchResult {
@@ -250,6 +251,7 @@ export const UserSchema = z.object({
   joinedAt: z.number().optional(),
   lastLoginAt: z.number().optional(),
   createdAt: z.number().optional(),
+  status: z.enum(['active', 'suspended', 'banned']).optional(),
 });
 
 export const UniqueMarkSchema = z.object({

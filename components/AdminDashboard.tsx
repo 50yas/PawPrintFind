@@ -8,6 +8,7 @@ import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard, GlassButton } from './ui';
 import { calculateGrowth } from '../src/utils/adminUtils';
+import { UserManagementTable } from './UserManagementTable';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -424,124 +425,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 <div className="animate-fade-in">
                     {activeTab === 'users' && (
                         <div className="space-y-6 animate-fade-in">
-                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabUsers')}</h3>
-                                <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
-                                    <select 
-                                        value={roleFilter}
-                                        onChange={(e) => setRoleFilter(e.target.value)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
-                                    >
-                                        <option value="all">{t('dashboard:admin.allRoles')}</option>
-                                        <option value="owner">{t('auth:roles.owner.label')}</option>
-                                        <option value="vet">{t('auth:roles.vet.label')}</option>
-                                        <option value="shelter">{t('auth:roles.shelter.label')}</option>
-                                        <option value="admin">ADMIN</option>
-                                    </select>
-                                    <select 
-                                        value={verificationFilter}
-                                        onChange={(e) => setVerificationFilter(e.target.value as any)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
-                                    >
-                                        <option value="all">{t('dashboard:admin.allStatus')}</option>
-                                        <option value="verified">{t('dashboard:admin.verifiedOnly')}</option>
-                                        <option value="unverified">{t('dashboard:admin.unverifiedOnly')}</option>
-                                    </select>
-                                    <div className="relative flex-grow md:w-64 min-w-[200px]">
-                                        <input 
-                                            value={userSearch}
-                                            onChange={e => setUserSearch(e.target.value)}
-                                            placeholder={t('dashboard:admin.searchPlaceholder')}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
-                                        />
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
-                                <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[800px]">
-                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                            <tr className="border-b border-white/10">
-                                                <th className="p-5">{t('dashboard:admin.tableEmail')}</th>
-                                                <th className="p-5">{t('dashboard:admin.tableRole')}</th>
-                                                <th className="p-5">{t('dashboard:admin.lastSync')}</th>
-                                                <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {filteredUsers.map(u => (
-                                                <tr key={u.uid} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="p-5">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
-                                                                {u.email.charAt(0).toUpperCase()}
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-bold text-white text-sm">{u.email}</p>
-                                                                <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{u.uid}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="flex flex-col gap-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${(u.roles || []).includes('super_admin') ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-primary/20 text-primary border border-primary/30'
-                                                                    }`}>
-                                                                    {u.activeRole || 'User'}
-                                                                </span>
-                                                                {u.isVerified && <span className="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]" title="Verified Professional">🛡️</span>}
-                                                            </div>
-                                                            <div className="flex gap-1 flex-wrap">
-                                                                {(u.roles || []).map(r => (
-                                                                    <span key={r} className="text-[7px] text-slate-500 font-mono uppercase bg-white/5 px-1 rounded">{r}</span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5 font-mono text-slate-500">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : '---'}</td>
-                                                    <td className="p-5 text-right">
-                                                        <div className="flex flex-col gap-2 items-end">
-                                                            <div className="flex gap-2">
-                                                                {(u.activeRole === 'vet' || (u.roles || []).includes('vet')) && (
-                                                                    <button 
-                                                                        onClick={() => setShowAddVetPet({ show: true, email: u.email })}
-                                                                        className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                                    >
-                                                                        +PATIENT
-                                                                    </button>
-                                                                )}
-                                                                {!(u.roles || []).includes('super_admin') && (
-                                                                    <button 
-                                                                        onClick={() => handleDeleteUser(u.uid!)} 
-                                                                        className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                                    >
-                                                                        {t('dashboard:admin.purgeButton')}
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                            {!(u.roles || []).includes('super_admin') && (
-                                                                <div className="flex gap-1">
-                                                                    <select 
-                                                                        value={u.activeRole}
-                                                                        onChange={(e) => toggleUserRole(u, e.target.value)}
-                                                                        className="bg-black/40 border border-white/10 rounded px-2 py-0.5 text-[8px] font-mono text-slate-400 outline-none"
-                                                                    >
-                                                                        <option value="owner">{t('dashboard:admin.role', { role: 'OWNER' })}</option>
-                                                                        <option value="vet">{t('dashboard:admin.role', { role: 'VET' })}</option>
-                                                                        <option value="shelter">{t('dashboard:admin.role', { role: 'SHELTER' })}</option>
-                                                                        <option value="admin">{t('dashboard:admin.role', { role: 'ADMIN' })}</option>
-                                                                    </select>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </GlassCard>
+                            <UserManagementTable />
                         </div>
                     )}
 

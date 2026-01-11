@@ -42,7 +42,7 @@ describe('AddClinicModal', () => {
     it('validates required fields and submits', async () => {
         const mockOnSuccess = vi.fn();
         const mockOnClose = vi.fn();
-        vi.mocked(dbService.saveClinic).mockResolvedValue('clinic-id');
+        vi.mocked(dbService.saveClinic).mockResolvedValue();
 
         render(<AddClinicModal onClose={mockOnClose} onSuccess={mockOnSuccess} adminEmail="admin@test.com" />);
         
