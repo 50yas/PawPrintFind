@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useTranslations } from '../hooks/useTranslations';
+import { useTranslation } from 'react-i18next';
 import { UserRole } from '../types';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -12,7 +12,7 @@ interface AuthProps {
 }
 
 export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) => {
-    const { t } = useTranslations();
+    const { t } = useTranslation('auth');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,33 +30,33 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
         const code = error.code || error.message?.match(/\[(.*?)\]/)?.[1];
         switch (code) {
             case 'auth/email-already-in-use':
-                return t('auth:errors.emailInUse');
+                return t('errors.emailInUse');
             case 'auth/invalid-credential':
-                return t('auth:errors.invalidCredential');
+                return t('errors.invalidCredential');
             case 'auth/user-not-found':
-                return t('auth:errors.userNotFound');
+                return t('errors.userNotFound');
             case 'auth/wrong-password':
-                return t('auth:errors.wrongPassword');
+                return t('errors.wrongPassword');
             case 'auth/invalid-email':
-                return t('auth:errors.invalidEmail');
+                return t('errors.invalidEmail');
             case 'auth/popup-closed-by-user':
-                return t('auth:errors.popupClosed');
+                return t('errors.popupClosed');
             case 'auth/weak-password':
-                return t('auth:errors.weakPassword');
+                return t('errors.weakPassword');
             default:
-                return error.message || t('auth:errors.default');
+                return error.message || t('errors.default');
         }
     };
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email || (!isForgotPassword && !password)) {
-            setErrorMsg(t('auth:errors.requiredFields'));
+            setErrorMsg(t('errors.requiredFields'));
             return;
         }
 
         if (isRegistering && password !== confirmPassword) {
-            setErrorMsg(t('auth:errors.passwordMismatch'));
+            setErrorMsg(t('errors.passwordMismatch'));
             return;
         }
         
@@ -67,11 +67,11 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
         try {
             if (isForgotPassword) {
                 await dbService.resetPassword(email);
-                setSuccessMsg(t('auth:success.recoverySent'));
+                setSuccessMsg(t('success.recoverySent'));
                 setIsForgotPassword(false);
             } else if (isRegistering) {
                 await dbService.registerUser(email, password, [selectedRole]);
-                setSuccessMsg(t('auth:success.accountCreated'));
+                setSuccessMsg(t('success.accountCreated'));
             } else {
                 await dbService.loginWithEmail(email, password);
             }
@@ -99,10 +99,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
     };
 
     const roles: { id: UserRole; label: string; icon: string; desc: string }[] = [
-        { id: 'owner', label: t('auth:roles.owner.label'), icon: '👤', desc: t('auth:roles.owner.desc') },
-        { id: 'vet', label: t('auth:roles.vet.label'), icon: '🏥', desc: t('auth:roles.vet.desc') },
-        { id: 'shelter', label: t('auth:roles.shelter.label'), icon: '🏡', desc: t('auth:roles.shelter.desc') },
-        { id: 'volunteer', label: t('auth:roles.volunteer.label'), icon: '🛡️', desc: t('auth:roles.volunteer.desc') }
+        { id: 'owner', label: t('roles.owner.label'), icon: '👤', desc: t('roles.owner.desc') },
+        { id: 'vet', label: t('roles.vet.label'), icon: '🏥', desc: t('roles.vet.desc') },
+        { id: 'shelter', label: t('roles.shelter.label'), icon: '🏡', desc: t('roles.shelter.desc') },
+        { id: 'volunteer', label: t('roles.volunteer.label'), icon: '🛡️', desc: t('roles.volunteer.desc') }
     ];
 
     return (
@@ -119,10 +119,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                        {isForgotPassword ? t('auth:title.recovery') : isRegistering ? t('auth:title.register') : t('auth:title.login')}
+                        {isForgotPassword ? t('title.recovery') : isRegistering ? t('title.register') : t('title.login')}
                     </h2>
                     <p className="text-xs sm:text-sm text-slate-400 mt-2 sm:mt-3 font-medium px-4">
-                        {isForgotPassword ? t('auth:subtitle.recovery') : isRegistering ? t('auth:subtitle.register') : t('auth:subtitle.login')}
+                        {isForgotPassword ? t('subtitle.recovery') : isRegistering ? t('subtitle.register') : t('subtitle.login')}
                     </p>
                 </div>
 
@@ -144,8 +144,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     {!isForgotPassword && (
                         <div className="space-y-3 sm:space-y-4">
                             <div className="flex justify-between items-end px-2">
-                                <label className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">{t('auth:labels.securityProtocol')}</label>
-                                <span className="text-[7px] sm:text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{t('auth:labels.verified')}</span>
+                                <label className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">{t('labels.securityProtocol')}</label>
+                                <span className="text-[7px] sm:text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{t('labels.verified')}</span>
                             </div>
                             <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 {roles.map(role => (
@@ -185,7 +185,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 type="email" 
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)} 
-                                placeholder={t('auth:placeholders.email')} 
+                                placeholder={t('placeholders.email')} 
                                 required 
                                 className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                             />
@@ -200,7 +200,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     type={showPassword ? "text" : "password"} 
                                     value={password} 
                                     onChange={(e) => setPassword(e.target.value)} 
-                                    placeholder={t('auth:placeholders.password')} 
+                                    placeholder={t('placeholders.password')} 
                                     required 
                                     className="w-full pl-12 pr-12 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                                 />
@@ -227,7 +227,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     type={showConfirmPassword ? "text" : "password"} 
                                     value={confirmPassword} 
                                     onChange={(e) => setConfirmPassword(e.target.value)} 
-                                    placeholder={t('auth:placeholders.confirmPassword')} 
+                                    placeholder={t('placeholders.confirmPassword')} 
                                     required 
                                     className="w-full pl-12 pr-12 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                                 />
@@ -249,7 +249,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 {loading ? <LoadingSpinner /> : (
                                     <>
                                         <span className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white">
-                                            {isForgotPassword ? t('auth:buttons.initiateRecovery') : isRegistering ? t('auth:buttons.authorizeNewAccount') : t('auth:buttons.decryptDashboard')}
+                                            {isForgotPassword ? t('buttons.initiateRecovery') : isRegistering ? t('buttons.authorizeNewAccount') : t('buttons.decryptDashboard')}
                                         </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                                     </>
@@ -260,19 +260,19 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
 
                     <div className="flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6">
                         {!isForgotPassword && (
-                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('auth:buttons.lostCredentials')}</button>
+                            <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.lostCredentials')}</button>
                         )}
                         <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
                             {isRegistering ? (
-                                <><span>{t('auth:buttons.alreadyRegistered')}</span> <span className="text-primary border-b border-primary/30">{t('auth:buttons.signInProtocol')}</span></>
+                                <><span>{t('buttons.alreadyRegistered')}</span> <span className="text-primary border-b border-primary/30">{t('buttons.signInProtocol')}</span></>
                             ) : (
-                                <><span>{t('auth:buttons.newOperative')}</span> <span className="text-primary border-b border-primary/30">{t('auth:buttons.initializeProfile')}</span></>
+                                <><span>{t('buttons.newOperative')}</span> <span className="text-primary border-b border-primary/30">{t('buttons.initializeProfile')}</span></>
                             )}
                         </button>
                         {isForgotPassword && (
                             <button type="button" onClick={() => setIsForgotPassword(false)} className="text-[9px] sm:text-[10px] text-slate-400 hover:text-white transition-all font-black uppercase tracking-[0.1em] w-fit mx-auto flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
-                                {t('auth:buttons.backToIdentification')}
+                                {t('buttons.backToIdentification')}
                             </button>
                         )}
                     </div>
@@ -283,11 +283,11 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 <div className="w-full border-t border-white/5"></div>
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-[#020617] px-4 text-slate-500 font-bold tracking-widest text-[8px] sm:text-[9px]">{t('auth:labels.externalUplink')}</span>
+                                <span className="bg-[#020617] px-4 text-slate-500 font-bold tracking-widest text-[8px] sm:text-[9px]">{t('labels.externalUplink')}</span>
                             </div>
                             <button onClick={handleGoogleLogin} className="mt-4 sm:mt-6 w-full py-3 sm:py-4 bg-white/5 hover:bg-white/10 text-white font-bold text-[10px] sm:text-xs rounded-xl sm:rounded-2xl border border-white/10 flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-[1.02] shadow-sm group">
                                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" alt="" />
-                                <span className="uppercase tracking-[0.15em]">{t('auth:buttons.syncGoogle')}</span>
+                                <span className="uppercase tracking-[0.15em]">{t('buttons.syncGoogle')}</span>
                             </button>
                         </div>
                     )}

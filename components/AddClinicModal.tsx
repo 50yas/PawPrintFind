@@ -27,7 +27,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
         
         // Basic validation
         if (!name || !email || !address || !phone) {
-            addSnackbar("All fields are required", 'error');
+            addSnackbar(t('auth:alerts.fieldsRequired'), 'error');
             return;
         }
 
@@ -51,12 +51,12 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
                 details: `Manually registered clinic: ${name}`
             });
 
-            addSnackbar("Clinic registered successfully", 'success');
+            addSnackbar(t('auth:alerts.clinicRegistered'), 'success');
             onSuccess();
             onClose();
         } catch (error: any) {
             console.error("Clinic Registration Error:", error);
-            addSnackbar(error.message || "Registration failed", 'error');
+            addSnackbar(error.message || t('auth:alerts.registrationFailed'), 'error');
         } finally {
             setIsUploading(false);
         }

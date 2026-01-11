@@ -35,7 +35,7 @@ export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess, ad
                 details: `Manually registered vet: ${email}`
             });
 
-            addSnackbar("Veterinarian registered and pre-verified", 'success');
+            addSnackbar(t('auth:alerts.vetRegistered'), 'success');
             onSuccess();
             onClose();
         } catch (error: any) {

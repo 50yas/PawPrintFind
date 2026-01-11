@@ -1,7 +1,7 @@
 # Implementation Plan: Accessibility, Performance & Deep Localization
 
 ## Phase 1: Deep Localization
-- [ ] Task: Auth Localization
+- [~] Task: Auth Localization
     - [ ] Sub-task: Extract all strings from `Auth.tsx`, `AddVetModal.tsx`, etc., into `public/locales/en/auth.json`.
     - [ ] Sub-task: Update components to use `useTranslation('auth')`.
     - [ ] Sub-task: Use Gemini to translate `auth.json` into all supported languages.
