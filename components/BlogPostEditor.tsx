@@ -20,6 +20,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
     
     const [title, setTitle] = useState(post?.title || '');
     const [summary, setSummary] = useState(post?.summary || '');
+    const [imageUrl, setImageUrl] = useState(post?.imageUrl || '');
     const [content, setContent] = useState(post?.content || '');
     const [topic, setTopic] = useState('');
     const [tags, setTags] = useState<string[]>(post?.tags || []);
@@ -64,7 +65,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
                 seoTitle: title, // Simplified for now
                 seoDescription: summary,
                 views: post?.views || 0,
-                imageUrl: post?.imageUrl || "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1000&q=80" // Default placeholder
+                imageUrl: imageUrl || "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1000&q=80" // Default placeholder
             };
             
             await dbService.saveBlogPost(newPost);
@@ -109,8 +110,9 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
                     {/* Right Column: Editor */}
                     <div className="md:col-span-2 space-y-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Title</label>
+                            <label htmlFor="post-title" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Title</label>
                             <input
+                                id="post-title"
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
@@ -120,8 +122,9 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Summary (SEO Description)</label>
+                            <label htmlFor="post-summary" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Summary (SEO Description)</label>
                             <textarea
+                                id="post-summary"
                                 value={summary}
                                 onChange={(e) => setSummary(e.target.value)}
                                 rows={2}
@@ -131,8 +134,21 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Content</label>
+                            <label htmlFor="post-image-url" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cover Image URL</label>
+                            <input
+                                id="post-image-url"
+                                type="text"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-primary/50 transition-colors text-sm"
+                                placeholder="https://..."
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="post-content" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Content</label>
                             <textarea
+                                id="post-content"
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 rows={12}
@@ -142,8 +158,9 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tags (comma separated)</label>
+                            <label htmlFor="post-tags" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tags (comma separated)</label>
                             <input
+                                id="post-tags"
                                 type="text"
                                 value={tags.join(', ')}
                                 onChange={(e) => setTags(e.target.value.split(',').map(t => t.trim()))}
