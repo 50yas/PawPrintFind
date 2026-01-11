@@ -23,15 +23,15 @@ Based on the file structure, the application includes the following features:
 - **Veterinary Services:**
     - A directory to find veterinarians (`FindVet.tsx`, `Vets.tsx`).
     - A dashboard for veterinarians (`VetDashboard.tsx`) to manage their clinic and patients (`MyClinic.tsx`, `MyPatients.tsx`).
-    - **Professional Management:** An administrative "Command Center" for manual clinic registration, professional credential verification, and unlinked vet tracking.
+    - **Professional Management:** An administrative "Command Center" for manual clinic registration, professional credential verification, role-based access control, and account status management (suspension/banning).
 - **Audit & Intelligence:**
     - **System Audit Logs:** Comprehensive logging of administrative actions for transparency and security.
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON) and trace correlation for rapid debugging and reliability.
-    - **Growth Analytics:** Real-time visual tracking of user and pet registration velocity.
+    - **System Health Diagnostics:** Real-time visual tracking of user and pet registration velocity, resource allocation, and donation trends via an advanced Analytics Dashboard.
 - **Community & Engagement:**
     - **Dynamic Interaction:** Full support for Material 3 state layers (ripples, elevation, focus states) across all interactive components.
     - A community forum or social space (`Community.tsx`).
-    - **Smart Blog:** A content hub featuring real-time engagement metrics (view counters), estimated reading times, and trending article analytics.
+    - **Multilingual Smart Blog:** A Gemini-powered content hub featuring automated translation across multiple languages (es, fr, de, it, nl), real-time engagement metrics, and an integrated rich-text editor for administrative authorship.
 - **Cinematic Backgrounds:** High-performance, interactive 3D neural network and "Biometric Data Stream" scenes powered by Three.js, featuring adaptive particle systems, DNA-to-Paw morphing, and mouse-reactive parallax effects.
 - **User & Role Management & Navigation:**
     - Authentication for different user roles (`Auth.tsx`).

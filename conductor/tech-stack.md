@@ -33,7 +33,7 @@ This document outlines the core technologies used in the Paw Print application.
 ## 3. AI / Machine Learning
 
 -   **API:** Google Gemini API
-    -   **Description:** Utilized for integrating advanced generative AI capabilities, including various Gemini models for tasks such as pet health assessments and content generation.
+    -   **Description:** Utilized for integrating advanced generative AI capabilities, including various Gemini models for tasks such as pet health assessments, content generation, and automated multilingual content translation.
 
 ## 4. Graphics & Mapping
 
