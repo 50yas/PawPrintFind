@@ -21,7 +21,7 @@
     - [ ] Sub-task: Update public `Blog.tsx` to display the post in the user's current language (falling back to English).
 
 ## Phase 3: System Health & Polish
-- [ ] Task: Analytics Dashboard
-    - [ ] Sub-task: Create `SystemHealth` component with charts (using Recharts or Chart.js).
-    - [ ] Sub-task: Implement `adminService.getSystemStats()` to aggregate counts.
+- [x] Task: Analytics Dashboard [e7355bd]
+    - [x] Sub-task: Create `SystemHealth` component with charts (using Recharts or Chart.js).
+    - [x] Sub-task: Implement `adminService.getSystemStats()` to aggregate counts.
 - [ ] Task: Conductor - User Manual Verification 'Admin Command Center Phase 2' (Protocol in workflow.md)
