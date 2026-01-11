@@ -10,7 +10,7 @@
     - [x] Sub-task: Verify `useAuth` correctly restricts access to Super Admins.
 
 ## Phase 2: Multilingual Blog CMS
-- [ ] Task: Blog Editor UI
+- [x] Task: Blog Editor UI [3fa71af]
     - [ ] Sub-task: Create `BlogPostEditor` component with a rich text editor.
     - [ ] Sub-task: Add form fields for Title, Tags, and Cover Image.
 - [ ] Task: Auto-Translation Integration
