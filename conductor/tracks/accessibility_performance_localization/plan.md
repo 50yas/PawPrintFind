@@ -5,7 +5,7 @@
     - [ ] Sub-task: Extract all strings from `Auth.tsx`, `AddVetModal.tsx`, etc., into `public/locales/en/auth.json`.
     - [ ] Sub-task: Update components to use `useTranslation('auth')`.
     - [ ] Sub-task: Use Gemini to translate `auth.json` into all supported languages.
-- [~] Task: Global Translation Audit
+- [x] Task: Global Translation Audit [15943b3]
     - [ ] Sub-task: Run a regex search for hardcoded strings in `src/`.
     - [ ] Sub-task: Fix identified gaps and add keys to `common.json` or `dashboard.json`.
 
