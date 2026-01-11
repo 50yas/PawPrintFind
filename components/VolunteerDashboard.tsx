@@ -161,7 +161,7 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                             <h2 className={`text-3xl font-black tracking-tighter uppercase ${isPatrolling ? 'text-red-500 animate-pulse' : 'text-primary'}`}>
                                 {isPatrolling ? '● ACTIVE_PATROL' : 'INITIATE_SEARCH'}
                             </h2>
-                            <p className="text-sm text-slate-500 max-w-sm font-medium tracking-wide">Help locate lost animals in your current sector to earn points and save lives.</p>
+                            <p className="text-sm text-slate-500 max-w-sm font-medium tracking-wide">{t('dashboard:volunteer.helpLocate')}</p>
                         </div>
 
                         <div className="relative">
@@ -189,11 +189,11 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                             <div className="grid grid-cols-2 gap-8 w-full pt-4 animate-fade-in">
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
                                     <div className="text-3xl font-bold text-white tracking-tighter">{formatTime(patrolTime)}</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-1">SESSION_TIME</div>
+                                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-1">{t('dashboard:volunteer.sessionTime')}</div>
                                 </div>
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
                                     <div className="text-3xl font-bold text-white tracking-tighter">{patrolDistance.toFixed(2)} km</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-1">COVERAGE</div>
+                                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-1">{t('dashboard:volunteer.coverage')}</div>
                                 </div>
                             </div>
                         )}
@@ -222,14 +222,14 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                         )) : (
                             <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
                                 <div className="text-5xl">📡</div>
-                                <p className="text-xs uppercase tracking-widest font-bold">Scanning for distress signals...</p>
-                                <p className="text-[10px] font-medium text-slate-500">All local sectors currently secure.</p>
+                                <p className="text-xs uppercase tracking-widest font-bold">{t('dashboard:volunteer.scanning')}</p>
+                                <p className="text-[10px] font-medium text-slate-500">{t('dashboard:volunteer.secure')}</p>
                             </div>
                         )}
                     </div>
                     
                     <div className="mt-8 pt-4 border-t border-white/10 text-center">
-                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Protocol Version: URBAN_SCOUT_V4.0</p>
+                        <p className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">{t('dashboard:volunteer.protocolVersion')}</p>
                     </div>
                 </div>
             </div>

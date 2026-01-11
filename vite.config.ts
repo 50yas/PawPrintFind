@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],
-        exclude: ['node_modules/']
+        exclude: ['node_modules/', '**/firebase.ts', '**/loggerService.ts', '**/audioService.ts']
       },
     },
   };

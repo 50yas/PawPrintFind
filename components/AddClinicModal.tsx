@@ -63,11 +63,11 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
     };
 
     return (
-        <Modal isOpen={true} onClose={onClose} title="Manual Clinic Registration">
+        <Modal isOpen={true} onClose={onClose} title={t('dashboard:admin.manualClinicReg')}>
             <form onSubmit={handleSubmit} className="space-y-6 p-2">
                 <div className="space-y-4">
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Clinic_Name</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.clinicNameLabel')}</label>
                         <input 
                             required
                             value={name}
@@ -78,7 +78,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
                     </div>
 
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Lead_Vet_Email</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.leadVetEmail')}</label>
                         <input 
                             required
                             type="email"
@@ -90,7 +90,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
                     </div>
 
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Geographical_Nexus (Address)</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.geoNexus')}</label>
                         <input 
                             required
                             value={address}
@@ -101,7 +101,7 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
                     </div>
 
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Comms_Frequency (Phone)</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.commsFrequency')}</label>
                         <input 
                             required
                             value={phone}
@@ -113,9 +113,9 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
                 </div>
 
                 <div className="flex gap-4 pt-6">
-                    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1 !py-4 font-black tracking-widest">CANCEL</GlassButton>
+                    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1 !py-4 font-black tracking-widest">{t('dashboard:admin.cancelButton')}</GlassButton>
                     <GlassButton type="submit" variant="primary" className="flex-1 !py-4 font-black tracking-widest" disabled={isUploading}>
-                        {isUploading ? 'SYNCHRONIZING...' : 'AUTHORIZE_CLINIC'}
+                        {isUploading ? t('dashboard:admin.syncing') : t('dashboard:admin.authorizeClinic')}
                     </GlassButton>
                 </div>
             </form>

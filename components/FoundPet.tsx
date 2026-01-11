@@ -283,7 +283,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                                           <div className="flex flex-col justify-center min-w-0">
                                               <h4 className="text-xs font-black text-white uppercase truncate">{pet.name}</h4>
                                               <p className="text-[10px] text-primary font-mono uppercase truncate">{pet.breed}</p>
-                                              <p className="text-[9px] text-red-400 font-bold uppercase mt-1 animate-pulse">Missing</p>
+                                              <p className="text-[9px] text-red-400 font-bold uppercase mt-1 animate-pulse">{t('statusLost')}</p>
                                           </div>
                                       </div>
                                   ))}

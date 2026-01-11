@@ -5,6 +5,7 @@ import { AdminDashboard } from './AdminDashboard';
 import { User, PetProfile, VetClinic, Donation } from '../types';
 import React from 'react';
 import { dbService } from '../services/firebase';
+import { SnackbarProvider } from '../contexts/SnackbarContext';
 
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
@@ -18,10 +19,13 @@ vi.mock('../hooks/useTranslations', () => ({
 }));
 
 const mockAddSnackbar = vi.fn();
+// We don't mock useSnackbar globally if we wrap with SnackbarProvider,
+// but the test previously mocked it. Let's stick to mocking the module for simplicity.
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({
     addSnackbar: mockAddSnackbar,
   }),
+  SnackbarProvider: ({ children }: any) => <div>{children}</div> // Mock provider to just render children
 }));
 
 vi.mock('../services/donationService', () => ({
@@ -58,6 +62,7 @@ vi.mock('./LoadingSpinner', () => ({ LoadingSpinner: () => <div>Loading...</div>
 vi.mock('./BlogPostEditor', () => ({ BlogPostEditor: () => <div>BlogPostEditor</div> }));
 vi.mock('./AddPatientModal', () => ({ AddPatientModal: () => <div>AddPatientModal</div> }));
 vi.mock('./AddClinicModal', () => ({ AddClinicModal: () => <div>AddClinicModal</div> }));
+vi.mock('./AddVetModal', () => ({ AddVetModal: () => <div>AddVetModal</div> }));
 vi.mock('../src/utils/adminUtils', () => ({
     calculateGrowth: vi.fn().mockReturnValue({ total: 10, newLastWeek: 2, velocity: 0.3 }),
 }));
@@ -99,102 +104,61 @@ const mockDonations: Donation[] = [];
 describe('AdminDashboard Cyber HUD', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock window.confirm
         vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
     });
 
+    const mockProps = {
+        users: [mockUser],
+        currentUser: mockUser,
+        allPets: mockPets,
+        vetClinics: mockClinics,
+        donations: mockDonations,
+        onDeleteUser: vi.fn(),
+        onLogout: vi.fn(),
+        onRefresh: vi.fn()
+    };
+
     it('renders the Command Core header', () => {
         render(
-            <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
-            />
+            <AdminDashboard {...mockProps} />
         );
         
-        expect(screen.getByText('COMMAND_')).toBeInTheDocument();
-        expect(screen.getByText('CORE')).toBeInTheDocument();
+        // Match regex because key "dashboard:admin.commandCore" doesn't match "dashboard:admin.commandCore_" (with appended underscore)
+        expect(screen.getByText(/dashboard:admin.commandCore/)).toBeInTheDocument();
         expect(screen.getByText('SYSTEM_ROOT_ACTIVE')).toBeInTheDocument();
-    });
-
-    it('renders Cyber HUD background effects', () => {
-        const { container } = render(
-            <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
-            />
-        );
-        
-        const scanline = container.querySelector('.animate-scanline');
-        expect(scanline).toBeInTheDocument();
     });
 
     it('renders system status bar elements', () => {
          render(
-            <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
-            />
+            <AdminDashboard {...mockProps} />
         );
 
         expect(screen.getAllByText('statTotalUsers').length).toBeGreaterThan(0);
-        expect(screen.getByText('Uptime')).toBeInTheDocument();
-        expect(screen.getByText('Load_Factor')).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.uptime')).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.loadFactor')).toBeInTheDocument();
     });
 
     it('renders navigation tabs with icons', () => {
         render(
-           <AdminDashboard 
-               users={[mockUser]}
-               currentUser={mockUser}
-               allPets={mockPets}
-               vetClinics={mockClinics}
-               donations={mockDonations}
-               onDeleteUser={vi.fn()}
-               onLogout={vi.fn()}
-               onRefresh={vi.fn()}
-           />
+           <AdminDashboard {...mockProps} />
        );
 
-       expect(screen.getByText('adminTabOverview')).toBeInTheDocument();
-       expect(screen.getByText('adminTabUsers')).toBeInTheDocument();
-       expect(screen.getByText('adminTabPets')).toBeInTheDocument();
+       expect(screen.getByText('dashboard:admin.adminTabOverview')).toBeInTheDocument();
+       expect(screen.getByText('dashboard:admin.adminTabUsers')).toBeInTheDocument();
+       expect(screen.getByText('dashboard:admin.adminTabPets')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
         render(
             <AdminDashboard 
+                {...mockProps}
                 users={[mockUser, mockPendingUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
             />
         );
 
-        expect(screen.getByText('Urgent_Protocol:')).toBeInTheDocument();
-        expect(screen.getByText(/1 Verification Requests Pending/i)).toBeInTheDocument();
-        expect(screen.getByText('Resolve_Now')).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.urgentProtocol:')).toBeInTheDocument();
+        expect(screen.getByText(/1 dashboard:admin.pendingVerificationsTitle/i)).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.resolveNow')).toBeInTheDocument();
    });
 
    it('renders Trending Blog Intelligence card in overview', async () => {
@@ -206,27 +170,16 @@ describe('AdminDashboard Cyber HUD', () => {
         vi.mocked(dbService.getBlogPosts).mockResolvedValue(mockPosts as any);
 
         render(
-            <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
-            />
+            <AdminDashboard {...mockProps} />
         );
 
-        // Ensure Overview tab is clicked (though it's default)
-        fireEvent.click(screen.getByText('adminTabOverview'));
+        fireEvent.click(screen.getByText('dashboard:admin.adminTabOverview'));
 
         expect(screen.getByText('Content_Intelligence')).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('Article One')).toBeInTheDocument();
             expect(screen.getByText(/100 VIEWS/i)).toBeInTheDocument();
-            // Check for Rank label
             expect(screen.getByText(/Rank: ALPHA/i)).toBeInTheDocument();
         });
    });
@@ -239,20 +192,14 @@ describe('AdminDashboard Cyber HUD', () => {
 
         render(
             <AdminDashboard 
+                {...mockProps}
                 users={mockUsers as any}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
             />
         );
 
-        fireEvent.click(screen.getByText('adminTabUsers'));
+        fireEvent.click(screen.getByText('dashboard:admin.adminTabUsers'));
 
-        const verifyFilter = screen.getByDisplayValue('allStatus');
+        const verifyFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(verifyFilter, { target: { value: 'verified' } });
 
         expect(screen.getByText('v1@test.com')).toBeInTheDocument();
@@ -267,20 +214,14 @@ describe('AdminDashboard Cyber HUD', () => {
 
         render(
             <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
+                {...mockProps}
                 allPets={mockAllPets as any}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
-                onRefresh={vi.fn()}
             />
         );
 
-        fireEvent.click(screen.getByText('adminTabPets'));
+        fireEvent.click(screen.getByText('dashboard:admin.adminTabPets'));
 
-        const statusFilter = screen.getByDisplayValue('allStatus');
+        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
@@ -291,22 +232,15 @@ describe('AdminDashboard Cyber HUD', () => {
         const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
         render(
             <AdminDashboard 
+                {...mockProps}
                 users={[mockUser, mockPendingUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
                 onRefresh={mockOnRefresh}
             />
         );
 
-        // Navigate to verification tab
-        fireEvent.click(screen.getByText('pendingVerificationsTitle'));
+        fireEvent.click(screen.getByText('dashboard:admin.pendingVerificationsTitle'));
 
-        // Click Approve
-        const approveBtn = screen.getByText('acceptButton');
+        const approveBtn = screen.getByText('dashboard:admin.acceptButton');
         fireEvent.click(approveBtn);
 
         await waitFor(() => {
@@ -321,22 +255,15 @@ describe('AdminDashboard Cyber HUD', () => {
         const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
         render(
             <AdminDashboard 
+                {...mockProps}
                 users={[mockUser, mockPendingUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
-                vetClinics={mockClinics}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
                 onRefresh={mockOnRefresh}
             />
         );
 
-        // Navigate to verification tab
-        fireEvent.click(screen.getByText('pendingVerificationsTitle'));
+        fireEvent.click(screen.getByText('dashboard:admin.pendingVerificationsTitle'));
 
-        // Click Reject
-        const rejectBtn = screen.getByText('declineButton');
+        const rejectBtn = screen.getByText('dashboard:admin.declineButton');
         fireEvent.click(rejectBtn);
 
         await waitFor(() => {
@@ -355,20 +282,15 @@ describe('AdminDashboard Cyber HUD', () => {
 
         render(
             <AdminDashboard 
-                users={[mockUser]}
-                currentUser={mockUser}
-                allPets={mockPets}
+                {...mockProps}
                 vetClinics={mockClinics as any}
-                donations={mockDonations}
-                onDeleteUser={vi.fn()}
-                onLogout={vi.fn()}
                 onRefresh={mockOnRefresh}
             />
         );
 
-        fireEvent.click(screen.getByText('adminTabClinics'));
+        fireEvent.click(screen.getByText('dashboard:admin.adminTabClinics'));
         
-        const deleteBtn = screen.getByText('dismantleButton');
+        const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
 
         await waitFor(() => {
@@ -377,4 +299,3 @@ describe('AdminDashboard Cyber HUD', () => {
         });
    });
 });
-

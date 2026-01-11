@@ -53,8 +53,8 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                   <div className="w-24 h-24 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl animate-pulse">
                       ⏳
                   </div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Verification In Progress</h2>
-                  <p className="text-muted-foreground">We have received your documents and are currently reviewing your application. You will receive an email once your account is approved.</p>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">{t('dashboard:vet.verificationInProgress')}</h2>
+                  <p className="text-muted-foreground">{t('dashboard:vet.verificationMessage')}</p>
                   <p className="text-xs text-muted-foreground mt-6">Submitted on: {new Date(user.verificationData.timestamp).toLocaleDateString()}</p>
               </div>
           );
@@ -71,7 +71,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
           <div className="relative z-10">
              <div className="flex items-center gap-2 mb-2 opacity-80">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.761 2.156 18 5.402 18h9.196c3.246 0 4.585-3.239 2.707-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clipRule="evenodd" /></svg>
-                <span className="text-sm font-bold uppercase tracking-wider">Practice Portal</span>
+                <span className="text-sm font-bold uppercase tracking-wider">{t('dashboard:vet.practicePortal')}</span>
              </div>
              <h1 className="text-3xl font-bold">{t('vetDashboardTitle')}</h1>
              <p className="text-teal-100 mt-1">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
@@ -141,7 +141,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <p className="text-muted-foreground font-medium">{t('noAppointmentsToday')}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Enjoy your free time!</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('dashboard:vet.freeTime')}</p>
                 </div>
             )}
         </div>
@@ -151,19 +151,19 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
              <h3 className="text-xl font-bold text-foreground mb-4 px-2">{t('quickActionsTitle')}</h3>
              <ActionCard 
                 title={t('manageClinicNav')} 
-                description="Update contact info & hours" 
+                description={t('dashboard:vet.actionManageClinicDesc')} 
                 onClick={() => setView('myClinic')}
                 icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>}
              />
               <ActionCard 
                 title={t('managePatientsNav')} 
-                description="View records & history" 
+                description={t('dashboard:vet.actionManagePatientsDesc')} 
                 onClick={() => setView('myPatients')}
                 icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
              />
              <ActionCard 
                 title={t('smartCalendarNav')} 
-                description="Manage schedule & AI tools" 
+                description={t('dashboard:vet.actionSmartCalendarDesc')} 
                 onClick={() => setView('smartCalendar')}
                 icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
              />

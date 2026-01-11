@@ -58,12 +58,12 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-purple-900 to-indigo-900 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden">
           <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-[60px]"></div>
           <div className="relative z-10">
-             <h1 className="text-3xl font-bold">{t('shelterDashboardTitle')}</h1>
-             <p className="text-purple-100 mt-1">Manage adoptions and inquiries</p>
+             <h1 className="text-3xl font-bold">{t('dashboard:shelter.shelterDashboardTitle')}</h1>
+             <p className="text-purple-100 mt-1">{t('dashboard:shelter.manageAdoptions')}</p>
           </div>
           <button onClick={onRegisterNew} className="relative z-10 btn bg-white text-purple-900 hover:bg-purple-50 font-bold shadow-lg flex items-center gap-2">
              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
-             {t('registerNewAnimalButton')}
+             {t('dashboard:shelter.registerNewAnimalButton')}
           </button>
       </div>
       
@@ -71,7 +71,7 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
           {/* Main Content: Animals List */}
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                {t('animalsForAdoptionTitle')}
+                {t('dashboard:shelter.animalsForAdoptionTitle')}
                 <span className="bg-muted text-muted-foreground text-sm px-2 py-1 rounded-full font-normal">{shelterPets.length}</span>
             </h2>
             
@@ -86,9 +86,9 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                 <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-foreground">{t('noAnimalsRegistered')}</h3>
-                <p className="text-muted-foreground mt-2 mb-6 max-w-md">{t('noAnimalsRegisteredDesc')}</p>
-                <button onClick={onRegisterNew} className="btn btn-primary">{t('registerFirstAnimalButton')}</button>
+                <h3 className="text-xl font-bold text-foreground">{t('dashboard:shelter.noAnimalsRegistered')}</h3>
+                <p className="text-muted-foreground mt-2 mb-6 max-w-md">{t('dashboard:shelter.noAnimalsRegisteredDesc')}</p>
+                <button onClick={onRegisterNew} className="btn btn-primary">{t('dashboard:shelter.registerFirstAnimalButton')}</button>
               </div>
             )}
           </div>
@@ -112,10 +112,10 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                                   <div className="flex-grow min-w-0">
                                       <div className="flex justify-between items-start mb-1">
                                           <p className="font-bold text-sm text-foreground truncate">{chat.petName}</p>
-                                          <span className="text-[10px] text-muted-foreground">Now</span>
+                                          <span className="text-[10px] text-muted-foreground">{t('dashboard:shelter.now')}</span>
                                       </div>
                                       <p className="text-xs text-muted-foreground truncate">{chat.finderEmail}</p>
-                                      <p className="text-xs text-primary mt-2 font-medium group-hover:underline">View Conversation &rarr;</p>
+                                      <p className="text-xs text-primary mt-2 font-medium group-hover:underline">{t('dashboard:shelter.viewConversation')} &rarr;</p>
                                   </div>
                               </div>
                           ))}
@@ -123,7 +123,7 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                   ) : (
                       <div className="h-full flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-                          <p>No new inquiries yet.</p>
+                          <p>{t('dashboard:shelter.noInquiries')}</p>
                       </div>
                   )}
               </div>

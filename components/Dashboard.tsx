@@ -161,15 +161,15 @@ const PetCard: React.FC<{
 
                     {/* Facial Recognition Box Simulation */}
                     <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-40 h-40 border border-primary/50 rounded-lg shadow-[0_0_15px_rgba(45,212,191,0.2)]">
-                        <div className="absolute -top-6 left-0 text-[10px] text-primary font-mono bg-slate-950/80 px-2 py-0.5 rounded backdrop-blur-md border border-primary/20">TARGET LOCKED</div>
+                        <div className="absolute -top-6 left-0 text-[10px] text-primary font-mono bg-slate-950/80 px-2 py-0.5 rounded backdrop-blur-md border border-primary/20">{t('dashboard:common.targetLocked')}</div>
                         <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-primary/50 rounded-full -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
                     </div>
 
                     {/* Data Points */}
                     <div className="absolute top-20 right-6 text-right space-y-2">
-                        <div className="text-[10px] font-mono text-cyan-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-cyan-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-100">BIOMETRIC MATCH</div>
-                        <div className="text-[10px] font-mono text-green-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-green-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-200">VACCINATION: OK</div>
-                        <div className="text-[10px] font-mono text-purple-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-purple-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-300">GPS: ACTIVE</div>
+                        <div className="text-[10px] font-mono text-cyan-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-cyan-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-100">{t('dashboard:common.biometricMatch')}</div>
+                        <div className="text-[10px] font-mono text-green-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-green-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-200">{t('dashboard:common.vaccinationOk')}</div>
+                        <div className="text-[10px] font-mono text-purple-300 bg-slate-950/80 px-2 py-1 rounded border-r-2 border-purple-500 shadow-sm translate-x-4 group-hover:translate-x-0 transition-transform duration-300 delay-300">{t('dashboard:common.gpsActive')}</div>
                     </div>
                 </div>
 
@@ -355,7 +355,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                     <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
                     <p className="text-slate-300 mt-1 flex items-center gap-2 text-sm font-medium">
                         <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
-                        <span className="font-mono text-[10px] tracking-widest uppercase">System Active</span> 
+                        <span className="font-mono text-[10px] tracking-widest uppercase">{t('dashboard:common.systemActive')}</span> 
                         <span className="text-white/20">•</span>
                         <span>{userPets.length} {t('protectedPets', { count: userPets.length })}</span>
                     </p>
@@ -453,7 +453,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     </div>
                     <p className="font-black text-white group-hover:text-primary transition-colors text-lg uppercase tracking-widest drop-shadow-md">{t('addNewImprontaButton')}</p>
-                    <p className="text-[10px] font-mono text-slate-300 mt-1 uppercase tracking-widest">Register biometrics</p>
+                    <p className="text-[10px] font-mono text-slate-300 mt-1 uppercase tracking-widest">{t('dashboard:common.registerBiometrics')}</p>
                </GlassCard>
           </div>
         ) : (

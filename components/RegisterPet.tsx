@@ -190,7 +190,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
           if (!breed) missing.push('breed');
           
           if (missing.length > 0) {
-              triggerFunnyWarning("Halt! Even a goldfish needs a name. Please provide a Name and Breed! 🐾", missing);
+              triggerFunnyWarning(t('dashboard:register.goldfishWarning'), missing);
               return;
           }
       }
@@ -283,7 +283,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
 
     try {
         if (!currentUser || !currentUser.uid) {
-            triggerFunnyWarning("Access Protocol Failure: User not identified. Please re-authenticate.", []);
+            triggerFunnyWarning(t('dashboard:register.accessProtocolFailure'), []);
             setIsSaving(false);
             return;
         }
@@ -363,17 +363,17 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
     } catch (error: any) {
         console.error("Critical Profile Sync Error:", error);
         
-        let errorMsg = "The mainframe is resisting! " + (error.message || "Unknown error");
+        let errorMsg = t('dashboard:register.mainframeResisting', { error: error.message || "Unknown error" });
         
         // Handle specific Firebase Storage errors
         if (error.message?.includes('permission-denied') || error.message?.includes('storage/unauthorized') || error.code === 'storage/unauthorized') {
-            errorMsg = "Security Access Denied: Unable to save pet photos. Please ensure you are logged in correctly and try again. (Storage Unauthorized)";
+            errorMsg = t('dashboard:register.securityDenied');
         } else if (error.code === 'storage/canceled') {
-            errorMsg = "Upload canceled by user.";
+            errorMsg = t('dashboard:register.uploadCanceled');
         } else if (error.code === 'storage/unknown') {
-            errorMsg = "Unknown storage error occurred. Please try a different photo.";
+            errorMsg = t('dashboard:register.unknownStorageError');
         } else if (error.code === 'permission-denied') {
-            errorMsg = "You don't have permission to perform this action.";
+            errorMsg = t('dashboard:register.permissionDenied');
         }
 
         triggerFunnyWarning(errorMsg, []);
@@ -409,7 +409,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
               </div>
               
               <div className="flex flex-col items-end gap-1 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border shadow-sm">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Profile Strength</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t('dashboard:register.profileStrength')}</span>
                   <div className="flex items-center gap-3">
                       <div className="w-32 h-2.5 bg-muted rounded-full overflow-hidden">
                           <div 
@@ -517,11 +517,11 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                 ) : (
                                     <div className="space-y-4 animate-fade-in">
                                         <div className="p-4 bg-background rounded-xl border border-border shadow-inner">
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Unique Visual Hash</p>
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{t('dashboard:register.uniqueVisualHash')}</p>
                                             <p className="font-mono text-primary font-bold text-lg tracking-widest">{aiIdentityCode}</p>
                                         </div>
                                         <p className="text-sm text-muted-foreground italic bg-muted/50 p-3 rounded-lg border-l-4 border-primary">"{aiPhysicalDescription}"</p>
-                                        <button type="button" onClick={handleGenerateIdentikit} className="text-xs font-bold text-primary hover:underline uppercase tracking-wide">Regenerate Analysis</button>
+                                        <button type="button" onClick={handleGenerateIdentikit} className="text-xs font-bold text-primary hover:underline uppercase tracking-wide">{t('dashboard:register.regenerateAnalysis')}</button>
                                     </div>
                                 )}
                             </div>
@@ -529,7 +529,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                     <h4 className="text-lg font-bold text-foreground">{t('tagUniqueMarks')}</h4>
-                                    <span className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-md font-bold uppercase tracking-wider">Recommended</span>
+                                    <span className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-md font-bold uppercase tracking-wider">{t('dashboard:register.recommended')}</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{t('tagUniqueMarksDesc')}</p>
                                 <div className="max-h-[350px] overflow-y-auto pr-2 grid grid-cols-2 gap-4 custom-scrollbar">
@@ -592,10 +592,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                     <div className="bg-muted/20 p-6 rounded-2xl border border-border">
                         <div className="flex justify-between items-center mb-6">
                             <h4 className="font-bold text-lg text-foreground">{t('vaccinationsTitle')}</h4>
-                            <button type="button" onClick={addVaccination} className="text-sm font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-primary/20">+ Add Record</button>
+                            <button type="button" onClick={addVaccination} className="text-sm font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-primary/20">{t('dashboard:register.addRecord')}</button>
                         </div>
                         {vaccinations.length === 0 ? (
-                            <p className="text-sm text-muted-foreground italic text-center py-4 bg-background rounded-xl border border-dashed border-border">No vaccination records added yet.</p>
+                            <p className="text-sm text-muted-foreground italic text-center py-4 bg-background rounded-xl border border-dashed border-border">{t('dashboard:register.noVaccinationRecords')}</p>
                         ) : (
                             <div className="space-y-3">
                                 {vaccinations.map((vac, index) => (
@@ -642,7 +642,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
 
                     {homeLocations.length > 0 && (
                         <div className="bg-muted/30 p-4 rounded-xl border border-border">
-                            <h5 className="text-xs font-bold uppercase text-muted-foreground mb-3 tracking-wide">Saved Locations</h5>
+                            <h5 className="text-xs font-bold uppercase text-muted-foreground mb-3 tracking-wide">{t('dashboard:register.savedLocations')}</h5>
                             <div className="space-y-2">
                                 {homeLocations.map((loc, i) => (
                                     <div key={i} className="flex justify-between items-center bg-background p-3 rounded-lg border border-border shadow-sm">

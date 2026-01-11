@@ -162,7 +162,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                             >
             
-                                <option value="">All Breeds</option>
+                                <option value="">{t('dashboard:adoption.allBreeds')}</option>
             
                                 {uniqueBreeds.map(b => <option key={b} value={b}>{b}</option>)}
             
@@ -188,7 +188,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                             >
             
-                                <option value="">All Ages</option>
+                                <option value="">{t('dashboard:adoption.allAges')}</option>
             
                                 {uniqueAges.map(a => <option key={a} value={a}>{a}</option>)}
             
@@ -200,7 +200,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                         <div className="ml-auto text-sm text-muted-foreground font-mono">
             
-                            {filteredPets.length} matches found
+                            {t('dashboard:adoption.matchesFound', { count: filteredPets.length })}
             
                         </div>
             
@@ -266,9 +266,9 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         ) : (
             <div className="text-center py-20 bg-muted/20 rounded-3xl border border-white/5 flex flex-col items-center justify-center">
                 <span className="text-6xl mb-4">🐾</span>
-                <p className="text-xl font-bold text-foreground">No matching pets found</p>
-                <p className="text-muted-foreground mt-2">Try adjusting your filters to see more adoptable friends.</p>
-                <button onClick={() => { setFilterBreed(''); setFilterAge(''); }} className="mt-6 text-primary hover:underline">Clear all filters</button>
+                <p className="text-xl font-bold text-foreground">{t('dashboard:adoption.noMatchingPets')}</p>
+                <p className="text-muted-foreground mt-2">{t('dashboard:adoption.adjustFiltersSuggestion')}</p>
+                <button onClick={() => { setFilterBreed(''); setFilterAge(''); }} className="mt-6 text-primary hover:underline">{t('dashboard:adoption.clearFiltersButton')}</button>
             </div>
         )}
       </div>

@@ -46,11 +46,11 @@ export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess, ad
     };
 
     return (
-        <Modal isOpen={true} onClose={onClose} title="Manual Vet Registration">
+        <Modal isOpen={true} onClose={onClose} title={t('dashboard:admin.manualVetIdentity')}>
             <form onSubmit={handleSubmit} className="space-y-6 p-2">
                 <div className="space-y-4">
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Vet_Email</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.vetEmailLabel')}</label>
                         <input 
                             required
                             type="email"
@@ -62,7 +62,7 @@ export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess, ad
                     </div>
 
                     <div className="group">
-                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">Initial_Password</label>
+                        <label className="text-[10px] font-black uppercase text-primary mb-2 block tracking-widest">{t('dashboard:admin.initialPasswordLabel')}</label>
                         <input 
                             required
                             type="password"
@@ -71,14 +71,14 @@ export const AddVetModal: React.FC<AddVetModalProps> = ({ onClose, onSuccess, ad
                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:border-primary/50 focus:bg-primary/5 outline-none transition-all font-medium"
                             placeholder="••••••••"
                         />
-                        <p className="text-[9px] text-slate-500 mt-2 italic">User will be prompted to change this upon first login protocol.</p>
+                        <p className="text-[9px] text-slate-500 mt-2 italic">{t('dashboard:admin.passwordPrompt')}</p>
                     </div>
                 </div>
 
                 <div className="flex gap-4 pt-6">
-                    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">CANCEL</GlassButton>
+                    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">{t('dashboard:admin.cancelButton')}</GlassButton>
                     <GlassButton type="submit" variant="primary" className="flex-1" disabled={isRegistering}>
-                        {isRegistering ? 'INITIALIZING...' : 'AUTHORIZE_VET'}
+                        {isRegistering ? t('dashboard:admin.initializing') : t('dashboard:admin.authorizeVet')}
                     </GlassButton>
                 </div>
             </form>

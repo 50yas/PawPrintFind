@@ -28,42 +28,41 @@ describe('Auth Component', () => {
     vi.clearAllMocks();
   });
 
-  it('renders login form by default', () => {
-    render(<Auth />);
-    expect(screen.getByPlaceholderText(/Email/)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Password/)).toBeInTheDocument();
-  });
-
-  it('switches to registration form', () => {
-    render(<Auth />);
-    fireEvent.click(screen.getByText('Initialize Profile'));
-    expect(screen.getByPlaceholderText('Confirm Access Credential')).toBeInTheDocument();
-  });
-
-  it('switches to forgot password form', () => {
-    render(<Auth />);
-    fireEvent.click(screen.getByText('Lost Credentials?'));
-    expect(screen.getByText('Initiate Recovery')).toBeInTheDocument();
-  });
-
-  it('handles email/password login', async () => {
-    const { dbService } = await import('../services/firebase');
-    render(<Auth />);
-    fireEvent.change(screen.getByPlaceholderText(/Email/), { target: { value: 'test@test.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/Password/), { target: { value: 'password' } });
-    fireEvent.click(screen.getByText('Decrypt Dashboard'));
-
-    await waitFor(() => {
-      expect(dbService.loginWithEmail).toHaveBeenCalledWith('test@test.com', 'password');
+    it('renders login form by default', () => {
+      render(<Auth />);
+      expect(screen.getByPlaceholderText('auth:placeholders.email')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('auth:placeholders.password')).toBeInTheDocument();
     });
-  });
-
-  it('handles google login', async () => {
-    const { dbService } = await import('../services/firebase');
-    render(<Auth />);
-    fireEvent.click(screen.getByText(/Sync with Google ID/));
-    await waitFor(() => {
-      expect(dbService.signInWithGoogle).toHaveBeenCalled();
+  
+    it('switches to registration form', () => {
+      render(<Auth />);
+      fireEvent.click(screen.getByText('auth:buttons.initializeProfile'));
+      expect(screen.getByPlaceholderText('auth:placeholders.confirmPassword')).toBeInTheDocument();
     });
-  });
-});
+  
+    it('switches to forgot password form', () => {
+      render(<Auth />);
+      fireEvent.click(screen.getByText('auth:buttons.lostCredentials'));
+      expect(screen.getByText('auth:buttons.initiateRecovery')).toBeInTheDocument();
+    });
+  
+    it('handles email/password login', async () => {
+      const { dbService } = await import('../services/firebase');
+      render(<Auth />);
+      fireEvent.change(screen.getByPlaceholderText('auth:placeholders.email'), { target: { value: 'test@test.com' } });
+      fireEvent.change(screen.getByPlaceholderText('auth:placeholders.password'), { target: { value: 'password' } });
+      fireEvent.click(screen.getByText('auth:buttons.decryptDashboard'));
+      
+      await waitFor(() => {
+        expect(dbService.loginWithEmail).toHaveBeenCalledWith('test@test.com', 'password');
+      });
+    });
+  
+    it('handles google login', async () => {
+      const { dbService } = await import('../services/firebase');
+      render(<Auth />);
+      fireEvent.click(screen.getByText('auth:buttons.syncGoogle'));
+      await waitFor(() => {
+        expect(dbService.signInWithGoogle).toHaveBeenCalled();
+      });
+    });});
