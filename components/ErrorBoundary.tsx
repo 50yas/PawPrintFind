@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-6 text-center font-mono-tech">
                     <div className="max-w-md w-full glass-panel border-red-500/30 bg-red-500/5 p-8 rounded-2xl">
                         <div className="text-6xl mb-4">😿</div>
-                        <h1 className="text-2xl font-bold text-red-500 mb-2 uppercase tracking-widest">System Anomaly Detected</h1>
+                        <h1 className="text-2xl font-bold text-red-500 mb-2 uppercase tracking-widest">{t('systemAnomalyDetected')}</h1>
                         <p className="text-muted-foreground text-sm mb-6">
                             Our neural network encountered an unexpected glitch. The rescue mission has been paused.
                         </p>

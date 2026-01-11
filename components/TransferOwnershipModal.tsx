@@ -34,7 +34,7 @@ export const TransferOwnershipModal: React.FC<TransferOwnershipModalProps> = ({ 
             value={newOwnerEmail}
             onChange={(e) => setNewOwnerEmail(e.target.value)}
             className="input-base mt-1"
-            placeholder="new.owner@example.com"
+            placeholder={t('newOwnerPlaceholder')}
             required
             autoFocus
           />

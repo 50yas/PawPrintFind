@@ -266,7 +266,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                 value={customAmount}
                                 onFocus={handleCustomFocus}
                                 onChange={(e) => setCustomAmount(e.target.value)}
-                                placeholder="50" 
+                                placeholder={t('donationAmountPlaceholder')} 
                                 className={`w-full pl-10 pr-4 py-4 rounded-xl border-2 font-bold text-lg bg-background transition-colors outline-none ${
                                     isCustom ? 'border-primary ring-2 ring-primary/20' : 'border-border focus:border-primary'
                                 }`}
@@ -276,21 +276,20 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
                     {/* Basic Info */}
                     <div className="space-y-4 pt-4 border-t border-border">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourNameLabel')} (Optional)</label>
-                                <input type="text" value={donorName} onChange={e => setDonorName(e.target.value)} className="input-base" placeholder="J. Doe" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('emailLabel')} (Receipts)</label>
-                                <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} className="input-base" placeholder="email@example.com" />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourMessageLabel')}</label>
-                            <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} className="input-base resize-none" placeholder="Go Paw Print!" />
-                        </div>
-                        <label className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl cursor-pointer">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourNameLabel')} {t('optionalSuffix')}</label>
+                                                    <input type="text" value={donorName} onChange={e => setDonorName(e.target.value)} className="input-base" placeholder={t('donorNamePlaceholder')} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('emailLabel')} {t('receiptsSuffix')}</label>
+                                                    <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} className="input-base" placeholder={t('donorEmailPlaceholder')} />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourMessageLabel')}</label>
+                                                <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} className="input-base resize-none" placeholder={t('donationMessagePlaceholder')} />
+                                            </div>                        <label className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl cursor-pointer">
                             <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary" />
                             <span className="text-xs text-muted-foreground">{t('publiclyVisible')}</span>
                         </label>

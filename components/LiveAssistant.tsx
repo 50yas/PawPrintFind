@@ -413,7 +413,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                     <div key={index} className={`flex items-end gap-2 ${entry.speaker === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                         {entry.speaker === 'model' && (
                             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-sm overflow-hidden border border-white/20">
-                                <span className="text-white text-[10px] font-bold">AI</span>
+                                <span className="text-white text-[10px] font-bold">{t('aiLabel')}</span>
                             </div>
                         )}
                         <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-base ${entry.speaker === 'user'
@@ -467,7 +467,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                     {isError ? (
                         <div className="flex items-center gap-2">
                             <p className="text-[10px] text-red-500">{status}</p>
-                            <button onClick={retryConnection} className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded hover:bg-red-200 font-bold">Retry</button>
+                            <button onClick={retryConnection} className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded hover:bg-red-200 font-bold">{t('retryButton')}</button>
                         </div>
                     ) : (
                         <p className="text-[10px] text-muted-foreground/60">{status}</p>

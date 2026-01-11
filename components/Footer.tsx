@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
             setShowAdminModal(false);
         } catch (err: any) {
             console.error(err);
-            setError("SECURITY ALERT: Invalid administrative credentials. Access denied.");
+            setError(t('invalidAdminCredentials'));
         }
         setIsLoading(false);
     };
@@ -73,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
             setSetupStep('register');
             setError('');
         } else {
-            setError("SYSTEM ERROR: Invalid Private Security Key.");
+            setError(t('invalidSecurityKey'));
         }
     };
 
@@ -89,9 +89,9 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
             });
             await dbService.initializeSystem();
             setShowAdminModal(false);
-            addSnackbar("Super Admin initialized successfully. Please log in.", 'success');
+            addSnackbar(t('superAdminInitializedSuccess'), 'success');
         } catch (err: any) {
-            setError("Initialization failed: " + err.message);
+            setError(t('initializationFailed', { error: err.message }));
         }
         setIsLoading(false);
     };
@@ -188,10 +188,10 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                 <div className="space-y-6">
                     <div className={`p-4 rounded-xl text-center border transition-colors ${authMode === 'setup' ? 'bg-primary/10 border-primary/30' : 'bg-red-900/10 border-red-500/20'}`}>
                         <p className={`${authMode === 'setup' ? 'text-primary' : 'text-red-500'} text-xs font-bold uppercase tracking-widest`}>
-                            {authMode === 'setup' ? 'Initializing System' : 'Restricted Access'}
+                            {authMode === 'setup' ? t('initializingSystem') : t('restrictedAccess')}
                         </p>
                         <p className="text-muted-foreground text-[10px] mt-1 uppercase">
-                            {authMode === 'setup' ? 'Establishing root authority' : 'Authorized Personnel Only'}
+                            {authMode === 'setup' ? t('establishingRoot') : t('authorizedPersonnelOnly')}
                         </p>
                     </div>
 
@@ -205,7 +205,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         className="input-base"
-                                        placeholder="admin@pawprint.ai"
+                                        placeholder={t('adminEmailPlaceholder')}
                                         required 
                                     />
                                 </div>
@@ -216,7 +216,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
                                         className="input-base"
-                                        placeholder="••••••••••••"
+                                        placeholder={t('passwordPlaceholder')}
                                         required 
                                     />
                                 </div>
@@ -280,7 +280,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
                                             className="input-base"
-                                            placeholder="root@pawprint.ai"
+                                            placeholder={t('rootEmailPlaceholder')}
                                             required 
                                         />
                                     </div>
@@ -291,7 +291,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                             value={password}
                                             onChange={e => setPassword(e.target.value)}
                                             className="input-base"
-                                            placeholder="Min. 8 characters"
+                                            placeholder={t('minCharacters')}
                                             required 
                                             minLength={8}
                                         />

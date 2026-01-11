@@ -39,11 +39,11 @@ export const ContactForm: React.FC = () => {
     if (submitted) {
         return (
             <div className="text-center p-8 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 animate-fade-in">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="flex items-center gap-2 text-green-600 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    <span className="font-bold">{t('success.messageSent')}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-green-800 dark:text-green-300">{t('messageSentSuccess')}</h3>
-                <button onClick={() => {setSubmitted(false); setName(''); setEmail(''); setMessage('');}} className="mt-4 text-sm font-bold text-green-700 underline">Send another message</button>
+                <button onClick={() => {setSubmitted(false); setName(''); setEmail(''); setMessage('');}} className="mt-4 text-sm font-bold text-green-700 underline">{t('sendAnotherMessage')}</button>
             </div>
         );
     }

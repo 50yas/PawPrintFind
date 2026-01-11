@@ -78,7 +78,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                             value={name}
                             onChange={e => setName(e.target.value)}
                             className="input-base w-full bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white"
-                            placeholder="es. Max"
+                            placeholder={t('maxNamePlaceholder')}
                         />
                     </div>
                     <div>
@@ -88,7 +88,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                             value={breed}
                             onChange={e => setBreed(e.target.value)}
                             className="input-base w-full bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white"
-                            placeholder="es. Labrador"
+                            placeholder={t('labradorPlaceholder')}
                         />
                     </div>
                     <div>
@@ -100,7 +100,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             className="input-base w-full bg-white/5 border-white/10 rounded-xl px-4 py-3 text-white"
-                            placeholder="owner@example.com"
+                            placeholder={t('ownerEmailPlaceholder')}
                         />
                     </div>
 

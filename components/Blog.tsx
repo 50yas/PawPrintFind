@@ -58,7 +58,7 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                 <div className="relative w-full max-w-md">
                     <input 
                         type="text" 
-                        placeholder="Search articles..." 
+                        placeholder={t('searchArticles')} 
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         className="input-base pl-10 rounded-full bg-card/80 backdrop-blur-sm border-white/10 shadow-sm"

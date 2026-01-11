@@ -28,7 +28,7 @@ export const AdminUplink: React.FC<AdminUplinkProps> = ({ currentUser, onClose }
             const result = await dbService.verifyAdminKey(key);
 
             if (!result.valid) {
-                throw new Error("Invalid Administration Key.");
+                throw new Error(t('invalidAdminKey'));
             }
 
             // 2. Elevate Role
@@ -38,7 +38,7 @@ export const AdminUplink: React.FC<AdminUplinkProps> = ({ currentUser, onClose }
             window.location.reload();
 
         } catch (err: any) {
-            setError(err.message || "Uplink Failed.");
+            setError(err.message || t('uplinkFailed'));
         } finally {
             setLoading(false);
         }
@@ -54,28 +54,28 @@ export const AdminUplink: React.FC<AdminUplinkProps> = ({ currentUser, onClose }
                     <div className="w-16 h-16 bg-primary/10 border border-primary rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                         <span className="text-2xl">⚡</span>
                     </div>
-                    <h2 className="text-xl font-bold text-white tracking-[0.3em] uppercase">Admin Uplink</h2>
-                    <p className="text-[10px] text-primary mt-2 uppercase tracking-widest">Secure Role Elevation Protocol</p>
+                    <h2 className="text-xl font-bold text-white tracking-[0.3em] uppercase">{t('adminUplinkTitle')}</h2>
+                    <p className="text-[10px] text-primary mt-2 uppercase tracking-widest">{t('secureRoleProtocol')}</p>
                 </div>
 
                 {error && <div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-[10px] mb-6 text-center uppercase tracking-wider">{error}</div>}
 
                 <form onSubmit={handleUplink} className="space-y-6 relative z-10">
                     <div className="space-y-2">
-                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block text-center">Enter Access Key</label>
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block text-center">{t('enterAccessKey')}</label>
                         <input
                             type="password"
                             value={key}
                             onChange={e => setKey(e.target.value)}
                             className="input-base !bg-black !border-primary/30 text-primary text-center tracking-[1em] text-lg py-3 focus:border-primary transition-all"
-                            placeholder="••••••••••••"
+                            placeholder={t('passwordPlaceholder')}
                             autoFocus
                             required
                         />
                     </div>
 
                     <button type="submit" disabled={loading} className="w-full btn btn-primary py-4 text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-primary/20">
-                        {loading ? <LoadingSpinner /> : 'Initiate Uplink'}
+                        {loading ? <LoadingSpinner /> : t('initiateUplink')}
                     </button>
                 </form>
 

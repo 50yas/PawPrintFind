@@ -441,6 +441,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             onChange={(e: any) => setName(e.target.value)} 
                             required 
                             shake={shakingFields.includes('name')}
+                            placeholder={t('maxNamePlaceholder')}
                         />
                         <div className="relative">
                             <FloatingLabelInput 
@@ -450,6 +451,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                 onChange={(e: any) => setBreed(e.target.value)} 
                                 required 
                                 shake={shakingFields.includes('breed')}
+                                placeholder={t('labradorPlaceholder')}
                             />
                             {isIdentifyingBreed && <span className="absolute right-3 top-4 text-xs text-primary animate-pulse font-medium bg-primary/10 px-2 py-1 rounded">{t('identifyingBreed')}</span>}
                         </div>
@@ -508,11 +510,11 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             <div className="bg-gradient-to-br from-card to-muted/30 border border-border p-6 rounded-2xl shadow-sm">
                                 <h4 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
                                     <span className="p-1.5 bg-primary/10 rounded-lg text-primary"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg></span>
-                                    AI Biometric Identity
+                                    {t('aiBiometricIdentity')}
                                 </h4>
                                 {!aiIdentityCode ? (
                                     <button type="button" onClick={handleGenerateIdentikit} disabled={isGeneratingIdentity} className="btn btn-secondary w-full py-4 text-sm font-bold border-2 hover:border-primary transition-all">
-                                        {isGeneratingIdentity ? <LoadingSpinner /> : 'Generate Visual Hash'}
+                                        {isGeneratingIdentity ? <LoadingSpinner /> : t('generateVisualHash')}
                                     </button>
                                 ) : (
                                     <div className="space-y-4 animate-fade-in">
@@ -548,7 +550,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         <h4 className="font-bold text-lg mb-4 text-foreground">{t('videoUploadLabel')}</h4>
                         <div className="flex items-center gap-4">
                             <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
-                                {videoFile ? t('changePhotoButton') : 'Select Video'}
+                                {videoFile ? t('changePhotoButton') : t('selectVideo')}
                                 <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files ? e.target.files[0] : null)} className="hidden" />
                             </label>
                             {videoFile && (
@@ -565,7 +567,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         <h4 className="font-bold text-lg mb-4 text-foreground">{t('audioUploadLabel')}</h4>
                         <div className="flex items-center gap-4">
                             <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
-                                {audioFile ? t('changePhotoButton') : 'Select Audio'}
+                                {audioFile ? t('changePhotoButton') : t('selectAudio')}
                                 <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files ? e.target.files[0] : null)} className="hidden" />
                             </label>
                             {audioFile && (
