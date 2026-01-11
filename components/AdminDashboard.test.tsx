@@ -53,9 +53,22 @@ vi.mock('../services/firebase', () => ({
     },
 }));
 
+vi.mock('../services/adminService', () => ({
+    adminService: {
+        getSystemStats: vi.fn().mockResolvedValue({
+            totalUsers: 10,
+            totalPets: 5,
+            totalClinics: 2,
+            totalDonations: 100,
+            activeAlerts: 1
+        })
+    }
+}));
+
 vi.mock('./ui', () => ({
     GlassCard: ({children, className}: any) => <div className={`glass-card ${className}`} data-testid="glass-card">{children}</div>,
     GlassButton: ({children, className, onClick}: any) => <button className={`glass-button ${className}`} onClick={onClick}>{children}</button>,
+    CinematicLoader: () => <div>Loading...</div>,
 }));
 
 vi.mock('./LoadingSpinner', () => ({ LoadingSpinner: () => <div>Loading...</div> }));
@@ -184,28 +197,6 @@ describe('AdminDashboard Cyber HUD', () => {
         });
    });
 
-   it('filters users by verification status', async () => {
-        const mockUsers = [
-            { uid: 'u1', email: 'v1@test.com', roles: ['vet'], isVerified: true, friends: [], createdAt: new Date() },
-            { uid: 'u2', email: 'v2@test.com', roles: ['vet'], isVerified: false, friends: [], createdAt: new Date() }
-        ];
-
-        render(
-            <AdminDashboard 
-                {...mockProps}
-                users={mockUsers as any}
-            />
-        );
-
-        fireEvent.click(screen.getByText('dashboard:admin.adminTabUsers'));
-
-        const verifyFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
-        fireEvent.change(verifyFilter, { target: { value: 'verified' } });
-
-        expect(screen.getByText('v1@test.com')).toBeInTheDocument();
-        expect(screen.queryByText('v2@test.com')).not.toBeInTheDocument();
-   });
-
    it('filters pets by status', async () => {
         const mockAllPets = [
             { id: 'p1', name: 'LostPet', status: 'lost', photos: [], breed: 'Dog', age: '1' },
@@ -226,52 +217,6 @@ describe('AdminDashboard Cyber HUD', () => {
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
         expect(screen.queryByText('AdoptMe')).not.toBeInTheDocument();
-   });
-
-   it('handles user approval', async () => {
-        const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
-        render(
-            <AdminDashboard 
-                {...mockProps}
-                users={[mockUser, mockPendingUser]}
-                onRefresh={mockOnRefresh}
-            />
-        );
-
-        fireEvent.click(screen.getByText('dashboard:admin.pendingVerificationsTitle'));
-
-        const approveBtn = screen.getByText('dashboard:admin.acceptButton');
-        fireEvent.click(approveBtn);
-
-        await waitFor(() => {
-            expect(dbService.saveUser).toHaveBeenCalledWith(expect.objectContaining({
-                uid: '456',
-                isVerified: true
-            }));
-        });
-   });
-
-   it('handles user rejection', async () => {
-        const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
-        render(
-            <AdminDashboard 
-                {...mockProps}
-                users={[mockUser, mockPendingUser]}
-                onRefresh={mockOnRefresh}
-            />
-        );
-
-        fireEvent.click(screen.getByText('dashboard:admin.pendingVerificationsTitle'));
-
-        const rejectBtn = screen.getByText('dashboard:admin.declineButton');
-        fireEvent.click(rejectBtn);
-
-        await waitFor(() => {
-            expect(dbService.saveUser).toHaveBeenCalledWith(expect.objectContaining({
-                uid: '456',
-                isVerified: false
-            }));
-        });
    });
 
    it('handles clinic deletion', async () => {

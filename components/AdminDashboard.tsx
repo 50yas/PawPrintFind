@@ -2,16 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { User, PetProfile, VetClinic, LogEntry, Donation, BlogPost, View } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { calculateTotalFromList } from '../services/donationService';
 import { logger } from '../services/loggerService';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard, GlassButton } from './ui';
-import { calculateGrowth } from '../src/utils/adminUtils';
 import { UserManagementTable } from './UserManagementTable';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
+const SystemHealth = React.lazy(() => import('./SystemHealth').then(m => ({ default: m.SystemHealth })));
 const AddPatientModal = React.lazy(() => import('./AddPatientModal').then(m => ({ default: m.AddPatientModal })));
 const AddClinicModal = React.lazy(() => import('./AddClinicModal').then(m => ({ default: m.AddClinicModal })));
 const AddVetModal = React.lazy(() => import('./AddVetModal').then(m => ({ default: m.AddVetModal })));
@@ -59,14 +58,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         return logger.subscribe(setLogs);
     }, []);
 
-    const totalRevenue = useMemo(() => calculateTotalFromList(donations), [donations]);
-
     const pendingVerifications = useMemo(() => {
         return users.filter(u => ((u.roles || []).includes('vet') || (u.roles || []).includes('shelter')) && !u.isVerified && u.verificationData);
     }, [users]);
-
-    const userStats = useMemo(() => calculateGrowth(users), [users]);
-    const petStats = useMemo(() => calculateGrowth(allPets), [allPets]);
 
     const filteredUsers = useMemo(() => {
         return users.filter(u => {
@@ -311,79 +305,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                 {activeTab === 'overview' && (
                     <div className="space-y-8 animate-fade-in">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <GlassCard className="p-6 border-primary/20 bg-primary/5 group relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-                                <p className="text-[10px] font-black text-primary uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalDonations')}</p>
-                                <h3 className="text-4xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{totalRevenue}</h3>
-                                <div className="mt-4 flex items-center gap-2">
-                                    <span className="text-[8px] font-black text-emerald-400 uppercase">{t('dashboard:admin.statusNominal')}</span>
-                                </div>
-                            </GlassCard>
-
-                            <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
-                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalUsers')}</p>
-                                <h3 className="text-4xl font-black text-white">{userStats.total}</h3>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="text-[9px] font-bold text-primary">+{userStats.newLastWeek} NEW_7D</span>
-                                    <span className="text-[9px] font-mono text-slate-500">{userStats.velocity}/DAY</span>
-                                </div>
-                            </GlassCard>
-
-                            <GlassCard className="p-6 border-white/10 bg-white/5 group relative overflow-hidden text-cyan-400">
-                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statTotalPets')}</p>
-                                <h3 className="text-4xl font-black text-white">{petStats.total}</h3>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="text-[9px] font-bold text-primary">+{petStats.newLastWeek} NEW_7D</span>
-                                    <span className="text-[9px] font-mono text-slate-500">{petStats.velocity}/DAY</span>
-                                </div>
-                            </GlassCard>
-
-                            <GlassCard className="p-6 border-red-500/20 bg-red-500/5 group relative overflow-hidden">
-                                <div className="absolute inset-0 bg-red-500/5 animate-pulse pointer-events-none"></div>
-                                <p className="text-[10px] font-black text-red-500 uppercase mb-2 tracking-[0.2em] opacity-70">{t('statActiveAlerts')}</p>
-                                <h3 className="text-4xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]">{allPets.filter(p => p.isLost).length}</h3>
-                                <div className="mt-4 flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
-                                    <span className="text-[8px] font-black text-red-400 uppercase">{t('dashboard:admin.urgentResponseRequired')}</span>
-                                </div>
-                            </GlassCard>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
-                                <h4 className="text-lg font-black text-white uppercase tracking-tight mb-6 flex items-center gap-3">
-                                    <span className="w-2 h-2 bg-primary rounded-full animate-ping"></span>
-                                    {t('dashboard:admin.statusNominal').split(':')[0]} Protocol Status
-                                </h4>
-                                <div className="space-y-4">
-                                    {[
-                                        { label: 'Database_Sync', status: 'Optimal', val: '12ms' },
-                                        { label: 'Encryption_Layer', status: 'Active', val: 'AES-256' },
-                                        { label: 'AI_Model_Flash', status: 'Ready', val: 'v2.5-PRO' }
-                                    ].map(layer => (
-                                        <div key={layer.label} className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-emerald-400">
-                                            <div className="flex flex-col">
-                                                <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">{layer.label}</span>
-                                                <span className="text-[8px] font-mono text-slate-600 mt-1">{layer.val}</span>
-                                            </div>
-                                            <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black border border-emerald-500/30 uppercase tracking-tighter shadow-[0_0_10px_rgba(16,185,129,0.2)]">{layer.status}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </GlassCard>
-
-                            <GlassCard className="p-8 border-white/10 bg-white/5 flex flex-col justify-center text-center relative group">
-                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                                <div className="max-w-xs mx-auto relative z-10">
-                                    <div className="text-6xl mb-6 drop-shadow-[0_0_20px_rgba(20,184,166,0.4)]">🚀</div>
-                                    <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2">{t('dashboard:admin.platformScale')}</h4>
-                                    <p className="text-xs text-slate-400 font-medium mb-8 leading-relaxed">System is currently orchestrating {users.length} active neural nodes across {allPets.length} biometric profiles. Efficiency is at maximal levels.</p>
-                                    <GlassButton onClick={handleRefresh} variant="primary" className="w-full !py-4 shadow-xl uppercase font-black tracking-widest">{t('dashboard:admin.forceSync')}</GlassButton>
-                                </div>
-                            </GlassCard>
-                        </div>
+                        <React.Suspense fallback={<LoadingSpinner />}>
+                            <SystemHealth />
+                        </React.Suspense>
 
                         {/* Trending Blog Intelligence */}
                         <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
