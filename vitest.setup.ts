@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+import 'vitest-axe/extend-expect';
 
 // Mock Firebase SDK
 vi.mock('firebase/app', () => ({
@@ -47,6 +48,7 @@ vi.mock('firebase/firestore', () => ({
   addDoc: vi.fn(),
   orderBy: vi.fn(),
   limit: vi.fn(),
+  onSnapshot: vi.fn(() => () => {}), // Mock unsubscribe
 }));
 
 vi.mock('firebase/storage', () => ({
@@ -110,3 +112,12 @@ vi.stubGlobal('crypto', {
 });
 
 vi.stubGlobal('scrollTo', vi.fn());
+
+class IntersectionObserverMock {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+  takeRecords = vi.fn();
+}
+
+vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);

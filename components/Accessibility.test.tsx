@@ -5,6 +5,9 @@ import { axe } from 'vitest-axe';
 import { expect, describe, it, vi } from 'vitest';
 import { Dashboard } from './Dashboard';
 import { AdoptionCenter } from './AdoptionCenter';
+import { Auth } from './Auth';
+import { Home } from './Home';
+import { Navbar } from './Navbar';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
@@ -110,6 +113,60 @@ describe('Accessibility Audit', () => {
               onInquire={vi.fn()} 
               goBack={vi.fn()} 
               currentUser={null} 
+            />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('Auth should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <Auth onLogin={vi.fn()} onClose={vi.fn()} />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('Home should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <Home 
+              setView={vi.fn()} 
+              openLogin={vi.fn()} 
+              currentUser={null} 
+              lostPets={[]}
+              petsForAdoption={[]}
+            />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('Navbar should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <Navbar 
+              user={mockUser} 
+              currentView="dashboard" 
+              setView={vi.fn()} 
+              setShowAuth={vi.fn()} 
+              onLogout={vi.fn()} 
             />
           </ThemeProvider>
         </LanguageProvider>

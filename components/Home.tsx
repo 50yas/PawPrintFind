@@ -284,7 +284,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-card/10 backdrop-blur-3xl border-y border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16 md:mb-24">
-                        <h3 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('howItWorksTitle')}</h3>
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('howItWorksTitle')}</h2>
                         <div className="h-1 w-16 md:w-20 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 md:mb-8 rounded-full"></div>
                         <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">{t('ecosystemDesc')}</p>
                     </div>
@@ -302,7 +302,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                     <span className="text-xs font-bold tracking-widest text-white uppercase">{t('demoVideo')}</span>
                   </div>
-                        <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">{t('ecosystemTitle')}</h3>
+                        <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">{t('ecosystemTitle')}</h2>
                     </div>
                     <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black group">
                         <video
@@ -355,7 +355,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             <section id="missing-pets-map" className="scroll-animation container mx-auto px-6 relative z-10 py-12 md:py-32">
                 <div className="text-center mb-12 md:mb-16">
-                    <h3 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('missingPetsMapTitle')}</h3>
+                    <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('missingPetsMapTitle')}</h2>
                     <p className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground font-medium">{t('missingPetsMapDesc')}</p>
                 </div>
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
@@ -372,7 +372,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                     <div className="absolute top-0 end-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                     <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
                         <div className="space-y-4 md:space-y-6">
-                            <h3 className="text-3xl md:text-5xl font-black text-white leading-[1] tracking-tighter">{t('forVetsTitle')}</h3>
+                            <h2 className="text-3xl md:text-5xl font-black text-white leading-[1] tracking-tighter">{t('forVetsTitle')}</h2>
                             <p className="text-base md:text-xl text-slate-200 leading-relaxed font-medium opacity-90">{t('forVetsDesc')}</p>
                             <button
                                 onClick={openLogin}
@@ -398,7 +398,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-stretch">
                     <GlassCard className="p-8 md:p-10 flex flex-col justify-between h-full border-white/10 bg-slate-900/40 backdrop-blur-3xl shadow-2xl">
                         <div className="space-y-4 md:space-y-6">
-                            <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">{t('openSourceTitle')}</h3>
+                            <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">{t('openSourceTitle')}</h2>
                             <p className="text-slate-300 leading-relaxed text-base md:text-lg font-medium">{t('openSourceDesc')}</p>
                         </div>
                         <div className="pt-8 md:pt-10">

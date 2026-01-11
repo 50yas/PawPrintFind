@@ -207,6 +207,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 <button 
                                     type="button" 
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                                     className="absolute inset-y-0 right-4 flex items-center text-slate-500 hover:text-white transition-colors"
                                 >
                                     {showPassword ? (

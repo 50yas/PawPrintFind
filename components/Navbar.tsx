@@ -138,6 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
              <button
               data-testid="mobile-menu-trigger"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle mobile menu"
               className="relative w-10 h-10 rounded-xl bg-slate-900/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary shadow-lg overflow-hidden group"
             >
               <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
