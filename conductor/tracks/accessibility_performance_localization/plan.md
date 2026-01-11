@@ -10,10 +10,10 @@
     - [ ] Sub-task: Fix identified gaps and add keys to `common.json` or `dashboard.json`.
 
 ## Phase 2: Accessibility & Compliance
-- [ ] Task: WCAG Audit & Fixes
-    - [ ] Sub-task: Install `axe-core` or similar dev tool to audit pages.
-    - [ ] Sub-task: Fix semantic HTML issues (missing `alt`, bad heading hierarchy).
-    - [ ] Sub-task: Ensure focus trapping works correctly in all Modals.
+- [x] Task: WCAG Audit & Fixes [f4ad3c3]
+    - [x] Sub-task: Install `axe-core` or similar dev tool to audit pages.
+    - [x] Sub-task: Fix semantic HTML issues (missing `alt`, bad heading hierarchy).
+    - [x] Sub-task: Ensure focus trapping works correctly in all Modals.
 
 ## Phase 3: Performance & PWA
 - [ ] Task: Code Splitting
