@@ -9,7 +9,7 @@
     - [x] Sub-task: Integrate the table into `AdminDashboard.tsx`.
     - [x] Sub-task: Verify `useAuth` correctly restricts access to Super Admins.
 
-## Phase 2: Multilingual Blog CMS
+## Phase 2: Multilingual Blog CMS [checkpoint: 891fd12]
 - [x] Task: Blog Editor UI [3fa71af]
     - [ ] Sub-task: Create `BlogPostEditor` component with a rich text editor.
     - [ ] Sub-task: Add form fields for Title, Tags, and Cover Image.
