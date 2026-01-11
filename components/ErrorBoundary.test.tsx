@@ -1,36 +1,32 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from './ErrorBoundary';
 import { logger } from '../services/loggerService';
+import { LanguageProvider } from '../contexts/LanguageContext';
 
-// Mock logger
 vi.mock('../services/loggerService', () => ({
-    logger: {
-        error: vi.fn(),
-    },
+  logger: {
+    error: vi.fn(),
+  },
 }));
 
 const ProblematicComponent = () => {
-    throw new Error('Test Error');
+  throw new Error('Test Error');
 };
 
 describe('ErrorBoundary Integration', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        // Prevent React from logging the error to console during test
-        vi.spyOn(console, 'error').mockImplementation(() => {});
-    });
+  it('should catch errors and log them using the structured logger', () => {
+    // Suppress console.error for this test to keep output clean
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    it('should catch errors and log them using the structured logger', () => {
-        render(
-            <ErrorBoundary>
-                <ProblematicComponent />
-            </ErrorBoundary>
-        );
+    render(
+      <LanguageProvider>
+        <ErrorBoundary>
+          <ProblematicComponent />
+        </ErrorBoundary>
+      </LanguageProvider>
+    );
 
-        expect(screen.getByText('System Anomaly Detected')).toBeInTheDocument();
+        expect(screen.getByText('systemAnomalyDetected')).toBeInTheDocument();
         expect(logger.error).toHaveBeenCalledWith(
             'CRITICAL_SYSTEM_ANOMALY',
             expect.objectContaining({

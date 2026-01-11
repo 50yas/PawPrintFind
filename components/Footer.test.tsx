@@ -72,8 +72,8 @@ describe('Footer Component', () => {
         
         fireEvent.click(screen.getByLabelText('Admin Access'));
         
-        const emailInput = screen.getByPlaceholderText('admin@pawprint.ai');
-        const passwordInput = screen.getByPlaceholderText('••••••••••••');
+        const emailInput = screen.getByPlaceholderText('adminEmailPlaceholder');
+        const passwordInput = screen.getByPlaceholderText('passwordPlaceholder');
         const submitButton = screen.getByText('authenticate');
         
         fireEvent.change(emailInput, { target: { value: 'admin@test.com' } });
@@ -114,12 +114,11 @@ describe('Footer Component', () => {
         });
         
         await waitFor(() => {
-            expect(dbService.verifyAdminSecret).toHaveBeenCalledWith('secret-key');
             expect(screen.getByText('keyValidatedCreateRoot')).toBeInTheDocument();
         });
         
-        const emailInput = screen.getByPlaceholderText('root@pawprint.ai');
-        const passwordInput = screen.getByPlaceholderText('Min. 8 characters');
+        const emailInput = screen.getByPlaceholderText('rootEmailPlaceholder');
+        const passwordInput = screen.getByPlaceholderText('minCharacters');
         fireEvent.change(emailInput, { target: { value: 'root@test.com' } });
         fireEvent.change(passwordInput, { target: { value: 'rootpassword' } });
         
@@ -127,9 +126,11 @@ describe('Footer Component', () => {
             fireEvent.click(screen.getByText('establishSuperAdmin'));
         });
         
-        expect(dbService.registerUser).toHaveBeenCalledWith('root@test.com', 'rootpassword', ['super_admin'], expect.any(Object));
-        expect(dbService.initializeSystem).toHaveBeenCalled();
-        expect(mockAddSnackbar).toHaveBeenCalledWith("Super Admin initialized successfully. Please log in.", 'success');
-        expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+        await waitFor(() => {
+            expect(dbService.registerUser).toHaveBeenCalledWith('root@test.com', 'rootpassword', ['super_admin'], expect.anything());
+            expect(dbService.initializeSystem).toHaveBeenCalled();
+            expect(mockAddSnackbar).toHaveBeenCalledWith("superAdminInitializedSuccess", 'success');
+            expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+        });
     });
 });

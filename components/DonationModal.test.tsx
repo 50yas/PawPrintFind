@@ -58,12 +58,11 @@ describe('DonationModal Component', () => {
   });
 
   it('handles custom amount input', () => {
-    render(<DonationModal isOpen={true} onClose={mockOnClose} />);
-    
-    const customInput = screen.getByPlaceholderText('50');
-    fireEvent.focus(customInput);
-    fireEvent.change(customInput, { target: { value: '75' } });
-
+        render(<DonationModal isOpen={true} onClose={mockOnClose} />);
+        
+        const customInput = screen.getByPlaceholderText('donationAmountPlaceholder');
+        fireEvent.focus(customInput);
+        fireEvent.change(customInput, { target: { value: '75' } });
     expect(screen.getByText(/payWithStripe/i)).toHaveTextContent('€75.00');
   });
 

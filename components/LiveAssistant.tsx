@@ -387,6 +387,27 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
 
     return (
         <div className="h-full flex flex-col bg-background/50">
+            {/* Header */}
+            <div className="flex-shrink-0 p-4 border-b border-white/10 flex items-center justify-between bg-card/50 backdrop-blur-md">
+                <div className="flex-1 flex items-center gap-3">
+                    <div className="relative">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg border border-white/20">
+                            <span className="text-white text-[10px] font-bold">{t('aiLabel')}</span>
+                        </div>
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-900 ${
+                            status === 'connected' ? 'bg-green-500 animate-pulse' : 
+                            status === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
+                        }`}></div>
+                    </div>
+                    <div>
+                        <h3 className="text-xs font-black text-white uppercase tracking-widest">{t('liveAssistantTitle')}</h3>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                            {status}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Visualizer Area */}
             <div className={`flex-shrink-0 border-b border-white/5 bg-black/5 p-1 flex items-center justify-center relative overflow-hidden transition-all duration-300 ${isMicActive ? 'h-14' : 'h-8'}`}>
                 <AudioVisualizer stream={mediaStreamRef.current} isActive={isMicActive} />
