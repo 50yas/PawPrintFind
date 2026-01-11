@@ -1,13 +1,13 @@
 # Implementation Plan: Admin Command Center Phase 2 & Multilingual CMS
 
 ## Phase 1: User Management Core
-- [~] Task: Create `UserManagementTable` Component
-    - [ ] Sub-task: Build the UI with search and pagination.
-    - [ ] Sub-task: Create `adminService.getUsers()` and `adminService.updateUserRole()`.
-    - [ ] Sub-task: Implement `adminService.toggleUserStatus()` (Ban/Unban).
-- [ ] Task: Integration & RBAC
-    - [ ] Sub-task: Integrate the table into `AdminDashboard.tsx`.
-    - [ ] Sub-task: Verify `useAuth` correctly restricts access to Super Admins.
+- [x] Task: Create `UserManagementTable` Component [0c514d5]
+    - [x] Sub-task: Build the UI with search and pagination.
+    - [x] Sub-task: Create `adminService.getUsers()` and `adminService.updateUserRole()`.
+    - [x] Sub-task: Implement `adminService.toggleUserStatus()` (Ban/Unban).
+- [x] Task: Integration & RBAC [0c514d5]
+    - [x] Sub-task: Integrate the table into `AdminDashboard.tsx`.
+    - [x] Sub-task: Verify `useAuth` correctly restricts access to Super Admins.
 
 ## Phase 2: Multilingual Blog CMS
 - [ ] Task: Blog Editor UI
