@@ -3,7 +3,7 @@ import { adminService } from './adminService';
 import { logger } from './loggerService';
 import { auth } from './firebase';
 import type { Mock } from 'vitest';
-import { getDocs, setDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { getDocs, setDoc, deleteDoc, addDoc, getCountFromServer, getAggregateFromServer, sum } from 'firebase/firestore';
 
 // Mock dependencies
 vi.mock('./loggerService');
@@ -17,11 +17,61 @@ vi.mock('./firebase', () => ({
     db: { _isFirestore: true }
 }));
 
+// Override global firestore mock for this file to include aggregation functions
+vi.mock('firebase/firestore', () => {
+    return {
+        getDocs: vi.fn(),
+        setDoc: vi.fn(),
+        deleteDoc: vi.fn(),
+        addDoc: vi.fn(),
+        collection: vi.fn(),
+        doc: vi.fn(() => ({ id: 'mockDoc' })),
+        query: vi.fn(),
+        where: vi.fn(),
+        orderBy: vi.fn(),
+        limit: vi.fn(),
+        getCountFromServer: vi.fn(),
+        getAggregateFromServer: vi.fn(),
+        sum: vi.fn(),
+    };
+});
+
 describe('adminService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         // Default: unauthenticated
         (auth.currentUser as any) = null;
+    });
+
+    describe('getSystemStats', () => {
+        it('should throw error if user is not authenticated', async () => {
+            await expect(adminService.getSystemStats()).rejects.toThrow('Authentication required');
+        });
+
+        it('should return system stats if authenticated', async () => {
+            (auth.currentUser as any) = { uid: 'admin-123' };
+            
+            // Mock counts
+            (getCountFromServer as Mock).mockResolvedValue({ data: () => ({ count: 10 }) });
+            
+            // Mock aggregation (sum)
+            (getAggregateFromServer as Mock).mockResolvedValue({ data: () => ({ totalAmount: 500 }) });
+
+            const stats = await adminService.getSystemStats();
+            
+            // We expect counts for Users, Pets, Clinics
+            expect(getCountFromServer).toHaveBeenCalledTimes(4); // Users, Pets, Clinics, Active Alerts (Pets where isLost=true)
+            // Or maybe 3 and active alerts is a filter?
+            
+            // Let's verify structure
+            expect(stats).toEqual({
+                totalUsers: 10,
+                totalPets: 10,
+                totalClinics: 10,
+                activeAlerts: 10,
+                totalDonations: 500
+            });
+        });
     });
 
     describe('getUsers', () => {

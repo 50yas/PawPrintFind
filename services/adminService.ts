@@ -8,7 +8,11 @@ import {
     addDoc,
     query,
     orderBy,
-    limit
+    limit,
+    getCountFromServer,
+    getAggregateFromServer,
+    sum,
+    where
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import { User, AdminAuditLog, UserRole } from '../types';
@@ -16,6 +20,45 @@ import { authService } from './authService';
 import { logger } from './loggerService';
 
 export const adminService = {
+    async getSystemStats(): Promise<{
+        totalUsers: number;
+        totalPets: number;
+        totalClinics: number;
+        totalDonations: number;
+        activeAlerts: number;
+    }> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to fetch system stats.");
+            }
+
+            const usersColl = collection(db, 'users');
+            const petsColl = collection(db, 'pets');
+            const clinicsColl = collection(db, 'vet_clinics');
+            const donationsColl = collection(db, 'donations');
+
+            // Parallelize requests for performance
+            const [usersSnap, petsSnap, clinicsSnap, donationsAgg, alertsSnap] = await Promise.all([
+                getCountFromServer(usersColl),
+                getCountFromServer(petsColl),
+                getCountFromServer(clinicsColl),
+                getAggregateFromServer(donationsColl, { totalAmount: sum('numericValue') }),
+                getCountFromServer(query(petsColl, where('isLost', '==', true)))
+            ]);
+
+            return {
+                totalUsers: usersSnap.data().count,
+                totalPets: petsSnap.data().count,
+                totalClinics: clinicsSnap.data().count,
+                totalDonations: donationsAgg.data().totalAmount || 0,
+                activeAlerts: alertsSnap.data().count
+            };
+        } catch (error) {
+            logger.error('Error fetching system stats:', error);
+            throw error;
+        }
+    },
+
     async getUsers(): Promise<User[]> {
         try {
             if (!auth.currentUser) {
