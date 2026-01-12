@@ -56,7 +56,7 @@ describe('Blog Component', () => {
     
     await waitFor(() => expect(screen.getByText('Post One')).toBeInTheDocument());
 
-    const searchInput = screen.getByPlaceholderText('Search articles...');
+    const searchInput = screen.getByPlaceholderText('searchArticles');
     fireEvent.change(searchInput, { target: { value: 'One' } });
 
     expect(screen.getByText('Post One')).toBeInTheDocument();

@@ -50,9 +50,9 @@ describe('BlogPostDetail Component', () => {
   it('renders post details correctly', () => {
     render(<BlogPostDetail post={mockPost} onBack={mockOnBack} />);
 
-    expect(screen.getByText('Test Post Title')).toBeInTheDocument();
-    expect(screen.getByText('Test Summary')).toBeInTheDocument();
-    expect(screen.getByText('Test Author')).toBeInTheDocument();
+    expect(screen.getByText('Test Blog Post')).toBeInTheDocument();
+    expect(screen.getByText('This is a summary')).toBeInTheDocument();
+    expect(screen.getByText('Dr. Smith')).toBeInTheDocument();
     expect(screen.getByText('5 MIN READ')).toBeInTheDocument();
   });
 
