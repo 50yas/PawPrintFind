@@ -14,6 +14,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { OfflineBanner } from './components/OfflineBanner';
 
 // Lazy Loaded Components
 const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
@@ -287,6 +288,7 @@ export default function App() {
         <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden pb-safe">
             {/* Fixed Marquee at the very top */}
             <DevMarquee />
+            <OfflineBanner />
 
             <Navbar
                 currentUser={currentUser}

@@ -1,6 +1,7 @@
 
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
@@ -8,7 +9,44 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.svg'],
+        manifest: {
+          name: 'Paw Print - Pet Finder AI',
+          short_name: 'Paw Print',
+          description: 'AI-powered pet finder and health assistant.',
+          theme_color: '#000000',
+          background_color: '#000000',
+          display: 'standalone',
+          orientation: 'portrait',
+          icons: [
+            {
+              src: 'favicon.svg',
+              sizes: 'any',
+              type: 'image/svg+xml',
+              purpose: 'any maskable'
+            }
+          ]
+        },
+        workbox: {
+           globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+           runtimeCaching: [{
+                urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*$/,
+                handler: 'NetworkFirst',
+                options: {
+                    cacheName: 'firestore-data',
+                    expiration: {
+                        maxEntries: 50,
+                        maxAgeSeconds: 60 * 60 * 24 // 1 day
+                    }
+                }
+           }]
+        }
+      })
+    ],
     define: {
       // This creates a global process.env object in the browser with your keys
       // This is critical for the app to work after deployment
