@@ -19,8 +19,8 @@
 - [x] Task: Code Splitting [9b2c7f1]
     - [x] Sub-task: Refactor `App.tsx` routes to use `React.lazy`.
     - [x] Sub-task: Create a `LoadingScreen` fallback for Suspense boundaries.
-- [ ] Task: PWA Implementation
-    - [ ] Sub-task: Install and configure `vite-plugin-pwa`.
-    - [ ] Sub-task: Configure `manifest.json` (icons, theme color, name).
-    - [ ] Sub-task: Verify Service Worker registration and offline caching in production build.
+- [x] Task: PWA Implementation [8b55ccf]
+    - [x] Sub-task: Install and configure `vite-plugin-pwa`.
+    - [x] Sub-task: Configure `manifest.json` (icons, theme color, name).
+    - [x] Sub-task: Verify Service Worker registration and offline caching in production build.
 - [ ] Task: Conductor - User Manual Verification 'Accessibility & PWA' (Protocol in workflow.md)
