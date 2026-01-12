@@ -162,11 +162,11 @@ describe('Accessibility Audit', () => {
         <LanguageProvider>
           <ThemeProvider>
             <Navbar 
-              user={mockUser} 
-              currentView="dashboard" 
+              currentUser={mockUser}
+              setCurrentUser={vi.fn()}
               setView={vi.fn()} 
-              setShowAuth={vi.fn()} 
-              onLogout={vi.fn()} 
+              onLoginClick={vi.fn()} 
+              onLogoutClick={vi.fn()} 
             />
           </ThemeProvider>
         </LanguageProvider>

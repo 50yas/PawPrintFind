@@ -40,7 +40,7 @@ describe('AdminUplink', () => {
     // Mock location reload
     const originalLocation = window.location;
     delete (window as any).location;
-    window.location = { ...originalLocation, reload: vi.fn() };
+    (window as any).location = { ...originalLocation, reload: vi.fn() };
 
     renderComponent();
     
@@ -53,6 +53,6 @@ describe('AdminUplink', () => {
       expect(window.location.reload).toHaveBeenCalled();
     });
 
-    window.location = originalLocation;
+    (window as any).location = originalLocation;
   });
 });

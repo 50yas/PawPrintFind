@@ -355,7 +355,7 @@ export const BlogPostSchema = z.object({
   seoTitle: z.string(),
   seoDescription: z.string(),
   views: z.number(),
-  translations: z.record(z.object({
+  translations: z.record(z.string(), z.object({
     title: z.string(),
     summary: z.string(),
     content: z.string(),
