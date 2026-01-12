@@ -16,9 +16,9 @@
     - [x] Sub-task: Ensure focus trapping works correctly in all Modals.
 
 ## Phase 3: Performance & PWA
-- [ ] Task: Code Splitting
-    - [ ] Sub-task: Refactor `App.tsx` routes to use `React.lazy`.
-    - [ ] Sub-task: Create a `LoadingScreen` fallback for Suspense boundaries.
+- [x] Task: Code Splitting [9b2c7f1]
+    - [x] Sub-task: Refactor `App.tsx` routes to use `React.lazy`.
+    - [x] Sub-task: Create a `LoadingScreen` fallback for Suspense boundaries.
 - [ ] Task: PWA Implementation
     - [ ] Sub-task: Install and configure `vite-plugin-pwa`.
     - [ ] Sub-task: Configure `manifest.json` (icons, theme color, name).
