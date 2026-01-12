@@ -13,12 +13,12 @@ import { dbService } from './services/firebase';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
-import { BlogPostDetail } from './components/BlogPostDetail';
-import { Auth } from './components/Auth';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 // Lazy Loaded Components
 const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
+const Auth = lazy(() => import('./components/Auth').then(m => ({ default: m.Auth })));
+const BlogPostDetail = lazy(() => import('./components/BlogPostDetail').then(m => ({ default: m.BlogPostDetail })));
 
 // Modular Routers (Lazy)
 const AdminRouter = lazy(() => import('./components/routers/AdminRouter').then(m => ({ default: m.AdminRouter })));
@@ -360,7 +360,9 @@ export default function App() {
             {isLoginModalOpen && (
                 <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto" onClick={() => setIsLoginModalOpen(false)}>
                     <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative my-auto">
-                        <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
+                        <Suspense fallback={<div className="flex justify-center p-4"><LoadingSpinner /></div>}>
+                            <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
+                        </Suspense>
                     </div>
                 </div>
             )}
