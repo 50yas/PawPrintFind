@@ -229,3 +229,30 @@ export const getSearchParsingPrompt = (query: string): string => {
     `;
 };
 
+export const getHealthInsightsPrompt = (pet: PetProfile): string => {
+    return `
+    **Pet Profile:**
+    - Name: ${pet.name}
+    - Species: ${pet.type || 'N/A'}
+    - Breed: ${pet.breed}
+    - Age: ${pet.age}
+    - Weight: ${pet.weight}
+    - Behavior: ${pet.behavior}
+    - Medical History: ${JSON.stringify(pet.medicalRecord || {})}
+
+    **Task:**
+    Generate 3 proactive, personalized health or behavior insights for this pet. 
+    Focus on breed-specific risks, age-related advice, and general well-being.
+
+    **Requirements:**
+    - Each insight must have a title, content, and type ('health', 'behavior', or 'safety').
+    - Be compassionate but clinical.
+    - Return the result in JSON format ONLY as an array of objects.
+
+    Example format:
+    [
+      { "title": "Joint Health", "content": "As a senior Golden Retriever, Buddy is at higher risk for hip dysplasia...", "type": "health" }
+    ]
+    `;
+};
+

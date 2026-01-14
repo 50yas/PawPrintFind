@@ -14,6 +14,8 @@ vi.mock('@google/genai', () => {
       responseText = '{"species": "dog", "breed": null, "color": null, "size": "Small", "age": null, "gender": null, "tags": ["friendly"]}';
     } else if (prompt.includes('Translate the original content')) {
       responseText = '{"es": "Hola Mundo", "fr": "Bonjour Monde"}';
+    } else if (prompt.includes('Generate 3 proactive, personalized health or behavior insights')) {
+      responseText = '[{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]';
     }
 
     return Promise.resolve({
@@ -84,16 +86,36 @@ describe('geminiService', () => {
 
       // This will initially fail as parseSearchQuery is not yet defined
 
-      const result = await (geminiService as any).parseSearchQuery('Show me friendly dogs good for apartments');
+          const result = await (geminiService as any).parseSearchQuery('Show me friendly dogs good for apartments');
 
-      expect(result).toBeDefined();
+          expect(result).toBeDefined();
 
-      // In our implementation, we'll expect certain fields
+          // In our implementation, we'll expect certain fields
 
-      expect(result).toHaveProperty('species');
+          expect(result).toHaveProperty('species');
 
-    });
+        });
 
-  });
+      
+
+        it('generateHealthInsights returns an array of insights', async () => {
+
+          const mockPet: any = { name: 'Buddy', breed: 'Retriever', age: '5' };
+
+          const result = await geminiService.generateHealthInsights(mockPet);
+
+          expect(result).toHaveLength(1);
+
+          expect(result[0].title).toBe('Joint Health');
+
+          expect(result[0]).toHaveProperty('id');
+
+          expect(result[0]).toHaveProperty('timestamp');
+
+        });
+
+      });
+
+      
 
   

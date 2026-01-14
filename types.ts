@@ -126,6 +126,14 @@ export interface HealthCheck {
   advice: string;
 }
 
+export interface AIInsight {
+  id: string;
+  title: string;
+  content: string;
+  type: 'health' | 'behavior' | 'safety';
+  timestamp: number;
+}
+
 export interface Vaccination {
   name: string;
   date: string;
@@ -164,6 +172,7 @@ export interface PetProfile {
   medicalRecord?: MedicalRecord;
   aiIdentityCode?: string;
   aiPhysicalDescription?: string;
+  aiInsights?: AIInsight[];
 }
 
 export interface Geolocation {
@@ -290,6 +299,14 @@ export const HealthCheckSchema = z.object({
   advice: z.string(),
 });
 
+export const AIInsightSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  type: z.enum(['health', 'behavior', 'safety']),
+  timestamp: z.number(),
+});
+
 export const VaccinationSchema = z.object({
   name: z.string(),
   date: z.string(),
@@ -328,6 +345,7 @@ export const PetProfileSchema = z.object({
   medicalRecord: MedicalRecordSchema.optional(),
   aiIdentityCode: z.string().optional(),
   aiPhysicalDescription: z.string().optional(),
+  aiInsights: z.array(AIInsightSchema).optional(),
 });
 
 export const AppointmentSchema = z.object({
