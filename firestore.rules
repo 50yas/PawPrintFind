@@ -12,7 +12,7 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Robust Admin Check - Handles both legacy and new roles for transition safety
+    // Robust Admin Check
     function isAdmin() {
       return isSignedIn() && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
@@ -20,20 +20,33 @@ service cloud.firestore {
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'admin'
         );
     }
+    
+    // Check if the user is creating a document that claims to be owned by them
+    function isCreatingForSelf(emailField) {
+      return isSignedIn() && request.resource.data[emailField] == request.auth.token.email;
+    }
 
     // --- COLLECTION RULES ---
 
     // 1. USERS
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
+      allow list: if isAdmin(); // Strictly admin-only listing. Community leaderboard requires Admin SDK or Cloud Function in production.
       allow write: if isOwner(userId) || isAdmin();
     }
     
     // 2. PETS
     match /pets/{petId} {
       allow read: if true; 
-      allow create: if isSignedIn();
+      
+      // Hardened Create: Must be signed in AND ownerEmail must match auth token
+      allow create: if isSignedIn() && (
+        request.resource.data.ownerEmail == request.auth.token.email ||
+        // Allow creating stray/shelter pets if the user's role permits (simplified check for now, trusting the email match)
+        // If ownerEmail is null (stray), we allow it if user is logged in
+        request.resource.data.ownerEmail == null
+      );
+      
       allow update, delete: if isAdmin() || (isSignedIn() && (
         resource.data.ownerEmail == request.auth.token.email || 
         request.auth.token.email in resource.data.guardianEmails
@@ -43,13 +56,17 @@ service cloud.firestore {
     // 3. CLINICS
     match /vet_clinics/{clinicId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      // Hardened Create: Vet email must match
+      allow create: if isCreatingForSelf('vetEmail');
       allow update, delete: if isAdmin() || (isSignedIn() && resource.data.vetEmail == request.auth.token.email);
     }
 
     // 4. DONATIONS
     match /donations/{donationId} {
-      allow read: if isAdmin(); // Only admins should see details of all donations
+      // Hardened Read: Allow if public OR if admin. 
+      // NOTE: Queries MUST filter by isPublic == true for this to work for non-admins.
+      allow read: if (resource.data.isPublic == true) || isAdmin();
+      
       allow create: if true; // Public can create donation records (started via Stripe)
       allow update, delete: if isAdmin();
     }
@@ -67,9 +84,20 @@ service cloud.firestore {
 
     // 6. CHATS
     match /chats/{chatId} {
-      allow read, write: if isSignedIn() && (
+      allow read: if isSignedIn() && (
         request.auth.token.email == resource.data.ownerEmail || 
         request.auth.token.email == resource.data.finderEmail
+      );
+      
+      // Hardened Write: Creation must involve the user as one of the participants
+      allow create: if isSignedIn() && (
+        request.resource.data.ownerEmail == request.auth.token.email || 
+        request.resource.data.finderEmail == request.auth.token.email
+      );
+      
+      allow update: if isSignedIn() && (
+        resource.data.ownerEmail == request.auth.token.email || 
+        resource.data.finderEmail == request.auth.token.email
       );
     }
 
@@ -78,6 +106,7 @@ service cloud.firestore {
       allow read: if true;
       allow list: if true;
       allow write: if isAdmin();
+      // Allow view increment by anyone
       allow update: if true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']);
     }
 

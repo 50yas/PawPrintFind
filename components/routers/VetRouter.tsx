@@ -99,7 +99,7 @@ export const VetRouter: React.FC<VetRouterProps> = ({
                             />
                         );
                     default:
-                        return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} />;
+                        return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} onContactOwner={handleStartChat} />;
                 }
             })()}
         </Suspense>

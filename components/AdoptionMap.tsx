@@ -98,14 +98,17 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
             
             // Handle popup interaction
             const popupContent = document.createElement('div');
-            popupContent.className = 'text-center p-2 min-w-[150px]';
+            popupContent.className = 'text-center p-2 min-w-[160px]';
             popupContent.innerHTML = `
-                <div class="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-primary/20">
+                <div class="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-primary/20 shadow-sm">
                     <img src="${pet.photos[0]?.url || ''}" class="w-full h-full object-cover" />
                 </div>
-                <p class="font-bold text-slate-800 text-sm mb-1">${pet.name}</p>
-                <p class="text-[10px] text-muted-foreground mb-3">${pet.breed}</p>
-                <button id="adopt-btn-${pet.id}" class="w-full bg-primary text-white text-[10px] font-black uppercase py-1.5 rounded-lg hover:brightness-110 transition-all">
+                <p class="font-black text-slate-800 text-sm mb-0.5 uppercase tracking-wide">${pet.name}</p>
+                <p class="text-[10px] text-muted-foreground mb-1 font-mono">${pet.breed}</p>
+                <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase mb-3 border border-slate-200">${pet.age} • ${pet.size || 'N/A'}</span>
+                
+                <button id="adopt-btn-${pet.id}" class="w-full bg-primary text-white text-[10px] font-black uppercase py-2 rounded-lg hover:brightness-110 transition-all shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" /></svg>
                     ${t('adoptMeButton')}
                 </button>
             `;

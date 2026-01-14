@@ -119,7 +119,11 @@ export default function App() {
     };
 
     const handleStartChat = async (pet: PetProfile) => {
-        if (!currentUser) return;
+        if (!currentUser) {
+            addSnackbar(t('loginToContactOwner'), 'info');
+            setIsLoginModalOpen(true);
+            return;
+        }
         const sessionId = [pet.id, currentUser.uid].sort().join('_');
         
         // Check if session exists to determine if we should send initial message

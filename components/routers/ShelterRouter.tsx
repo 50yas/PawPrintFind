@@ -57,7 +57,7 @@ export const ShelterRouter: React.FC<ShelterRouterProps> = ({
                     case 'shelterDashboard':
                         return <ShelterDashboard shelterPets={shelterPets} onRegisterNew={() => { setEditingPet(null); setView('register'); }} onEditPet={(p) => { setEditingPet(p); setView('register'); }} chatSessions={shelterChats} onOpenChat={onOpenChat} onTransferOwnership={() => { }} />;
                     default:
-                        return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} />;
+                        return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} onContactOwner={handleStartChat} />;
                 }
             })()}
         </Suspense>

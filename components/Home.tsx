@@ -19,6 +19,7 @@ interface HomeProps {
     currentUser: User | null;
     lostPets: PetProfile[];
     petsForAdoption: PetProfile[];
+    onContactOwner?: (pet: PetProfile) => void;
 }
 
 const HeroHUD = memo(() => {
@@ -163,7 +164,7 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
     );
 });
 
-export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets, petsForAdoption }) => {
+export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets, petsForAdoption, onContactOwner }) => {
     const { t } = useTranslations();
     useScrollAnimation();
     const [donations, setDonations] = useState<Donation[]>([]);
@@ -361,7 +362,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
                     <div className="rounded-[1.75rem] md:rounded-[2.25rem] overflow-hidden relative h-[400px] md:h-[650px] w-full">
                         <Suspense fallback={<MapSidebarSkeleton />}>
-                            <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} />
+                            <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} onContactOwner={onContactOwner} />
                         </Suspense>
                     </div>
                 </div>

@@ -15,11 +15,12 @@ interface MissingPetsMapProps {
   userLocation?: Geolocation | null;
   isPostingMode?: boolean;
   onMapClick?: (latlng: {lat: number, lng: number}) => void;
+  onContactOwner?: (pet: PetProfile) => void;
 }
 
 type MapStyle = 'street' | 'satellite';
 
-export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adoptablePets = [], vetClinics = [], userLocation, isPostingMode, onMapClick }) => {
+export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adoptablePets = [], vetClinics = [], userLocation, isPostingMode, onMapClick, onContactOwner }) => {
   const { t } = useTranslations();
   const { colors } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -102,13 +103,41 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     iconAnchor: [23, 46] 
                 });
                 
+                // Enhanced Popup Content
+                const popupContent = document.createElement('div');
+                popupContent.className = 'text-center p-2 min-w-[160px]';
+                popupContent.innerHTML = `
+                    <div class="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-red-500/20 shadow-sm">
+                        <img src="${pet.photos[0]?.url || ''}" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-black text-slate-800 text-sm mb-0.5 uppercase tracking-wide">${pet.name}</p>
+                    <p class="text-[10px] text-muted-foreground mb-2 font-mono">${pet.breed}</p>
+                    
+                    <div class="flex items-center justify-center gap-1 mb-3">
+                        <span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider">Signal Lost</p>
+                    </div>
+
+                    ${onContactOwner ? `
+                    <button id="contact-btn-${pet.id}" class="w-full bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase py-2 rounded-lg transition-all shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg>
+                        ${t('contactOwnerButton')}
+                    </button>
+                    ` : ''}
+                `;
+
                 const marker = L.marker([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], { icon })
-                    .bindPopup(`
-                        <div class="text-center p-1">
-                            <p class="font-bold text-slate-800">${pet.name}</p>
-                            <p class="text-[10px] text-red-500 font-bold uppercase">Signal Lost</p>
-                        </div>
-                    `);
+                    .bindPopup(popupContent);
+                
+                if (onContactOwner) {
+                    marker.on('popupopen', () => {
+                        const btn = document.getElementById(`contact-btn-${pet.id}`);
+                        if (btn) {
+                            btn.onclick = () => onContactOwner(pet);
+                        }
+                    });
+                }
+                    
                 group.addLayer(marker);
 
                 const circle = L.circle([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], {
@@ -142,13 +171,37 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     iconAnchor: [23, 46] 
                 });
                 
+                // Enhanced Popup Content for Adoptable Pets
+                const popupContent = document.createElement('div');
+                popupContent.className = 'text-center p-2 min-w-[160px]';
+                popupContent.innerHTML = `
+                    <div class="w-12 h-12 rounded-full overflow-hidden mx-auto mb-2 border-2 border-primary/20 shadow-sm">
+                        <img src="${pet.photos[0]?.url || ''}" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-black text-slate-800 text-sm mb-0.5 uppercase tracking-wide">${pet.name}</p>
+                    <p class="text-[10px] text-muted-foreground mb-1 font-mono">${pet.breed}</p>
+                    <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase mb-3 border border-slate-200">${pet.age} • ${pet.size || 'N/A'}</span>
+
+                    ${onContactOwner ? `
+                    <button id="adopt-btn-${pet.id}" class="w-full bg-primary text-white text-[10px] font-black uppercase py-2 rounded-lg hover:brightness-110 transition-all shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" /></svg>
+                        ${t('adoptMeButton')}
+                    </button>
+                    ` : ''}
+                `;
+
                 const marker = L.marker([loc.latitude, loc.longitude], { icon })
-                    .bindPopup(`
-                        <div class="text-center p-1">
-                            <p class="font-bold text-slate-800">${pet.name}</p>
-                            <p class="text-[10px] text-emerald-500 font-bold uppercase">Adopt Me</p>
-                        </div>
-                    `);
+                    .bindPopup(popupContent);
+                
+                if (onContactOwner) {
+                    marker.on('popupopen', () => {
+                        const btn = document.getElementById(`adopt-btn-${pet.id}`);
+                        if (btn) {
+                            btn.onclick = () => onContactOwner(pet);
+                        }
+                    });
+                }
+
                 group.addLayer(marker);
             }
         });

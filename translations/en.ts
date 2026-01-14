@@ -162,5 +162,7 @@ export const en = {
     adoptionMapTitle: `Adoption Map`,
     locateMeButton: `Locate Me`,
     adoptMeButton: `Adopt Me`,
-    adoptionInquiryTemplate: `Hello! I am very interested in adopting {{petName}}. Could you provide more information about the adoption process?`
+    adoptionInquiryTemplate: `Hello! I am very interested in adopting {{petName}}. Could you provide more information about the adoption process?`,
+    loginToContactOwner: `Please login to contact the owner.`,
+    contactOwnerButton: `Contact Owner`,
 };

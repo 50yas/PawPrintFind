@@ -253,7 +253,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[500px] lg:h-[600px]">
                   <div className="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
-                      <MissingPetsMap lostPets={lostPets} />
+                      <MissingPetsMap lostPets={lostPets} onContactOwner={onContactOwner} />
                       
                       {/* Floating Action Button for Scan */}
                       <div className="absolute bottom-6 right-6 z-[1000]">
