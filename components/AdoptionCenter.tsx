@@ -5,6 +5,7 @@ import { useSnackbar } from '../contexts/SnackbarContext';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { CardSkeleton, MapSidebarSkeleton } from './ui/SkeletonLoader';
 import { SmartSearchBar } from './SmartSearchBar';
+import { analyticsService } from '../services/analyticsService';
 
 const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
@@ -68,6 +69,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         addSnackbar(t('loginToAdoptWarning'), 'error');
         return;
     }
+    analyticsService.trackAdoptionInquiry(pet.id, pet.name);
     onInquire(pet);
   }
 

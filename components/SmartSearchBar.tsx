@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { parseSearchQuery } from '../services/geminiService';
+import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface SmartSearchBarProps {
@@ -21,6 +22,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({ onSearch, classN
     setIsParsing(true);
     try {
       const filters = await parseSearchQuery(query);
+      analyticsService.trackAISearch(query, 1); // We track the attempt and successful parse
       onSearch(filters);
     } catch (error) {
       console.error("Smart search failed:", error);

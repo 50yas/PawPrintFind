@@ -2,6 +2,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '../services/loggerService';
 import { useTranslations } from '../hooks/useTranslations';
+import { analyticsService } from '../services/analyticsService';
 
 interface Props {
     children: ReactNode;
@@ -54,6 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         this.setState({ error, errorInfo });
+        analyticsService.logEvent('app_crash', { error: error.message });
         logger.error("CRITICAL_SYSTEM_ANOMALY", {
             error: error.message,
             stack: error.stack,

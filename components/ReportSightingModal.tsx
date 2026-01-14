@@ -5,6 +5,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
 import { EmojiSwitcher } from './EmojiSwitcher';
+import { analyticsService } from '../services/analyticsService';
 
 declare var L: any;
 
@@ -44,6 +45,7 @@ export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, o
 
   const handleConfirm = () => {
     if (selectedLocation) {
+      analyticsService.logEvent('sighting_report', { pet_id: pet.id });
       onConfirm({
         location: selectedLocation,
         timestamp: Date.now(),

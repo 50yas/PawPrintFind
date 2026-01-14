@@ -4,6 +4,7 @@ import { PetProfile, AIInsight } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { draftVetMessageToOwner, generateHealthInsights } from '../services/geminiService';
+import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 import { CinematicImage } from './ui/CinematicImage';
 import { AIInsightCard } from './AIInsightCard';
@@ -40,6 +41,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
   const handleCheckHealth = async () => {
     setIsAnalyzing(true);
     try {
+      analyticsService.trackHealthCheck(patient.id, patient.breed);
       const insights = await generateHealthInsights(patient);
       setCurrentInsights(insights);
       addSnackbar(t('aiInsightsGenerated'), 'success');
