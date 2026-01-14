@@ -7,11 +7,11 @@
     - [x] Sub-task: Integrate this into the "Report Sighting" modal/button.
 
 ## Phase 2: Smart Search
-- [~] Task: Backend Logic
-    - [~] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
-    - [ ] Sub-task: Define the JSON schema for the AI response (filters object).
-- [ ] Task: Frontend Integration
-    - [ ] Sub-task: Create a `SmartSearchBar` component.
+- [x] Task: Backend Logic [abaafa2]
+    - [x] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
+    - [x] Sub-task: Define the JSON schema for the AI response (filters object).
+- [~] Task: Frontend Integration
+    - [~] Sub-task: Create a `SmartSearchBar` component.
     - [ ] Sub-task: Connect it to the existing `AdoptionCenter` filter logic.
 
 ## Phase 3: Proactive Health Alerts

@@ -371,6 +371,32 @@ export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>
     });
 };
 
+export const parseSearchQuery = async (query: string): Promise<any> => {
+    return retryWithBackoff(async () => {
+        const ai = getAIClient();
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] },
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        species: { type: Type.STRING, nullable: true },
+                        breed: { type: Type.STRING, nullable: true },
+                        color: { type: Type.STRING, nullable: true },
+                        size: { type: Type.STRING, nullable: true },
+                        age: { type: Type.STRING, nullable: true },
+                        gender: { type: Type.STRING, nullable: true },
+                        tags: { type: Type.ARRAY, items: { type: Type.STRING }, nullable: true }
+                    }
+                }
+            }
+        });
+        return JSON.parse(response.text?.trim() || "{}");
+    });
+};
+
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
         const ai = getAIClient();

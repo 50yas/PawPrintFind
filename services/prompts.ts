@@ -205,3 +205,27 @@ export const getTranslationPrompt = (text: string, targetLangs: string[]): { sys
     `;
     return { systemInstruction, userPrompt };
 };
+
+export const getSearchParsingPrompt = (query: string): string => {
+    return `
+    **Search Query:** "${query}"
+
+    **Task:**
+    Parse this natural language search query for finding pets and extract structured filter parameters.
+
+    **Filters to extract:**
+    - species: (e.g., "dog", "cat", "rabbit")
+    - breed: (e.g., "Golden Retriever", "Siamese")
+    - color: (e.g., "black", "brown", "white")
+    - size: (e.g., "Small", "Medium", "Large")
+    - age: (e.g., "Puppy", "Young", "Adult", "Senior")
+    - gender: (e.g., "Male", "Female")
+    - tags: (an array of strings representing personality or situation, e.g., ["friendly", "good for apartments", "house trained"])
+
+    **Rules:**
+    - If a parameter is not mentioned, return null for that field.
+    - Be intelligent with 'tags'. If the user says "good for kids", add "kid-friendly" to tags.
+    - Return the result in JSON format ONLY.
+    `;
+};
+
