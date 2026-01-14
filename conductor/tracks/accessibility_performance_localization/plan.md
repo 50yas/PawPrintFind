@@ -15,7 +15,7 @@
     - [x] Sub-task: Fix semantic HTML issues (missing `alt`, bad heading hierarchy).
     - [x] Sub-task: Ensure focus trapping works correctly in all Modals.
 
-## Phase 3: Performance & PWA
+## Phase 3: Performance & PWA [checkpoint: 3e17de8]
 - [x] Task: Code Splitting [9b2c7f1]
     - [x] Sub-task: Refactor `App.tsx` routes to use `React.lazy`.
     - [x] Sub-task: Create a `LoadingScreen` fallback for Suspense boundaries.
@@ -23,4 +23,4 @@
     - [x] Sub-task: Install and configure `vite-plugin-pwa`.
     - [x] Sub-task: Configure `manifest.json` (icons, theme color, name).
     - [x] Sub-task: Verify Service Worker registration and offline caching in production build.
-- [~] Task: Conductor - User Manual Verification 'Accessibility & PWA' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Accessibility & PWA' (Protocol in workflow.md) [3e17de8]
