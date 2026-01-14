@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { PetProfile } from '../types';
+import { PetProfile, AIInsight } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { draftVetMessageToOwner } from '../services/geminiService';
+import { draftVetMessageToOwner, generateHealthInsights } from '../services/geminiService';
 import { LoadingSpinner } from './LoadingSpinner';
 import { CinematicImage } from './ui/CinematicImage';
+import { AIInsightCard } from './AIInsightCard';
 
 interface PatientDetailProps {
   patient: PetProfile;
@@ -30,9 +31,25 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
   const [messageTopic, setMessageTopic] = useState('');
   const [generatedMessage, setGeneratedMessage] = useState('');
   const [isDrafting, setIsDrafting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'medical' | 'media'>('overview');
+  const [currentInsights, setCurrentInsights] = useState<AIInsight[]>(patient.aiInsights || []);
 
   const handlePrint = () => window.print();
+
+  const handleCheckHealth = async () => {
+    setIsAnalyzing(true);
+    try {
+      const insights = await generateHealthInsights(patient);
+      setCurrentInsights(insights);
+      addSnackbar(t('aiInsightsGenerated'), 'success');
+    } catch (err) {
+      console.error(err);
+      addSnackbar(t('genericError'), 'error');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
   const handleDraftMessage = async () => {
     if (!messageTopic) return;
     setIsDrafting(true);
@@ -146,6 +163,43 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                                 </div>
                              </div>
                         </div>
+                    </div>
+                )}
+
+                {activeTab === 'overview' && (
+                    <div className="mt-12 border-t border-border pt-8">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                                <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                                {t('aiProactiveInsights')}
+                            </h3>
+                            <button 
+                                onClick={handleCheckHealth} 
+                                disabled={isAnalyzing}
+                                className="btn btn-secondary !py-1.5 !px-4 text-xs font-bold shadow-md flex items-center gap-2"
+                            >
+                                {isAnalyzing ? <LoadingSpinner size="sm" /> : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {t('checkHealthButton') || "Check Health"}
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                        
+                        {currentInsights.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {currentInsights.map(insight => (
+                                    <AIInsightCard key={insight.id} insight={insight} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-muted/30 rounded-2xl p-8 text-center border border-dashed border-border">
+                                <p className="text-sm text-muted-foreground">{t('noInsightsYet') || "No AI insights generated yet. Click the button above to analyze patient data."}</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
