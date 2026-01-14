@@ -5,13 +5,12 @@ export const validationService = {
   validate<T>(schema: z.Schema<T>, data: any, context: string): T {
     const result = schema.safeParse(data);
     if (!result.success) {
-      logger.warn(`[Validation] [${context}] Data integrity issue detected:`, {
+      const errorMsg = `[Validation] [${context}] Data integrity failure: ${result.error.message}`;
+      logger.error(errorMsg, {
         errors: result.error.issues,
         data: data
       });
-      // For now, we return data as T but log the warning.
-      // In a more mature phase, we might throw or return a default object.
-      return data as T;
+      throw new Error(errorMsg);
     }
     return result.data;
   }

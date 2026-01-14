@@ -5,8 +5,9 @@ import {
 import { signInAnonymously } from 'firebase/auth';
 import { db, auth } from './firebase';
 import { translateContent } from './geminiService';
-import { ChatSession, ChatMessage, Donation, BlogPost } from '../types';
+import { ChatSession, ChatMessage, Donation, BlogPost, ChatSessionSchema, ChatMessageSchema, DonationSchema, BlogPostSchema } from '../types';
 import { logger } from './loggerService';
+import { validationService } from './validationService';
 
 export const contentService = {
     // --- CHAT ---
@@ -15,6 +16,7 @@ export const contentService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to save chat session.");
             }
+            validationService.validate(ChatSessionSchema, session, 'saveChatSession');
             await setDoc(doc(db, 'chats', session.id), session, { merge: true });
         } catch (error) {
             logger.error('Error saving chat session:', error);
@@ -27,6 +29,7 @@ export const contentService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to send chat message.");
             }
+            validationService.validate(ChatMessageSchema, message, 'sendChatMessage');
             await updateDoc(doc(db, 'chats', sessionId), { messages: arrayUnion(message) });
         } catch (error) {
             logger.error('Error sending chat message:', error);
@@ -35,12 +38,14 @@ export const contentService = {
     },
 
     subscribeToChats(email: string, callback: (chats: ChatSession[]) => void) {
-        // Subscriptions don't usually throw but call callback with empty or error
-        // But onSnapshot returns unsub function.
-        // We will just return the onSnapshot result.
-        // Error handling inside onSnapshot?
         const q = query(collection(db, 'chats'), or(where('ownerEmail', '==', email), where('finderEmail', '==', email)));
-        return onSnapshot(q, (s) => callback(s.docs.map(d => d.data() as ChatSession)), (error) => {
+        return onSnapshot(q, (s) => {
+            const sessions = s.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(ChatSessionSchema, data, `subscribeToChats:${d.id}`);
+            });
+            callback(sessions);
+        }, (error) => {
             logger.error('Error in chat subscription:', error);
         });
     },
@@ -48,11 +53,7 @@ export const contentService = {
     // --- DONATIONS ---
     async recordDonation(donation: Donation): Promise<void> {
         try {
-            // Donations might be recorded by system (stripe webhook) or user interaction.
-            // If strictly user interaction, should check auth? 
-            // The original code didn't. 
-            // `donationService.ts` calls this.
-            // Let's add try/catch and log.
+            validationService.validate(DonationSchema, donation, 'recordDonation');
             await setDoc(doc(db, 'donations', donation.id), donation);
         } catch (error) {
             logger.error('Error recording donation:', error);
@@ -64,7 +65,10 @@ export const contentService = {
         try {
             const q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
             const snap = await getDocs(q);
-            return snap.docs.map(d => d.data() as Donation);
+            return snap.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(DonationSchema, data, `getDonations:${d.id}`);
+            });
         } catch (error) {
             logger.error('Error fetching donations:', error);
             throw error;
@@ -73,7 +77,13 @@ export const contentService = {
 
     subscribeToDonations(callback: (donations: Donation[]) => void) {
         const q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
-        return onSnapshot(q, (s) => callback(s.docs.map(d => d.data() as Donation)), (error) => {
+        return onSnapshot(q, (s) => {
+            const donations = s.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(DonationSchema, data, `subscribeToDonations:${d.id}`);
+            });
+            callback(donations);
+        }, (error) => {
              logger.error('Error in donation subscription:', error);
         });
     },
@@ -83,10 +93,7 @@ export const contentService = {
         try {
             if (!auth.currentUser) throw new Error("Authentication required.");
 
-            // Auto-Translation Logic
-            // We verify if content has changed to avoid unnecessary API calls? 
-            // For now, we assume if save is called, we want to update/translate.
-            // Ideally we should check if fields changed.
+            validationService.validate(BlogPostSchema, post, 'saveBlogPost');
             
             const targetLangs = ['es', 'fr', 'de', 'it', 'nl'];
             const translations: Record<string, { title: string, summary: string, content: string }> = {};
@@ -108,7 +115,6 @@ export const contentService = {
                 });
             } catch (translationError) {
                 logger.warn('Auto-translation failed, saving without translations:', translationError);
-                // Proceed to save without translations if AI fails
             }
 
             const postToSave = { ...post, translations: Object.keys(translations).length > 0 ? translations : post.translations };
@@ -133,7 +139,10 @@ export const contentService = {
         try {
             const q = query(collection(db, 'blog_posts'), orderBy('publishedAt', 'desc'));
             const snap = await getDocs(q);
-            return snap.docs.map(d => d.data() as BlogPost);
+            return snap.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(BlogPostSchema, data, `getBlogPosts:${d.id}`);
+            });
         } catch (error) {
              logger.error('Error fetching blog posts:', error);
              throw error;

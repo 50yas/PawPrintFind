@@ -36,8 +36,9 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
-import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage } from '../types';
+import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema } from '../types';
 import { logger } from './loggerService';
+import { validationService } from './validationService';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAluD8clP5w8Z__xOUzJXcg_ztOvqRtPJU",
@@ -201,11 +202,7 @@ export const dbService = {
     // --- SYSTEM MESSAGES ---
     async saveContactMessage(msg: ContactMessage): Promise<void> {
         try {
-            // No auth check needed here as contact messages are typically anonymous or from unauthenticated users.
-            // If an auth check were needed for a similar function, it would look like this:
-            // if (!dbService.auth.currentUser) {
-            //     throw new Error("Authentication required to save contact message.");
-            // }
+            validationService.validate(ContactMessageSchema, msg, 'saveContactMessage');
             await addDoc(collection(db, 'contact_messages'), { ...msg, timestamp: Date.now() });
         } catch (error) {
             logger.error('Error saving contact message:', error);

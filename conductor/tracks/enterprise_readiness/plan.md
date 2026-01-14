@@ -1,13 +1,13 @@
 # Implementation Plan: Enterprise Production Readiness
 
 ## Phase 1: Security Audit & Hardening
-- [~] Task: Firestore Rules Audit
-    - [~] Sub-task: Update `pets` rules to restrict editing to owners/guardians or admins.
-    - [ ] Sub-task: Secure `donations` collection (admin-only read/update/delete).
-    - [ ] Sub-task: Secure `chats` collection (participant-only access).
-    - [ ] Sub-task: Secure `vet_clinics` collection (vet-only or admin-only write).
-- [ ] Task: Input Validation
-    - [ ] Sub-task: Audit `firebase.ts` and `petService.ts` to ensure all writes use Zod validation.
+- [x] Task: Firestore Rules Audit [1d68fd5]
+    - [x] Sub-task: Update `pets` rules to restrict editing to owners/guardians or admins.
+    - [x] Sub-task: Secure `donations` collection (admin-only read/update/delete).
+    - [x] Sub-task: Secure `chats` collection (participant-only access).
+    - [x] Sub-task: Secure `vet_clinics` collection (vet-only or admin-only write).
+- [~] Task: Input Validation
+    - [~] Sub-task: Audit `firebase.ts` and `petService.ts` to ensure all writes use Zod validation.
 
 ## Phase 2: Performance Optimization
 - [ ] Task: Bundle Optimization

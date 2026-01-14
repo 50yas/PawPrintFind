@@ -15,9 +15,10 @@ import {
     where
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { User, AdminAuditLog, UserRole } from '../types';
+import { User, AdminAuditLog, UserRole, UserSchema, AdminAuditLogSchema } from '../types';
 import { authService } from './authService';
 import { logger } from './loggerService';
+import { validationService } from './validationService';
 
 export const adminService = {
     async getSystemStats(): Promise<{
@@ -65,7 +66,10 @@ export const adminService = {
                 throw new Error("Authentication required to fetch users.");
             }
             const snap = await getDocs(collection(db, 'users'));
-            return snap.docs.map(d => ({ ...d.data(), uid: d.id } as User));
+            return snap.docs.map(d => {
+                const data = { ...d.data(), uid: d.id };
+                return validationService.validate(UserSchema, data, `getUsers:${d.id}`);
+            });
         } catch (error) {
             logger.error('Error fetching users:', error);
             throw error;
@@ -77,6 +81,9 @@ export const adminService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to save user.");
             }
+            // Since it's partial, we might not be able to validate full UserSchema here
+            // But we should at least check what we can.
+            // For production, maybe we should enforce full schema if it's a full update.
             await setDoc(doc(db, 'users', userData.uid), userData, { merge: true });
         } catch (error) {
             logger.error('Error saving user:', error);
@@ -141,8 +148,6 @@ export const adminService = {
 
     async initializeSystem(): Promise<void> {
         try {
-            // Note: This might be called during setup where auth is not yet established or via a script.
-            // If strictly admin, should check auth. For now, just error handling.
             await setDoc(doc(db, 'metadata', 'system'), { initialized: true, securityModel: 'V3-PROD' });
         } catch (error) {
             logger.error('Error initializing system:', error);
@@ -162,13 +167,17 @@ export const adminService = {
 
     async logAdminAction(log: Omit<AdminAuditLog, 'id' | 'timestamp'>) {
         try {
-            await addDoc(collection(db, 'admin_audit_logs'), {
+            const logEntry = {
                 ...log,
                 timestamp: Date.now()
-            });
+            };
+            // Validation might fail if ID is missing but schema expects it?
+            // AdminAuditLogSchema has id as required.
+            // We should generate an ID or use addDoc's returned ID.
+            const docRef = await addDoc(collection(db, 'admin_audit_logs'), logEntry);
+            // Re-validate if needed, but usually we just want to ensure what we send is okay.
         } catch (error) {
             logger.error('Error logging admin action:', error);
-            // We might not want to throw here to avoid interrupting the main action
             console.error("Failed to log admin action", error);
         }
     },
@@ -178,7 +187,9 @@ export const adminService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to verify user.");
             }
-            await setDoc(doc(db, 'users', user.uid), { ...user, isVerified: true }, { merge: true });
+            const updatedUser = { ...user, isVerified: true };
+            validationService.validate(UserSchema, updatedUser, 'verifyUser');
+            await setDoc(doc(db, 'users', user.uid), updatedUser, { merge: true });
         } catch (error) {
             logger.error('Error verifying user:', error);
             throw error;
@@ -192,7 +203,9 @@ export const adminService = {
             }
             // Logic to clear verificationData while keeping the user
             const { verificationData, ...userWithoutVerification } = user;
-            await setDoc(doc(db, 'users', user.uid), { ...userWithoutVerification, isVerified: false });
+            const updatedUser = { ...userWithoutVerification, isVerified: false };
+            validationService.validate(UserSchema, updatedUser, 'rejectVerification');
+            await setDoc(doc(db, 'users', user.uid), updatedUser);
         } catch (error) {
             logger.error('Error rejecting verification:', error);
             throw error;
@@ -206,7 +219,10 @@ export const adminService = {
             }
             const q = query(collection(db, 'admin_audit_logs'), orderBy('timestamp', 'desc'), limit(max));
             const snap = await getDocs(q);
-            return snap.docs.map(d => ({ ...d.data(), id: d.id } as AdminAuditLog));
+            return snap.docs.map(d => {
+                const data = { ...d.data(), id: d.id };
+                return validationService.validate(AdminAuditLogSchema, data, `getAuditLogs:${d.id}`);
+            });
         } catch (error) {
             logger.error('Error fetching audit logs:', error);
             throw error;

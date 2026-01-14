@@ -381,10 +381,35 @@ export const BlogPostSchema = z.object({
 });
 
 export const AdminAuditLogSchema = z.object({
+
   id: z.string(),
+
   adminEmail: z.string().email(),
+
   action: z.string(),
+
   targetId: z.string().optional(),
+
   details: z.string(),
+
   timestamp: z.number(),
+
+});
+
+
+
+export const ContactMessageSchema = z.object({
+
+  id: z.string().optional(),
+
+  name: z.string().min(2),
+
+  email: z.string().email(),
+
+  subject: z.string().min(3),
+
+  message: z.string().min(10),
+
+  timestamp: z.number().optional(),
+
 });
