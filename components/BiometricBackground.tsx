@@ -137,7 +137,7 @@ const Particles = ({ color, scrollProgress }: { color: string, scrollProgress: n
 
   return (
     <group rotation={[0, 0, Math.PI / 4]}>
-      <points ref={ref}>
+      <points ref={ref} key={count}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"

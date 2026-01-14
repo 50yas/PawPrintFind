@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg'],
+        devOptions: {
+          enabled: true
+        },
         manifest: {
           name: 'Paw Print - Pet Finder AI',
           short_name: 'Paw Print',
@@ -21,13 +24,49 @@ export default defineConfig(({ mode }) => {
           theme_color: '#000000',
           background_color: '#000000',
           display: 'standalone',
+          scope: '/',
+          start_url: '/',
           orientation: 'portrait',
+          screenshots: [
+            {
+              src: 'screenshot-mobile.jpg',
+              sizes: '1280x720',
+              type: 'image/jpeg',
+              form_factor: 'narrow',
+              label: 'Mobile Home Screen'
+            },
+            {
+              src: 'screenshot-desktop.jpg',
+              sizes: '1280x720',
+              type: 'image/jpeg',
+              form_factor: 'wide',
+              label: 'Desktop Dashboard'
+            }
+          ],
           icons: [
             {
               src: 'favicon.svg',
-              sizes: 'any',
+              sizes: '192x192',
               type: 'image/svg+xml',
-              purpose: 'any maskable'
+              purpose: 'any'
+            },
+            {
+              src: 'favicon.svg',
+              sizes: '512x512',
+              type: 'image/svg+xml',
+              purpose: 'any'
+            },
+            {
+              src: 'favicon.svg',
+              sizes: '192x192',
+              type: 'image/svg+xml',
+              purpose: 'maskable'
+            },
+            {
+              src: 'favicon.svg',
+              sizes: '512x512',
+              type: 'image/svg+xml',
+              purpose: 'maskable'
             }
           ]
         },

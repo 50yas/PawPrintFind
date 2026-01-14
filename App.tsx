@@ -360,7 +360,7 @@ export default function App() {
             )}
 
             {isLoginModalOpen && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto" onClick={() => setIsLoginModalOpen(false)}>
+                <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto" onClick={() => setIsLoginModalOpen(false)}>
                     <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative my-auto">
                         <Suspense fallback={<div className="flex justify-center p-4"><LoadingSpinner /></div>}>
                             <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />

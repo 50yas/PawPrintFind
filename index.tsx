@@ -8,6 +8,10 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
 import { logger } from './services/loggerService';
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA Service Worker
+registerSW({ immediate: true });
 
 // Fix for missing JSX types in the environment
 declare global {

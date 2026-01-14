@@ -23,4 +23,4 @@
     - [x] Sub-task: Install and configure `vite-plugin-pwa`.
     - [x] Sub-task: Configure `manifest.json` (icons, theme color, name).
     - [x] Sub-task: Verify Service Worker registration and offline caching in production build.
-- [ ] Task: Conductor - User Manual Verification 'Accessibility & PWA' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Accessibility & PWA' (Protocol in workflow.md)

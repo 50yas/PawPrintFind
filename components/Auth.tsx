@@ -107,7 +107,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
 
     return (
         <div className={`relative transition-all duration-500 ${isFullScreen ? 'w-full max-w-lg mx-auto z-50' : 'w-full'}`}>
-            <div className={`glass-panel p-6 sm:p-10 rounded-2xl sm:rounded-[3rem] shadow-2xl border border-white/20 text-center relative overflow-hidden bg-slate-950/90 backdrop-blur-3xl`}>
+            <div className={`glass-panel p-4 sm:p-10 rounded-2xl sm:rounded-[3rem] shadow-2xl border border-white/20 text-center relative overflow-hidden bg-slate-950/90 backdrop-blur-3xl`}>
                 {isFullScreen && onClose && (
                     <button onClick={onClose} className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/40 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-all z-20">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
