@@ -14,6 +14,11 @@ service firebase.storage {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Controlla se l'utente è un admin
+    // Nota: Le regole di storage non hanno accesso diretto a Firestore get() senza estensioni specifiche o se non si usa custom claims.
+    // Se non usiamo custom claims, non possiamo facilmente fare isAdmin() qui senza duplicare la logica o usare metadati.
+    // Per ora, assumiamo isSignedIn() per le cartelle condivise ma limitiamo le eliminazioni se possibile.
+
     // --- REGOLE SPECIFICHE PER FILE ---
 
     // 1. LETTURA GLOBALE

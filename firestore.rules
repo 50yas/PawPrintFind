@@ -33,29 +33,44 @@ service cloud.firestore {
     // 2. PETS
     match /pets/{petId} {
       allow read: if true; 
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && (
+        resource.data.ownerEmail == request.auth.token.email || 
+        request.auth.token.email in resource.data.guardianEmails
+      ));
     }
 
     // 3. CLINICS
     match /vet_clinics/{clinicId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && resource.data.vetEmail == request.auth.token.email);
     }
 
     // 4. DONATIONS
     match /donations/{donationId} {
-      allow read: if true;
-      allow write: if true; 
+      allow read: if isAdmin(); // Only admins should see details of all donations
+      allow create: if true; // Public can create donation records (started via Stripe)
+      allow update, delete: if isAdmin();
     }
 
     // 5. APPOINTMENTS
     match /appointments/{apptId} {
-      allow read, write: if isSignedIn();
+      allow read, write: if isSignedIn() && (
+        request.auth.token.email == resource.data.vetEmail || 
+        request.auth.token.email == request.resource.data.vetEmail || // for create
+        exists(/databases/$(database)/documents/pets/$(resource.data.petId)) && (
+          get(/databases/$(database)/documents/pets/$(resource.data.petId)).data.ownerEmail == request.auth.token.email
+        )
+      );
     }
 
     // 6. CHATS
     match /chats/{chatId} {
-      allow read, write: if isSignedIn();
+      allow read, write: if isSignedIn() && (
+        request.auth.token.email == resource.data.ownerEmail || 
+        request.auth.token.email == resource.data.finderEmail
+      );
     }
 
     // 7. BLOG POSTS
