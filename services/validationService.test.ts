@@ -29,24 +29,17 @@ describe('ValidationService', () => {
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
-  it('should log a warning and return data for invalid data', () => {
+  it('should throw an error for invalid data', () => {
     const invalidUser = { ...validUser, email: 'not-an-email' };
-    const validated = validationService.validate(UserSchema, invalidUser, 'test');
-    
-    expect(validated).toEqual(invalidUser);
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('[Validation] [test] Data integrity issue detected:'),
-      expect.any(Object)
+    expect(() => validationService.validate(UserSchema, invalidUser, 'test')).toThrow(
+      /Data integrity failure/
     );
+    
+    expect(logger.error).toHaveBeenCalled();
   });
 
-  it('should handle missing required fields', () => {
+  it('should handle missing required fields by throwing', () => {
     const incompleteUser = { uid: '123' };
-    validationService.validate(UserSchema, incompleteUser, 'test-incomplete');
-    
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('[Validation] [test-incomplete] Data integrity issue detected:'),
-      expect.any(Object)
-    );
+    expect(() => validationService.validate(UserSchema, incompleteUser, 'test-incomplete')).toThrow();
   });
 });

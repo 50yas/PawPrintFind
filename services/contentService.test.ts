@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { contentService } from './contentService';
 import { db, auth } from './firebase';
 import { setDoc, updateDoc, deleteDoc, getDocs, addDoc } from 'firebase/firestore';
+import { ChatSessionSchema, ChatMessageSchema, DonationSchema, BlogPostSchema } from '../types';
 
 vi.mock('./firebase', () => ({
   db: { _isDb: true },
@@ -43,27 +44,64 @@ describe('contentService', () => {
     vi.clearAllMocks();
   });
 
+  const validChatSession = {
+    id: 's1',
+    petId: 'p1',
+    petName: 'Buddy',
+    petPhotoUrl: 'http://photo.url',
+    ownerEmail: 'owner@test.com',
+    finderEmail: 'finder@test.com',
+    messages: []
+  };
+
+  const validChatMessage = {
+    senderEmail: 'owner@test.com',
+    text: 'Hello',
+    timestamp: Date.now()
+  };
+
+  const validDonation = {
+    id: 'd1',
+    donorName: 'John',
+    amount: '€10',
+    message: 'Good luck',
+    timestamp: Date.now(),
+    status: 'paid',
+    approved: true,
+    isPublic: true
+  };
+
+  const validBlogPost = {
+    id: 'b1',
+    title: 'Title',
+    slug: 'title',
+    summary: 'Summary of the post',
+    content: 'Full content',
+    author: 'Admin',
+    tags: ['pet'],
+    publishedAt: Date.now(),
+    seoTitle: 'SEO Title',
+    seoDescription: 'SEO Desc',
+    views: 0
+  };
+
   it('saveChatSession calls setDoc', async () => {
-    const session: any = { id: 's1', messages: [] };
-    await contentService.saveChatSession(session);
+    await contentService.saveChatSession(validChatSession as any);
     expect(setDoc).toHaveBeenCalled();
   });
 
   it('sendChatMessage calls updateDoc', async () => {
-    const msg: any = { text: 'hi' };
-    await contentService.sendChatMessage('s1', msg);
+    await contentService.sendChatMessage('s1', validChatMessage as any);
     expect(updateDoc).toHaveBeenCalled();
   });
 
   it('recordDonation calls setDoc', async () => {
-    const donation: any = { id: 'd1', amount: '€10' };
-    await contentService.recordDonation(donation);
+    await contentService.recordDonation(validDonation as any);
     expect(setDoc).toHaveBeenCalled();
   });
 
   it('saveBlogPost calls setDoc and includes translations', async () => {
-    const post: any = { id: 'b1', title: 'Title', summary: 'Summary', content: 'Content' };
-    await contentService.saveBlogPost(post);
+    await contentService.saveBlogPost(validBlogPost as any);
     expect(setDoc).toHaveBeenCalled();
     const saveCall = vi.mocked(setDoc).mock.calls[0];
     const savedData = saveCall[1] as any;

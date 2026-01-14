@@ -44,6 +44,28 @@ vi.mock('firebase/storage', async () => {
 
 
 describe('petService', () => {
+  const validPet = {
+    id: '1',
+    ownerEmail: 'owner@test.com',
+    guardianEmails: [],
+    status: 'owned',
+    vetLinkStatus: 'unlinked',
+    isLost: false,
+    name: 'Fido',
+    breed: 'Labrador',
+    age: '2 years',
+    weight: '25kg',
+    behavior: 'Friendly',
+    photos: [],
+    homeLocations: [],
+    lastSeenLocation: null,
+    searchRadius: null,
+    sightings: [],
+    videoAnalysis: '',
+    audioNotes: '',
+    healthChecks: []
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     (auth.currentUser as any) = null; // Unauthenticated by default
@@ -51,9 +73,9 @@ describe('petService', () => {
 
   describe('getPets', () => {
     it('should return a list of pets', async () => {
-      const mockPets = [{ id: '1', name: 'Fido' }, { id: '2', name: 'Buddy' }];
+      const mockPets = [{ ...validPet }, { ...validPet, id: '2', name: 'Buddy' }];
       (getDocs as Mock).mockResolvedValue({
-        docs: mockPets.map(p => ({ id: p.id, data: () => ({ name: p.name }) }))
+        docs: mockPets.map(p => ({ id: p.id, data: () => ({ ...p }) }))
       });
       const pets = await petService.getPets();
       expect(getDocs).toHaveBeenCalled();
@@ -71,24 +93,21 @@ describe('petService', () => {
 
   describe('savePet', () => {
     it('should throw an error if user is not authenticated', async () => {
-        const petProfile = { id: '1', name: 'Fido' } as any;
-        await expect(petService.savePet(petProfile)).rejects.toThrow('Authentication required to save a pet.');
+        await expect(petService.savePet(validPet as any)).rejects.toThrow('Authentication required to save a pet.');
         expect(setDoc).not.toHaveBeenCalled();
     });
     
     it('should save a pet profile', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
-        const petProfile = { id: '1', name: 'Fido' } as any;
-        await petService.savePet(petProfile);
+        await petService.savePet(validPet as any);
         expect(setDoc).toHaveBeenCalled();
     });
 
     it('should log an error if saving fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
-        const petProfile = { id: '1', name: 'Fido' } as any;
         const mockError = new Error('Firestore error');
         (setDoc as Mock).mockRejectedValue(mockError);
-        await expect(petService.savePet(petProfile)).rejects.toThrow('Firestore error');
+        await expect(petService.savePet(validPet as any)).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error saving pet:', mockError);
     });
   });

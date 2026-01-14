@@ -81,10 +81,19 @@ describe('adminService', () => {
 
         it('should return users if authenticated', async () => {
             (auth.currentUser as any) = { uid: 'admin-123' };
+            const validUser = {
+                email: 'u1@test.com',
+                roles: ['owner'],
+                activeRole: 'owner',
+                friends: [],
+                friendRequests: [],
+                points: 0,
+                badges: []
+            };
             const mockSnapshot = {
                 docs: [
-                    { id: 'user1', data: () => ({ email: 'u1@test.com' }) },
-                    { id: 'user2', data: () => ({ email: 'u2@test.com' }) }
+                    { id: 'user1', data: () => ({ ...validUser }) },
+                    { id: 'user2', data: () => ({ ...validUser, email: 'u2@test.com' }) }
                 ]
             };
             (getDocs as Mock).mockResolvedValue(mockSnapshot);
@@ -153,6 +162,17 @@ describe('adminService', () => {
     });
 
     describe('verifyUser', () => {
+        const fullValidUser = {
+            uid: 'u1',
+            email: 'test@test.com',
+            roles: ['owner'],
+            activeRole: 'owner',
+            friends: [],
+            friendRequests: [],
+            points: 0,
+            badges: []
+        };
+
         it('should throw if unauthenticated', async () => {
             await expect(adminService.verifyUser({ uid: 'u1' } as any)).rejects.toThrow('Authentication required');
         });
@@ -160,12 +180,24 @@ describe('adminService', () => {
         it('should call setDoc with isVerified: true', async () => {
             (auth.currentUser as any) = { uid: 'admin-1' };
             (setDoc as Mock).mockResolvedValue(undefined);
-            await adminService.verifyUser({ uid: 'u1', email: 'test@test.com' } as any);
+            await adminService.verifyUser(fullValidUser as any);
             expect(setDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ isVerified: true }), { merge: true });
         });
     });
 
     describe('rejectVerification', () => {
+        const fullValidUserWithData = {
+            uid: 'u1',
+            email: 'test@test.com',
+            roles: ['owner'],
+            activeRole: 'owner',
+            friends: [],
+            friendRequests: [],
+            points: 0,
+            badges: [],
+            verificationData: { docUrl: 'http://doc.url', timestamp: 123 }
+        };
+
         it('should throw if unauthenticated', async () => {
             await expect(adminService.rejectVerification({ uid: 'u1' } as any)).rejects.toThrow('Authentication required');
         });
@@ -173,14 +205,8 @@ describe('adminService', () => {
         it('should call setDoc and remove verificationData', async () => {
             (auth.currentUser as any) = { uid: 'admin-1' };
             (setDoc as Mock).mockResolvedValue(undefined);
-            const userWithData = { 
-                uid: 'u1', 
-                email: 'test@test.com', 
-                verificationData: { doc: 'url' } 
-            };
-            await adminService.rejectVerification(userWithData as any);
+            await adminService.rejectVerification(fullValidUserWithData as any);
             
-            // setDoc should be called without verificationData
             const callArgs = (setDoc as Mock).mock.calls[0][1];
             expect(callArgs).not.toHaveProperty('verificationData');
             expect(callArgs.isVerified).toBe(false);
@@ -194,10 +220,16 @@ describe('adminService', () => {
 
         it('should return audit logs if authenticated', async () => {
             (auth.currentUser as any) = { uid: 'admin-123' };
+            const validLog = {
+                adminEmail: 'a@a.com',
+                action: 'DELETE_PET',
+                details: 'Deleted pet 1',
+                timestamp: 123
+            };
             const mockSnapshot = {
                 docs: [
-                    { id: 'l1', data: () => ({ action: 'DELETE_PET', timestamp: 123 }) },
-                    { id: 'l2', data: () => ({ action: 'VERIFY_USER', timestamp: 456 }) }
+                    { id: 'l1', data: () => ({ ...validLog }) },
+                    { id: 'l2', data: () => ({ ...validLog, id: 'l2', action: 'VERIFY_USER', timestamp: 456 }) }
                 ]
             };
             (getDocs as Mock).mockResolvedValue(mockSnapshot);

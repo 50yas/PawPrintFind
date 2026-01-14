@@ -141,7 +141,7 @@ describe('authService error handling and authentication', () => {
     it('should fetch and update existing user profile', async () => {
       (getDoc as Mock).mockResolvedValueOnce({
         exists: () => true,
-        data: () => ({ roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 100, badges: ['Veteran'] })
+        data: () => ({ email: 'existing@example.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 100, badges: ['Veteran'] })
       });
       (updateDoc as Mock).mockResolvedValue(undefined);
 

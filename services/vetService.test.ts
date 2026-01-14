@@ -18,10 +18,17 @@ describe('vetService', () => {
     });
 
     describe('getVetClinics', () => {
+        const validClinic = {
+            vetEmail: 'vet@test.com',
+            name: 'Clinic 1',
+            address: '123 Main St',
+            phone: '555-1234'
+        };
+
         it('should return clinics', async () => {
             const mockSnapshot = {
                 docs: [
-                    { id: 'c1', data: () => ({ name: 'Clinic 1' }) }
+                    { id: 'c1', data: () => ({ ...validClinic }) }
                 ]
             };
             (getDocs as Mock).mockResolvedValue(mockSnapshot);
@@ -48,8 +55,14 @@ describe('vetService', () => {
         it('should save clinic if authenticated', async () => {
             (auth.currentUser as any) = { uid: 'vet-1' };
             (setDoc as Mock).mockResolvedValue(undefined);
+            const validClinic = {
+                vetEmail: 'vet@test.com',
+                name: 'My Clinic',
+                address: '123 Main St',
+                phone: '555-1234'
+            };
 
-            await vetService.saveClinic({ name: 'My Clinic' } as any);
+            await vetService.saveClinic(validClinic as any);
             expect(setDoc).toHaveBeenCalled();
         });
 
@@ -57,22 +70,42 @@ describe('vetService', () => {
             (auth.currentUser as any) = { uid: 'vet-1' };
             const mockError = new Error('Save failed');
             (setDoc as Mock).mockRejectedValue(mockError);
+            const validClinic = {
+                vetEmail: 'vet@test.com',
+                name: 'My Clinic',
+                address: '123 Main St',
+                phone: '555-1234'
+            };
 
-            await expect(vetService.saveClinic({ id: 'c1' } as any)).rejects.toThrow(mockError);
+            await expect(vetService.saveClinic(validClinic as any)).rejects.toThrow(mockError);
             expect(logger.error).toHaveBeenCalledWith('Error saving vet clinic:', mockError);
         });
     });
 
     describe('getAppointments', () => {
+        const validAppt = {
+            vetEmail: 'vet@test.com',
+            petId: 'p1',
+            petName: 'Buddy',
+            date: '2023-01-01',
+            time: '10:00',
+            notes: 'Checkup',
+            status: 'pending',
+            requestedBy: 'owner'
+        };
+
         it('should throw error if not authenticated', async () => {
             await expect(vetService.getAppointments()).rejects.toThrow('Authentication required');
         });
 
         it('should return appointments if authenticated', async () => {
             (auth.currentUser as any) = { uid: 'vet-1' };
-            (getDocs as Mock).mockResolvedValue({ docs: [] });
-            await vetService.getAppointments();
+            (getDocs as Mock).mockResolvedValue({ 
+                docs: [{ id: 'a1', data: () => ({ ...validAppt }) }] 
+            });
+            const appts = await vetService.getAppointments();
             expect(getDocs).toHaveBeenCalled();
+            expect(appts).toHaveLength(1);
         });
         
         it('should log error and re-throw', async () => {
