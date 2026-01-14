@@ -4,6 +4,7 @@ import { PetProfile, Geolocation, Sighting, PhotoWithMarks } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
+import { EmojiSwitcher } from './EmojiSwitcher';
 
 declare var L: any;
 
@@ -75,7 +76,13 @@ export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, o
       </div>
       <div className="mt-6 flex justify-end space-x-3">
         <button onClick={onClose} className="btn btn-secondary">{t('cancelButton')}</button>
-        <button onClick={handleConfirm} disabled={!selectedLocation} className="btn btn-primary">{t('confirmSightingButton')}</button>
+        <EmojiSwitcher 
+          onClick={handleConfirm} 
+          disabled={!selectedLocation} 
+          className="btn btn-primary !w-auto !h-auto !px-4 !py-2 !rounded-lg"
+        >
+          {t('confirmSightingButton')}
+        </EmojiSwitcher>
       </div>
     </Modal>
   );

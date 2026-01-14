@@ -1,6 +1,7 @@
 import React from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { EmojiSwitcher } from './EmojiSwitcher';
 
 interface CommunityAlertsProps {
   alerts: PetProfile[];
@@ -27,9 +28,12 @@ export const CommunityAlerts: React.FC<CommunityAlertsProps> = ({ alerts, curren
             <p className="text-sm font-bold text-red-500">{t('lostNearby')}</p>
             <p className="text-card-foreground font-semibold">{pet.name}</p>
           </div>
-          <button onClick={() => onReportSighting(pet)} className="btn btn-secondary !py-1 !px-2 text-xs flex-shrink-0">
+          <EmojiSwitcher 
+            onClick={() => onReportSighting(pet)} 
+            className="btn btn-secondary !py-1 !px-2 text-xs flex-shrink-0 !w-auto !h-auto !rounded-lg"
+          >
             {t('reportSightingButton')}
-          </button>
+          </EmojiSwitcher>
         </div>
       ))}
     </div>

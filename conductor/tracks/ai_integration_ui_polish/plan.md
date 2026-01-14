@@ -4,11 +4,11 @@
 - [x] Task: Create `EmojiSwitcher` Component [77161c4]
     - [ ] Sub-task: Implement the state logic to cycle through emojis.
     - [ ] Sub-task: Add `framer-motion` animations for the transition (scale/pop).
-    - [ ] Sub-task: Integrate this into the "Report Sighting" modal/button.
+    - [x] Sub-task: Integrate this into the "Report Sighting" modal/button.
 
 ## Phase 2: Smart Search
-- [ ] Task: Backend Logic
-    - [ ] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
+- [~] Task: Backend Logic
+    - [~] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
     - [ ] Sub-task: Define the JSON schema for the AI response (filters object).
 - [ ] Task: Frontend Integration
     - [ ] Sub-task: Create a `SmartSearchBar` component.
