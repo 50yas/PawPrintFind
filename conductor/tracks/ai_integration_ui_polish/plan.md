@@ -7,7 +7,7 @@
     - [x] Sub-task: Integrate this into the "Report Sighting" modal/button.
 
 ## Phase 2: Smart Search
-- [x] Task: Backend Logic [abaafa2]
+- [x] Task: Backend Logic [abc7525]
     - [x] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
     - [x] Sub-task: Define the JSON schema for the AI response (filters object).
 - [~] Task: Frontend Integration

@@ -34,6 +34,14 @@ vi.mock('./AdoptionMap', () => ({
   AdoptionMap: () => <div data-testid="adoption-map">AdoptionMap</div>,
 }));
 
+vi.mock('./SmartSearchBar', () => ({
+    SmartSearchBar: ({ onSearch }: any) => (
+        <div data-testid="smart-search-bar">
+            <button onClick={() => onSearch({ species: 'cat' })}>Search Cat</button>
+        </div>
+    )
+}));
+
 const mockPets: PetProfile[] = [
   {
     id: '1',
@@ -41,8 +49,19 @@ const mockPets: PetProfile[] = [
     status: 'forAdoption',
     breed: 'Golden Retriever',
     age: '2 years',
+    type: 'dog',
     photos: [{ url: 'buddy.jpg' }],
     behavior: 'Playful',
+  },
+  {
+    id: '2',
+    name: 'Mittens',
+    status: 'forAdoption',
+    breed: 'Tabby',
+    age: '1 year',
+    type: 'cat',
+    photos: [{ url: 'mittens.jpg' }],
+    behavior: 'Quiet',
   }
 ] as any;
 
@@ -117,9 +136,30 @@ describe('AdoptionCenter Component', () => {
       />
     );
 
-    const inquireBtn = screen.getByText('inquireToAdoptButton');
-    fireEvent.click(inquireBtn);
+    const inquireBtns = screen.getAllByText('inquireToAdoptButton');
+    fireEvent.click(inquireBtns[0]);
 
     expect(mockOnInquire).toHaveBeenCalledWith(mockPets[0]);
+  });
+
+  it('filters pets when Smart Search returns results', async () => {
+    render(
+      <AdoptionCenter 
+        petsForAdoption={mockPets} 
+        onInquire={vi.fn()} 
+        goBack={vi.fn()} 
+        currentUser={null} 
+        isLoading={false} 
+      />
+    );
+
+    expect(screen.getByText('Buddy')).toBeInTheDocument();
+    expect(screen.getByText('Mittens')).toBeInTheDocument();
+
+    const searchBtn = screen.getByText('Search Cat');
+    fireEvent.click(searchBtn);
+
+    expect(screen.queryByText('Buddy')).toBeNull();
+    expect(screen.getByText('Mittens')).toBeInTheDocument();
   });
 });

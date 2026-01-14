@@ -4,6 +4,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { CardSkeleton, MapSidebarSkeleton } from './ui/SkeletonLoader';
+import { SmartSearchBar } from './SmartSearchBar';
 
 const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
@@ -24,15 +25,40 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filterBreed, setFilterBreed] = useState('');
   const [filterAge, setFilterAge] = useState('');
+  const [aiFilters, setAiFilters] = useState<any>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
 
   const filteredPets = useMemo(() => {
     return petsForAdoption.filter(pet => {
+        // AI Filters
+        if (aiFilters) {
+            if (aiFilters.species && pet.type !== aiFilters.species.toLowerCase()) return false;
+            if (aiFilters.breed && !pet.breed.toLowerCase().includes(aiFilters.breed.toLowerCase())) return false;
+            if (aiFilters.color && !pet.color?.toLowerCase().includes(aiFilters.color.toLowerCase())) return false;
+            if (aiFilters.size && pet.size !== aiFilters.size) return false;
+            if (aiFilters.age && pet.age !== aiFilters.age) return false;
+            if (aiFilters.gender && pet.gender !== aiFilters.gender) return false;
+            
+            // Tag matching (loose)
+            if (aiFilters.tags && aiFilters.tags.length > 0) {
+                const petText = `${pet.behavior} ${pet.breed} ${pet.description}`.toLowerCase();
+                const matchesAnyTag = aiFilters.tags.some((tag: string) => petText.includes(tag.toLowerCase()));
+                if (!matchesAnyTag) return false;
+            }
+
+            // Fallback keyword search
+            if (aiFilters.keyword) {
+                const petText = `${pet.name} ${pet.breed} ${pet.behavior} ${pet.description}`.toLowerCase();
+                if (!petText.includes(aiFilters.keyword.toLowerCase())) return false;
+            }
+        }
+
+        // Standard Filters
         if (filterBreed && !pet.breed.toLowerCase().includes(filterBreed.toLowerCase())) return false;
         if (filterAge && !pet.age.includes(filterAge)) return false;
         return true;
     });
-  }, [petsForAdoption, filterBreed, filterAge]);
+  }, [petsForAdoption, filterBreed, filterAge, aiFilters]);
 
   const uniqueBreeds = useMemo(() => [...new Set(petsForAdoption.map(p => p.breed))], [petsForAdoption]);
   const uniqueAges = useMemo(() => [...new Set(petsForAdoption.map(p => p.age))], [petsForAdoption]);
@@ -142,6 +168,22 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
             
             
+                    {/* Smart AI Search */}
+                    <div className="pb-4">
+                        <SmartSearchBar onSearch={setAiFilters} />
+                        {aiFilters && (
+                            <div className="flex justify-center mt-4">
+                                <button 
+                                    onClick={() => setAiFilters(null)} 
+                                    className="text-xs text-primary/60 hover:text-primary uppercase tracking-[0.2em] font-black flex items-center gap-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    {t('clearAiSearch') || "Clear AI Filters"}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Filters */}
             
                     <div className="flex flex-wrap gap-4 items-center">
