@@ -8,11 +8,14 @@ This document outlines the core technologies used in the Paw Print application.
     -   **Description:** A declarative, component-based JavaScript library for building user interfaces.
 -   **Build Tool:** Vite
     -   **Description:** A fast build tool that provides an extremely quick development experience.
+    -   **PWA:** vite-plugin-pwa (Zero-config Progressive Web App generation).
 -   **Language:** TypeScript
     -   **Description:** A strongly typed superset of JavaScript that compiles to plain JavaScript, enhancing code quality and developer experience.
     -   **Configuration:** Strict Mode enabled for robust type safety.
 - **Styling:** Tailwind CSS v4
     - **Description:** A utility-first CSS framework used with the @tailwindcss/postcss plugin for high-performance "Glassmorphism 2.0" styling.
+- **Animation:** framer-motion
+    - **Description:** A production-ready motion library for React.
 - **UI Utilities:** @material/material-color-utilities
     - **Description:** Official Google library for generating dynamic Material Design 3 (Material You) palettes (Primary, Secondary, Tertiary, Surface, Error).
 - **Internationalization:** react-i18next / i18next

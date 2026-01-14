@@ -1,7 +1,7 @@
 # Implementation Plan: Advanced AI Integration & UI Polish
 
 ## Phase 1: UI Polish - Emoji Switcher
-- [ ] Task: Create `EmojiSwitcher` Component
+- [x] Task: Create `EmojiSwitcher` Component
     - [ ] Sub-task: Implement the state logic to cycle through emojis.
     - [ ] Sub-task: Add `framer-motion` animations for the transition (scale/pop).
     - [ ] Sub-task: Integrate this into the "Report Sighting" modal/button.

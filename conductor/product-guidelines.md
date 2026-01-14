@@ -24,7 +24,7 @@ This document outlines the design and communication principles for the Paw Print
 
     - **Dynamic and Harmonious:** The color palette is automatically generated from a seed color, ensuring visual harmony and a premium "Google-level" feel.
 
-    - **Accessibility:** Ensure high contrast for text, provide alt-text for all images, and ensure the application is fully navigable via keyboard.
+    - **Accessibility:** Strictly adhere to WCAG 2.1 AA standards. Ensure high contrast for text, provide ARIA labels for screen readers, and ensure the application is fully navigable via logical focus management.
 
     - **Information Density:** Administrative views prioritize data density and system status via high-contrast HUD grids, animated indicators, and glowing accents.
 

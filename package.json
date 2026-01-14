@@ -17,6 +17,7 @@
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
     "firebase": "^10.8.0",
+    "framer-motion": "^12.26.2",
     "i18next": "^25.7.4",
     "i18next-browser-languagedetector": "^8.2.0",
     "i18next-http-backend": "^3.0.2",

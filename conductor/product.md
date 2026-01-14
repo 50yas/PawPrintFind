@@ -13,7 +13,7 @@ Paw Print is a comprehensive, AI-powered platform designed to connect pet lovers
 ## 3. Core Features & Design
 Based on the file structure, the application includes the following features:
 - **Glassmorphism 2.0 & Material You:** A refined, futuristic aesthetic combining translucency and depth with a dynamic "Material You" (Material 3) color system derived from a "Paw Print Teal" seed color.
-- **Global Localization:** A fully localized interface powered by `i18next`, ensuring seamless access for international users with context-aware translations.
+- **Global Localization:** A fully localized interface powered by `i18next`, ensuring seamless access for international users with deep coverage across Authentication flows and Admin Dashboards.
 - **Pet Adoption:** A central hub (`AdoptionCenter.tsx`) for users to browse and find pets available for adoption, featuring an interactive map (`AdoptionMap.tsx`), high-performance cinematic image loading, and localized smart templates for secure inquiries.
 - **AI Health Check:** An AI-powered tool (`AIHealthCheckModal.tsx`) to provide preliminary health assessments for pets.
 - **Lost & Found Pets:**
@@ -24,7 +24,8 @@ Based on the file structure, the application includes the following features:
     - A directory to find veterinarians (`FindVet.tsx`, `Vets.tsx`).
     - A dashboard for veterinarians (`VetDashboard.tsx`) to manage their clinic and patients (`MyClinic.tsx`, `MyPatients.tsx`).
     - **Professional Management:** An administrative "Command Center" for manual clinic registration, professional credential verification, role-based access control, and account status management (suspension/banning).
-- **Audit & Intelligence:**
+- **Audit, Intelligence & Accessibility:**
+    - **Universal Access:** Fully WCAG 2.1 AA compliant interface with verified screen reader support, logical focus management, and high-contrast visuals.
     - **System Audit Logs:** Comprehensive logging of administrative actions for transparency and security.
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON) and trace correlation for rapid debugging and reliability.
     - **System Health Diagnostics:** Real-time visual tracking of user and pet registration velocity, resource allocation, and donation trends via an advanced Analytics Dashboard.
@@ -38,7 +39,7 @@ Based on the file structure, the application includes the following features:
     - Dashboards tailored to different roles (Admin, Shelter, Vet, Volunteer).
     - **Cyber HUD Aesthetic:** A specialized, high-density administrative interface featuring glowing borders, animated status indicators, and advanced data filtering.
     - **Unified Access:** Authenticated users can access all public-facing pages (Home, Adoption Center, Blog) without logging out.
-    - **Enhanced Mobile Experience:** A mobile-first navigation system featuring a fixed glass-effect bottom sheet and optimized "Thumb Zone" controls.
+    - **Enhanced Mobile Experience (PWA):** A mobile-first, installable Progressive Web App (PWA) featuring offline capabilities, cached core assets, and optimized "Thumb Zone" controls.
 
 ## 4. Technology Stack
 - **Frontend:** React, TypeScript, Vite
