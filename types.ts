@@ -348,6 +348,16 @@ export const PetProfileSchema = z.object({
   aiInsights: z.array(AIInsightSchema).optional(),
 });
 
+export const VetClinicSchema = z.object({
+  id: z.string().optional(),
+  vetEmail: z.string().email(),
+  name: z.string().min(2),
+  address: z.string().min(5),
+  phone: z.string().min(5),
+  location: GeolocationSchema.optional(),
+  isVerified: z.boolean().optional(),
+});
+
 export const AppointmentSchema = z.object({
   id: z.string(),
   vetEmail: z.string().email(),
@@ -358,6 +368,38 @@ export const AppointmentSchema = z.object({
   notes: z.string(),
   status: z.enum(['pending', 'confirmed', 'cancelled']),
   requestedBy: z.enum(['owner', 'vet']),
+});
+
+export const ChatMessageSchema = z.object({
+  senderEmail: z.string().email(),
+  text: z.string().min(1),
+  timestamp: z.number(),
+});
+
+export const ChatSessionSchema = z.object({
+  id: z.string(),
+  petId: z.string(),
+  petName: z.string(),
+  petPhotoUrl: z.string().url(),
+  ownerEmail: z.string().email(),
+  finderEmail: z.string().email(),
+  messages: z.array(ChatMessageSchema),
+});
+
+export const DonationSchema = z.object({
+  id: z.string(),
+  donorName: z.string(),
+  realName: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
+  amount: z.string(),
+  numericValue: z.number().optional(),
+  message: z.string(),
+  timestamp: z.number(),
+  avatarUrl: z.string().url().optional().or(z.literal('')),
+  status: z.enum(['pending_payment', 'paid', 'failed']),
+  approved: z.boolean(),
+  isPublic: z.boolean(),
+  stripeSessionId: z.string().optional(),
 });
 
 export const BlogPostSchema = z.object({

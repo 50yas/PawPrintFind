@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         includeAssets: ['favicon.svg'],
         devOptions: {
           enabled: true
@@ -71,6 +71,8 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
+           skipWaiting: true,
+           clientsClaim: true,
            globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
            runtimeCaching: [{
                 urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*$/,

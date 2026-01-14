@@ -1,7 +1,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { validationService } from './validationService';
-import { PetProfileSchema, UserSchema, VetClinicSchema, ContactMessageSchema } from '../types';
+import { PetProfileSchema, UserSchema, VetClinicSchema, ContactMessageSchema, DonationSchema } from '../types';
 
 describe('Input Validation Protocols', () => {
     it('should reject invalid PetProfile', () => {
@@ -47,5 +47,23 @@ describe('Input Validation Protocols', () => {
             message: 'I need help with my account, it is not working correctly.' 
         };
         expect(() => validationService.validate(ContactMessageSchema, validMsg, 'test')).not.toThrow();
+    });
+
+    it('should accept Donation with empty email and avatar', () => {
+        const validDonation = {
+            id: '1767893341114',
+            donorName: 'Anonymous',
+            realName: '',
+            email: '',
+            amount: '€25.00',
+            numericValue: 25,
+            message: '',
+            timestamp: 1767893341114,
+            avatarUrl: '',
+            status: 'pending_payment',
+            approved: false,
+            isPublic: false
+        };
+        expect(() => validationService.validate(DonationSchema, validDonation, 'test')).not.toThrow();
     });
 });
