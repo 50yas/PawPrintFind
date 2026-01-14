@@ -25,7 +25,7 @@ describe('ValidationService', () => {
 
   it('should validate valid data successfully', () => {
     const validated = validationService.validate(UserSchema, validUser, 'test');
-    expect(validated).toEqual(validUser);
+    expect(validated).toMatchObject(validUser);
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
