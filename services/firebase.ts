@@ -34,6 +34,7 @@ import {
     ConfirmationResult
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import { getRemoteConfig } from "firebase/remote-config";
@@ -60,6 +61,7 @@ const db = initializeFirestore(app, {
 
 const auth = getAuth(app);
 const storage = getStorage(app);
+const functions = getFunctions(app);
 const remoteConfig = getRemoteConfig(app);
 const googleProvider = new GoogleAuthProvider();
 
@@ -72,7 +74,7 @@ if (typeof window !== 'undefined') {
 setPersistence(auth, browserLocalPersistence).catch(console.error);
 
 // EXPORTS (Base Instances)
-export { db, auth, storage, remoteConfig, googleProvider };
+export { db, auth, storage, functions, remoteConfig, googleProvider };
 
 // Circular Dependency Guard: Import service AFTER base exports
 import { authService } from './authService';

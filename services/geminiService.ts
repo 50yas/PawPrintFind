@@ -1,45 +1,18 @@
 
 import { GoogleGenAI, Type, GenerateContentResponse, Modality } from "@google/genai";
-import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost } from '../types';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from './firebase';
+import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost, AIInsight } from '../types';
 import * as Prompts from './prompts';
-import { configService } from './configService';
 
 /**
- * Helper to get a fresh instance of the Gemini AI client using the current environment API Key.
- * This is crucial for nano banana series models where the key may be selected via window.aistudio.
+ * Calls the Cloud Function to interact with Gemini AI.
+ * This ensures the API key remains secret and allows for server-side rate limiting.
  */
-const getAIClient = async () => {
-    const apiKey = await configService.getGeminiKey();
-    if (!apiKey) {
-        console.warn("Gemini API Key is missing! Using Mock Mode. Please set VITE_GEMINI_API_KEY in your .env file or Firebase Remote Config.");
-        // Return a mock object that mimics GoogleGenAI but returns "Mock Data"
-        return {
-            models: {
-                generateContent: async () => ({
-                    text: JSON.stringify({
-                        visualIdentityCode: "MOCK-12345",
-                        physicalDescription: "This is a mock description generated because the API key is missing.",
-                        score: 0.95,
-                        reasoning: "Mock reasoning",
-                        keyMatches: ["Match 1", "Match 2"],
-                        discrepancies: ["None"],
-                        suggestions: ["Check the park", "Post flyers"],
-                        title: "Mock Blog Post",
-                        summary: "Mock summary",
-                        content: "Mock content",
-                        seoTitle: "Mock SEO Title",
-                        seoDescription: "Mock SEO Description",
-                        tags: ["mock", "test"]
-                    }),
-                    candidates: [{
-                        content: { parts: [{ inlineData: { data: "" }, text: "Mock response" }] },
-                        groundingMetadata: { groundingChunks: [] }
-                    }]
-                })
-            }
-        } as unknown as GoogleGenAI;
-    }
-    return new GoogleGenAI({ apiKey });
+const callGeminiFunction = async (model: string, contents: any, config?: any) => {
+    const callGemini = httpsCallable(functions, 'callGemini');
+    const result = await callGemini({ model, contents, config });
+    return result.data as { success: boolean, text: string };
 };
 
 // --- UTILITY: Exponential Backoff Retry Wrapper ---
@@ -88,12 +61,11 @@ const fileToGenerativePart = async (file: File, onProgress?: (percent: number) =
 
 export const autoFillPetDetails = async (photo: File): Promise<any> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt() }] },
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt() }] },
+            {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -107,43 +79,40 @@ export const autoFillPetDetails = async (photo: File): Promise<any> => {
                     required: ["breed", "color", "size"]
                 }
             }
-        });
+        );
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const analyzeImageForDescription = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: Prompts.getImageDescriptionPrompt() }] },
-        });
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [imagePart, { text: Prompts.getImageDescriptionPrompt() }] }
+        );
         return response.text || "No description generated.";
     });
 };
 
 export const identifyBreedFromImage = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt() }] },
-        });
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt() }] }
+        );
         return response.text?.trim() || "Unknown Breed";
     });
 };
 
 export const generatePetIdentikit = async (photo: File): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt() }] },
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt() }] },
+            {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -154,7 +123,7 @@ export const generatePetIdentikit = async (photo: File): Promise<{ code: string,
                     required: ["visualIdentityCode", "physicalDescription"]
                 }
             }
-        });
+        );
         const json = JSON.parse(response.text?.trim() || "{}");
         return {
             code: json.visualIdentityCode || "UNKNOWN",
@@ -165,15 +134,14 @@ export const generatePetIdentikit = async (photo: File): Promise<{ code: string,
 
 export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const validPhotos = lostPet.photos.filter(p => p.file !== undefined);
         const lostPetPhotoParts = await Promise.all(validPhotos.map(p => fileToGenerativePart(p.file!)));
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: { parts: [...lostPetPhotoParts, { text: userPrompt }] },
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            { parts: [...lostPetPhotoParts, { text: userPrompt }] },
+            {
                 systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -188,7 +156,7 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
                 },
                 thinkingConfig: { thinkingBudget: 32768 }
             }
-        });
+        );
 
         return JSON.parse(response.text?.trim() || "{}");
     });
@@ -196,14 +164,13 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
 
 export const analyzeVideo = async (videoFile: File, onProgress?: (percent: number) => void): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const videoPart = await fileToGenerativePart(videoFile, onProgress);
         const prompt = Prompts.getVideoAnalysisPrompt();
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: { parts: [videoPart, { text: prompt }] },
-        });
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            { parts: [videoPart, { text: prompt }] }
+        );
         if (onProgress) onProgress(100);
         return response.text || "";
     });
@@ -211,14 +178,13 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
 
 export const transcribeAudio = async (audioFile: File, onProgress?: (percent: number) => void): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
         const audioPart = await fileToGenerativePart(audioFile, onProgress);
         const prompt = Prompts.getAudioTranscriptionPrompt();
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [audioPart, { text: prompt }] },
-        });
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [audioPart, { text: prompt }] }
+        );
         if (onProgress) onProgress(100);
         return response.text || "";
     });
@@ -226,47 +192,41 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
 
 export const findNearbyVets = async (location: Geolocation): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        // Maps grounding is only supported in Gemini 2.5 series models
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: Prompts.getNearbyVetsPrompt(),
-            config: {
+        const response = await callGeminiFunction(
+            "gemini-2.5-flash",
+            Prompts.getNearbyVetsPrompt(),
+            {
                 tools: [{ googleMaps: {} }],
                 toolConfig: { retrievalConfig: { latLng: { latitude: location.latitude, longitude: location.longitude } } }
-            },
-        });
-        const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-        return { text: response.text || "", places: groundingChunks };
+            }
+        );
+        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
+        return { text: response.text || "", places: groundingChunks }; 
     });
 };
 
 export const findVetsByQuery = async (query: string): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        // Maps grounding is only supported in Gemini 2.5 series models
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: Prompts.getVetsByQueryPrompt(query),
-            config: { tools: [{ googleMaps: {} }] },
-        });
-        const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+        const response = await callGeminiFunction(
+            "gemini-2.5-flash",
+            Prompts.getVetsByQueryPrompt(query),
+            { tools: [{ googleMaps: {} }] }
+        );
+        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
         return { text: response.text || "", places: groundingChunks };
     });
 };
 
 export const findClinicOnGoogleMaps = async (name: string, city: string): Promise<any[]> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        // Maps grounding is only supported in Gemini 2.5 series models
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: Prompts.getFindClinicPrompt(name, city),
-            config: { tools: [{ googleMaps: {} }] },
-        });
+        const response = await callGeminiFunction(
+            "gemini-2.5-flash",
+            Prompts.getFindClinicPrompt(name, city),
+            { tools: [{ googleMaps: {} }] }
+        );
 
-        const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-        return groundingChunks.map(chunk => {
+        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
+        return groundingChunks.map((chunk: any) => {
             if (!chunk.maps) return null;
             return {
                 title: (chunk.maps as any).title,
@@ -283,16 +243,15 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
 
 export const textToSpeech = async (text: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
-            contents: [{ parts: [{ text }] }],
-            config: {
+        const response = await callGeminiFunction(
+            "gemini-2.5-flash-preview-tts",
+            [{ parts: [{ text }] }],
+            {
                 responseModalities: [Modality.AUDIO],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
-            },
-        });
-        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+            }
+        );
+        const base64Audio = (response as any).audioData;
         if (!base64Audio) throw new Error("No audio data received.");
         return base64Audio;
     });
@@ -301,12 +260,11 @@ export const textToSpeech = async (text: string): Promise<string> => {
 export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetMessageDraftParts(pet, topic);
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: userPrompt,
-            config: { systemInstruction }
-        });
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            userPrompt,
+            { systemInstruction }
+        );
         return response.text || "";
     });
 };
@@ -314,15 +272,14 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
 export const queryVetPatientData = async (patients: PetProfile[], appointments: Appointment[], query: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetDataQueryParts(patients, appointments, query);
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: userPrompt,
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            userPrompt,
+            {
                 systemInstruction,
                 thinkingConfig: { thinkingBudget: 32768 }
             }
-        });
+        );
         return response.text || "";
     });
 };
@@ -331,11 +288,10 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: userPrompt,
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            userPrompt,
+            {
                 systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -344,7 +300,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
                     required: ["suggestions"]
                 }
             }
-        });
+        );
         const parsed = JSON.parse(response.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
@@ -356,15 +312,14 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
 export const performAIHealthCheck = async (pet: PetProfile, symptoms: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms);
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: userPrompt,
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            userPrompt,
+            {
                 systemInstruction,
                 thinkingConfig: { thinkingBudget: 16384 }
             }
-        });
+        );
         return response.text || "Analysis unavailable.";
     });
 };
@@ -372,11 +327,10 @@ export const performAIHealthCheck = async (pet: PetProfile, symptoms: string): P
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
     const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: userPrompt,
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            userPrompt,
+            {
                 systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -393,18 +347,17 @@ export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>
                 },
                 thinkingConfig: { thinkingBudget: 16384 }
             }
-        });
+        );
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] },
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] },
+            {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -419,31 +372,22 @@ export const parseSearchQuery = async (query: string): Promise<any> => {
                     }
                 }
             }
-        });
+        );
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-3-pro-image-preview',
-            contents: { parts: [{ text: prompt }] },
-            config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
-        });
+        const response = await callGeminiFunction(
+            'gemini-3-pro-image-preview',
+            { parts: [{ text: prompt }] },
+            { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
+        );
 
-        const candidate = response.candidates?.[0];
-        const parts = candidate?.content?.parts;
-
-        if (parts) {
-            for (const part of parts) {
-                if (part.inlineData) {
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
-        }
-        throw new Error("No image generated");
+        const base64Image = (response as any).audioData; // Reusing the same field for now as it's the first part's inlineData
+        if (!base64Image) throw new Error("No image data received.");
+        return `data:image/png;base64,${base64Image}`;
     });
 };
 
@@ -470,33 +414,24 @@ export const calculateProfileCompleteness = (pet: PetProfile): number => {
 export const translateContent = async (text: string, targetLangs: string[]): Promise<Record<string, string>> => {
     const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
-            contents: userPrompt,
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
+            userPrompt,
+            {
                 systemInstruction,
                 responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    // Note: We can't strictly define properties for dynamic languages in schema, 
-                    // so we rely on the prompt instructions and a loose object schema or just JSON parsing.
-                    // However, for strict typing if possible we could list all supported langs.
-                    // For now, we'll try to let it generate a map.
-                }
             }
-        });
+        );
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
     return retryWithBackoff(async () => {
-        const ai = await getAIClient();
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
-            config: {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
+            {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.ARRAY,
@@ -511,7 +446,7 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
                     }
                 }
             }
-        });
+        );
         const insights = JSON.parse(response.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,

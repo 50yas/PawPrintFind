@@ -7,14 +7,12 @@ vi.mock('./configService', () => ({
   }
 }));
 
-import * as geminiService from './geminiService';
-
-vi.mock('@google/genai', () => {
-  const generateContent = vi.fn().mockImplementation((args: any) => {
-    const parts = args.contents?.parts || [];
-    const textPart = parts.find((p: any) => p.text);
-    const prompt = textPart ? textPart.text : '';
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn().mockImplementation((args: any) => {
+    const prompt = JSON.stringify(args);
     let responseText = '{}';
+    let groundingMetadata = undefined;
     
     if (prompt.includes('Visual Identity Code')) {
       responseText = '{"visualIdentityCode": "TEST-123", "physicalDescription": "A test pet"}';
@@ -24,29 +22,27 @@ vi.mock('@google/genai', () => {
       responseText = '{"es": "Hola Mundo", "fr": "Bonjour Monde"}';
     } else if (prompt.includes('Generate 3 proactive, personalized health or behavior insights')) {
       responseText = '[{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]';
+    } else if (prompt.includes('vets') || prompt.includes('clinic')) {
+      groundingMetadata = { groundingChunks: [{ maps: { title: 'Test Vet', address: '123 Test St' } }] };
     }
 
     return Promise.resolve({
-      text: responseText,
-      candidates: [{
-        content: { parts: [{ text: 'Mock Response' }] },
-        groundingMetadata: { groundingChunks: [{ maps: { title: 'Test Vet', address: '123 Test St' } }] }
-      }]
+      data: {
+        success: true,
+        text: responseText,
+        groundingMetadata
+      }
     });
-  });
+  }))
+}));
 
-  class MockGoogleGenAI {
-    models = {
-      generateContent
-    };
-  }
+vi.mock('./firebase', () => ({
+  functions: {},
+  auth: { currentUser: { uid: 'test-user' } },
+  db: {}
+}));
 
-  return {
-    GoogleGenAI: MockGoogleGenAI,
-    Type: { OBJECT: 'OBJECT', STRING: 'STRING', NUMBER: 'NUMBER', ARRAY: 'ARRAY' },
-    Modality: { AUDIO: 'AUDIO' }
-  };
-});
+import * as geminiService from './geminiService';
 
 describe('geminiService', () => {
   beforeEach(() => {
