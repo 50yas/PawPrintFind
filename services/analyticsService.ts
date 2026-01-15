@@ -17,6 +17,7 @@ export type AnalyticsEvent =
   | 'biometric_identikit_generated'
   | 'donation_started'
   | 'donation_completed'
+  | 'pet_viewed'
   | 'app_crash'
   | 'ai_failure';
 
@@ -44,6 +45,13 @@ export const analyticsService = {
             // We never want analytics to crash the app
             console.warn("Analytics tracking failed:", error);
         }
+    },
+
+    /**
+     * Track when a user views a pet profile
+     */
+    trackPetView(petId: string, petName: string, status: string) {
+        this.logEvent('pet_viewed', { pet_id: petId, pet_name: petName, pet_status: status });
     },
 
     /**

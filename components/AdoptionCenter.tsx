@@ -77,7 +77,11 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
   const prevSlide = () => setCarouselIndex(prev => (prev - 1 + filteredPets.length) % filteredPets.length);
 
   const AdoptionCard: React.FC<{ pet: PetProfile; mode?: ViewMode }> = ({ pet, mode = 'grid' }) => (
-        <GlassCard variant="interactive" className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl`}>
+        <GlassCard 
+            variant="interactive" 
+            className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl`}
+            onClick={() => analyticsService.trackPetView(pet.id, pet.name, pet.status)}
+        >
             <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
                 <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
@@ -200,7 +204,10 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                                 value={filterBreed} 
             
-                                onChange={(e) => setFilterBreed(e.target.value)}
+                                onChange={(e) => {
+                                    setFilterBreed(e.target.value);
+                                    analyticsService.logEvent('smart_search_performed', { breed: e.target.value, filter_type: 'standard' });
+                                }}
             
                                 className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
             
@@ -226,7 +233,10 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                                 value={filterAge} 
             
-                                onChange={(e) => setFilterAge(e.target.value)}
+                                onChange={(e) => {
+                                    setFilterAge(e.target.value);
+                                    analyticsService.logEvent('smart_search_performed', { age: e.target.value, filter_type: 'standard' });
+                                }}
             
                                 className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
             

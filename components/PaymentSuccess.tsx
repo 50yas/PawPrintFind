@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { Particles } from './Particles';
+import { analyticsService } from '../services/analyticsService';
 
 interface PaymentSuccessProps {
     setView: (view: any) => void;
@@ -11,6 +12,8 @@ export const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ setView }) => {
     const { t } = useTranslations();
 
     useEffect(() => {
+        // Fire analytics event
+        analyticsService.logEvent('donation_completed', { timestamp: Date.now() });
         // Fire confetti logic could go here if using a library like canvas-confetti
     }, []);
 
