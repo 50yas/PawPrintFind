@@ -6,7 +6,7 @@
 - [x] **Firestore Hardening:** Audit and restrict `firestore.rules`. Ensure only owners or admins can write to specific documents (especially `pets`, `donations`, and `chats`).
 - [x] **Secret Management:** Move all API keys to Firebase Remote Config or a secure backend environment to prevent exposure in the client bundle. [61c2882]
 - [x] **Rate Limiting:** Implement Cloud Functions to wrap sensitive Gemini AI calls, preventing API abuse and cost overruns. [a91c8aa]
-- [x] **CI/CD Pipeline:** Set up GitHub Actions for automated testing, linting, and deployment to Firebase Hosting (Staging vs. Production). [887019a]
+- [x] **CI/CD Pipeline:** Set up GitHub Actions for automated testing, linting, and deployment to Firebase Hosting (Staging vs. Production). [41383a0]
 ### Authentication & User Experience (NEW)
 - [ ] **Advanced Auth:** Implement "Magic Link" (Passwordless) login and Phone Number authentication for easier mobile access.
 - [ ] **User Onboarding:** Collect phone numbers during registration for urgent alerts.
