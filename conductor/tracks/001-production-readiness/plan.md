@@ -9,7 +9,7 @@
 - [x] **CI/CD Pipeline:** Set up GitHub Actions for automated testing, linting, and deployment to Firebase Hosting (Staging vs. Production). [41383a0]
 ### Authentication & User Experience (NEW)
 - [x] **Advanced Auth:** Implement "Magic Link" (Passwordless) login and Phone Number authentication for easier mobile access. [4bafaff]
-- [ ] **User Onboarding:** Collect phone numbers during registration for urgent alerts.
+- [x] **User Onboarding:** Collect phone numbers during registration for urgent alerts. [4bafaff]
 - [ ] **Welcome System:** Implement automated "Welcome" emails upon registration (via Firebase Extensions or Cloud Functions).
 
 ### Observability & Performance
