@@ -5,7 +5,7 @@
 ### Security & Infrastructure
 - [x] **Firestore Hardening:** Audit and restrict `firestore.rules`. Ensure only owners or admins can write to specific documents (especially `pets`, `donations`, and `chats`).
 - [x] **Secret Management:** Move all API keys to Firebase Remote Config or a secure backend environment to prevent exposure in the client bundle. [61c2882]
-- [ ] **Rate Limiting:** Implement Cloud Functions to wrap sensitive Gemini AI calls, preventing API abuse and cost overruns.
+- [x] **Rate Limiting:** Implement Cloud Functions to wrap sensitive Gemini AI calls, preventing API abuse and cost overruns. [a91c8aa]
 - [ ] **CI/CD Pipeline:** Set up GitHub Actions for automated testing, linting, and deployment to Firebase Hosting (Staging vs. Production).
 
 ### Authentication & User Experience (NEW)
