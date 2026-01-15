@@ -8,7 +8,7 @@
 - [x] **Rate Limiting:** Implement Cloud Functions to wrap sensitive Gemini AI calls, preventing API abuse and cost overruns. [a91c8aa]
 - [x] **CI/CD Pipeline:** Set up GitHub Actions for automated testing, linting, and deployment to Firebase Hosting (Staging vs. Production). [41383a0]
 ### Authentication & User Experience (NEW)
-- [ ] **Advanced Auth:** Implement "Magic Link" (Passwordless) login and Phone Number authentication for easier mobile access.
+- [x] **Advanced Auth:** Implement "Magic Link" (Passwordless) login and Phone Number authentication for easier mobile access. [4bafaff]
 - [ ] **User Onboarding:** Collect phone numbers during registration for urgent alerts.
 - [ ] **Welcome System:** Implement automated "Welcome" emails upon registration (via Firebase Extensions or Cloud Functions).
 
