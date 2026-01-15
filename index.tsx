@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './i18n';
+import * as Sentry from "@sentry/react";
 import App from './App';
 import './index.css';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -9,6 +10,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
 import { logger } from './services/loggerService';
 import { registerSW } from 'virtual:pwa-register';
+import { initMonitoring } from './services/monitoringService';
+
+// Initialize Sentry Monitoring
+initMonitoring();
 
 // Register PWA Service Worker
 registerSW({ immediate: true });
@@ -56,7 +61,9 @@ root.render(
     <LanguageProvider>
       <ThemeProvider>
         <SnackbarProvider>
-          <App />
+          <Sentry.ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center bg-background text-foreground">Something went wrong.</div>}>
+            <App />
+          </Sentry.ErrorBoundary>
         </SnackbarProvider>
       </ThemeProvider>
     </LanguageProvider>

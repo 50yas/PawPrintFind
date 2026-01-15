@@ -4,6 +4,7 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from './firebase';
 import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost, AIInsight } from '../types';
 import * as Prompts from './prompts';
+import { captureError } from './monitoringService';
 
 /**
  * Calls the Cloud Function to interact with Gemini AI.
@@ -31,6 +32,7 @@ async function retryWithBackoff<T>(
         }
 
         if (retries === 0 || error.status === 400) { // Don't retry Bad Requests
+            captureError(error, { context: "Gemini AI Request Final Failure", retries });
             throw error;
         }
         console.warn(`AI Request failed. Retrying in ${delay}ms... (${retries} attempts left). Error: ${error.message}`);

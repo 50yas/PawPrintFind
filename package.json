@@ -16,6 +16,7 @@
     "@material/material-color-utilities": "^0.3.0",
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
+    "@sentry/react": "^10.34.0",
     "firebase": "^10.8.0",
     "framer-motion": "^12.26.2",
     "i18next": "^25.7.4",
