@@ -20,6 +20,7 @@ import { OfflineBanner } from './components/OfflineBanner';
 const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
 const Auth = lazy(() => import('./components/Auth').then(m => ({ default: m.Auth })));
 const BlogPostDetail = lazy(() => import('./components/BlogPostDetail').then(m => ({ default: m.BlogPostDetail })));
+const TutorialOverlay = lazy(() => import('./components/TutorialOverlay').then(m => ({ default: m.TutorialOverlay })));
 
 // Modular Routers (Lazy)
 const AdminRouter = lazy(() => import('./components/routers/AdminRouter').then(m => ({ default: m.AdminRouter })));
@@ -56,6 +57,7 @@ export default function App() {
     const [showSplash, setShowSplash] = useState(true);
     const [showAdminInit, setShowAdminInit] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     useEffect(() => {
         // Detect Brave to apply specific rendering fallbacks
@@ -65,7 +67,19 @@ export default function App() {
             }
         };
         checkBrave();
+        
+        // Check tutorial status
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        if (!hasSeenTutorial) {
+            // Delay slightly to let the UI settle
+            setTimeout(() => setShowTutorial(true), 3000);
+        }
     }, []);
+
+    const handleTutorialClose = () => {
+        setShowTutorial(false);
+        localStorage.setItem('hasSeenTutorial', 'true');
+    };
 
     const { addSnackbar } = useSnackbar();
     const { t } = useTranslations();
@@ -371,6 +385,12 @@ export default function App() {
                         </Suspense>
                     </div>
                 </div>
+            )}
+
+            {showTutorial && (
+                <Suspense fallback={null}>
+                    <TutorialOverlay onClose={handleTutorialClose} />
+                </Suspense>
             )}
         </div>
     );

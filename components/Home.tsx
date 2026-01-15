@@ -259,6 +259,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
                             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start animate-fade-in" style={{ animationDelay: '300ms' }}>
                                 <button
+                                    id="register-btn"
                                     onClick={() => handleNavigate('register')}
                                     className="btn btn-primary text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl hover:scale-105 transition-all flex items-center justify-center gap-3 group shadow-[0_15px_30px_-10px_rgba(6,182,212,0.4)] uppercase tracking-widest font-black"
                                 >

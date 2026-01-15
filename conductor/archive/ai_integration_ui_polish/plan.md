@@ -2,8 +2,8 @@
 
 ## Phase 1: UI Polish - Emoji Switcher
 - [x] Task: Create `EmojiSwitcher` Component [77161c4]
-    - [ ] Sub-task: Implement the state logic to cycle through emojis.
-    - [ ] Sub-task: Add `framer-motion` animations for the transition (scale/pop).
+    - [x] Sub-task: Implement the state logic to cycle through emojis.
+    - [x] Sub-task: Add `framer-motion` animations for the transition (scale/pop).
     - [x] Sub-task: Integrate this into the "Report Sighting" modal/button.
 
 ## Phase 2: Smart Search
@@ -18,7 +18,7 @@
 - [x] Task: AI Analysis Integration [1f9cf4c]
     - [x] Sub-task: Create `geminiService.generateHealthInsights(petData: Pet)`.
     - [x] Sub-task: Add an `aiInsights` array field to the `Pet` Firestore model.
-- [~] Task: UI Display
-    - [~] Sub-task: Create an `AIInsightCard` component on the `PatientDetail` or `MyClinic` page.
-    - [ ] Sub-task: Trigger the analysis when a pet profile is updated (or manually via a "Check Health" button).
-- [ ] Task: Conductor - User Manual Verification 'AI Integration & UI Polish' (Protocol in workflow.md)
+- [x] Task: UI Display [72022be]
+    - [x] Sub-task: Create an `AIInsightCard` component on the `PatientDetail` or `MyClinic` page.
+    - [x] Sub-task: Trigger the analysis when a pet profile is updated (or manually via a "Check Health" button).
+- [x] Task: Conductor - User Manual Verification 'AI Integration & UI Polish' (Protocol in workflow.md) [72022be]

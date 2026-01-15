@@ -106,12 +106,58 @@ export const ar = {
     donorsPageTitle: `أبطال المجتمع`,
     aiPoweredProtection: `حماية بالذكاء الاصطناعي`,
     volunteerTitle: `متطوع`,
-    loginAsAdmin: `مدير`,
-    adminDashboardTitle: `لوحة المدير`,
-    adminTabOverview: `نظرة عامة`,
-    adminTabUsers: `المستخدمين`,
-    adminTabVets: `الأطباء`,
-    pendingVerificationsTitle: `تحققات معلقة`,
+    // Auth
+    placeholders: {
+        email: `أدخل البريد الآمن`,
+        password: `أدخل مفتاح الوصول`,
+        confirmPassword: `تأكيد مفتاح الوصول`,
+        phoneNumber: `رقم الهاتف (للتنبيهات)`,
+    },
+    title: {
+        login: `دخول النظام`,
+        register: `هوية جديدة`,
+        recovery: `استعادة المفتاح`,
+        magicLink: `الرابط السحري`,
+    },
+    subtitle: {
+        login: `أدخل بيانات الاعتماد للوصول إلى شبكة Paw Print.`,
+        register: `أنشئ ملفاً بيومترياً آمناً لحيوانك الأليف.`,
+        recovery: `أعد تعيين مفتاح الوصول عبر رابط بريد إلكتروني آمن.`,
+        magicLink: `سنرسل رابط وصول آمن إلى بريدك الإلكتروني.`,
+    },
+    buttons: {
+        decryptDashboard: `فك تشفير اللوحة`,
+        authorizeNewAccount: `تخويل الهوية`,
+        initiateRecovery: `بدء الاستعادة`,
+        sendMagicLink: `إرسال الرابط السحري`,
+        alreadyRegistered: `مسجل بالفعل؟`,
+        signInProtocol: `بروتوكول الدخول`,
+        newOperative: `مشغل جديد؟`,
+        initializeProfile: `تهيئة الملف`,
+        lostCredentials: `فقدت البيانات؟`,
+        backToIdentification: `عودة للتعريف`,
+        syncGoogle: `مزامنة مع Google`,
+        useMagicLink: `استخدم الرابط السحري`,
+        usePassword: `استخدم كلمة المرور`,
+    },
+    errors: {
+        emailInUse: `هذا البريد الإلكتروني مسجل بالفعل في قاعدة البيانات.`,
+        invalidCredential: `بيانات الاعتماد غير صالحة. تم رفض الوصول.`,
+        userNotFound: `هوية المستخدم غير موجودة في النظام.`,
+        wrongPassword: `مفتاح الوصول غير صحيح. تم رفض الوصول.`,
+        invalidEmail: `تنسيق البريد الإلكتروني غير صالح.`,
+        popupClosed: `أغلق المستخدم نافذة المصادقة.`,
+        weakPassword: `كلمة المرور ضعيفة جداً. زد التعقيد.`,
+        passwordMismatch: `مفاتيح الوصول غير متطابقة.`,
+        requiredFields: `جميع الحقول مطلوبة للتخويل.`,
+        missingEmail: `البريد الإلكتروني مطلوب للرابط السحري.`,
+        default: `حدث خطأ غير معروف.`,
+    },
+    success: {
+        recoverySent: `تم إرسال تعليمات الاستعادة إلى البريد الآمن.`,
+        accountCreated: `تم تخويل الهوية. مرحباً بك في الشبكة.`,
+        magicLinkSent: `تم إرسال الرابط السحري! تحقق من بريدك للوصول.`,
+    },
     searchFiltersTitle: `عوامل التصفية`,
     filterBreedLabel: `السلالة`,
     filterColorLabel: `اللون`,
@@ -137,5 +183,32 @@ export const ar = {
     adoptionLink: `التبني`,
     locateMeButton: `حدد موقعي`,
     adoptMeButton: `تبناني`,
-    adoptionInquiryTemplate: `مرحبا! أنا مهتم جدا بتبني {{petName}}. هل يمكنك تقديم المزيد من المعلومات حول عملية التبني؟`
+    adoptionInquiryTemplate: `مرحبا! أنا مهتم جدا بتبني {{petName}}. هل يمكنك تقديم المزيد من المعلومات حول عملية التبني؟`,
+
+    // Tutorial
+    tutorial: {
+        step: `خطوة`,
+        skip: `تخطي الشرح`,
+        finish: `إنهاء`,
+        home: {
+            title: `مرحبًا بك في Paw Print`,
+            desc: `هذا هو مركزك الرئيسي. من هنا يمكنك الوصول إلى جميع الميزات الرئيسية للتطبيق.`
+        },
+        register: {
+            title: `إنشاء بصمة`,
+            desc: `سجل الملف البيومتري لحيوانك الأليف هنا. إنها أفضل طريقة للحفاظ على سلامتهم.`
+        },
+        map: {
+            title: `خريطة مباشرة`,
+            desc: `شاهد الحيوانات المفقودة وتنبيهات المجتمع في الوقت الفعلي على خريطتنا التفاعلية.`
+        },
+        community: {
+            title: `مركز المجتمع`,
+            desc: `تواصل مع مالكي الحيوانات الأليفة الآخرين، وانضم إلى لوحة المتصدرين، وساعد في العثور على الحيوانات المفقودة.`
+        },
+        emergency: {
+            title: `مساعد الذكاء الاصطناعي`,
+            desc: `تحتاج إلى مساعدة سريعة؟ اضغط هنا للتحدث مع مساعد الذكاء الاصطناعي للحصول على توجيه فوري.`
+        }
+    }
 };

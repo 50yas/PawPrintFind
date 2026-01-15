@@ -16,9 +16,9 @@
 - [x] Task: 3D Graphics Polish [1d265f8]
     - [x] Sub-task: Optimize the Three.js render loop in `Background.tsx` for mobile.
 
-## Phase 3: Observability & Monitoring
-- [~] Task: Analytics Service
-    - [~] Sub-task: Create `services/analyticsService.ts`.
-    - [ ] Sub-task: Instrument "Wow" features (Smart Search, Health Alerts) with event tracking.
-- [ ] Task: Error Handling
-    - [ ] Sub-task: Update `ErrorBoundary` to support remote logging.
+## Phase 3: Observability & Monitoring [checkpoint: 34daf19]
+- [x] Task: Analytics Service [34daf19]
+    - [x] Sub-task: Create `services/analyticsService.ts`.
+    - [x] Sub-task: Instrument "Wow" features (Smart Search, Health Alerts) with event tracking.
+- [x] Task: Error Handling [34daf19]
+    - [x] Sub-task: Update `ErrorBoundary` to support remote logging (via analytics/internal logger).

@@ -8,12 +8,14 @@ interface EmojiSwitcherProps {
   onClick?: () => void;
   className?: string;
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
-export const EmojiSwitcher: React.FC<EmojiSwitcherProps> = ({ onClick, className, children }) => {
+export const EmojiSwitcher: React.FC<EmojiSwitcherProps> = ({ onClick, className, children, disabled }) => {
   const [index, setIndex] = useState(0);
 
   const cycleEmoji = (e: React.MouseEvent) => {
+    if (disabled) return;
     setIndex((prevIndex) => (prevIndex + 1) % emojis.length);
     if (onClick) onClick();
   };
@@ -21,7 +23,8 @@ export const EmojiSwitcher: React.FC<EmojiSwitcherProps> = ({ onClick, className
   return (
     <button
       onClick={cycleEmoji}
-      className={`relative flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 overflow-hidden shadow-lg group ${className || 'w-16 h-16'}`}
+      disabled={disabled}
+      className={`relative flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300 overflow-hidden shadow-lg group ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className || 'w-16 h-16'}`}
       aria-label="Switch animal emoji"
     >
       <AnimatePresence mode="wait">

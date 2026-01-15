@@ -23,23 +23,37 @@ vi.mock('../hooks/useTranslations', () => ({
 
 describe('CommunityAlerts Component', () => {
   const mockUser: User = {
+    uid: '123',
     email: 'test@example.com',
-    name: 'Test User',
-    role: 'user',
-    uid: '123'
+    roles: ['owner'],
+    activeRole: 'owner',
+    friends: [],
+    friendRequests: [],
+    points: 0,
+    badges: []
   };
 
   const mockAlerts: PetProfile[] = [
     {
       id: '1',
+      ownerEmail: 'other@example.com',
+      guardianEmails: [],
+      status: 'owned',
+      vetLinkStatus: 'unlinked',
+      isLost: true,
       name: 'Buddy',
       breed: 'Golden Retriever',
-      photos: [{ url: 'buddy.jpg', timestamp: 0 }],
-      ownerEmail: 'other@example.com',
-      status: 'lost',
       age: '2 years',
-      description: 'Lost dog',
+      weight: '25kg',
+      behavior: 'Friendly',
+      photos: [{ id: '1', url: 'buddy.jpg', timestamp: 0, marks: [], description: 'Lost dog' }],
+      homeLocations: [],
       lastSeenLocation: { latitude: 0, longitude: 0 },
+      searchRadius: null,
+      sightings: [],
+      videoAnalysis: '',
+      audioNotes: '',
+      healthChecks: [],
       type: 'dog'
     }
   ];

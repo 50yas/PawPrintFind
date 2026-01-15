@@ -38,16 +38,14 @@ export const callGemini = functions.https.onCall(async (data, context) => {
   }
 
   try {
-    const genAI = new GoogleGenAI(apiKey);
-    const aiModel = genAI.getGenerativeModel({ model, ...config });
+    const genAI = new GoogleGenAI({ apiKey });
 
     // 3. Rate Limiting (Placeholder for more complex logic)
     // You can implement custom rate limiting here by checking context.auth.uid 
     // against a usage collection in Firestore.
 
-    const result = await aiModel.generateContent(contents);
-    const response = await result.response;
-    const text = response.text();
+    const response = await genAI.models.generateContent({ model, contents, config });
+    const text = response.text;
     
     // Extract grounding metadata if present
     const groundingMetadata = response.candidates?.[0]?.groundingMetadata;

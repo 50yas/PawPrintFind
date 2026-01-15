@@ -31,30 +31,23 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
   const [showAdoptable, setShowAdoptable] = useState(true);
   const tilesRef = useRef<any>(null);
 
-  const STREET_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  const SATELLITE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  const SATELLITE_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+  const GOOGLE_STREETS = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+  const GOOGLE_HYBRID = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
 
   const switchStyle = (style: MapStyle) => {
       setMapStyle(style);
       if (mapInstance.current) {
           if (tilesRef.current) mapInstance.current.removeLayer(tilesRef.current);
+          // Remove any leftover label layers from previous implementations
           if ((mapInstance.current as any)._labelsLayer) {
               mapInstance.current.removeLayer((mapInstance.current as any)._labelsLayer);
               (mapInstance.current as any)._labelsLayer = null;
           }
 
-          tilesRef.current = L.tileLayer(style === 'street' ? STREET_URL : SATELLITE_URL, {
+          tilesRef.current = L.tileLayer(style === 'street' ? GOOGLE_STREETS : GOOGLE_HYBRID, {
               maxZoom: 20,
-              attribution: style === 'street' ? '&copy; OpenStreetMap contributors' : 'Esri, ArcGIS'
+              attribution: '&copy; Google Maps'
           }).addTo(mapInstance.current);
-
-          if (style === 'satellite') {
-              (mapInstance.current as any)._labelsLayer = L.tileLayer(SATELLITE_LABELS_URL, {
-                  maxZoom: 20,
-                  opacity: 0.8
-              }).addTo(mapInstance.current);
-          }
       }
   };
 
@@ -67,7 +60,12 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
           zoomControl: false 
       }).setView([41.9027, 12.4964], 6);
 
-      tilesRef.current = L.tileLayer(STREET_URL, { maxZoom: 20, attribution: '&copy; OpenStreetMap contributors' }).addTo(mapInstance.current);
+      // Default to Google Streets
+      tilesRef.current = L.tileLayer(GOOGLE_STREETS, { 
+          maxZoom: 20, 
+          attribution: '&copy; Google Maps' 
+      }).addTo(mapInstance.current);
+
       L.control.zoom({ position: 'bottomright' }).addTo(mapInstance.current);
 
       markersGroupRef.current = L.featureGroup().addTo(mapInstance.current);
@@ -256,7 +254,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
   }, [lostPets, adoptablePets, vetClinics, isPostingMode, onMapClick, colors, userLocation]);
 
   return (
-    <GlassCard variant="default" className="group relative w-full h-full overflow-hidden border-white/10" style={{ backgroundColor: colors.surfaceContainer }}>
+    <GlassCard variant="default" className="group relative w-full h-full overflow-hidden" style={{ backgroundColor: colors.surfaceContainer }}>
         {/* MAP HUD CONTROLS */}
         <div className="absolute top-4 right-4 z-[1002] flex flex-col gap-2">
             <GlassCard className="p-1 flex border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>

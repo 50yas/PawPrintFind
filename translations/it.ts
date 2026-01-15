@@ -479,16 +479,58 @@ export const it = {
     searchToSyncTitle: `Cerca per Sincronizzare`,
     searchToSyncDesc: `Trova la tua clinica su Google Maps per compilare automaticamente indirizzo, telefono e valutazioni.`,
     
-    // --- New Translations ---
-    // Admin Tabs & Management
-    adminTabBlog: `Gestione Blog`,
-    adminTabPets: `Gestione Animali`,
-    adminTabClinics: `Cliniche`,
-    adminTabLogs: `Log di Sistema`,
-    deletePetButton: `Elimina Animale`,
-    deletePostButton: `Elimina Post`,
-    confirmDeletePet: `Sei sicuro di voler eliminare questo animale? Questa azione non può essere annullata.`,
-    confirmDeletePost: `Eliminare questo post del blog?`,
+    // Auth
+    placeholders: {
+        email: `Inserisci Email Sicura`,
+        password: `Inserisci Chiave di Accesso`,
+        confirmPassword: `Conferma Chiave di Accesso`,
+        phoneNumber: `Numero di Telefono (per Avvisi)`,
+    },
+    title: {
+        login: `Accesso Sistema`,
+        register: `Nuova Identità`,
+        recovery: `Recupero Chiave`,
+        magicLink: `Link Magico`,
+    },
+    subtitle: {
+        login: `Inserisci le tue credenziali per accedere alla rete Paw Print.`,
+        register: `Crea un profilo biometrico sicuro per il tuo animale.`,
+        recovery: `Reimposta la tua chiave di accesso tramite link email sicuro.`,
+        magicLink: `Invieremo un link di accesso sicuro alla tua email.`,
+    },
+    buttons: {
+        decryptDashboard: `Decripta Dashboard`,
+        authorizeNewAccount: `Autorizza Identità`,
+        initiateRecovery: `Avvia Recupero`,
+        sendMagicLink: `Invia Link Magico`,
+        alreadyRegistered: `Già registrato?`,
+        signInProtocol: `Protocollo Accesso`,
+        newOperative: `Nuovo Operativo?`,
+        initializeProfile: `Inizializza Profilo`,
+        lostCredentials: `Credenziali Perse?`,
+        backToIdentification: `Torna all'Identificazione`,
+        syncGoogle: `Sincronizza con Google`,
+        useMagicLink: `Usa Link Magico`,
+        usePassword: `Usa Password`,
+    },
+    errors: {
+        emailInUse: `Questa email è già registrata nel database.`,
+        invalidCredential: `Credenziali non valide. Accesso negato.`,
+        userNotFound: `Identità utente non trovata nel sistema.`,
+        wrongPassword: `Chiave di accesso errata. Accesso negato.`,
+        invalidEmail: `Formato email non valido rilevato.`,
+        popupClosed: `Finestra di autenticazione chiusa dall'utente.`,
+        weakPassword: `La password è troppo debole. Aumenta la complessità.`,
+        passwordMismatch: `Le chiavi di accesso non corrispondono.`,
+        requiredFields: `Tutti i campi sono obbligatori per l'autorizzazione.`,
+        missingEmail: `L'email è richiesta per il Link Magico.`,
+        default: `Si è verificato un errore sconosciuto.`,
+    },
+    success: {
+        recoverySent: `Istruzioni di recupero inviate all'email sicura.`,
+        accountCreated: `Identità autorizzata. Benvenuto nella rete.`,
+        magicLinkSent: `Link magico inviato! Controlla la tua casella di posta per accedere.`,
+    },
     
     // Admin Professional Mgmt
     infrastructureTitle: `Infrastruttura Veterinaria`,
@@ -523,5 +565,32 @@ export const it = {
     adoptionMapTitle: `Mappa Adozioni`,
     locateMeButton: `Trovami`,
     adoptMeButton: `Adottami`,
-    adoptionInquiryTemplate: `Ciao! Sono molto interessato ad adottare {{petName}}. Potresti fornirmi maggiori informazioni sul processo di adozione?`
+    adoptionInquiryTemplate: `Ciao! Sono molto interessato ad adottare {{petName}}. Potresti fornirmi maggiori informazioni sul processo di adozione?`,
+    
+    // Tutorial
+    tutorial: {
+        step: `Passo`,
+        skip: `Salta Tutorial`,
+        finish: `Finito`,
+        home: {
+            title: `Benvenuto su Paw Print`,
+            desc: `Questo è il tuo hub centrale. Da qui puoi accedere a tutte le funzioni principali dell'app.`
+        },
+        register: {
+            title: `Crea un'Impronta`,
+            desc: `Registra qui il profilo biometrico del tuo animale. È il modo migliore per tenerlo al sicuro.`
+        },
+        map: {
+            title: `Mappa Live`,
+            desc: `Vedi animali smarriti e avvisi della comunità in tempo reale sulla nostra mappa interattiva.`
+        },
+        community: {
+            title: `Hub Comunità`,
+            desc: `Connettiti con altri proprietari, unisciti alla classifica e aiuta a trovare animali smarriti.`
+        },
+        emergency: {
+            title: `Assistente AI`,
+            desc: `Hai bisogno di aiuto veloce? Tocca qui per parlare con il nostro assistente AI per una guida immediata.`
+        }
+    }
 };

@@ -61,6 +61,7 @@ export interface BlogPost {
 export interface User {
   uid: string;
   email: string;
+  phoneNumber?: string;
   roles: UserRole[];
   activeRole: UserRole;
   friends: string[];
@@ -155,12 +156,15 @@ export interface PetProfile {
   vetLinkStatus: 'unlinked' | 'pending' | 'linked';
   isLost: boolean;
   name: string;
+  type?: string;
   breed: string;
   color?: string;
+  gender?: string;
   size?: 'Small' | 'Medium' | 'Large';
   age: string;
   weight: string;
   behavior: string;
+  description?: string;
   photos: PhotoWithMarks[];
   homeLocations: Geolocation[];
   lastSeenLocation: Geolocation | null;
@@ -250,6 +254,7 @@ export const GeolocationSchema = z.object({
 export const UserSchema = z.object({
   uid: z.string(),
   email: z.string().email(),
+  phoneNumber: z.string().optional(),
   roles: z.array(UserRoleSchema).default(['owner']),
   activeRole: UserRoleSchema.default('owner'),
   friends: z.array(z.string()).default([]),
@@ -328,12 +333,15 @@ export const PetProfileSchema = z.object({
   vetLinkStatus: z.enum(['unlinked', 'pending', 'linked']).default('unlinked'),
   isLost: z.boolean().default(false),
   name: z.string(),
+  type: z.string().optional().default(''),
   breed: z.string(),
   color: z.string().optional().default(''),
+  gender: z.string().optional().default(''),
   size: z.enum(['Small', 'Medium', 'Large']).optional(),
   age: z.string(),
   weight: z.string(),
   behavior: z.string().default(''),
+  description: z.string().optional().default(''),
   photos: z.array(PhotoWithMarksSchema).default([]),
   homeLocations: z.array(GeolocationSchema).default([]),
   lastSeenLocation: GeolocationSchema.nullable().default(null),

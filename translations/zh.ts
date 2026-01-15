@@ -106,12 +106,58 @@ export const zh = {
     donorsPageTitle: `社区英雄`,
     aiPoweredProtection: `AI 宠物保护`,
     volunteerTitle: `志愿者`,
-    loginAsAdmin: `管理员`,
-    adminDashboardTitle: `管理员控制台`,
-    adminTabOverview: `概览`,
-    adminTabUsers: `用户`,
-    adminTabVets: `兽医`,
-    pendingVerificationsTitle: `待定验证`,
+    // Auth
+    placeholders: {
+        email: `输入安全邮箱`,
+        password: `输入访问密钥`,
+        confirmPassword: `确认访问密钥`,
+        phoneNumber: `电话号码（用于警报）`,
+    },
+    title: {
+        login: `系统登录`,
+        register: `新身份`,
+        recovery: `密钥恢复`,
+        magicLink: `魔术链接`,
+    },
+    subtitle: {
+        login: `输入您的凭据以访问 Paw Print 网络。`,
+        register: `为您的宠物创建安全的生物识别资料。`,
+        recovery: `通过安全电子邮件链接重置您的访问密钥。`,
+        magicLink: `我们将向您的邮箱发送安全访问链接。`,
+    },
+    buttons: {
+        decryptDashboard: `解密仪表盘`,
+        authorizeNewAccount: `授权身份`,
+        initiateRecovery: `启动恢复`,
+        sendMagicLink: `发送魔术链接`,
+        alreadyRegistered: `已注册？`,
+        signInProtocol: `登录协议`,
+        newOperative: `新操作员？`,
+        initializeProfile: `初始化资料`,
+        lostCredentials: `丢失凭据？`,
+        backToIdentification: `返回身份识别`,
+        syncGoogle: `与 Google 同步`,
+        useMagicLink: `使用魔术链接`,
+        usePassword: `使用密码`,
+    },
+    errors: {
+        emailInUse: `此电子邮件已在数据库中注册。`,
+        invalidCredential: `凭据无效。访问被拒绝。`,
+        userNotFound: `系统中未找到用户身份。`,
+        wrongPassword: `访问密钥错误。访问被拒绝。`,
+        invalidEmail: `检测到无效的电子邮件格式。`,
+        popupClosed: `用户关闭了身份验证窗口。`,
+        weakPassword: `密码太弱。请增加复杂性。`,
+        passwordMismatch: `访问密钥不匹配。`,
+        requiredFields: `所有字段都是授权所需的。`,
+        missingEmail: `魔术链接需要电子邮件。`,
+        default: `发生未知错误。`,
+    },
+    success: {
+        recoverySent: `恢复说明已发送至安全邮箱。`,
+        accountCreated: `身份已授权。欢迎加入网络。`,
+        magicLinkSent: `魔术链接已发送！检查您的收件箱以访问。`,
+    },
     searchFiltersTitle: `搜索过滤器`,
     filterBreedLabel: `品种`,
     filterColorLabel: `颜色`,
@@ -137,5 +183,32 @@ export const zh = {
     adoptionLink: `领养`,
     locateMeButton: `定位我`,
     adoptMeButton: `领养我`,
-    adoptionInquiryTemplate: `你好！我对领养 {{petName}} 非常感兴趣。你能提供更多关于领养流程的信息吗？`
+    adoptionInquiryTemplate: `你好！我对领养 {{petName}} 非常感兴趣。你能提供更多关于领养流程的信息吗？`,
+
+    // Tutorial
+    tutorial: {
+        step: `步骤`,
+        skip: `跳过教程`,
+        finish: `完成`,
+        home: {
+            title: `欢迎来到 Paw Print`,
+            desc: `这是您的中心枢纽。从这里，您可以访问应用程序的所有主要功能。`
+        },
+        register: {
+            title: `创建 Impronta`,
+            desc: `在此处注册您宠物的生物识别资料。这是保护它们安全的最佳方式。`
+        },
+        map: {
+            title: `实时地图`,
+            desc: `在我们的互动地图上实时查看丢失的宠物和社区警报。`
+        },
+        community: {
+            title: `社区中心`,
+            desc: `与其他宠物主人联系，加入排行榜，并帮助寻找丢失的宠物。`
+        },
+        emergency: {
+            title: `AI 助手`,
+            desc: `需要快速帮助？点击此处与我们的 AI 助手交谈以获得即时指导。`
+        }
+    }
 };

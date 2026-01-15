@@ -106,12 +106,58 @@ export const ro = {
     donorsPageTitle: `Eroii Comunității`,
     aiPoweredProtection: `Protecție AI pentru Animale`,
     volunteerTitle: `Voluntar`,
-    loginAsAdmin: `Super Admin`,
-    adminDashboardTitle: `Consolă Admin`,
-    adminTabOverview: `Prezentare Generală`,
-    adminTabUsers: `Utilizatori`,
-    adminTabVets: `Veterinari`,
-    pendingVerificationsTitle: `Verificări în Așteptare`,
+    // Auth
+    placeholders: {
+        email: `Introdu Email Securizat`,
+        password: `Introdu Cheia de Acces`,
+        confirmPassword: `Confirmă Cheia de Acces`,
+        phoneNumber: `Număr de Telefon (pentru Alerte)`,
+    },
+    title: {
+        login: `Acces Sistem`,
+        register: `Identitate Nouă`,
+        recovery: `Recuperare Cheie`,
+        magicLink: `Link Magic`,
+    },
+    subtitle: {
+        login: `Introdu credențialele pentru a accesa rețeaua Paw Print.`,
+        register: `Creează un profil biometric sigur pentru animalul tău.`,
+        recovery: `Resetează cheia de acces prin link email securizat.`,
+        magicLink: `Vom trimite un link de acces sigur pe email-ul tău.`,
+    },
+    buttons: {
+        decryptDashboard: `Decriptează Panou`,
+        authorizeNewAccount: `Autorizează Identitate`,
+        initiateRecovery: `Inițiază Recuperare`,
+        sendMagicLink: `Trimite Link Magic`,
+        alreadyRegistered: `Deja înregistrat?`,
+        signInProtocol: `Protocol Autentificare`,
+        newOperative: `Operator Nou?`,
+        initializeProfile: `Inițializează Profil`,
+        lostCredentials: `Credențiale Pierdute?`,
+        backToIdentification: `Înapoi la Identificare`,
+        syncGoogle: `Sincronizare cu Google`,
+        useMagicLink: `Folosește Link Magic`,
+        usePassword: `Folosește Parola`,
+    },
+    errors: {
+        emailInUse: `Acest email este deja înregistrat în baza de date.`,
+        invalidCredential: `Credențiale invalide. Acces refuzat.`,
+        userNotFound: `Identitate utilizator negăsită în sistem.`,
+        wrongPassword: `Cheie de acces incorectă. Acces refuzat.`,
+        invalidEmail: `Format email invalid detectat.`,
+        popupClosed: `Fereastra de autentificare închisă de utilizator.`,
+        weakPassword: `Parola este prea slabă. Mărește complexitatea.`,
+        passwordMismatch: `Cheile de acces nu se potrivesc.`,
+        requiredFields: `Toate câmpurile sunt necesare pentru autorizare.`,
+        missingEmail: `Email-ul este necesar pentru Link Magic.`,
+        default: `A apărut o eroare necunoscută.`,
+    },
+    success: {
+        recoverySent: `Instrucțiuni de recuperare trimise pe email securizat.`,
+        accountCreated: `Identitate autorizată. Bun venit în rețea.`,
+        magicLinkSent: `Link magic trimis! Verifică inbox-ul pentru a accesa.`,
+    },
     searchFiltersTitle: `Filtre de Căutare`,
     filterBreedLabel: `Rasă`,
     filterColorLabel: `Culoare`,
@@ -137,5 +183,32 @@ export const ro = {
     adoptionMapTitle: `Hartă Adopții`,
     locateMeButton: `Localizează-mă`,
     adoptMeButton: `Adoptă-mă`,
-    adoptionInquiryTemplate: `Bună! Sunt foarte interesat să îl adopt pe {{petName}}. Mi-ați putea oferi mai multe informații despre procesul de adopție?`
+    adoptionInquiryTemplate: `Bună! Sunt foarte interesat să îl adopt pe {{petName}}. Mi-ați putea oferi mai multe informații despre procesul de adopție?`,
+
+    // Tutorial
+    tutorial: {
+        step: `Pasul`,
+        skip: `Omite Tutorial`,
+        finish: `Finalizare`,
+        home: {
+            title: `Bun venit la Paw Print`,
+            desc: `Acesta este hub-ul tău central. De aici poți accesa toate funcțiile principale ale aplicației.`
+        },
+        register: {
+            title: `Creează o Impronta`,
+            desc: `Înregistrează aici profilul biometric al animalului tău. Este cel mai bun mod de a-l ține în siguranță.`
+        },
+        map: {
+            title: `Hartă Live`,
+            desc: `Vezi animalele pierdute și alertele comunității în timp real pe harta noastră interactivă.`
+        },
+        community: {
+            title: `Hub Comunitar`,
+            desc: `Conectează-te cu alți proprietari, alătură-te clasamentului și ajută la găsirea animalelor pierdute.`
+        },
+        emergency: {
+            title: `Asistent AI`,
+            desc: `Ai nevoie de ajutor rapid? Atinge aici pentru a vorbi cu asistentul nostru AI pentru ghidare imediată.`
+        }
+    }
 };

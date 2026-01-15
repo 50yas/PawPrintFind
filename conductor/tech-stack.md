@@ -28,10 +28,12 @@ This document outlines the core technologies used in the Paw Print application.
 
 -   **Platform:** Firebase
     -   **Description:** Google's mobile and web application development platform.
-    -   **Services Used:**
-        -   **Firestore:** A NoSQL cloud database to store and sync data.
-        -   **Authentication:** Provides backend services, easy-to-use SDKs, and ready-made UI libraries to authenticate users.
-        -   **Performance Monitoring:** Real-time insight into the app's performance and latency.
+        - **Services Used:**
+            -   **Firestore:** A NoSQL cloud database to store and sync data.
+            -   **Authentication:** Provides backend services, easy-to-use SDKs, and ready-made UI libraries to authenticate users.
+            -   **Analytics:** Enterprise-grade user engagement and milestone tracking.
+            -   **Performance Monitoring:** Real-time insight into the app's performance, frame rates (via @react-three/fiber integration), and latency.
+    
 
 ## 3. AI / Machine Learning
 

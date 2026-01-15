@@ -110,15 +110,58 @@ export const en = {
     adoptionInquiriesTitle: `Adoption Inquiries`,
     inquiryAbout: `Inquiry about {{petName}}`,
     
-    // Admin Tabs & Management
-    adminTabBlog: `Blog Mgmt`,
-    adminTabPets: `Pet Mgmt`,
-    adminTabClinics: `Clinics`,
-    adminTabLogs: `System Logs`,
-    deletePetButton: `Delete Pet`,
-    deletePostButton: `Delete Post`,
-    confirmDeletePet: `Are you sure you want to delete this pet? This action cannot be undone.`,
-    confirmDeletePost: `Delete this blog post?`,
+    // Auth
+    placeholders: {
+        email: `Enter Secure Email`,
+        password: `Enter Access Key`,
+        confirmPassword: `Confirm Access Key`,
+        phoneNumber: `Phone Number (for Alerts)`,
+    },
+    title: {
+        login: `System Login`,
+        register: `New Identity`,
+        recovery: `Key Recovery`,
+        magicLink: `Magic Link`,
+    },
+    subtitle: {
+        login: `Enter your credentials to access the Paw Print network.`,
+        register: `Create a secure biometric profile for your pet.`,
+        recovery: `Reset your access key via secure email link.`,
+        magicLink: `We will send a secure access link to your email.`,
+    },
+    buttons: {
+        decryptDashboard: `Decrypt Dashboard`,
+        authorizeNewAccount: `Authorize Identity`,
+        initiateRecovery: `Initiate Recovery`,
+        sendMagicLink: `Send Magic Link`,
+        alreadyRegistered: `Already registered?`,
+        signInProtocol: `Sign In Protocol`,
+        newOperative: `New Operative?`,
+        initializeProfile: `Initialize Profile`,
+        lostCredentials: `Lost Credentials?`,
+        backToIdentification: `Back to Identification`,
+        syncGoogle: `Sync with Google`,
+        useMagicLink: `Use Magic Link`,
+        usePassword: `Use Password`,
+    },
+    errors: {
+        emailInUse: `This email is already registered in the database.`,
+        invalidCredential: `Invalid credentials. Access denied.`,
+        userNotFound: `User identity not found in the system.`,
+        wrongPassword: `Incorrect access key. Access denied.`,
+        invalidEmail: `Invalid email format detected.`,
+        popupClosed: `Authentication window closed by user.`,
+        weakPassword: `Password is too weak. Enhance complexity.`,
+        passwordMismatch: `Access keys do not match.`,
+        requiredFields: `All fields are required for authorization.`,
+        missingEmail: `Email is required for Magic Link.`,
+        default: `An unknown error occurred.`,
+    },
+    success: {
+        recoverySent: `Recovery instructions sent to secure email.`,
+        accountCreated: `Identity authorized. Welcome to the network.`,
+        magicLinkSent: `Magic link sent! Check your inbox to access the system.`,
+    },
     
     // Admin Professional Mgmt
     infrastructureTitle: `Veterinary Infrastructure`,
@@ -165,4 +208,31 @@ export const en = {
     adoptionInquiryTemplate: `Hello! I am very interested in adopting {{petName}}. Could you provide more information about the adoption process?`,
     loginToContactOwner: `Please login to contact the owner.`,
     contactOwnerButton: `Contact Owner`,
+    
+    // Tutorial
+    tutorial: {
+        step: `Step`,
+        skip: `Skip Tutorial`,
+        finish: `Finish`,
+        home: {
+            title: `Welcome to Paw Print`,
+            desc: `This is your central hub. From here, you can access all main features of the app.`
+        },
+        register: {
+            title: `Create an Impronta`,
+            desc: `Register your pet's biometric profile here. It's the best way to keep them safe.`
+        },
+        map: {
+            title: `Live Map`,
+            desc: `See lost pets and community alerts in real-time on our interactive map.`
+        },
+        community: {
+            title: `Community Hub`,
+            desc: `Connect with other pet owners, join the leaderboard, and help find lost pets.`
+        },
+        emergency: {
+            title: `AI Assistant`,
+            desc: `Need help fast? Tap here to speak with our AI Assistant for immediate guidance.`
+        }
+    }
 };

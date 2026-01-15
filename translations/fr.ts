@@ -106,12 +106,58 @@ export const fr = {
     donorsPageTitle: `Héros de la Communauté`,
     aiPoweredProtection: `Protection Animale par IA`,
     volunteerTitle: `Volontaire`,
-    loginAsAdmin: `Super Admin`,
-    adminDashboardTitle: `Console Admin`,
-    adminTabOverview: `Aperçu`,
-    adminTabUsers: `Utilisateurs`,
-    adminTabVets: `Vétérinaires`,
-    pendingVerificationsTitle: `Vérifications en Attente`,
+    // Auth
+    placeholders: {
+        email: `Entrer Email Sécurisé`,
+        password: `Entrer Clé d'Accès`,
+        confirmPassword: `Confirmer Clé d'Accès`,
+        phoneNumber: `Numéro de Téléphone (pour Alertes)`,
+    },
+    title: {
+        login: `Accès Système`,
+        register: `Nouvelle Identité`,
+        recovery: `Récupération Clé`,
+        magicLink: `Lien Magique`,
+    },
+    subtitle: {
+        login: `Entrez vos identifiants pour accéder au réseau Paw Print.`,
+        register: `Créez un profil biométrique sécurisé pour votre animal.`,
+        recovery: `Réinitialisez votre clé d'accès via un lien email sécurisé.`,
+        magicLink: `Nous enverrons un lien d'accès sécurisé à votre email.`,
+    },
+    buttons: {
+        decryptDashboard: `Déchiffrer Tableau de Bord`,
+        authorizeNewAccount: `Autoriser Identité`,
+        initiateRecovery: `Lancer Récupération`,
+        sendMagicLink: `Envoyer Lien Magique`,
+        alreadyRegistered: `Déjà enregistré ?`,
+        signInProtocol: `Protocole Connexion`,
+        newOperative: `Nouvel Opérateur ?`,
+        initializeProfile: `Initialiser Profil`,
+        lostCredentials: `Identifiants Perdus ?`,
+        backToIdentification: `Retour à l'Identification`,
+        syncGoogle: `Sync avec Google`,
+        useMagicLink: `Utiliser Lien Magique`,
+        usePassword: `Utiliser Mot de Passe`,
+    },
+    errors: {
+        emailInUse: `Cet email est déjà enregistré dans la base de données.`,
+        invalidCredential: `Identifiants invalides. Accès refusé.`,
+        userNotFound: `Identité utilisateur introuvable dans le système.`,
+        wrongPassword: `Clé d'accès incorrecte. Accès refusé.`,
+        invalidEmail: `Format d'email invalide détecté.`,
+        popupClosed: `Fenêtre d'authentification fermée par l'utilisateur.`,
+        weakPassword: `Le mot de passe est trop faible. Augmentez la complexité.`,
+        passwordMismatch: `Les clés d'accès ne correspondent pas.`,
+        requiredFields: `Tous les champs sont requis pour l'autorisation.`,
+        missingEmail: `L'email est requis pour le Lien Magique.`,
+        default: `Une erreur inconnue est survenue.`,
+    },
+    success: {
+        recoverySent: `Instructions de récupération envoyées à l'email sécurisé.`,
+        accountCreated: `Identité autorisée. Bienvenue dans le réseau.`,
+        magicLinkSent: `Lien magique envoyé ! Vérifiez votre boîte de réception pour accéder.`,
+    },
     searchFiltersTitle: `Filtres de Recherche`,
     filterBreedLabel: `Race`,
     filterColorLabel: `Couleur`,
@@ -137,5 +183,32 @@ export const fr = {
     adoptionLink: `Adoptions`,
     locateMeButton: `Me Localiser`,
     adoptMeButton: `Adopte-moi`,
-    adoptionInquiryTemplate: `Bonjour ! Je suis très intéressé par l'adoption de {{petName}}. Pourriez-vous me donner plus d'informations sur le processus d'adoption ?`
+    adoptionInquiryTemplate: `Bonjour ! Je suis très intéressé par l'adoption de {{petName}}. Pourriez-vous me donner plus d'informations sur le processus d'adoption ?`,
+
+    // Tutorial
+    tutorial: {
+        step: `Étape`,
+        skip: `Passer le Tutoriel`,
+        finish: `Terminer`,
+        home: {
+            title: `Bienvenue sur Paw Print`,
+            desc: `Ceci est votre hub central. D'ici, vous pouvez accéder à toutes les fonctionnalités principales de l'application.`
+        },
+        register: {
+            title: `Créer une Impronta`,
+            desc: `Enregistrez le profil biométrique de votre animal ici. C'est le meilleur moyen de le garder en sécurité.`
+        },
+        map: {
+            title: `Carte en Direct`,
+            desc: `Voyez les animaux perdus et les alertes communautaires en temps réel sur notre carte interactive.`
+        },
+        community: {
+            title: `Hub Communautaire`,
+            desc: `Connectez-vous avec d'autres propriétaires, rejoignez le classement et aidez à retrouver des animaux perdus.`
+        },
+        emergency: {
+            title: `Assistant IA`,
+            desc: `Besoin d'aide rapidement ? Appuyez ici pour parler avec notre Assistant IA pour des conseils immédiats.`
+        }
+    }
 };

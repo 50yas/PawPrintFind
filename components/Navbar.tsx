@@ -83,6 +83,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
         <div className="hidden lg:flex items-center bg-white/5 border border-white/10 px-8 py-2 rounded-full backdrop-blur-md">
           <div className="flex items-center gap-10">
             <button
+              id="home-nav"
               onClick={() => handleNavClick('home')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
@@ -117,6 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
               {t('adoptionLink')}
             </button>
             <button
+              id="community-nav"
               onClick={() => handleNavClick('home', 'how-it-works')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >

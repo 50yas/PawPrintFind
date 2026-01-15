@@ -92,6 +92,7 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
                     </div>
 
                     <button
+                        id="emergency-fab"
                         onClick={() => setIsOpen(true)}
                         className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center focus:outline-none transition-transform transform active:scale-95"
                         aria-label={t('liveAssistantTitle')}

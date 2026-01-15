@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { sendSignInLinkToEmail } from 'firebase/auth';
 import { UserRole } from '../types';
-import { dbService } from '../services/firebase';
+import { dbService, auth } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface AuthProps {
@@ -16,8 +17,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [isRegistering, setIsRegistering] = useState(false);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
+    const [isMagicLink, setIsMagicLink] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -43,6 +46,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                 return t('errors.popupClosed');
             case 'auth/weak-password':
                 return t('errors.weakPassword');
+            case 'auth/missing-email':
+                return t('errors.missingEmail');
             default:
                 return error.message || t('errors.default');
         }
@@ -50,6 +55,31 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (isMagicLink) {
+             if (!email) {
+                setErrorMsg(t('errors.missingEmail'));
+                return;
+             }
+             setLoading(true);
+             setErrorMsg(null);
+             try {
+                 const actionCodeSettings = {
+                     url: window.location.href,
+                     handleCodeInApp: true,
+                 };
+                 await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                 window.localStorage.setItem('emailForSignIn', email);
+                 setSuccessMsg(t('success.magicLinkSent'));
+             } catch (error: any) {
+                 console.error("Magic Link Error:", error);
+                 setErrorMsg(getFriendlyErrorMessage(error));
+             } finally {
+                 setLoading(false);
+             }
+             return;
+        }
+
         if (!email || (!isForgotPassword && !password)) {
             setErrorMsg(t('errors.requiredFields'));
             return;
@@ -70,7 +100,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                 setSuccessMsg(t('success.recoverySent'));
                 setIsForgotPassword(false);
             } else if (isRegistering) {
-                await dbService.registerUser(email, password, [selectedRole]);
+                await dbService.registerUser(email, password, [selectedRole], { phoneNumber });
                 setSuccessMsg(t('success.accountCreated'));
             } else {
                 await dbService.loginWithEmail(email, password);
@@ -119,10 +149,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                        {isForgotPassword ? t('title.recovery') : isRegistering ? t('title.register') : t('title.login')}
+                        {isMagicLink ? t('title.magicLink') : isForgotPassword ? t('title.recovery') : isRegistering ? t('title.register') : t('title.login')}
                     </h2>
                     <p className="text-xs sm:text-sm text-slate-400 mt-2 sm:mt-3 font-medium px-4">
-                        {isForgotPassword ? t('subtitle.recovery') : isRegistering ? t('subtitle.register') : t('subtitle.login')}
+                        {isMagicLink ? t('subtitle.magicLink') : isForgotPassword ? t('subtitle.recovery') : isRegistering ? t('subtitle.register') : t('subtitle.login')}
                     </p>
                 </div>
 
@@ -141,7 +171,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     )}
 
                     {/* Protocol Selector */}
-                    {!isForgotPassword && (
+                    {!isForgotPassword && !isMagicLink && (
                         <div className="space-y-3 sm:space-y-4">
                             <div className="flex justify-between items-end px-2">
                                 <label className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">{t('labels.securityProtocol')}</label>
@@ -191,7 +221,22 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                             />
                         </div>
                         
-                        {!isForgotPassword && (
+                        {isRegistering && (
+                             <div className="group relative transition-all duration-300">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                </div>
+                                <input 
+                                    type="tel" 
+                                    value={phoneNumber} 
+                                    onChange={(e) => setPhoneNumber(e.target.value)} 
+                                    placeholder={t('placeholders.phoneNumber') || "Phone Number (Optional)"} 
+                                    className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                />
+                            </div>
+                        )}
+
+                        {!isForgotPassword && !isMagicLink && (
                             <div className="group relative transition-all duration-300">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -250,7 +295,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 {loading ? <LoadingSpinner /> : (
                                     <>
                                         <span className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white">
-                                            {isForgotPassword ? t('buttons.initiateRecovery') : isRegistering ? t('buttons.authorizeNewAccount') : t('buttons.decryptDashboard')}
+                                            {isMagicLink ? t('buttons.sendMagicLink') : isForgotPassword ? t('buttons.initiateRecovery') : isRegistering ? t('buttons.authorizeNewAccount') : t('buttons.decryptDashboard')}
                                         </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                                     </>
@@ -260,10 +305,17 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     </form>
 
                     <div className="flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6">
-                        {!isForgotPassword && (
+                        {!isForgotPassword && !isMagicLink && !isRegistering && (
+                             <button type="button" onClick={() => setIsMagicLink(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.useMagicLink')}</button>
+                        )}
+                         {isMagicLink && (
+                             <button type="button" onClick={() => setIsMagicLink(false)} className="text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] hover:text-white transition-all w-fit mx-auto">{t('buttons.usePassword')}</button>
+                        )}
+                        
+                        {!isForgotPassword && !isMagicLink && (
                             <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.lostCredentials')}</button>
                         )}
-                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); setIsMagicLink(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
                             {isRegistering ? (
                                 <><span>{t('buttons.alreadyRegistered')}</span> <span className="text-primary border-b border-primary/30">{t('buttons.signInProtocol')}</span></>
                             ) : (

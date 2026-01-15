@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PetProfile, PhotoWithMarks, UniqueMark, Geolocation, MedicalRecord, Vaccination, User } from '../types';
-import { analyzeVideo, transcribeAudio, identifyBreedFromImage, generatePetIdentikit } from '../services/geminiService';
+import { analyzeVideo, transcribeAudio, identifyBreedFromImage, generatePetIdentikit, autoFillPetDetails } from '../services/geminiService';
 import { dbService } from '../services/firebase';
 import { ImageTagger } from './ImageTagger';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -141,6 +141,8 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
   const [isIdentifyingBreed, setIsIdentifyingBreed] = useState(false);
   const [currentCompleteness, setCurrentCompleteness] = useState(0);
 
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+
   useEffect(() => {
     if (existingPet) {
         setName(existingPet.name);
@@ -224,6 +226,42 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       updatedPhotos[index] = newPhoto;
       setPhotos(updatedPhotos);
     }
+  };
+
+  const handleAutoFill = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          setIsAutoFilling(true);
+          const file = e.target.files[0];
+          try {
+              // 1. Set the photo to the first slot if empty
+              if (!photos[0]) {
+                  const newPhoto: PhotoWithMarks = {
+                      id: Date.now().toString(),
+                      url: URL.createObjectURL(file),
+                      file: file,
+                      marks: [],
+                      description: t('photoStageFace'),
+                  };
+                  const updatedPhotos = [...photos];
+                  updatedPhotos[0] = newPhoto;
+                  setPhotos(updatedPhotos);
+              }
+
+              // 2. Call AI
+              const details = await autoFillPetDetails(file);
+              
+              if (details.breed) setBreed(details.breed);
+              if (details.age) setAge(details.age);
+              if (details.size) setWeight(details.size); // Mapping size to weight field roughly or keep separate? Using weight input for now.
+              
+              triggerFunnyWarning("✨ AI Auto-fill Complete!", []);
+          } catch (error) {
+              console.error("Auto-fill failed:", error);
+              triggerFunnyWarning("AI Brain Freeze! Please fill manually.", []);
+          } finally {
+              setIsAutoFilling(false);
+          }
+      }
   };
 
   const handleGenerateIdentikit = async () => {
@@ -434,6 +472,28 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             {currentStep === 1 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
+                        {/* Auto-fill Button */}
+                        <div className="bg-primary/5 border border-primary/20 p-4 rounded-xl flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground">AI Auto-Fill</h4>
+                                    <p className="text-[10px] text-muted-foreground">Upload a photo to auto-detect breed & details.</p>
+                                </div>
+                            </div>
+                            <label className="btn btn-sm btn-primary cursor-pointer shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
+                                {isAutoFilling ? <LoadingSpinner /> : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                        <span>Upload & Fill</span>
+                                    </>
+                                )}
+                                <input type="file" accept="image/*" onChange={handleAutoFill} className="hidden" disabled={isAutoFilling} />
+                            </label>
+                        </div>
+
                         <FloatingLabelInput 
                             id="name" 
                             label={t('petNameLabel')} 
