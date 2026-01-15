@@ -13,7 +13,7 @@
 - [x] **Welcome System:** Implement automated "Welcome" emails upon registration (via Firebase Extensions or Cloud Functions). [d4d32bd]
 
 ### Observability & Performance
-- [ ] **Error Tracking:** Integrate **Sentry** or LogRocket to capture real-time client-side crashes and AI failures.
+- [x] **Error Tracking:** Integrate **Sentry** or LogRocket to capture real-time client-side crashes and AI failures. [b0e4e6e]
 - [ ] **Analytics:** Implement **Google Analytics 4 (GA4)** to track user conversion funnels (e.g., Search -> View Pet -> Inquire).
 - [ ] **Three.js Optimization:** Implement adaptive quality for 3D backgrounds to ensure smooth 60fps performance on low-end mobile devices.
 
