@@ -4,7 +4,8 @@ import { logger } from './loggerService';
 import type { Mock } from 'vitest';
 import {
   signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail, signOut,
-  createUserWithEmailAndPassword, User as FirebaseUser
+  createUserWithEmailAndPassword, User as FirebaseUser,
+  sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signInWithPhoneNumber
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, getDocs, collection, query, where, arrayUnion, increment, addDoc } from 'firebase/firestore';
 import { auth } from './firebase'; // Import the actual auth from firebase.ts, but it's mocked globally
@@ -95,6 +96,66 @@ describe('authService error handling and authentication', () => {
 
       await expect(authService.logout()).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Error signing out:', mockError);
+    });
+  });
+
+  describe('sendMagicLink', () => {
+    it('should call sendSignInLinkToEmail on success', async () => {
+      (sendSignInLinkToEmail as Mock).mockResolvedValue(undefined);
+      const actionCodeSettings = { url: 'http://localhost:3000', handleCodeInApp: true };
+
+      await authService.sendMagicLink('test@example.com', actionCodeSettings);
+      expect(sendSignInLinkToEmail).toHaveBeenCalledWith(auth, 'test@example.com', actionCodeSettings);
+      expect(window.localStorage.getItem('emailForSignIn')).toBe('test@example.com');
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it('should log error and re-throw on failure', async () => {
+      const mockError = new Error('Magic link failed');
+      (sendSignInLinkToEmail as Mock).mockRejectedValue(mockError);
+
+      await expect(authService.sendMagicLink('test@example.com', {})).rejects.toThrow(mockError);
+      expect(logger.error).toHaveBeenCalledWith('Magic Link Send Error:', mockError);
+    });
+  });
+
+  describe('completeMagicLinkSignIn', () => {
+    it('should complete sign-in if link is valid', async () => {
+      (isSignInWithEmailLink as Mock).mockReturnValue(true);
+      const mockCredential = { user: { uid: '123' } };
+      (signInWithEmailLink as Mock).mockResolvedValue(mockCredential);
+
+      const result = await authService.completeMagicLinkSignIn('test@example.com', 'http://link');
+      expect(signInWithEmailLink).toHaveBeenCalledWith(auth, 'test@example.com', 'http://link');
+      expect(result).toBe(mockCredential);
+    });
+
+    it('should throw error if link is invalid', async () => {
+      (isSignInWithEmailLink as Mock).mockReturnValue(false);
+
+      await expect(authService.completeMagicLinkSignIn('test@example.com', 'http://link')).rejects.toThrow('Invalid or expired magic link.');
+      expect(signInWithEmailLink).not.toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledWith('Magic Link Sign-In Error:', expect.any(Error));
+    });
+  });
+
+  describe('signInWithPhone', () => {
+    it('should call signInWithPhoneNumber on success', async () => {
+      const mockResult = { verificationId: '123' };
+      (signInWithPhoneNumber as Mock).mockResolvedValue(mockResult);
+      const mockVerifier = {} as any;
+
+      const result = await authService.signInWithPhone('+1234567890', mockVerifier);
+      expect(signInWithPhoneNumber).toHaveBeenCalledWith(auth, '+1234567890', mockVerifier);
+      expect(result).toBe(mockResult);
+    });
+
+    it('should log error and re-throw on failure', async () => {
+      const mockError = new Error('Phone auth failed');
+      (signInWithPhoneNumber as Mock).mockRejectedValue(mockError);
+
+      await expect(authService.signInWithPhone('+123', {} as any)).rejects.toThrow(mockError);
+      expect(logger.error).toHaveBeenCalledWith('Phone Sign-In Error:', mockError);
     });
   });
 

@@ -25,6 +25,9 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState<string | null>(null);
     const [selectedRole, setSelectedRole] = useState<UserRole>('owner');
+    const [isPhoneAuth, setIsPhoneAuth] = useState(false);
+    const [verificationId, setVerificationId] = useState<string | null>(null);
+    const [verificationCode, setVerificationCode] = useState('');
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -78,6 +81,50 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                  setLoading(false);
              }
              return;
+        }
+
+        if (isPhoneAuth) {
+            if (!verificationId) {
+                // Step 1: Send OTP
+                if (!phoneNumber) {
+                    setErrorMsg(t('errors.missingPhoneNumber') || "Please enter a valid phone number.");
+                    return;
+                }
+                setLoading(true);
+                setErrorMsg(null);
+                try {
+                    const verifier = dbService.setupRecaptcha('recaptcha-container');
+                    const confirmationResult = await dbService.signInPhone(phoneNumber, verifier);
+                    setVerificationId(confirmationResult.verificationId);
+                    // Handle the confirmationResult for later verification
+                    (window as any).confirmationResult = confirmationResult;
+                    setSuccessMsg(t('success.otpSent') || "Verification code sent to your phone.");
+                } catch (error: any) {
+                    console.error("Phone Auth Error:", error);
+                    setErrorMsg(getFriendlyErrorMessage(error));
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                // Step 2: Verify OTP
+                if (!verificationCode) {
+                    setErrorMsg(t('errors.missingCode') || "Please enter the verification code.");
+                    return;
+                }
+                setLoading(true);
+                setErrorMsg(null);
+                try {
+                    const confirmationResult = (window as any).confirmationResult;
+                    await confirmationResult.confirm(verificationCode);
+                    if (onClose) onClose();
+                } catch (error: any) {
+                    console.error("OTP Verification Error:", error);
+                    setErrorMsg(getFriendlyErrorMessage(error));
+                } finally {
+                    setLoading(false);
+                }
+            }
+            return;
         }
 
         if (!email || (!isForgotPassword && !password)) {
@@ -149,10 +196,10 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10 text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                        {isMagicLink ? t('title.magicLink') : isForgotPassword ? t('title.recovery') : isRegistering ? t('title.register') : t('title.login')}
+                        {isPhoneAuth ? (verificationId ? t('title.verifyPhone') || "Verify Code" : t('title.phoneLogin') || "Phone Login") : isMagicLink ? t('title.magicLink') : isForgotPassword ? t('title.recovery') : isRegistering ? t('title.register') : t('title.login')}
                     </h2>
                     <p className="text-xs sm:text-sm text-slate-400 mt-2 sm:mt-3 font-medium px-4">
-                        {isMagicLink ? t('subtitle.magicLink') : isForgotPassword ? t('subtitle.recovery') : isRegistering ? t('subtitle.register') : t('subtitle.login')}
+                        {isPhoneAuth ? (verificationId ? t('subtitle.verifyPhone') || "Enter the 6-digit code" : t('subtitle.phoneLogin') || "Sign in with your phone number") : isMagicLink ? t('subtitle.magicLink') : isForgotPassword ? t('subtitle.recovery') : isRegistering ? t('subtitle.register') : t('subtitle.login')}
                     </p>
                 </div>
 
@@ -207,6 +254,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     )}
 
                     <form onSubmit={handleAuth} className="space-y-4 sm:space-y-5">
+                        {!isPhoneAuth && (
                         <div className="group relative transition-all duration-300">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
@@ -216,12 +264,13 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 value={email} 
                                 onChange={(e) => setEmail(e.target.value)} 
                                 placeholder={t('placeholders.email')} 
-                                required 
+                                required={!isPhoneAuth}
                                 className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                             />
                         </div>
-                        
-                        {isRegistering && (
+                        )}
+
+                        {(isRegistering || (isPhoneAuth && !verificationId)) && (
                              <div className="group relative transition-all duration-300">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
@@ -230,13 +279,31 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     type="tel" 
                                     value={phoneNumber} 
                                     onChange={(e) => setPhoneNumber(e.target.value)} 
-                                    placeholder={t('placeholders.phoneNumber') || "Phone Number (Optional)"} 
+                                    placeholder={t('placeholders.phoneNumber') || "Phone Number (+1...)"} 
+                                    required={isPhoneAuth}
                                     className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
                                 />
                             </div>
                         )}
 
-                        {!isForgotPassword && !isMagicLink && (
+                        {isPhoneAuth && verificationId && (
+                             <div className="group relative transition-all duration-300">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    value={verificationCode} 
+                                    onChange={(e) => setVerificationCode(e.target.value)} 
+                                    placeholder={t('placeholders.verificationCode') || "6-digit code"} 
+                                    maxLength={6}
+                                    required 
+                                    className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white text-center text-xl font-black tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all placeholder:text-slate-600 shadow-inner" 
+                                />
+                            </div>
+                        )}
+
+                        {!isForgotPassword && !isMagicLink && !isPhoneAuth && (
                             <div className="group relative transition-all duration-300">
                                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -305,17 +372,27 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     </form>
 
                     <div className="flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6">
-                        {!isForgotPassword && !isMagicLink && !isRegistering && (
+                        {!isForgotPassword && !isMagicLink && !isRegistering && !isPhoneAuth && (
+                             <button type="button" onClick={() => setIsPhoneAuth(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.usePhoneAuth') || "Use Phone Login"}</button>
+                        )}
+                        {isPhoneAuth && !verificationId && (
+                             <button type="button" onClick={() => setIsPhoneAuth(false)} className="text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] hover:text-white transition-all w-fit mx-auto">{t('buttons.useEmail') || "Use Email Login"}</button>
+                        )}
+                        {isPhoneAuth && verificationId && (
+                             <button type="button" onClick={() => { setVerificationId(null); setVerificationCode(''); }} className="text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] hover:text-white transition-all w-fit mx-auto">{t('buttons.resendCode') || "Resend Code"}</button>
+                        )}
+
+                        {!isForgotPassword && !isMagicLink && !isRegistering && !isPhoneAuth && (
                              <button type="button" onClick={() => setIsMagicLink(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.useMagicLink')}</button>
                         )}
                          {isMagicLink && (
                              <button type="button" onClick={() => setIsMagicLink(false)} className="text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.1em] hover:text-white transition-all w-fit mx-auto">{t('buttons.usePassword')}</button>
                         )}
                         
-                        {!isForgotPassword && !isMagicLink && (
+                        {!isForgotPassword && !isMagicLink && !isPhoneAuth && (
                             <button type="button" onClick={() => setIsForgotPassword(true)} className="text-[9px] sm:text-[10px] text-primary font-black uppercase tracking-[0.1em] hover:brightness-125 transition-all w-fit mx-auto">{t('buttons.lostCredentials')}</button>
                         )}
-                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); setIsMagicLink(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); setIsMagicLink(false); setIsPhoneAuth(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
                             {isRegistering ? (
                                 <><span>{t('buttons.alreadyRegistered')}</span> <span className="text-primary border-b border-primary/30">{t('buttons.signInProtocol')}</span></>
                             ) : (
@@ -329,6 +406,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                             </button>
                         )}
                     </div>
+
+                    <div id="recaptcha-container"></div>
 
                     {!isForgotPassword && (
                         <div className="pt-6 sm:pt-8 relative">

@@ -1,8 +1,9 @@
-
 import {
     signInWithEmailAndPassword, OAuthProvider, signInWithPopup,
     sendPasswordResetEmail, signOut, createUserWithEmailAndPassword,
-    User as FirebaseUser, signInAnonymously
+    User as FirebaseUser, signInAnonymously, sendSignInLinkToEmail,
+    isSignInWithEmailLink, signInWithEmailLink, RecaptchaVerifier,
+    signInWithPhoneNumber, ConfirmationResult
 } from 'firebase/auth';
 import {
     doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs,
@@ -19,7 +20,6 @@ export const authService = {
             return await signInWithEmailAndPassword(auth, email, pass);
         } catch (error: any) {
             logger.error("Firebase Login Error:", error);
-            // TODO: Add user-facing error notification
             throw new Error(`[${error.code}] ${error.message}`);
         }
     },
@@ -29,7 +29,6 @@ export const authService = {
             return await signInWithPopup(auth, googleProvider);
         } catch (error: any) {
             logger.error("Firebase Google Sign-In Error:", error);
-            // TODO: Add user-facing error notification
             throw error;
         }
     },
@@ -39,7 +38,6 @@ export const authService = {
             await sendPasswordResetEmail(auth, email);
         } catch (error) {
             logger.error("Error sending password reset email:", error);
-            // TODO: Add user-facing error notification
             throw error;
         }
     },
@@ -49,7 +47,37 @@ export const authService = {
             return await signOut(auth);
         } catch (error) {
             logger.error("Error signing out:", error);
-            // TODO: Add user-facing error notification
+            throw error;
+        }
+    },
+
+    async sendMagicLink(email: string, actionCodeSettings: any): Promise<void> {
+        try {
+            await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+            window.localStorage.setItem('emailForSignIn', email);
+        } catch (error: any) {
+            logger.error("Magic Link Send Error:", error);
+            throw error;
+        }
+    },
+
+    async completeMagicLinkSignIn(email: string, href: string): Promise<any> {
+        try {
+            if (isSignInWithEmailLink(auth, href)) {
+                return await signInWithEmailLink(auth, email, href);
+            }
+            throw new Error("Invalid or expired magic link.");
+        } catch (error: any) {
+            logger.error("Magic Link Sign-In Error:", error);
+            throw error;
+        }
+    },
+
+    async signInWithPhone(phoneNumber: string, verifier: RecaptchaVerifier): Promise<ConfirmationResult> {
+        try {
+            return await signInWithPhoneNumber(auth, phoneNumber, verifier);
+        } catch (error: any) {
+            logger.error("Phone Sign-In Error:", error);
             throw error;
         }
     },
@@ -201,7 +229,6 @@ export const authService = {
             return { valid: false, type: 'GENESIS' };
         } catch (error) {
             logger.error("Error verifying admin key:", error);
-            // TODO: Add user-facing error notification
             throw error;
         }
     },
@@ -236,7 +263,6 @@ export const authService = {
             });
         } catch (error) {
             logger.error("Error elevating user role:", error);
-            // TODO: Add user-facing error notification
             throw error;
         }
     }
