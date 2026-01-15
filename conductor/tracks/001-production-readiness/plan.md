@@ -15,7 +15,7 @@
 ### Observability & Performance
 - [x] **Error Tracking:** Integrate **Sentry** or LogRocket to capture real-time client-side crashes and AI failures. [b0e4e6e]
 - [x] **Analytics:** Implement **Google Analytics 4 (GA4)** to track user conversion funnels (e.g., Search -> View Pet -> Inquire). [9c4de2f]
-- [ ] **Three.js Optimization:** Implement adaptive quality for 3D backgrounds to ensure smooth 60fps performance on low-end mobile devices.
+- [x] **Three.js Optimization:** Implement adaptive quality for 3D backgrounds to ensure smooth 60fps performance on low-end mobile devices. [56e325d]
 
 ## 📱 2. Mobile App Readiness (New Cycle)
 - [ ] **APK Preparation:** Optimize the PWA manifest and web assets for mobile wrapping (Capacitor/Cordova).
