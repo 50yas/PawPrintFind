@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber';
-import { Float, shaderMaterial } from '@react-three/drei';
+import { Float, shaderMaterial, PerformanceMonitor } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../contexts/ThemeContext';
 import { generateSphere, generateHelix, generatePaw } from '../src/utils/particleGenerators';
@@ -61,14 +61,19 @@ const MorphMaterial = shaderMaterial(
 extend({ MorphMaterial });
 
 // Particle Component
-const Particles = ({ color, scrollProgress }: { color: string, scrollProgress: number }) => {
+const Particles = ({ color, scrollProgress, dpr }: { color: string, scrollProgress: number, dpr: number }) => {
   const ref = useRef<any>();
   const materialRef = useRef<any>();
   const threeColor = useMemo(() => new THREE.Color(color), [color]);
   const { mouse, viewport } = useThree();
   
-  // Adaptive particle count
-  const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 1500 : 5000;
+  // Adaptive particle count based on DPR and Screen size
+  const count = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const baseCount = isMobile ? 1200 : 4000;
+    // Scale count by DPR factor (dpr is usually between 0.5 and 2.0 based on PerformanceMonitor)
+    return Math.floor(baseCount * dpr);
+  }, [dpr]);
   
   // Generate shapes
   const shapes = useMemo(() => {
@@ -169,6 +174,7 @@ const Particles = ({ color, scrollProgress }: { color: string, scrollProgress: n
 export const BiometricBackground = () => {
   const { colors, isDark } = useTheme();
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [dpr, setDpr] = useState(1.5); // Default high-ish quality
 
   useEffect(() => {
     const handleScroll = () => {
@@ -183,11 +189,20 @@ export const BiometricBackground = () => {
 
   return (
     <div className="fixed inset-0 z-[-1] transition-colors duration-1000 w-full h-full" style={{ backgroundColor: colors.background }}>
-      <Canvas camera={{ position: [0, 0, 1.8] }}>
-        <fog attach="fog" args={[colors.background, 1, 4.5]} />
-        <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8}>
-           <Particles color={colors.primary} scrollProgress={scrollProgress} />
-        </Float>
+      <Canvas 
+        camera={{ position: [0, 0, 1.8] }}
+        dpr={dpr}
+        gl={{ 
+          antialias: dpr > 1, // Disable antialiasing on low-end
+          powerPreference: "high-performance" 
+        }}
+      >
+        <PerformanceMonitor onDecline={() => setDpr(0.75)} onIncline={() => setDpr(1.5)}>
+            <fog attach="fog" args={[colors.background, 1, 4.5]} />
+            <Float speed={2} rotationIntensity={0.8} floatIntensity={0.8}>
+               <Particles color={colors.primary} scrollProgress={scrollProgress} dpr={dpr} />
+            </Float>
+        </PerformanceMonitor>
       </Canvas>
       
       {/* Cinematic Overlay Gradients: Nebula Depth */}
