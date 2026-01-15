@@ -5,6 +5,7 @@ import { decode, encode, decodeAudioData } from '../services/audioService';
 import { useTranslations } from '../hooks/useTranslations';
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { UserRole } from '../types';
+import { configService } from '../services/configService';
 
 type ChatEntry = {
     speaker: 'user' | 'model';
@@ -171,7 +172,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
     };
 
     // Core session management
-    const startSession = useCallback(() => {
+    const startSession = useCallback(async () => {
         if (sessionPromiseRef.current) return;
 
         setStatus(t('statusConnecting'));
@@ -183,7 +184,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
 
         // FIX: Guidelines state we must create the GoogleGenAI instance right before connecting
         // Use the new standard for Vite env vars
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = await configService.getGeminiKey();
       if (!apiKey) {
           console.error("Gemini API Key is missing. Please set VITE_GEMINI_API_KEY in your .env file.");
           setChatLog(prev => [...prev, { speaker: 'model', text: "System Error: AI Identity Module not initialized (Missing API Key)." }]);

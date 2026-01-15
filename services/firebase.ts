@@ -36,18 +36,19 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
+import { getRemoteConfig } from "firebase/remote-config";
 import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAluD8clP5w8Z__xOUzJXcg_ztOvqRtPJU",
-    authDomain: "pawprint-50.firebaseapp.com",
-    projectId: "pawprint-50",
-    storageBucket: "pawprint-50.firebasestorage.app",
-    messagingSenderId: "334191920438",
-    appId: "1:334191920438:web:7c14f1752e5400a7fe1f97",
-    measurementId: "G-N79TRYCT0B"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -59,6 +60,7 @@ const db = initializeFirestore(app, {
 
 const auth = getAuth(app);
 const storage = getStorage(app);
+const remoteConfig = getRemoteConfig(app);
 const googleProvider = new GoogleAuthProvider();
 
 // Initialize Performance and Analytics only in browser
@@ -70,7 +72,7 @@ if (typeof window !== 'undefined') {
 setPersistence(auth, browserLocalPersistence).catch(console.error);
 
 // EXPORTS (Base Instances)
-export { db, auth, storage, googleProvider };
+export { db, auth, storage, remoteConfig, googleProvider };
 
 // Circular Dependency Guard: Import service AFTER base exports
 import { authService } from './authService';

@@ -9,18 +9,38 @@ export const getBreedIdentificationPrompt = (): string => {
     return "Based on this image, what is the most likely breed of this pet? If it's a mix, suggest the most prominent breed. Respond with only the breed name.";
 };
 
-// New Prompt for Generating the AI Identikit
+// New Prompt for Auto-filling Pet Details from Image
+export const getAutoFillPetDetailsPrompt = (): string => {
+    return `
+    Analyze the uploaded image of the pet and extract the following details to auto-fill a registration form.
+    
+    **Task:**
+    Identify the pet's characteristics as accurately as possible.
+    
+    **Output Schema (JSON ONLY):**
+    {
+      "breed": "string (e.g., 'Golden Retriever', 'Siamese Mix')",
+      "color": "string (e.g., 'Golden', 'Black & White')",
+      "age": "string (Estimate: 'Puppy/Kitten', 'Young', 'Adult', 'Senior')",
+      "size": "string ('Small', 'Medium', 'Large')",
+      "gender": "string ('Male', 'Female', 'Unknown')"
+    }
+    
+    **Notes:**
+    - If specific details (like exact age) are hard to determine, provide a best estimate based on visual cues (e.g., grey muzzle = Senior).
+    - If unsure, provide the most likely option.
+    `;
+};
+
 export const getPetIdentikitPrompt = (): string => {
     return `
-    Analyze the provided image of the pet to create a unique "Biometric Identity".
+    Analyze this image and generate a unique "Visual Identity Code" and a detailed physical description.
     
-    1. **Visual Identity Code**: Generate a short, uppercase, hyphen-separated string that acts as a visual hash. It should follow this format: [SPECIES]-[BREED_ABBR]-[COLOR]-[DISTINCTIVE_FEATURE]. 
-       - Example: DOG-LAB-BLK-SCARLEFTEYE or CAT-SIAM-CRM-BLUEEYES.
-       - Keep it under 30 characters.
+    **Task:**
+    1. Visual Identity Code: Create a short, unique alphanumeric code (format: ABC-123) based on the pet's visual features (e.g. 'BLK-LAB' for Black Lab).
+    2. Physical Description: A detailed description of the pet's appearance, including distinctive markings, color patterns, and estimated build.
     
-    2. **Physical Description**: Provide a concise, clinical description of the pet's physical appearance, focusing on distinguishing marks that would help in recovery (e.g., "White sock on front left paw," "Notch in right ear," "Heterochromia").
-    
-    Return the result in JSON format.
+    Output JSON.
     `;
 };
 

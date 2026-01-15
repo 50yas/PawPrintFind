@@ -1,4 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mocks must be hoisted
+vi.mock('./configService', () => ({
+  configService: {
+    getGeminiKey: vi.fn().mockResolvedValue('test-api-key')
+  }
+}));
+
 import * as geminiService from './geminiService';
 
 vi.mock('@google/genai', () => {
@@ -8,7 +16,7 @@ vi.mock('@google/genai', () => {
     const prompt = textPart ? textPart.text : '';
     let responseText = '{}';
     
-    if (prompt.includes('Biometric Identity')) {
+    if (prompt.includes('Visual Identity Code')) {
       responseText = '{"visualIdentityCode": "TEST-123", "physicalDescription": "A test pet"}';
     } else if (prompt.includes('Parse this natural language search query')) {
       responseText = '{"species": "dog", "breed": null, "color": null, "size": "Small", "age": null, "gender": null, "tags": ["friendly"]}';

@@ -2,15 +2,16 @@
 import { GoogleGenAI, Type, GenerateContentResponse, Modality } from "@google/genai";
 import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost } from '../types';
 import * as Prompts from './prompts';
+import { configService } from './configService';
 
 /**
  * Helper to get a fresh instance of the Gemini AI client using the current environment API Key.
  * This is crucial for nano banana series models where the key may be selected via window.aistudio.
  */
-const getAIClient = () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const getAIClient = async () => {
+    const apiKey = await configService.getGeminiKey();
     if (!apiKey) {
-        console.warn("Gemini API Key is missing! Using Mock Mode. Please set VITE_GEMINI_API_KEY in your .env file.");
+        console.warn("Gemini API Key is missing! Using Mock Mode. Please set VITE_GEMINI_API_KEY in your .env file or Firebase Remote Config.");
         // Return a mock object that mimics GoogleGenAI but returns "Mock Data"
         return {
             models: {
@@ -85,9 +86,35 @@ const fileToGenerativePart = async (file: File, onProgress?: (percent: number) =
     };
 };
 
+export const autoFillPetDetails = async (photo: File): Promise<any> => {
+    return retryWithBackoff(async () => {
+        const ai = await getAIClient();
+        const imagePart = await fileToGenerativePart(photo);
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt() }] },
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        breed: { type: Type.STRING },
+                        color: { type: Type.STRING },
+                        age: { type: Type.STRING },
+                        size: { type: Type.STRING },
+                        gender: { type: Type.STRING }
+                    },
+                    required: ["breed", "color", "size"]
+                }
+            }
+        });
+        return JSON.parse(response.text?.trim() || "{}");
+    });
+};
+
 export const analyzeImageForDescription = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -99,7 +126,7 @@ export const analyzeImageForDescription = async (photo: File): Promise<string> =
 
 export const identifyBreedFromImage = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -111,7 +138,7 @@ export const identifyBreedFromImage = async (photo: File): Promise<string> => {
 
 export const generatePetIdentikit = async (photo: File): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const imagePart = await fileToGenerativePart(photo);
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -138,7 +165,7 @@ export const generatePetIdentikit = async (photo: File): Promise<{ code: string,
 
 export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const validPhotos = lostPet.photos.filter(p => p.file !== undefined);
         const lostPetPhotoParts = await Promise.all(validPhotos.map(p => fileToGenerativePart(p.file!)));
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
@@ -169,7 +196,7 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
 
 export const analyzeVideo = async (videoFile: File, onProgress?: (percent: number) => void): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const videoPart = await fileToGenerativePart(videoFile, onProgress);
         const prompt = Prompts.getVideoAnalysisPrompt();
 
@@ -184,7 +211,7 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
 
 export const transcribeAudio = async (audioFile: File, onProgress?: (percent: number) => void): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const audioPart = await fileToGenerativePart(audioFile, onProgress);
         const prompt = Prompts.getAudioTranscriptionPrompt();
 
@@ -199,7 +226,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
 
 export const findNearbyVets = async (location: Geolocation): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         // Maps grounding is only supported in Gemini 2.5 series models
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -216,7 +243,7 @@ export const findNearbyVets = async (location: Geolocation): Promise<{ text: str
 
 export const findVetsByQuery = async (query: string): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         // Maps grounding is only supported in Gemini 2.5 series models
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -230,7 +257,7 @@ export const findVetsByQuery = async (query: string): Promise<{ text: string, pl
 
 export const findClinicOnGoogleMaps = async (name: string, city: string): Promise<any[]> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         // Maps grounding is only supported in Gemini 2.5 series models
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -256,7 +283,7 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
 
 export const textToSpeech = async (text: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts",
             contents: [{ parts: [{ text }] }],
@@ -274,7 +301,7 @@ export const textToSpeech = async (text: string): Promise<string> => {
 export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetMessageDraftParts(pet, topic);
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: userPrompt,
@@ -287,7 +314,7 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
 export const queryVetPatientData = async (patients: PetProfile[], appointments: Appointment[], query: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetDataQueryParts(patients, appointments, query);
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-pro',
             contents: userPrompt,
@@ -304,7 +331,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: userPrompt,
@@ -329,7 +356,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
 export const performAIHealthCheck = async (pet: PetProfile, symptoms: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms);
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-pro',
             contents: userPrompt,
@@ -345,7 +372,7 @@ export const performAIHealthCheck = async (pet: PetProfile, symptoms: string): P
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
     const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-pro',
             contents: userPrompt,
@@ -373,7 +400,7 @@ export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] },
@@ -399,7 +426,7 @@ export const parseSearchQuery = async (query: string): Promise<any> => {
 
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-3-pro-image-preview',
             contents: { parts: [{ text: prompt }] },
@@ -443,7 +470,7 @@ export const calculateProfileCompleteness = (pet: PetProfile): number => {
 export const translateContent = async (text: string, targetLangs: string[]): Promise<Record<string, string>> => {
     const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
             contents: userPrompt,
@@ -465,7 +492,7 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
 
 export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
     return retryWithBackoff(async () => {
-        const ai = getAIClient();
+        const ai = await getAIClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
