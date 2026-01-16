@@ -69,6 +69,18 @@ vi.mock('firebase/performance', () => ({
   getPerformance: vi.fn(),
 }));
 
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(),
+  httpsCallable: vi.fn(),
+}));
+
+vi.mock('firebase/remote-config', () => ({
+  getRemoteConfig: vi.fn(),
+  fetchAndActivate: vi.fn(),
+  getValue: vi.fn(),
+  getString: vi.fn(),
+}));
+
 // Mock loggerService
 vi.mock('./services/loggerService', () => ({
   logger: {

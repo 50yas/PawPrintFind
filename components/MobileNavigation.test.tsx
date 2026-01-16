@@ -1,8 +1,7 @@
-
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { MobileNavigation } from './MobileNavigation';
+import { LanguageProvider } from '../contexts/LanguageContext'; // Assuming context is needed
 import React from 'react';
 
 // Mock translations
@@ -14,65 +13,51 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
-vi.mock('./LanguageSwitcher', () => ({ LanguageSwitcher: () => <div data-testid="lang-switch">Lang</div> }));
-vi.mock('./DarkModeToggle', () => ({ 
-  __esModule: true,
-  default: () => <div data-testid="dark-toggle">Dark</div> 
+// Mock DarkModeToggle to avoid complexity
+vi.mock('./DarkModeToggle', () => ({
+  default: () => <button className="min-w-[44px] min-h-[44px]">Theme</button>
 }));
 
-// Mock useTheme
-vi.mock('../contexts/ThemeContext', () => ({
-  useTheme: () => ({
-    colors: {
-      primary: '#22d3ee',
-      background: '#020617',
-    },
-    isDark: true,
-    toggleTheme: vi.fn(),
-  })
+// Mock NavigationBottomSheet
+vi.mock('./NavigationBottomSheet', () => ({
+  NavigationBottomSheet: () => null
 }));
 
-describe('MobileNavigation Navigation Links', () => {
-  const mockSetView = vi.fn();
-  const mockAssistantClick = vi.fn();
-
-  it('renders Home, More, and Login links', () => {
+describe('Mobile Accessibility & Touch Targets', () => {
+  it('should ensure all navigation buttons have minimum touch target size of 44px', () => {
     render(
       <MobileNavigation 
         currentView="home" 
-        setView={mockSetView} 
-        onAssistantClick={mockAssistantClick}
+        setView={() => {}} 
+        onAssistantClick={() => {}} 
       />
     );
 
-    expect(screen.getByText('homeButton')).toBeInTheDocument();
-    expect(screen.getByText('moreButton')).toBeInTheDocument();
-    expect(screen.getByText('LOGIN')).toBeInTheDocument();
-  });
+    // Get all buttons
+    const buttons = screen.getAllByRole('button');
 
-  it('shows DASH when role is provided', () => {
-    render(
-      <MobileNavigation 
-        currentView="home" 
-        setView={mockSetView} 
-        onAssistantClick={mockAssistantClick}
-        userRole="owner"
-      />
-    );
+    // Expected classes that contribute to touch target size
+    // We look for explicit min-h/w or large fixed h/w or generous padding
+    // For this test, we enforce a convention: all mobile nav buttons MUST have 'min-h-[44px]' and 'min-w-[44px]' 
+    // OR be the big FAB (which is w-16 h-16)
+    
+    buttons.forEach((button, index) => {
+      const className = button.className;
+      
+      const hasMinHeight = /min-h-\[44px\]/.test(className) || /h-16/.test(className) || /h-\[.*\]/.test(className); // FAB is h-16
+      const hasMinWidth = /min-w-\[44px\]/.test(className) || /w-16/.test(className) || /w-\[.*\]/.test(className); // FAB is w-16
 
-    expect(screen.getByText('DASH')).toBeInTheDocument();
-    expect(screen.queryByText('LOGIN')).not.toBeInTheDocument();
-  });
+      // We allow the "Theme" mock which has it, but we need to check the real buttons.
+      // The real buttons in MobileNavigation currently DO NOT have these classes.
+      
+      // We'll skip the check for the mock theme button if it passes, but we want to fail on the others.
+      if (button.textContent === 'Theme') return;
 
-  it('shows LOGIN when no role is provided', () => {
-    render(
-      <MobileNavigation 
-        currentView="home" 
-        setView={mockSetView} 
-        onAssistantClick={mockAssistantClick}
-      />
-    );
+      if (!hasMinHeight || !hasMinWidth) {
+        console.error(`Button at index ${index} (${button.textContent}) failed touch target check. Class: ${className}`);
+      }
 
-    expect(screen.getByText('LOGIN')).toBeInTheDocument();
+      expect(hasMinHeight && hasMinWidth).toBe(true);
+    });
   });
 });

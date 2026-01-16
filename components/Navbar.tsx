@@ -141,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
               data-testid="mobile-menu-trigger"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
               aria-label="Toggle mobile menu"
-              className="relative w-10 h-10 rounded-xl bg-slate-900/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary shadow-lg overflow-hidden group"
+              className="relative w-11 h-11 rounded-xl bg-slate-900/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary shadow-lg overflow-hidden group"
             >
               <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                   className="relative group/avatar focus:outline-none"
                 >
                   <div className="absolute inset-0 bg-primary/20 rounded-xl blur group-hover/avatar:bg-primary/40 transition-all"></div>
-                  <div className={`relative w-10 h-10 rounded-xl bg-slate-900 border ${showProfileMenu ? 'border-primary' : 'border-white/20'} flex items-center justify-center text-sm font-black text-primary shadow-xl transition-all active:scale-95`}>
+                  <div className={`relative w-11 h-11 rounded-xl bg-slate-900 border ${showProfileMenu ? 'border-primary' : 'border-white/20'} flex items-center justify-center text-sm font-black text-primary shadow-xl transition-all active:scale-95`}>
                     {currentUser.email.charAt(0).toUpperCase()}
                   </div>
                 </button>

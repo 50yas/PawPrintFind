@@ -19,6 +19,7 @@ vi.mock('@react-three/drei', () => ({
   Stars: () => <div data-testid="three-stars">Stars</div>,
   Points: ({ children }: any) => <div data-testid="three-points">{children}</div>,
   PointMaterial: () => <div data-testid="three-point-material" />,
+  PerformanceMonitor: ({ children }: any) => <>{children}</>,
   shaderMaterial: vi.fn(() => function MockMaterial() {}),
 }));
 

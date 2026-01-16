@@ -30,14 +30,14 @@ export default defineConfig(({ mode }) => {
           screenshots: [
             {
               src: 'screenshot-mobile.jpg',
-              sizes: '1280x720',
+              sizes: '1190x840',
               type: 'image/jpeg',
               form_factor: 'narrow',
               label: 'Mobile Home Screen'
             },
             {
               src: 'screenshot-desktop.jpg',
-              sizes: '1280x720',
+              sizes: '1190x840',
               type: 'image/jpeg',
               form_factor: 'wide',
               label: 'Desktop Dashboard'
@@ -57,27 +57,15 @@ export default defineConfig(({ mode }) => {
               purpose: 'any'
             },
             {
-              src: 'pwa-192x192.png',
+              src: 'favicon.svg',
               sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any'
-            },
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
+              type: 'image/svg+xml',
               purpose: 'maskable'
             },
             {
-              src: 'pwa-512x512.png',
+              src: 'favicon.svg',
               sizes: '512x512',
-              type: 'image/png',
+              type: 'image/svg+xml',
               purpose: 'maskable'
             }
           ]

@@ -95,7 +95,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 {/* 1. Home */}
                 <button 
                     onClick={() => setView('home')} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive('home')}`}
+                    className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 min-w-[44px] min-h-[44px] ${isActive('home')}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -106,7 +106,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 {/* 2. More / Grid */}
                 <button 
                     onClick={() => setIsMenuOpen(true)} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${isMenuOpen ? 'text-primary' : 'text-slate-400'}`}
+                    className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 min-w-[44px] min-h-[44px] ${isMenuOpen ? 'text-primary' : 'text-slate-400'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -136,7 +136,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 {/* 4. Dashboard / Auth */}
                 <button 
                     onClick={handleAuthAction} 
-                    className={`flex flex-col items-center gap-1 transition-all duration-300 ${userRole ? isActive(dashboardView) : 'text-slate-400'}`}
+                    className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 min-w-[44px] min-h-[44px] ${userRole ? isActive(dashboardView) : 'text-slate-400'}`}
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -148,7 +148,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                 <div className="flex flex-col items-center gap-1">
                     <button 
                         onClick={() => setShowLangMenu(!showLangMenu)} 
-                        className={`transition-all duration-300 ${showLangMenu ? 'text-primary' : 'text-slate-400'}`}
+                        className={`transition-all duration-300 min-w-[44px] min-h-[44px] flex items-center justify-center ${showLangMenu ? 'text-primary' : 'text-slate-400'}`}
                     >
                         <span className="text-[10px] font-black">{locale.toUpperCase()}</span>
                     </button>
