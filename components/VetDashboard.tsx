@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { Appointment } from '../types';
 import { VetVerification } from './VetVerification';
+import { VetPremiumModal } from './VetPremiumModal';
 
 interface VetDashboardProps {
   user: User;
@@ -43,6 +44,7 @@ const ActionCard: React.FC<{ title: string; description: string; onClick: () => 
 
 export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendingPatientCount, pendingAppointmentCount, confirmedPatientCount, todaysAppointments }) => {
   const { t } = useTranslations();
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
   // 1. Check if verified
   if (!user.isVerified) {
@@ -64,19 +66,29 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
       return <VetVerification user={user} onVerificationSubmitted={() => window.location.reload()} />;
   }
 
+  const isPro = user.subscription?.status === 'active' || user.subscription?.status === 'trialing';
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
+      <VetPremiumModal isOpen={isPremiumModalOpen} onClose={() => setIsPremiumModalOpen(false)} />
+      
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-teal-900 to-cyan-900 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px]"></div>
           <div className="relative z-10">
              <div className="flex items-center gap-2 mb-2 opacity-80">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.761 2.156 18 5.402 18h9.196c3.246 0 4.585-3.239 2.707-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clipRule="evenodd" /></svg>
                 <span className="text-sm font-bold uppercase tracking-wider">{t('dashboard:vet.practicePortal')}</span>
+                {isPro && <span className="bg-yellow-400 text-yellow-900 text-[10px] font-black px-2 py-0.5 rounded uppercase ml-2 shadow-sm">PRO</span>}
              </div>
              <h1 className="text-3xl font-bold">{t('vetDashboardTitle')}</h1>
              <p className="text-teal-100 mt-1">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
           <div className="flex gap-3 relative z-10">
+             {!isPro && (
+                 <button onClick={() => setIsPremiumModalOpen(true)} className="btn bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 hover:brightness-110 font-black shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5 transition-all">
+                    <span>🦁 Upgrade to Pro</span>
+                 </button>
+             )}
              <button onClick={() => setView('smartCalendar')} className="btn bg-white text-teal-800 hover:bg-teal-50 font-bold shadow-lg flex items-center gap-2">
                 <span>+ {t('newAppointmentTitle')}</span>
              </button>
