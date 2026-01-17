@@ -13,4 +13,4 @@
 
 ## 3. Advanced Pro Features
 - [x] **AI Health Analytics:** Implement the AI analysis view for Pro vets. [718d731]
-- [ ] **Priority Support:** Add a dedicated support channel.
+- [x] **Priority Support:** Add a dedicated support channel. [de6f69f]
