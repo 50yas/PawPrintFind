@@ -6,7 +6,7 @@
 - [x] **Cloud Functions:** Implement `onStripePaymentSuccess` and `onSubscriptionChange` handlers. [ad46b5b]
 - [x] **Security:** Harden Firestore rules for donations and subscriptions. [ad46b5b]
 
-## 2. Feature Gating & UI
+## 2. Feature Gating & UI [checkpoint: 638a156]
 - [x] **Pricing Modal:** Create `VetPremiumModal` with pricing (18€/mo). [ad46b5b]
 - [x] **Feature Gate:** Enforce patient limits in `MyPatients` component. [ad46b5b]
 - [x] **Billing Portal:** Add "Manage Subscription" button in Vet Dashboard/Settings. [d2f1cc9]
