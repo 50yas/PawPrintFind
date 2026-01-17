@@ -39,38 +39,38 @@ describe('UserRouter', () => {
         setHealthCheckingPet: vi.fn()
     };
 
-    it('renders Dashboard for dashboard view', () => {
+    it('renders Dashboard for dashboard view', async () => {
         render(<UserRouter {...defaultProps} />);
-        expect(screen.getByTestId('dashboard')).toBeInTheDocument();
+        expect(await screen.findByTestId('dashboard')).toBeInTheDocument();
     });
 
-    it('renders RegisterPet for register view', () => {
+    it('renders RegisterPet for register view', async () => {
         render(<UserRouter {...defaultProps} currentView="register" />);
-        expect(screen.getByTestId('register-pet')).toBeInTheDocument();
+        expect(await screen.findByTestId('register-pet')).toBeInTheDocument();
     });
 
-    it('renders FoundPet for find view', () => {
+    it('renders FoundPet for find view', async () => {
         render(<UserRouter {...defaultProps} currentView="find" />);
-        expect(screen.getByTestId('found-pet')).toBeInTheDocument();
+        expect(await screen.findByTestId('found-pet')).toBeInTheDocument();
     });
 
-    it('renders FindVet for findVet view', () => {
+    it('renders FindVet for findVet view', async () => {
         render(<UserRouter {...defaultProps} currentView="findVet" />);
-        expect(screen.getByTestId('find-vet')).toBeInTheDocument();
+        expect(await screen.findByTestId('find-vet')).toBeInTheDocument();
     });
 
-    it('renders Community for community view', () => {
+    it('renders Community for community view', async () => {
         render(<UserRouter {...defaultProps} currentView="community" />);
-        expect(screen.getByTestId('community')).toBeInTheDocument();
+        expect(await screen.findByTestId('community')).toBeInTheDocument();
     });
 
-    it('renders AdoptionCenter for adoptionCenter view', () => {
+    it('renders AdoptionCenter for adoptionCenter view', async () => {
         render(<UserRouter {...defaultProps} currentView="adoptionCenter" />);
-        expect(screen.getByTestId('adoption-center')).toBeInTheDocument();
+        expect(await screen.findByTestId('adoption-center')).toBeInTheDocument();
     });
 
-    it('renders Home for home view', () => {
+    it('renders Home for home view', async () => {
         render(<UserRouter {...defaultProps} currentView="home" />);
-        expect(screen.getByTestId('home')).toBeInTheDocument();
+        expect(await screen.findByTestId('home')).toBeInTheDocument();
     });
 });
