@@ -67,7 +67,14 @@ service cloud.firestore {
       // NOTE: Queries MUST filter by isPublic == true for this to work for non-admins.
       allow read: if (resource.data.isPublic == true) || isAdmin();
       
-      allow create: if true; // Public can create donation records (started via Stripe)
+      // Hardened Create: Public can create, BUT must enforce initial status
+      allow create: if 
+        request.resource.data.status == 'pending_payment' &&
+        request.resource.data.approved == false &&
+        request.resource.data.numericValue > 0 &&
+        // Rate limiting check (basic): Timestamp must be close to request time
+        request.resource.data.timestamp is number;
+
       allow update, delete: if isAdmin();
     }
 

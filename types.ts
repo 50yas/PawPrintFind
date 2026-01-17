@@ -77,6 +77,14 @@ export interface User {
   lastLoginAt?: number;
   createdAt?: number;
   status?: 'active' | 'suspended' | 'banned';
+  
+  // Vet Subscription Status
+  subscription?: {
+    status: 'active' | 'inactive' | 'past_due' | 'canceled' | 'trialing';
+    planId: 'vet_free' | 'vet_pro';
+    currentPeriodEnd: number;
+    stripeSubscriptionId?: string;
+  };
 }
 
 export interface MatchResult {

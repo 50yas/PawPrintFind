@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { GoogleGenAI } from "@google/genai";
 
@@ -148,6 +148,117 @@ export const onUserCreated = functions.firestore
       console.log(`📧 Welcome email queued for: ${email}`);
     } catch (error) {
       console.error("Error queueing welcome email:", error);
+    }
+  });
+
+/**
+ * Triggered when a payment is created/updated in the customers subcollection (by Stripe Extension).
+ * Updates the corresponding 'donations' document to status='paid' and approved=true.
+ */
+export const onStripePaymentSuccess = functions.firestore
+  .document("customers/{uid}/payments/{paymentId}")
+  .onWrite(async (change, context) => {
+    const payment = change.after.data();
+    
+    // If document was deleted or payment is not successful, ignore
+    if (!payment || payment.status !== "succeeded") {
+      return;
+    }
+
+    // Check if we have already processed this payment to avoid infinite loops (idempotency)
+    // The Stripe extension might update the document multiple times.
+    // However, our target is the 'donations' collection, so loop risk is low unless we write back to 'payments'.
+
+    const donationId = payment.metadata?.donationId;
+
+    if (!donationId) {
+      console.log("Payment succeeded but no donationId found in metadata. Skipping.");
+      return;
+    }
+
+    console.log(`💰 Payment succeeded for Donation ID: ${donationId}. Updating status...`);
+
+    try {
+      const donationRef = admin.firestore().collection("donations").doc(donationId);
+      const donationDoc = await donationRef.get();
+
+      if (!donationDoc.exists) {
+        console.warn(`Donation document ${donationId} not found.`);
+        return;
+      }
+
+      const donationData = donationDoc.data();
+      
+      // Idempotency check: if already paid, skip
+      if (donationData?.status === 'paid') {
+        console.log(`Donation ${donationId} is already marked as paid.`);
+        return;
+      }
+
+      await donationRef.update({
+        status: 'paid',
+        approved: true, // Auto-approve successful payments
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        stripePaymentId: context.params.paymentId,
+        amount_details: payment.amount_details || null // Optional: save extra details
+      });
+
+      console.log(`✅ Donation ${donationId} marked as PAID and APPROVED.`);
+
+    } catch (error) {
+      console.error(`Error updating donation ${donationId}:`, error);
+    }
+  });
+
+/**
+ * Triggered when a subscription is created/updated in the customers subcollection (by Stripe Extension).
+ * Syncs the subscription status to the User document to enable RBAC.
+ */
+export const onSubscriptionChange = functions.firestore
+  .document("customers/{uid}/subscriptions/{subscriptionId}")
+  .onWrite(async (change, context) => {
+    const subscription = change.after.data();
+    const uid = context.params.uid;
+
+    if (!subscription) {
+      // Document deleted - revoke subscription
+      console.log(`🗑️ Subscription deleted for user ${uid}. Revoking access.`);
+      await admin.firestore().collection("users").doc(uid).update({
+        "subscription.status": "canceled",
+        "subscription.currentPeriodEnd": admin.firestore.FieldValue.serverTimestamp()
+      });
+      return;
+    }
+
+    const status = subscription.status; // active, past_due, trialing, canceled, etc.
+    const priceId = subscription.items?.[0]?.price?.id;
+    const currentPeriodEnd = subscription.current_period_end?.seconds 
+      ? subscription.current_period_end.seconds * 1000 
+      : Date.now();
+
+    console.log(`🔄 Subscription update for ${uid}: ${status} (${priceId})`);
+
+    // Map Stripe status to our internal status
+    // valid statuses for access: 'active', 'trialing'
+    
+    // Determine plan ID based on Stripe Price ID (You should map these to config/env variables)
+    // For now, if they have *any* subscription, we treat it as 'vet_pro' if status is valid.
+    const planId = (status === 'active' || status === 'trialing') ? 'vet_pro' : 'vet_free';
+
+    try {
+      await admin.firestore().collection("users").doc(uid).set({
+        subscription: {
+          status: status,
+          planId: planId,
+          currentPeriodEnd: currentPeriodEnd,
+          stripeSubscriptionId: context.params.subscriptionId,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+      }, { merge: true });
+      
+      console.log(`✅ User ${uid} subscription synced: ${status} -> ${planId}`);
+    } catch (error) {
+      console.error(`Error syncing subscription for ${uid}:`, error);
     }
   });
 

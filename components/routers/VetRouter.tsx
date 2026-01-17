@@ -60,6 +60,7 @@ export const VetRouter: React.FC<VetRouterProps> = ({
                                 vetPatients={vetPatients}
                                 pendingRequests={pendingRequests}
                                 vetEmail={currentUser.email}
+                                currentUser={currentUser}
                                 onAccept={(id) => dbService.savePet({ ...allPets.find(x => x.id === id)!, vetLinkStatus: 'linked' })}
                                 onDecline={(id) => dbService.savePet({ ...allPets.find(x => x.id === id)!, vetLinkStatus: 'unlinked', vetEmail: undefined })}
                                 onViewPatient={setViewingPatient}

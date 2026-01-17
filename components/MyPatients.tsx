@@ -1,24 +1,28 @@
 
 import React, { useState } from 'react';
-import { PetProfile } from '../types';
+import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { AddPatientModal } from './AddPatientModal';
 import { CinematicImage } from './ui/CinematicImage';
+import { VetPremiumModal } from './VetPremiumModal';
+import { subscriptionService } from '../services/subscriptionService';
 
 interface MyPatientsProps {
   vetPatients: PetProfile[];
   pendingRequests: PetProfile[];
   vetEmail: string;
+  currentUser: User; // Added prop
   onAccept: (petId: string) => void;
   onDecline: (petId: string) => void;
   onViewPatient: (pet: PetProfile) => void;
   onAddPatient: (data: { name: string; breed: string; ownerEmail: string; ownerPhone: string }) => void;
 }
 
-export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequests, vetEmail, onAccept, onDecline, onViewPatient, onAddPatient }) => {
+export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequests, vetEmail, currentUser, onAccept, onDecline, onViewPatient, onAddPatient }) => {
   const { t } = useTranslations();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddingPatient, setIsAddingPatient] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const filteredPatients = vetPatients.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -26,8 +30,31 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
     p.breed.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const isPro = currentUser.subscription?.status === 'active' || currentUser.subscription?.status === 'trialing';
+  const patientLimit = isPro ? Infinity : 5;
+  const patientCount = vetPatients.length;
+  const isLimitReached = patientCount >= patientLimit;
+
+  const handleAddClick = () => {
+      if (isLimitReached) {
+          setShowPremiumModal(true);
+      } else {
+          setIsAddingPatient(true);
+      }
+  };
+
+  const handleAcceptClick = (petId: string) => {
+      if (isLimitReached) {
+          setShowPremiumModal(true);
+      } else {
+          onAccept(petId);
+      }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+        <VetPremiumModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} />
+        
         {isAddingPatient && (
             <AddPatientModal 
                 onClose={() => setIsAddingPatient(false)} 
@@ -36,6 +63,22 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                 }}
                 vetEmail={vetEmail}
             />
+        )}
+
+        {/* Subscription Banner */}
+        {!isPro && (
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 p-4 rounded-xl flex items-center justify-between text-white shadow-lg border border-white/10 animate-fade-in">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/10 rounded-lg">🦁</div>
+                    <div>
+                        <p className="font-bold text-sm">Free Plan Limit: {patientCount}/{patientLimit} Patients</p>
+                        <p className="text-xs text-indigo-200">Upgrade to Pro for unlimited records & AI analytics.</p>
+                    </div>
+                </div>
+                <button onClick={() => setShowPremiumModal(true)} className="btn bg-white text-indigo-900 hover:bg-indigo-50 text-xs font-bold px-4 py-2 shadow-md">
+                    Upgrade
+                </button>
+            </div>
         )}
 
         {/* Pending Requests Banner */}
@@ -55,7 +98,7 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                       <p className="font-bold text-foreground truncate">{pet.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{pet.ownerEmail}</p>
                       <div className="flex mt-2 gap-2">
-                        <button onClick={() => onAccept(pet.id)} className="flex-1 btn btn-primary !bg-green-600 !text-xs !py-1">{t('acceptButton')}</button>
+                        <button onClick={() => handleAcceptClick(pet.id)} className="flex-1 btn btn-primary !bg-green-600 !text-xs !py-1">{t('acceptButton')}</button>
                         <button onClick={() => onDecline(pet.id)} className="flex-1 btn btn-secondary !text-xs !py-1">{t('declineButton')}</button>
                       </div>
                   </div>
@@ -84,7 +127,7 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                         className="input-base pl-10 !rounded-full shadow-sm" 
                     />
                 </div>
-                <button onClick={() => setIsAddingPatient(true)} className="btn btn-primary shadow-lg shadow-primary/30 whitespace-nowrap flex items-center justify-center gap-2">
+                <button onClick={handleAddClick} className="btn btn-primary shadow-lg shadow-primary/30 whitespace-nowrap flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
                     {t('addPatientButton')}
                 </button>
