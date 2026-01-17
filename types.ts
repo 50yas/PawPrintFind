@@ -157,6 +157,9 @@ export interface MedicalRecord {
   chronicConditions: string;
   medications: string;
   vaccinations: Vaccination[];
+  healthScore?: number;
+  lastCheckup?: number;
+  notes?: string;
 }
 
 export interface PetProfile {
@@ -338,6 +341,9 @@ export const MedicalRecordSchema = z.object({
   chronicConditions: z.string(),
   medications: z.string(),
   vaccinations: z.array(VaccinationSchema),
+  healthScore: z.number().optional(),
+  lastCheckup: z.number().optional(),
+  notes: z.string().optional(),
 });
 
 export const PetProfileSchema = z.object({

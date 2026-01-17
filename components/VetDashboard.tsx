@@ -6,6 +6,8 @@ import { Appointment } from '../types';
 import { VetVerification } from './VetVerification';
 import { VetPremiumModal } from './VetPremiumModal';
 import { subscriptionService } from '../services/subscriptionService';
+import { AIAnalyticsView } from './AIAnalyticsView';
+import { PetProfile } from '../types';
 
 interface VetDashboardProps {
   user: User;
@@ -14,6 +16,7 @@ interface VetDashboardProps {
   pendingAppointmentCount: number;
   confirmedPatientCount: number;
   todaysAppointments: Appointment[];
+  patients?: PetProfile[]; // Pass patients for analytics
 }
 
 const StatWidget: React.FC<{ title: string; value: number; icon: React.ReactNode; colorClass: string; onClick: () => void }> = ({ title, value, icon, colorClass, onClick }) => (
@@ -28,13 +31,16 @@ const StatWidget: React.FC<{ title: string; value: number; icon: React.ReactNode
     </div>
 );
 
-const ActionCard: React.FC<{ title: string; description: string; onClick: () => void; icon: React.ReactNode }> = ({ title, description, onClick, icon }) => (
-    <div onClick={onClick} className="bg-card p-5 rounded-2xl border border-border cursor-pointer hover:bg-muted/50 transition-colors flex items-center gap-4 group">
-        <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+const ActionCard: React.FC<{ title: string; description: string; onClick: () => void; icon: React.ReactNode; isPro?: boolean }> = ({ title, description, onClick, icon, isPro }) => (
+    <div onClick={onClick} className={`bg-card p-5 rounded-2xl border border-border cursor-pointer hover:bg-muted/50 transition-colors flex items-center gap-4 group ${isPro ? 'border-amber-500/30 bg-amber-500/5' : ''}`}>
+        <div className={`p-3 rounded-xl ${isPro ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'} group-hover:bg-primary group-hover:text-white transition-colors`}>
             {icon}
         </div>
         <div>
-            <h4 className="font-bold text-foreground text-sm">{title}</h4>
+            <div className="flex items-center gap-2">
+                <h4 className="font-bold text-foreground text-sm">{title}</h4>
+                {isPro && <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">PRO</span>}
+            </div>
             <p className="text-xs text-muted-foreground">{description}</p>
         </div>
         <div className="ml-auto text-muted-foreground group-hover:text-primary transition-colors">
@@ -43,9 +49,10 @@ const ActionCard: React.FC<{ title: string; description: string; onClick: () => 
     </div>
 );
 
-export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendingPatientCount, pendingAppointmentCount, confirmedPatientCount, todaysAppointments }) => {
+export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendingPatientCount, pendingAppointmentCount, confirmedPatientCount, todaysAppointments, patients = [] }) => {
   const { t } = useTranslations();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // 1. Check if verified
   if (!user.isVerified) {
@@ -68,6 +75,14 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
   }
 
   const isPro = user.subscription?.status === 'active' || user.subscription?.status === 'trialing';
+
+  if (showAnalytics) {
+      return (
+          <div className="max-w-6xl mx-auto space-y-8 pb-12 animate-fade-in">
+              <AIAnalyticsView patients={patients} onClose={() => setShowAnalytics(false)} />
+          </div>
+      );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
@@ -184,6 +199,15 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                 onClick={() => setView('smartCalendar')}
                 icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
              />
+             {isPro && (
+                 <ActionCard 
+                    title={t('aiAnalyticsDashboardTitle')} 
+                    description={t('aiAnalyticsSubtitle')} 
+                    onClick={() => setShowAnalytics(true)}
+                    isPro={true}
+                    icon={<span className="text-xl">🧠</span>}
+                 />
+             )}
         </div>
       </div>
     </div>

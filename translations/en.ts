@@ -234,5 +234,15 @@ export const en = {
             title: `AI Assistant`,
             desc: `Need help fast? Tap here to speak with our AI Assistant for immediate guidance.`
         }
-    }
+    },
+
+    // AI Health Analytics
+    aiAnalyticsDashboardTitle: `AI Health Analytics`,
+    aiAnalyticsSubtitle: `Aggregate health insights across your practice.`,
+    averageHealthScore: `Average Health Score`,
+    totalPatientsAnalyzed: `Patients Analyzed`,
+    generateReportButton: `Generate Report`,
+    recentInsightsTitle: `Recent Insights`,
+    noAnalyticsData: `No Health Data Available`,
+    noAnalyticsDataDesc: `Add medical records or run AI health checks on your patients to see insights here.`,
 };
