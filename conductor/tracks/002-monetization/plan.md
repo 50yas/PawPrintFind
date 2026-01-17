@@ -9,7 +9,7 @@
 ## 2. Feature Gating & UI
 - [x] **Pricing Modal:** Create `VetPremiumModal` with pricing (18€/mo). [ad46b5b]
 - [x] **Feature Gate:** Enforce patient limits in `MyPatients` component. [ad46b5b]
-- [ ] **Billing Portal:** Add "Manage Subscription" button in Vet Dashboard/Settings.
+- [x] **Billing Portal:** Add "Manage Subscription" button in Vet Dashboard/Settings. [d2f1cc9]
 
 ## 3. Advanced Pro Features
 - [ ] **AI Health Analytics:** Implement the AI analysis view for Pro vets.
