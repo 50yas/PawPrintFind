@@ -20,6 +20,7 @@ describe('MyPatients', () => {
           vetPatients={mockPatients as any} 
           pendingRequests={[]} 
           vetEmail="vet@test.com"
+          currentUser={{ uid: 'vet1', email: 'vet@test.com', roles: ['vet'], activeRole: 'vet' } as any}
           onAccept={vi.fn()}
           onDecline={vi.fn()}
           onViewPatient={vi.fn()}

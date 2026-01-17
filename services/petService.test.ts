@@ -197,4 +197,27 @@ describe('petService', () => {
         expect(logger.error).toHaveBeenCalledWith('Error reporting multiple sightings:', mockError);
     });
   });
+
+  describe('reportSighting', () => {
+    it('should throw if unauthenticated', async () => {
+        await expect(petService.reportSighting('pet-1', {} as any)).rejects.toThrow('Authentication required to report sighting.');
+    });
+
+    it('should add sighting to pet and increment user stats', async () => {
+        (auth.currentUser as any) = { uid: 'user-1' };
+        const sighting = {
+            location: { latitude: 10, longitude: 10 },
+            timestamp: 1234567890,
+            notes: 'Seen here'
+        };
+        const batch = { update: vi.fn(), commit: vi.fn() };
+        (writeBatch as Mock).mockReturnValue(batch as any);
+
+        await petService.reportSighting('pet-1', sighting as any);
+
+        expect(writeBatch).toHaveBeenCalled();
+        expect(batch.update).toHaveBeenCalledTimes(2); // One for pet, one for user
+        expect(batch.commit).toHaveBeenCalled();
+    });
+  });
 });

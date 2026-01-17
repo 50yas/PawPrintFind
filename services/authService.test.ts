@@ -337,4 +337,49 @@ describe('authService error handling and authentication', () => {
       expect(logger.error).toHaveBeenCalledWith('Error elevating user role:', mockError);
     });
   });
+
+  describe('checkAndAwardBadges', () => {
+    it('should award new badges if eligible', async () => {
+      const mockUser = {
+        uid: 'user1',
+        email: 'test@test.com',
+        badges: [],
+        stats: { sightingsReported: 10, reunionsSupported: 0 },
+        roles: ['owner'],
+        activeRole: 'owner',
+        friends: [],
+        friendRequests: [],
+        points: 0
+      };
+      (getDoc as Mock).mockResolvedValue({ exists: () => true, data: () => mockUser });
+      (updateDoc as Mock).mockResolvedValue(undefined);
+
+      const result = await authService.checkAndAwardBadges('user1');
+      
+      expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), {
+          badges: arrayUnion('Sightings Scout'),
+          points: increment(100)
+      });
+      expect(result).toContain('Sightings Scout');
+    });
+
+    it('should return empty array if no new badges', async () => {
+       const mockUser = {
+        uid: 'user1',
+        email: 'test@test.com',
+        badges: ['Sightings Scout'],
+        stats: { sightingsReported: 10, reunionsSupported: 0 },
+        roles: ['owner'],
+        activeRole: 'owner',
+        friends: [],
+        friendRequests: [],
+        points: 0
+      };
+      (getDoc as Mock).mockResolvedValue({ exists: () => true, data: () => mockUser });
+
+      const result = await authService.checkAndAwardBadges('user1');
+      expect(updateDoc).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
 });

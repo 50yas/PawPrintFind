@@ -13,6 +13,7 @@ import { auth, db, googleProvider } from './firebase';
 import { User, UserRole, AdminKey, UserSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
+import { checkBadgeEligibility } from './gamificationService';
 
 export const authService = {
     async loginWithEmail(email: string, pass: string) {
@@ -264,6 +265,33 @@ export const authService = {
         } catch (error) {
             logger.error("Error elevating user role:", error);
             throw error;
+        }
+    },
+
+    async checkAndAwardBadges(uid: string): Promise<string[]> {
+        try {
+            const userRef = doc(db, 'users', uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists()) return [];
+
+            const user = userSnap.data() as User;
+            const stats = user.stats || { sightingsReported: 0, reunionsSupported: 0 };
+            
+            const newBadges = checkBadgeEligibility(user, stats);
+
+            if (newBadges.length > 0) {
+                console.log(`[Gamification] Awarding new badges to ${user.email}:`, newBadges);
+                await updateDoc(userRef, {
+                    badges: arrayUnion(...newBadges),
+                    points: increment(newBadges.length * 100) // 100 points per badge
+                });
+                return newBadges;
+            }
+            return [];
+        } catch (error) {
+            logger.error("Error checking/awarding badges:", error);
+            return [];
         }
     }
 };

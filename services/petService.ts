@@ -1,10 +1,10 @@
 
 import {
-    collection, getDocs, setDoc, doc, deleteDoc, writeBatch
+    collection, getDocs, setDoc, doc, deleteDoc, writeBatch, arrayUnion, increment
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from './firebase';
-import { PetProfile, Geolocation, PetProfileSchema } from '../types';
+import { PetProfile, Geolocation, PetProfileSchema, Sighting } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 
@@ -96,6 +96,35 @@ export const petService = {
             await batch.commit();
         } catch (error) {
             logger.error('Error reporting multiple sightings:', error);
+            throw error;
+        }
+    },
+
+    async reportSighting(petId: string, sighting: Omit<Sighting, 'id'>): Promise<void> {
+        if (!auth.currentUser) {
+            throw new Error("Authentication required to report sighting.");
+        }
+        
+        try {
+            const sightingId = Date.now().toString();
+            const fullSighting = { ...sighting, id: sightingId };
+            
+            const batch = writeBatch(db);
+            const petRef = doc(db, 'pets', petId);
+            
+            batch.update(petRef, {
+                sightings: arrayUnion(fullSighting),
+                lastSeenLocation: sighting.location
+            });
+            
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            batch.update(userRef, {
+                'stats.sightingsReported': increment(1)
+            });
+            
+            await batch.commit();
+        } catch (error) {
+            logger.error('Error reporting sighting:', error);
             throw error;
         }
     }

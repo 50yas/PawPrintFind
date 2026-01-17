@@ -77,6 +77,10 @@ export interface User {
   lastLoginAt?: number;
   createdAt?: number;
   status?: 'active' | 'suspended' | 'banned';
+  stats?: {
+    sightingsReported: number;
+    reunionsSupported: number;
+  };
   
   // Vet Subscription Status
   subscription?: {
@@ -281,6 +285,10 @@ export const UserSchema = z.object({
   lastLoginAt: z.number().optional(),
   createdAt: z.number().optional(),
   status: z.enum(['active', 'suspended', 'banned']).optional().default('active'),
+  stats: z.object({
+    sightingsReported: z.number().default(0),
+    reunionsSupported: z.number().default(0),
+  }).optional(),
 });
 
 export const UniqueMarkSchema = z.object({

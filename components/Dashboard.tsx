@@ -11,6 +11,7 @@ import { OwnerPetDetailModal } from './OwnerPetDetailModal';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
 import { CinematicImage } from './ui/CinematicImage';
+import { BadgeDisplay } from './BadgeDisplay';
 
 interface DashboardProps {
   user: User;
@@ -391,8 +392,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
              />
         </div>
       </GlassCard>
+
+      {/* My Achievements */}
+      <div className="animate-fade-in">
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-yellow-400 rounded-full shadow-[0_0_8px_#fbbf24]"></span>
+            My Achievements
+          </h2>
+          <BadgeDisplay badges={user.badges} />
+      </div>
       
       {/* Messages Section */}
+
       {myChats.length > 0 && (
           <div className="animate-fade-in">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">

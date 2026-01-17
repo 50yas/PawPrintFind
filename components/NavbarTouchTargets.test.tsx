@@ -59,11 +59,13 @@ describe('Navbar Mobile Touch Targets', () => {
       const mockUser: User = {
           uid: '123',
           email: 'test@test.com',
-          activeRole: 'adopter',
-          role: 'adopter',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          displayName: 'Test User'
+          activeRole: 'owner',
+          roles: ['owner'],
+          friends: [],
+          friendRequests: [],
+          points: 0,
+          badges: [],
+          createdAt: Date.now()
       };
 
       render(

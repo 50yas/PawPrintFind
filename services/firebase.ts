@@ -38,7 +38,7 @@ import { getFunctions } from 'firebase/functions';
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import { getRemoteConfig } from "firebase/remote-config";
-import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema } from '../types';
+import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema, Sighting } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 
@@ -180,6 +180,13 @@ export const dbService = {
 
     async reportMultipleSightings(updates: { id: string, isLost: boolean, lastSeenLocation: any }[]) {
         return petService.reportMultipleSightings(updates);
+    },
+
+    async reportSighting(petId: string, sighting: Omit<Sighting, 'id'>) {
+        await petService.reportSighting(petId, sighting);
+        if (auth.currentUser) {
+            await authService.checkAndAwardBadges(auth.currentUser.uid);
+        }
     },
 
     subscribeToPets(callback: (pets: PetProfile[]) => void) {
