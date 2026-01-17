@@ -32,23 +32,23 @@ describe('ShelterRouter', () => {
         isLoading: false
     };
 
-    it('renders ShelterDashboard for default view', () => {
+    it('renders ShelterDashboard for default view', async () => {
         render(<ShelterRouter {...defaultProps} />);
-        expect(screen.getByTestId('shelter-dashboard')).toBeInTheDocument();
+        expect(await screen.findByTestId('shelter-dashboard')).toBeInTheDocument();
     });
 
-    it('renders RegisterPet for register view', () => {
+    it('renders RegisterPet for register view', async () => {
         render(<ShelterRouter {...defaultProps} currentView="register" />);
-        expect(screen.getByTestId('register-pet')).toBeInTheDocument();
+        expect(await screen.findByTestId('register-pet')).toBeInTheDocument();
     });
 
-    it('renders AdoptionCenter for adoptionCenter view', () => {
+    it('renders AdoptionCenter for adoptionCenter view', async () => {
         render(<ShelterRouter {...defaultProps} currentView="adoptionCenter" />);
-        expect(screen.getByTestId('adoption-center')).toBeInTheDocument();
+        expect(await screen.findByTestId('adoption-center')).toBeInTheDocument();
     });
 
-    it('renders Home for home view', () => {
+    it('renders Home for home view', async () => {
         render(<ShelterRouter {...defaultProps} currentView="home" />);
-        expect(screen.getByTestId('home')).toBeInTheDocument();
+        expect(await screen.findByTestId('home')).toBeInTheDocument();
     });
 });

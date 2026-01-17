@@ -34,33 +34,33 @@ describe('VetRouter', () => {
         isLoading: false
     };
 
-    it('renders VetDashboard for default view', () => {
+    it('renders VetDashboard for default view', async () => {
         render(<VetRouter {...defaultProps} />);
-        expect(screen.getByTestId('vet-dashboard')).toBeInTheDocument();
+        expect(await screen.findByTestId('vet-dashboard')).toBeInTheDocument();
     });
 
-    it('renders MyClinic for myClinic view', () => {
+    it('renders MyClinic for myClinic view', async () => {
         render(<VetRouter {...defaultProps} currentView="myClinic" />);
-        expect(screen.getByTestId('my-clinic')).toBeInTheDocument();
+        expect(await screen.findByTestId('my-clinic')).toBeInTheDocument();
     });
 
-    it('renders MyPatients for myPatients view', () => {
+    it('renders MyPatients for myPatients view', async () => {
         render(<VetRouter {...defaultProps} currentView="myPatients" />);
-        expect(screen.getByTestId('my-patients')).toBeInTheDocument();
+        expect(await screen.findByTestId('my-patients')).toBeInTheDocument();
     });
 
-    it('renders SmartCalendar for smartCalendar view', () => {
+    it('renders SmartCalendar for smartCalendar view', async () => {
         render(<VetRouter {...defaultProps} currentView="smartCalendar" />);
-        expect(screen.getByTestId('smart-calendar')).toBeInTheDocument();
+        expect(await screen.findByTestId('smart-calendar')).toBeInTheDocument();
     });
 
-    it('renders AdoptionCenter for adoptionCenter view', () => {
+    it('renders AdoptionCenter for adoptionCenter view', async () => {
         render(<VetRouter {...defaultProps} currentView="adoptionCenter" />);
-        expect(screen.getByTestId('adoption-center')).toBeInTheDocument();
+        expect(await screen.findByTestId('adoption-center')).toBeInTheDocument();
     });
 
-    it('renders Home for home view', () => {
+    it('renders Home for home view', async () => {
         render(<VetRouter {...defaultProps} currentView="home" />);
-        expect(screen.getByTestId('home')).toBeInTheDocument();
+        expect(await screen.findByTestId('home')).toBeInTheDocument();
     });
 });
