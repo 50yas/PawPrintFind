@@ -12,7 +12,7 @@ interface VetPremiumModalProps {
 
 // TODO: Replace with actual Stripe Price ID from your Dashboard
 // e.g. price_12345ABCDE
-const VET_PRO_PRICE_ID = 'price_1Ot...'; 
+const VET_PRO_PRICE_ID = 'price_1SqMqwF5MKyyAoN7zzOsmNZe'; 
 
 export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslations();
