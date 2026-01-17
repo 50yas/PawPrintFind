@@ -245,4 +245,13 @@ export const en = {
     recentInsightsTitle: `Recent Insights`,
     noAnalyticsData: `No Health Data Available`,
     noAnalyticsDataDesc: `Add medical records or run AI health checks on your patients to see insights here.`,
+
+    // Priority Support
+    prioritySupportTitle: `Priority Support`,
+    prioritySupportDesc: `Direct Line for Pro Vets`,
+    prioritySupportSubtext: `Need technical assistance or have a feature request? Connect directly with our engineering team.`,
+    startLiveChatButton: `Start Live Chat`,
+    sendEmailButton: `Send Urgent Email`,
+    chatConnecting: `Connecting to Agent...`,
+    avgResponseTime: `Avg. Response Time`,
 };

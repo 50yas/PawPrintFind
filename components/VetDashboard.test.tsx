@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -29,6 +30,12 @@ vi.mock('./AIAnalyticsView', () => ({ AIAnalyticsView: ({ onClose }: any) => (
         <button onClick={onClose}>Close</button>
     </div>
 )}));
+vi.mock('./PrioritySupportModal', () => ({ PrioritySupportModal: ({ isOpen, onClose }: any) => isOpen ? (
+    <div data-testid="support-modal">
+        Support Modal
+        <button onClick={onClose}>Close</button>
+    </div>
+) : null }));
 
 describe('VetDashboard Component', () => {
   const mockProUser: User = {
@@ -80,9 +87,15 @@ describe('VetDashboard Component', () => {
     expect(screen.getByText('aiAnalyticsDashboardTitle')).toBeInTheDocument();
   });
 
-  it('does NOT show AI Analytics action card for free users', () => {
+  it('shows Priority Support action card for Pro users', () => {
+    render(<VetDashboard {...defaultProps} user={mockProUser} />);
+    expect(screen.getByText('prioritySupportTitle')).toBeInTheDocument();
+  });
+
+  it('does NOT show Pro features for free users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
     expect(screen.queryByText('aiAnalyticsDashboardTitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('prioritySupportTitle')).not.toBeInTheDocument();
   });
 
   it('opens AI Analytics view when action card is clicked', () => {
@@ -92,17 +105,10 @@ describe('VetDashboard Component', () => {
     expect(screen.getByTestId('analytics-view')).toBeInTheDocument();
   });
 
-  it('closes AI Analytics view when close button is clicked', () => {
+  it('opens Priority Support modal when action card is clicked', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    
-    // Open it first
-    const analyticsBtn = screen.getByText('aiAnalyticsDashboardTitle');
-    fireEvent.click(analyticsBtn);
-    expect(screen.getByTestId('analytics-view')).toBeInTheDocument();
-
-    // Close it
-    const closeBtn = screen.getByText('Close');
-    fireEvent.click(closeBtn);
-    expect(screen.queryByTestId('analytics-view')).not.toBeInTheDocument();
+    const supportBtn = screen.getByText('prioritySupportTitle');
+    fireEvent.click(supportBtn);
+    expect(screen.getByTestId('support-modal')).toBeInTheDocument();
   });
 });

@@ -7,6 +7,7 @@ import { VetVerification } from './VetVerification';
 import { VetPremiumModal } from './VetPremiumModal';
 import { subscriptionService } from '../services/subscriptionService';
 import { AIAnalyticsView } from './AIAnalyticsView';
+import { PrioritySupportModal } from './PrioritySupportModal';
 import { PetProfile } from '../types';
 
 interface VetDashboardProps {
@@ -53,6 +54,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
   const { t } = useTranslations();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
 
   // 1. Check if verified
   if (!user.isVerified) {
@@ -87,6 +89,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       <VetPremiumModal isOpen={isPremiumModalOpen} onClose={() => setIsPremiumModalOpen(false)} />
+      <PrioritySupportModal isOpen={showSupport} onClose={() => setShowSupport(false)} userEmail={user.email} />
       
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-teal-900 to-cyan-900 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px]"></div>
@@ -206,6 +209,15 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                     onClick={() => setShowAnalytics(true)}
                     isPro={true}
                     icon={<span className="text-xl">🧠</span>}
+                 />
+             )}
+             {isPro && (
+                 <ActionCard 
+                    title={t('prioritySupportTitle')} 
+                    description={t('prioritySupportDesc')} 
+                    onClick={() => setShowSupport(true)}
+                    isPro={true}
+                    icon={<span className="text-xl">🚀</span>}
                  />
              )}
         </div>
