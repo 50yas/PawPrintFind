@@ -5,6 +5,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { Appointment } from '../types';
 import { VetVerification } from './VetVerification';
 import { VetPremiumModal } from './VetPremiumModal';
+import { subscriptionService } from '../services/subscriptionService';
 
 interface VetDashboardProps {
   user: User;
@@ -84,7 +85,11 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
              <p className="text-teal-100 mt-1">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
           <div className="flex gap-3 relative z-10">
-             {!isPro && (
+             {isPro ? (
+                 <button onClick={() => subscriptionService.openBillingPortal()} className="btn bg-white/20 text-white hover:bg-white/30 font-bold shadow-lg flex items-center gap-2 border border-white/30 backdrop-blur-sm">
+                    <span>🦁 Manage Subscription</span>
+                 </button>
+             ) : (
                  <button onClick={() => setIsPremiumModalOpen(true)} className="btn bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 hover:brightness-110 font-black shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5 transition-all">
                     <span>🦁 Upgrade to Pro</span>
                  </button>
