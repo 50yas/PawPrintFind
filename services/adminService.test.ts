@@ -213,6 +213,42 @@ describe('adminService', () => {
         });
     });
 
+    describe('toggleUserSubscription', () => {
+        it('should throw error if user is not authenticated', async () => {
+            await expect(adminService.toggleUserSubscription('u1', true)).rejects.toThrow('Authentication required');
+        });
+
+        it('should set subscription to active when isPro is true', async () => {
+            (auth.currentUser as any) = { uid: 'admin-123', email: 'admin@test.com' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            (addDoc as Mock).mockResolvedValue({ id: 'log-1' });
+
+            await adminService.toggleUserSubscription('u1', true);
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                { subscription: expect.objectContaining({ status: 'active', planId: 'vet_pro' }) },
+                { merge: true }
+            );
+            
+            // Verify audit log
+            expect(addDoc).toHaveBeenCalled();
+        });
+
+        it('should set subscription to inactive when isPro is false', async () => {
+            (auth.currentUser as any) = { uid: 'admin-123', email: 'admin@test.com' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+
+            await adminService.toggleUserSubscription('u1', false);
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                { subscription: expect.objectContaining({ status: 'inactive', planId: 'vet_free' }) },
+                { merge: true }
+            );
+        });
+    });
+
     describe('getAuditLogs', () => {
         it('should throw error if user is not authenticated', async () => {
             await expect(adminService.getAuditLogs()).rejects.toThrow('Authentication required');

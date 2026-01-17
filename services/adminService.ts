@@ -146,6 +146,36 @@ export const adminService = {
         }
     },
 
+    async toggleUserSubscription(uid: string, isPro: boolean): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to update user subscription.");
+            }
+            
+            const subscriptionData = isPro ? {
+                status: 'active',
+                planId: 'vet_pro',
+                currentPeriodEnd: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
+            } : {
+                status: 'inactive',
+                planId: 'vet_free',
+                currentPeriodEnd: Date.now()
+            };
+
+            await setDoc(doc(db, 'users', uid), { subscription: subscriptionData }, { merge: true });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'UPDATE_SUBSCRIPTION',
+                targetId: uid,
+                details: `Updated subscription to ${isPro ? 'Pro' : 'Free'}`
+            });
+        } catch (error) {
+            logger.error('Error updating user subscription:', error);
+            throw error;
+        }
+    },
+
     async initializeSystem(): Promise<void> {
         try {
             await setDoc(doc(db, 'metadata', 'system'), { initialized: true, securityModel: 'V3-PROD' });

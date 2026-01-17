@@ -60,6 +60,23 @@ export const UserManagementTable: React.FC = () => {
     }
   };
 
+  const handleSubscriptionToggle = async (uid: string, currentStatus: string | undefined) => {
+    const isPro = currentStatus !== 'active';
+    try {
+      await adminService.toggleUserSubscription(uid, isPro);
+      setUsers(prev => prev.map(u => u.uid === uid ? { 
+        ...u, 
+        subscription: { 
+            ...u.subscription, 
+            status: isPro ? 'active' : 'inactive',
+            planId: isPro ? 'vet_pro' : 'vet_free' 
+        } as any
+      } : u));
+    } catch (err) {
+      console.error('Failed to update subscription', err);
+    }
+  };
+
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -90,6 +107,7 @@ export const UserManagementTable: React.FC = () => {
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Email</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Role</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Status</th>
+              <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Subscription</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
             </tr>
           </thead>
@@ -120,6 +138,17 @@ export const UserManagementTable: React.FC = () => {
                   </span>
                 </td>
                 <td className="p-3">
+                    {(user.activeRole === 'vet' || user.roles.includes('vet')) && (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            user.subscription?.status === 'active'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                            {user.subscription?.status === 'active' ? 'Pro' : 'Free'}
+                        </span>
+                    )}
+                </td>
+                <td className="p-3 flex items-center gap-2">
                   <button
                     onClick={() => handleStatusToggle(user.uid, user.status)}
                     className={`text-sm font-medium ${
@@ -130,6 +159,19 @@ export const UserManagementTable: React.FC = () => {
                   >
                     {user.status === 'suspended' ? 'Activate' : 'Suspend'}
                   </button>
+                  
+                  {(user.activeRole === 'vet' || user.roles.includes('vet')) && (
+                      <button
+                        onClick={() => handleSubscriptionToggle(user.uid, user.subscription?.status)}
+                        className={`text-sm font-medium ${
+                            user.subscription?.status === 'active'
+                            ? 'text-orange-600 hover:text-orange-700'
+                            : 'text-teal-600 hover:text-teal-700'
+                        }`}
+                      >
+                        {user.subscription?.status === 'active' ? 'Demote' : 'Promote'}
+                      </button>
+                  )}
                 </td>
               </tr>
             ))}

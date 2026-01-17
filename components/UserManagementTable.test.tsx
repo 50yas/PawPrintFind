@@ -1,71 +1,82 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { UserManagementTable } from './UserManagementTable';
 import { adminService } from '../services/adminService';
-import { User } from '../types';
+import React from 'react';
 
-// Mock dependencies
-vi.mock('../services/adminService');
+// Mock translations
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
-const mockUsers: User[] = [
-  {
-    uid: '1',
-    email: 'user1@example.com',
-    roles: ['owner'],
-    activeRole: 'owner',
-    friends: [],
-    friendRequests: [],
-    points: 10,
-    badges: [],
-    status: 'active'
+// Mock adminService
+vi.mock('../services/adminService', () => ({
+  adminService: {
+    getUsers: vi.fn(),
+    updateUserRole: vi.fn(),
+    toggleUserStatus: vi.fn(),
+    toggleUserSubscription: vi.fn(),
   },
-  {
-    uid: '2',
-    email: 'vet@example.com',
-    roles: ['vet'],
-    activeRole: 'vet',
-    friends: [],
-    friendRequests: [],
-    points: 50,
-    badges: [],
-    status: 'suspended'
-  }
-];
+}));
 
-describe('UserManagementTable', () => {
+describe('UserManagementTable Component', () => {
+  const mockUsers = [
+    { uid: 'u1', email: 'owner@test.com', roles: ['owner'], activeRole: 'owner', status: 'active' },
+    { uid: 'u2', email: 'vet@test.com', roles: ['vet'], activeRole: 'vet', status: 'active', subscription: { status: 'inactive' } },
+    { uid: 'u3', email: 'provet@test.com', roles: ['vet'], activeRole: 'vet', status: 'active', subscription: { status: 'active' } },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
     (adminService.getUsers as any).mockResolvedValue(mockUsers);
   });
 
-  it('renders the user list', async () => {
+  it('renders user list', async () => {
     render(<UserManagementTable />);
-    
     await waitFor(() => {
-      expect(screen.getByText('user1@example.com')).toBeInTheDocument();
-      expect(screen.getByText('vet@example.com')).toBeInTheDocument();
+        expect(screen.getByText('owner@test.com')).toBeInTheDocument();
+        expect(screen.getByText('vet@test.com')).toBeInTheDocument();
     });
   });
 
-  it('filters users by search term', async () => {
+  it('shows Promotes button for free vets', async () => {
     render(<UserManagementTable />);
-    
-    await waitFor(() => screen.getByText('user1@example.com'));
-
-    const searchInput = screen.getByPlaceholderText(/search users/i);
-    fireEvent.change(searchInput, { target: { value: 'vet' } });
-
-    expect(screen.queryByText('user1@example.com')).not.toBeInTheDocument();
-    expect(screen.getByText('vet@example.com')).toBeInTheDocument();
+    await waitFor(() => {
+        const vetRow = screen.getByText('vet@test.com').closest('tr');
+        expect(vetRow).toHaveTextContent('Free');
+        expect(screen.getAllByText('Promote')[0]).toBeInTheDocument();
+    });
   });
 
-  it('allows changing user role', async () => {
+  it('shows Demote button for pro vets', async () => {
     render(<UserManagementTable />);
-    
-    await waitFor(() => screen.getByText('user1@example.com'));
+    await waitFor(() => {
+        const proVetRow = screen.getByText('provet@test.com').closest('tr');
+        expect(proVetRow).toHaveTextContent('Pro');
+        expect(screen.getByText('Demote')).toBeInTheDocument();
+    });
+  });
 
-    // Assuming we have a select/dropdown for role
-    // This part depends on implementation, but let's assume a button or select triggers it
-    // For now, let's verify the service call is mocked
+  it('calls toggleUserSubscription when Promote is clicked', async () => {
+    render(<UserManagementTable />);
+    await waitFor(() => screen.getByText('vet@test.com'));
+    
+    const promoteBtns = screen.getAllByText('Promote');
+    fireEvent.click(promoteBtns[0]); // Click first promote button
+
+    expect(adminService.toggleUserSubscription).toHaveBeenCalledWith(expect.anything(), true);
+  });
+
+  it('calls toggleUserSubscription when Demote is clicked', async () => {
+    render(<UserManagementTable />);
+    await waitFor(() => screen.getByText('provet@test.com'));
+    
+    const demoteBtn = screen.getByText('Demote');
+    fireEvent.click(demoteBtn);
+
+    expect(adminService.toggleUserSubscription).toHaveBeenCalledWith('u3', false);
   });
 });
