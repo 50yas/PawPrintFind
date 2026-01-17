@@ -354,6 +354,34 @@ export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>
     });
 };
 
+export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<BlogPost>> => {
+    const { systemInstruction, userPrompt } = Prompts.getSuccessStoryPrompt(pet);
+    return retryWithBackoff(async () => {
+        const response = await callGeminiFunction(
+            'gemini-2.5-pro',
+            userPrompt,
+            {
+                systemInstruction,
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        summary: { type: Type.STRING },
+                        content: { type: Type.STRING },
+                        seoTitle: { type: Type.STRING },
+                        seoDescription: { type: Type.STRING },
+                        tags: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    },
+                    required: ["title", "summary", "content", "seoTitle", "seoDescription", "tags"]
+                },
+                thinkingConfig: { thinkingBudget: 16384 }
+            }
+        );
+        return JSON.parse(response.text?.trim() || "{}");
+    });
+};
+
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(

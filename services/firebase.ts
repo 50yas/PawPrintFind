@@ -189,6 +189,40 @@ export const dbService = {
         }
     },
 
+    async markPetFound(pet: PetProfile) {
+        await petService.savePet({ ...pet, isLost: false });
+        
+        try {
+            const { generateSuccessStory } = await import('./geminiService');
+            const story = await generateSuccessStory(pet);
+            
+            if (story.title) {
+                const blogPost: BlogPost = {
+                    id: Date.now().toString(),
+                    title: story.title,
+                    summary: story.summary || '',
+                    content: story.content || '',
+                    author: 'Paw Print AI',
+                    tags: story.tags || [],
+                    publishedAt: Date.now(),
+                    seoTitle: story.seoTitle || story.title,
+                    seoDescription: story.seoDescription || story.summary || '',
+                    slug: story.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                    views: 0
+                };
+                await this.saveBlogPost(blogPost);
+                // Also award badge for reunion if applicable?
+                if (auth.currentUser) {
+                     // Increment reunion supported count manually or via another service method
+                     // For now, let's just leave it to reportSighting for badges, 
+                     // or we can add a 'markFound' stat increment logic in authService later.
+                }
+            }
+        } catch (e) {
+            console.error("Failed to generate success story:", e);
+        }
+    },
+
     subscribeToPets(callback: (pets: PetProfile[]) => void) {
         return onSnapshot(collection(db, 'pets'), (s) => callback(s.docs.map(d => d.data() as PetProfile)));
     },
