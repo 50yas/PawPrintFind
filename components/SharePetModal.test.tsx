@@ -67,4 +67,9 @@ describe('SharePetModal', () => {
     fireEvent.click(screen.getByText('shareWithFriendsButton'));
     expect(screen.getByText('friend@test.com')).toBeInTheDocument();
   });
+
+  it('displays the Paw-Print Challenge promotion', () => {
+    render(<SharePetModal {...mockProps} />);
+    expect(screen.getByText(/#PawPrintChallenge/i)).toBeInTheDocument();
+  });
 });

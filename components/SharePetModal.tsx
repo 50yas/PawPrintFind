@@ -131,6 +131,12 @@ export const SharePetModal: React.FC<SharePetModalProps> = ({ pet, friends, onCl
                         </>
                     )}
                 </button>
+
+                <div className="w-full text-center p-3 bg-fuchsia-900/20 border border-fuchsia-500/30 rounded-lg animate-pulse">
+                    <p className="text-xs text-fuchsia-200">
+                        💡 <strong>Challenge:</strong> Share this to your story with <span className="text-fuchsia-400 font-bold">#PawPrintChallenge</span> to earn the "Neighborhood Hero" badge!
+                    </p>
+                </div>
             </div>
         )}
     </Modal>
