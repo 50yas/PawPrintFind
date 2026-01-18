@@ -77,6 +77,7 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({ vetEmail, name, address, phone, location });
+    addSnackbar(t('clinicSaved'), 'success');
   };
 
   return (

@@ -254,4 +254,20 @@ export const en = {
     sendEmailButton: `Send Urgent Email`,
     chatConnecting: `Connecting to Agent...`,
     avgResponseTime: `Avg. Response Time`,
+
+    // My Clinic
+    myClinicTitle: `Manage Your Clinic`,
+    myClinicDesc: `Keep your practice details up-to-date to help lost pets find their way to you. Sync with Google Maps for instant accuracy.`,
+    searchClinicPlaceholder: `Search for your clinic on Google Maps...`,
+    searchButtonGoogle: `Search Maps`,
+    clinicNameLabel: `Clinic Name`,
+    addressLabel: `Address`,
+    phoneLabel: `Phone Number`,
+    saveClinicButton: `Save Changes`,
+    searchToSyncTitle: `Sync from Google Maps`,
+    searchToSyncDesc: `Search for your clinic on the left to instantly populate your details.`,
+    syncAllDataButton: `Sync Data`,
+    noGoogleMapsVets: `No clinics found with that name.`,
+    addressNotFound: `Address not found in search result.`,
+    clinicSaved: `Clinic details saved successfully!`,
 };
