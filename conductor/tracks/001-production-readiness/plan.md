@@ -37,4 +37,4 @@
 
 ## 🧠 4. AI Evolution
 - [x] **Vision-Language Models:** Upgrade to `gemini-2.0-pro-vision` for even more accurate breed and marking identification from low-quality night-time photos. [cd03305]
-- [ ] **Edge Inference:** Explore running small quantization models locally for instant offline breed recognition.
+- [x] **Edge Inference:** Explore running small quantization models locally for instant offline breed recognition. [c06646d]
