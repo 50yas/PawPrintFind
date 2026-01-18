@@ -30,6 +30,11 @@ vi.mock('./LanguageSwitcher', () => ({
   default: () => <div data-testid="language-switcher">Lang</div>
 }));
 
+// Mock RedeemCodeModal
+vi.mock('./RedeemCodeModal', () => ({
+  RedeemCodeModal: () => <div data-testid="redeem-modal">MockModal</div>
+}));
+
 describe('Navbar Authentication and Navigation', () => {
   const mockSetUser = vi.fn();
   const mockSetView = vi.fn();

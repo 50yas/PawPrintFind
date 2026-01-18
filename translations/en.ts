@@ -270,4 +270,6 @@ export const en = {
     noGoogleMapsVets: `No clinics found with that name.`,
     addressNotFound: `Address not found in search result.`,
     clinicSaved: `Clinic details saved successfully!`,
+    
+    verifiedVetBadge: `Verified Vet`,
 };

@@ -26,6 +26,11 @@ vi.mock('./ui/GlassButton', () => ({
 // Mock window.scrollTo
 Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
 
+// Mock RedeemCodeModal
+vi.mock('./RedeemCodeModal', () => ({
+  RedeemCodeModal: () => <div data-testid="redeem-modal">MockModal</div>
+}));
+
 describe('Navbar Mobile Enhanced', () => {
   const mockSetCurrentUser = vi.fn();
   const mockSetView = vi.fn();

@@ -7,6 +7,7 @@ import { User, View } from '../types';
 import { RoleSwitcher } from './RoleSwitcher';
 import { GlassButton } from './ui/GlassButton';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
+import { RedeemCodeModal } from './RedeemCodeModal';
 
 interface NavbarProps {
   currentUser: User | null;
@@ -22,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,6 +55,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
       className={`fixed top-0 inset-x-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
       style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
     >
+      <RedeemCodeModal isOpen={showRedeemModal} onClose={() => setShowRedeemModal(false)} />
+
       <div className="container mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Branding */}
         <div
@@ -216,7 +220,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                           </div>
                         </div>
 
-                        <div className="pt-2">
+                        <div className="pt-2 space-y-2">
+                          <button 
+                             onClick={() => { setShowRedeemModal(true); setShowProfileMenu(false); }}
+                             className="w-full py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                          >
+                             <span>🎁</span> {t('redeemCodeButton')}
+                          </button>
+
                           <GlassButton
                             onClick={onLogoutClick}
                             variant="danger"

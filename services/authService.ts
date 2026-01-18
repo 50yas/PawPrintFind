@@ -293,5 +293,61 @@ export const authService = {
             logger.error("Error checking/awarding badges:", error);
             return [];
         }
+    },
+
+    async redeemCode(code: string): Promise<{ success: boolean; reward: string }> {
+        try {
+            if (!auth.currentUser) throw new Error("Authentication required.");
+
+            const q = query(collection(db, 'promo_codes'), where('code', '==', code), where('status', '==', 'active'));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                throw new Error("Invalid or expired code.");
+            }
+
+            const promoDoc = snap.docs[0];
+            const promo = promoDoc.data() as any;
+
+            if (promo.maxUses > 0 && promo.currentUses >= promo.maxUses) {
+                throw new Error("Code usage limit reached.");
+            }
+            if (promo.expiresAt && Date.now() > promo.expiresAt) {
+                 await updateDoc(promoDoc.ref, { status: 'expired' });
+                 throw new Error("Code expired.");
+            }
+
+            // Apply Reward
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            if (promo.type === 'badge') {
+                await updateDoc(userRef, { badges: arrayUnion(promo.value) });
+            } else if (promo.type === 'subscription') {
+                await updateDoc(userRef, { 
+                    subscription: {
+                        status: 'active',
+                        planId: promo.value,
+                        currentPeriodEnd: Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days
+                    }
+                });
+            } else if (promo.type === 'points') {
+                await updateDoc(userRef, { points: increment(Number(promo.value)) });
+            }
+
+            // Update Usage
+            await updateDoc(promoDoc.ref, { currentUses: increment(1) });
+            
+            // Log
+            await addDoc(collection(db, 'promo_usage_logs'), {
+                code: code,
+                userId: auth.currentUser.uid,
+                timestamp: Date.now()
+            });
+
+            return { success: true, reward: promo.value };
+
+        } catch (error) {
+            logger.error("Redeem Code Error:", error);
+            throw error;
+        }
     }
 };

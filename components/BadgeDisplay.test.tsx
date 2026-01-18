@@ -1,18 +1,42 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import '@testing-library/jest-dom';
 import { BadgeDisplay } from './BadgeDisplay';
+import React from 'react';
 
-describe('BadgeDisplay', () => {
-    it('renders list of badges', () => {
-        const badges = ['Sightings Scout', 'Reunion Ranger'];
-        render(<BadgeDisplay badges={badges} />);
-        
-        expect(screen.getByText('Sightings Scout')).toBeInTheDocument();
-        expect(screen.getByText('Reunion Ranger')).toBeInTheDocument();
-    });
+// Mock translations
+vi.mock('../hooks/useTranslations', () => ({
+  useTranslations: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
-    it('renders empty state message', () => {
-        render(<BadgeDisplay badges={[]} />);
-        expect(screen.getByText(/No badges yet/i)).toBeInTheDocument();
-    });
+describe('BadgeDisplay Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders nothing if no badges are provided', () => {
+    const { container } = render(<BadgeDisplay badges={[]} isVerified={false} />);
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('renders verified vet badge if isVerified is true', () => {
+    render(<BadgeDisplay badges={[]} isVerified={true} />);
+    expect(screen.getByText('verifiedVetBadge')).toBeInTheDocument();
+  });
+
+  it('renders standard badges', () => {
+    const badges = ['Top Contributor', 'Sighting Scout'];
+    render(<BadgeDisplay badges={badges} isVerified={false} />);
+    expect(screen.getByText('Top Contributor')).toBeInTheDocument();
+    expect(screen.getByText('Sighting Scout')).toBeInTheDocument();
+  });
+
+  it('renders both verified badge and standard badges', () => {
+    const badges = ['Sighting Scout'];
+    render(<BadgeDisplay badges={badges} isVerified={true} />);
+    expect(screen.getByText('verifiedVetBadge')).toBeInTheDocument();
+    expect(screen.getByText('Sighting Scout')).toBeInTheDocument();
+  });
 });

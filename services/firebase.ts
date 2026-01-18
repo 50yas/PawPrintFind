@@ -336,5 +336,9 @@ export const dbService = {
 
     async logAdminAction(log: { adminEmail: string, action: string, targetId?: string, details: string }) {
         return adminService.logAdminAction(log);
+    },
+
+    async redeemCode(code: string): Promise<{ success: boolean; reward: string }> {
+        return authService.redeemCode(code);
     }
 };

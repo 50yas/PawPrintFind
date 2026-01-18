@@ -485,3 +485,27 @@ export const ContactMessageSchema = z.object({
   timestamp: z.number().optional(),
 
 });
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  type: 'badge' | 'subscription' | 'points';
+  value: string; // e.g., 'EARLY_ACCESS', 'vet_pro', '500'
+  maxUses: number;
+  currentUses: number;
+  expiresAt?: number;
+  status: 'active' | 'expired' | 'revoked';
+  createdBy: string;
+}
+
+export const PromoCodeSchema = z.object({
+  id: z.string(),
+  code: z.string().min(3),
+  type: z.enum(['badge', 'subscription', 'points']),
+  value: z.string(),
+  maxUses: z.number().min(1),
+  currentUses: z.number().default(0),
+  expiresAt: z.number().optional(),
+  status: z.enum(['active', 'expired', 'revoked']).default('active'),
+  createdBy: z.string().email()
+});

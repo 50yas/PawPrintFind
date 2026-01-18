@@ -27,6 +27,11 @@ vi.mock('./NavigationBottomSheet', () => ({
   NavigationBottomSheet: () => null
 }));
 
+// Mock RedeemCodeModal
+vi.mock('./RedeemCodeModal', () => ({
+  RedeemCodeModal: () => <div data-testid="redeem-modal">MockModal</div>
+}));
+
 describe('Navbar Mobile Touch Targets', () => {
   it('should ensure mobile menu trigger has minimum size of 44px', () => {
     // Set viewport to mobile

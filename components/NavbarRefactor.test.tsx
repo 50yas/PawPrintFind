@@ -28,6 +28,11 @@ vi.mock('./DarkModeToggle', () => ({
   default: () => <div data-testid="dark-mode-toggle">Toggle</div>
 }));
 
+// Mock RedeemCodeModal
+vi.mock('./RedeemCodeModal', () => ({
+  RedeemCodeModal: () => <div data-testid="redeem-modal">MockModal</div>
+}));
+
 describe('Navbar Refactor Glassmorphism', () => {
   const mockSetUser = vi.fn();
   const mockSetView = vi.fn();
