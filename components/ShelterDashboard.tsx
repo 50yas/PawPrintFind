@@ -100,7 +100,7 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                   {chatSessions.length > 0 && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
               </h2>
               
-              <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden h-[600px] overflow-y-auto">
+              <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden h-[400px] overflow-y-auto">
                   {chatSessions.length > 0 ? (
                       <div className="divide-y divide-border">
                           {chatSessions.map(chat => (
@@ -126,6 +126,23 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                           <p>{t('dashboard:shelter.noInquiries')}</p>
                       </div>
                   )}
+              </div>
+
+              {/* Shelter Kit Section */}
+              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-6 rounded-2xl border border-indigo-500/20">
+                  <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center text-2xl">
+                          📦
+                      </div>
+                      <div>
+                          <h3 className="font-bold text-foreground">{t('dashboard:shelter.shelterKitTitle')}</h3>
+                          <p className="text-xs text-muted-foreground">{t('dashboard:shelter.shelterKitDesc')}</p>
+                      </div>
+                  </div>
+                  <button className="w-full btn bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                      {t('dashboard:shelter.downloadKitButton')}
+                  </button>
               </div>
           </div>
       </div>
