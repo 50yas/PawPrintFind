@@ -77,9 +77,13 @@ export const AIAnalyticsView: React.FC<AIAnalyticsViewProps> = ({ patients, onCl
                         .map(patient => (
                             <AIInsightCard 
                                 key={patient.id} 
-                                title={`${patient.name} (${patient.breed})`}
-                                content={`Health Score: ${patient.medicalRecord?.healthScore} - ${patient.medicalRecord?.notes || 'Routine checkup recommended based on age and breed trends.'}`}
-                                type="health"
+                                insight={{
+                                    id: patient.id,
+                                    title: `${patient.name} (${patient.breed})`,
+                                    content: `Health Score: ${patient.medicalRecord?.healthScore} - ${patient.medicalRecord?.notes || 'Routine checkup recommended based on age and breed trends.'}`,
+                                    type: "health",
+                                    timestamp: Date.now()
+                                }}
                             />
                         ))
                     }

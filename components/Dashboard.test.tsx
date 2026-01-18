@@ -26,7 +26,16 @@ vi.mock('./OwnerPetDetailModal', () => ({ OwnerPetDetailModal: () => <div data-t
 vi.mock('./ui/CinematicImage', () => ({ CinematicImage: ({ src, alt }: any) => <img src={src} alt={alt} /> }));
 
 describe('Dashboard Component', () => {
-  const mockUser: User = { uid: '1', email: 'test@example.com', roles: ['owner'], activeRole: 'owner' } as any;
+  const mockUser: User = { 
+    uid: '1', 
+    email: 'test@example.com', 
+    roles: ['owner'], 
+    activeRole: 'owner',
+    badges: [],
+    points: 0,
+    friends: [],
+    friendRequests: []
+  } as any;
   const mockPets: PetProfile[] = [
     { id: 'p1', name: 'Buddy', breed: 'Golden', photos: [{ url: 'buddy.jpg' }], isLost: false, behavior: 'Good' } as any
   ];

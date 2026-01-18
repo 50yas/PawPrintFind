@@ -65,7 +65,7 @@ export const autoFillPetDetails = async (photo: File): Promise<any> => {
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-pro-vision',
             { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt() }] },
             {
                 responseMimeType: "application/json",
@@ -90,7 +90,7 @@ export const analyzeImageForDescription = async (photo: File): Promise<string> =
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-pro-vision',
             { parts: [imagePart, { text: Prompts.getImageDescriptionPrompt() }] }
         );
         return response.text || "No description generated.";
@@ -101,7 +101,7 @@ export const identifyBreedFromImage = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-pro-vision',
             { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt() }] }
         );
         return response.text?.trim() || "Unknown Breed";
@@ -112,7 +112,7 @@ export const generatePetIdentikit = async (photo: File): Promise<{ code: string,
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-pro-vision',
             { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt() }] },
             {
                 responseMimeType: "application/json",
