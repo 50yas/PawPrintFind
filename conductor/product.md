@@ -31,6 +31,8 @@ Based on the file structure, the application includes the following features:
         - **Advanced Analytics:** Exclusive access for Pro Vets to an AI-powered Health Analytics dashboard, aggregating patient health scores and insights.
         - **Priority Support:** A dedicated support channel with live chat simulation and email priority for Pro subscribers.
 - **Audit, Intelligence & Accessibility:**
+    - **Next-Gen Vision:** High-accuracy breed and marking identification powered by **Gemini 2.0 Pro Vision**, optimized for challenging night-time and low-quality photography.
+    - **Edge Resilience:** Local AI inference fallbacks for instant, offline breed recognition when connectivity is unavailable.
     - **Universal Access:** Fully WCAG 2.1 AA compliant interface with verified screen reader support, logical focus management, and high-contrast visuals.
     - **System Audit Logs:** Comprehensive logging of administrative actions for transparency and security.
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON), centralized event tracking via **Firebase Analytics**, and trace correlation for rapid debugging and reliability.
