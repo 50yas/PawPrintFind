@@ -5,6 +5,7 @@ import { functions } from './firebase';
 import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost, AIInsight } from '../types';
 import * as Prompts from './prompts';
 import { captureError } from './monitoringService';
+import { identifyBreedLocally } from './localInferenceService';
 
 /**
  * Calls the Cloud Function to interact with Gemini AI.
@@ -62,6 +63,17 @@ const fileToGenerativePart = async (file: File, onProgress?: (percent: number) =
 };
 
 export const autoFillPetDetails = async (photo: File): Promise<any> => {
+    // Offline Fallback
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const localResult = await identifyBreedLocally(photo);
+        return {
+            breed: localResult.breed,
+            color: "Detected Offline",
+            size: "Detected Offline",
+            isLocal: true
+        };
+    }
+
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
@@ -98,6 +110,12 @@ export const analyzeImageForDescription = async (photo: File): Promise<string> =
 };
 
 export const identifyBreedFromImage = async (photo: File): Promise<string> => {
+    // Offline Fallback
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const localResult = await identifyBreedLocally(photo);
+        return localResult.breed;
+    }
+
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
