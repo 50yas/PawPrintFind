@@ -36,5 +36,5 @@
 - [x] **Pet Influencer Outreach:** Send early access codes to "Pet-fluencers" to showcase the 3D Cinematic background and AI Health checks. [ff17499]
 
 ## 🧠 4. AI Evolution
-- [ ] **Vision-Language Models:** Upgrade to `gemini-2.0-pro-vision` for even more accurate breed and marking identification from low-quality night-time photos.
+- [x] **Vision-Language Models:** Upgrade to `gemini-2.0-pro-vision` for even more accurate breed and marking identification from low-quality night-time photos. [cd03305]
 - [ ] **Edge Inference:** Explore running small quantization models locally for instant offline breed recognition.
