@@ -39,11 +39,13 @@ interface UserRouterProps {
     handleLogout: () => void;
     setIsLoginModalOpen: (open: boolean) => void;
     setHealthCheckingPet: (p: PetProfile | null) => void;
+    onApplySearch: (filters: any) => void;
+    predefinedFilters: any;
     isLoading?: boolean;
 }
 
 export const UserRouter: React.FC<UserRouterProps> = ({
-    currentView, setView, currentUser, allPets, vetClinics, appointments, chatSessions, lostPets, petsForAdoption, donations, allUsers, editingPet, setEditingPet, petToLink, setPetToLink, selectedPost, setSelectedPost, handleRegisterPet, handleStartChat, handleLogout, setIsLoginModalOpen, setHealthCheckingPet, isLoading
+    currentView, setView, currentUser, allPets, vetClinics, appointments, chatSessions, lostPets, petsForAdoption, donations, allUsers, editingPet, setEditingPet, petToLink, setPetToLink, selectedPost, setSelectedPost, handleRegisterPet, handleStartChat, handleLogout, setIsLoginModalOpen, setHealthCheckingPet, onApplySearch, predefinedFilters, isLoading
 }) => {
     return (
         <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><LoadingSpinner /></div>}>
@@ -60,7 +62,7 @@ export const UserRouter: React.FC<UserRouterProps> = ({
                     case 'community':
                         return <Community currentUser={currentUser} allUsers={allUsers} allPets={allPets} onRegisterStray={() => { setEditingPet(null); setView('register'); }} onFriendRequest={() => { }} onFriendResponse={() => { }} onSharePet={() => { }} goToDashboard={() => setView('dashboard')} />;
                     case 'adoptionCenter':
-                        return <AdoptionCenter petsForAdoption={petsForAdoption} onInquire={handleStartChat} goBack={() => setView('home')} currentUser={currentUser} isLoading={isLoading} />;
+                        return <AdoptionCenter petsForAdoption={petsForAdoption} onInquire={handleStartChat} goBack={() => setView('home')} currentUser={currentUser} isLoading={isLoading} predefinedFilters={predefinedFilters} />;
                     case 'pressKit':
                         return <PressKit goBack={() => setView('home')} />;
                     case 'donors':
@@ -70,7 +72,7 @@ export const UserRouter: React.FC<UserRouterProps> = ({
                     case 'blogPost':
                         return selectedPost ? <BlogPostDetail post={selectedPost} onBack={() => setView('blog')} /> : null;
                     case 'dashboard':
-                        return <Dashboard user={currentUser} userPets={allPets.filter(p => p.ownerEmail === currentUser.email)} appointments={appointments} onReportLost={(id, loc, rad) => dbService.savePet({ ...allPets.find(p => p.id === id)!, isLost: true, lastSeenLocation: loc, searchRadius: rad })} onMarkFound={(id) => dbService.markPetFound(allPets.find(p => p.id === id)!)} onEditPet={(p) => { setEditingPet(p); setView('register'); }} onRegisterNew={() => { setEditingPet(null); setView('register'); }} setView={setView} chatSessions={chatSessions} onOpenChat={(id) => { }} onRequestAppointment={() => { }} onLinkVet={(pet) => { setPetToLink(pet); setView('linkVet'); }} onSharePet={() => { }} onHealthCheck={setHealthCheckingPet} onTransferOwnership={() => { }} onLogout={handleLogout} />;
+                        return <Dashboard user={currentUser} userPets={allPets.filter(p => p.ownerEmail === currentUser.email)} appointments={appointments} onReportLost={(id, loc, rad) => dbService.savePet({ ...allPets.find(p => p.id === id)!, isLost: true, lastSeenLocation: loc, searchRadius: rad })} onMarkFound={(id) => dbService.markPetFound(allPets.find(p => p.id === id)!)} onEditPet={(p) => { setEditingPet(p); setView('register'); }} onRegisterNew={() => { setEditingPet(null); setView('register'); }} setView={setView} chatSessions={chatSessions} onOpenChat={(id) => { }} onRequestAppointment={() => { }} onLinkVet={(pet) => { setPetToLink(pet); setView('linkVet'); }} onSharePet={() => { }} onHealthCheck={setHealthCheckingPet} onTransferOwnership={() => { }} onLogout={handleLogout} onApplySearch={onApplySearch} />;
                     default:
                         return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} onContactOwner={handleStartChat} />;
                 }

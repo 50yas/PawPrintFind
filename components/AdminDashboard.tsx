@@ -7,6 +7,7 @@ import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard, GlassButton } from './ui';
 import { UserManagementTable } from './UserManagementTable';
+import { SearchOptimizationDashboard } from './SearchOptimizationDashboard';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -30,7 +31,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'verification' | 'logs'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'verification' | 'logs' | 'optimization'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -282,6 +283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
                         { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
+                        { id: 'optimization', label: 'OPTIMIZE', icon: '🧠' },
                         { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
                         { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
                     ].map((tab) => (
@@ -679,6 +681,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     </table>
                                 </div>
                             </GlassCard>
+                        </div>
+                    )}
+
+                    {activeTab === 'optimization' && (
+                        <div className="animate-fade-in">
+                            <SearchOptimizationDashboard />
                         </div>
                     )}
 

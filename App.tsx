@@ -58,6 +58,7 @@ export default function App() {
     const [showAdminInit, setShowAdminInit] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [showTutorial, setShowTutorial] = useState(false);
+    const [predefinedFilters, setPredefinedFilters] = useState<any>(null);
 
     useEffect(() => {
         // Detect Brave to apply specific rendering fallbacks
@@ -88,6 +89,11 @@ export default function App() {
         allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
         handleRefreshAdminData, setAllPets
     } = useAppState(currentUser, currentView);
+
+    const handleApplySearch = useCallback((filters: any) => {
+        setPredefinedFilters(filters);
+        setCurrentView('adoptionCenter');
+    }, []);
 
     const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
@@ -297,6 +303,8 @@ export default function App() {
                 handleLogout={handleLogout}
                 setIsLoginModalOpen={setIsLoginModalOpen}
                 setHealthCheckingPet={setHealthCheckingPet}
+                onApplySearch={handleApplySearch}
+                predefinedFilters={predefinedFilters}
                 isLoading={isLoading}
             />
         );

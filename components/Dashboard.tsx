@@ -12,6 +12,7 @@ import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
 import { CinematicImage } from './ui/CinematicImage';
 import { BadgeDisplay } from './BadgeDisplay';
+import { SavedSearchesList } from './SavedSearchesList';
 
 interface DashboardProps {
   user: User;
@@ -30,6 +31,7 @@ interface DashboardProps {
   onHealthCheck: (pet: PetProfile) => void;
   onTransferOwnership: (pet: PetProfile) => void;
   onLogout?: () => void;
+  onApplySearch: (filters: any) => void;
 }
 
 const QRCodeModal: React.FC<{ pet: PetProfile; onClose: () => void }> = ({ pet, onClose }) => {
@@ -269,7 +271,7 @@ const QuickAction: React.FC<{ title: string; icon: React.ReactNode; onClick: () 
     </GlassCard>
 )
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointments = [], onReportLost, onMarkFound, onEditPet, onRegisterNew, setView, chatSessions, onOpenChat, onRequestAppointment, onLinkVet, onSharePet, onHealthCheck, onTransferOwnership, onLogout }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointments = [], onReportLost, onMarkFound, onEditPet, onRegisterNew, setView, chatSessions, onOpenChat, onRequestAppointment, onLinkVet, onSharePet, onHealthCheck, onTransferOwnership, onLogout, onApplySearch }) => {
   const { t } = useTranslations();
   const [reportingPet, setReportingPet] = useState<PetProfile | null>(null);
   const [sharingPet, setSharingPet] = useState<PetProfile | null>(null);
@@ -407,6 +409,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
             My Achievements
           </h2>
           <BadgeDisplay badges={user.badges} />
+      </div>
+
+      {/* Saved Searches */}
+      <div className="animate-fade-in">
+          <SavedSearchesList userEmail={user.email} onApply={onApplySearch} />
       </div>
       
       {/* Messages Section */}

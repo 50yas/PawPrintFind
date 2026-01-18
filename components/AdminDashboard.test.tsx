@@ -40,6 +40,7 @@ vi.mock('../services/loggerService', () => ({
 }));
 
 vi.mock('../services/firebase', () => ({
+    db: {},
     dbService: {
         logAdminAction: vi.fn(),
         getBlogPosts: vi.fn().mockResolvedValue([]),

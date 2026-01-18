@@ -27,6 +27,36 @@ export interface AdminAuditLog {
   timestamp: number;
 }
 
+export interface SearchConfig {
+  id: string;
+  breedMatchWeight: number;
+  locationWeight: number;
+  ageWeight: number;
+  lastUpdated: number;
+  isAutoOptimized: boolean;
+}
+
+export interface OptimizationTrial {
+  id: string;
+  params: {
+    breedMatchWeight: number;
+    locationWeight: number;
+    ageWeight: number;
+  };
+  score: number;
+  status: 'pending' | 'completed' | 'failed';
+  timestamp: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SavedSearch {
+  id: string;
+  userEmail: string;
+  name: string;
+  filters: any;
+  timestamp: number;
+}
+
 export interface AdminKey {
   id?: string;
   keyHash: string;
@@ -467,6 +497,68 @@ export const AdminAuditLogSchema = z.object({
   timestamp: z.number(),
 
 });
+
+
+
+export const SearchConfigSchema = z.object({
+
+  id: z.string(),
+
+  breedMatchWeight: z.number().min(0).max(1),
+
+  locationWeight: z.number().min(0).max(1),
+
+  ageWeight: z.number().min(0).max(1),
+
+  lastUpdated: z.number(),
+
+  isAutoOptimized: z.boolean().default(true),
+
+});
+
+
+
+export const OptimizationTrialSchema = z.object({
+
+  id: z.string(),
+
+  params: z.object({
+
+    breedMatchWeight: z.number(),
+
+    locationWeight: z.number(),
+
+    ageWeight: z.number(),
+
+  }),
+
+  score: z.number(),
+
+  status: z.enum(['pending', 'completed', 'failed']),
+
+  timestamp: z.number(),
+
+  metadata: z.record(z.unknown()).optional(),
+
+});
+
+
+
+export const SavedSearchSchema = z.object({
+
+  id: z.string(),
+
+  userEmail: z.string().email(),
+
+  name: z.string().min(1),
+
+  filters: z.any(),
+
+  timestamp: z.number(),
+
+});
+
+
 
 
 

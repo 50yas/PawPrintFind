@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 import { AdoptionCenter } from './AdoptionCenter';
@@ -17,6 +17,28 @@ vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({
     addSnackbar: vi.fn(),
   }),
+}));
+
+vi.mock('../services/analyticsService', () => ({
+  analyticsService: {
+    trackAdoptionInquiry: vi.fn(),
+    trackPetView: vi.fn(),
+    logEvent: vi.fn(),
+  },
+}));
+
+vi.mock('../services/searchService', () => ({
+    searchService: {
+        rankPets: vi.fn((pets) => Promise.resolve(pets)),
+        saveSearch: vi.fn().mockResolvedValue('search123'),
+    },
+}));
+
+vi.mock('../services/optimizationService', () => ({
+    optimizationService: {
+        getSearchConfig: vi.fn().mockResolvedValue(null),
+        recordSearchInteraction: vi.fn(),
+    },
 }));
 
 vi.mock('./ui', () => ({
@@ -81,7 +103,7 @@ describe('AdoptionCenter Component', () => {
     expect(skeletons).toHaveLength(6);
   });
 
-  it('should render pets when isLoading is false', () => {
+  it('should render pets when isLoading is false', async () => {
     render(
       <AdoptionCenter 
         petsForAdoption={mockPets} 
@@ -92,8 +114,8 @@ describe('AdoptionCenter Component', () => {
       />
     );
     
+    expect(await screen.findByText('Buddy')).toBeInTheDocument();
     expect(screen.queryByTestId('card-skeleton')).toBeNull();
-    expect(screen.getByText('Buddy')).toBeInTheDocument();
   });
 
   it('should switch to map view and render AdoptionMap', async () => {
@@ -159,7 +181,9 @@ describe('AdoptionCenter Component', () => {
     const searchBtn = screen.getByText('Search Cat');
     fireEvent.click(searchBtn);
 
-    expect(screen.queryByText('Buddy')).toBeNull();
-    expect(screen.getByText('Mittens')).toBeInTheDocument();
+    await waitFor(() => {
+        expect(screen.queryByText('Buddy')).toBeNull();
+    });
+    expect(await screen.findByText('Mittens')).toBeInTheDocument();
   });
 });

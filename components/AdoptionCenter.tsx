@@ -1,4 +1,4 @@
-import React, { useState, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useMemo, lazy, Suspense, useEffect } from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -6,6 +6,8 @@ import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { CardSkeleton, MapSidebarSkeleton } from './ui/SkeletonLoader';
 import { SmartSearchBar } from './SmartSearchBar';
 import { analyticsService } from '../services/analyticsService';
+import { searchService, SearchFilters } from '../services/searchService';
+import { optimizationService } from '../services/optimizationService';
 
 const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
@@ -15,19 +17,40 @@ interface AdoptionCenterProps {
   goBack: () => void;
   currentUser: User | null;
   isLoading?: boolean;
+  predefinedFilters?: any;
 }
 
 type ViewMode = 'grid' | 'list' | 'carousel' | 'map';
 
-export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading }) => {
+export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading, predefinedFilters }) => {
   const { t } = useTranslations();
   const { addSnackbar } = useSnackbar();
   
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [filterBreed, setFilterBreed] = useState('');
-  const [filterAge, setFilterAge] = useState('');
-  const [aiFilters, setAiFilters] = useState<any>(null);
+  const [filterBreed, setFilterBreed] = useState(predefinedFilters?.breed || '');
+  const [filterAge, setFilterAge] = useState(predefinedFilters?.age || '');
+  const [aiFilters, setAiFilters] = useState<any>(predefinedFilters || null);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [rankedPets, setRankedPets] = useState<PetProfile[]>(petsForAdoption);
+  const [isRanking, setIsRanking] = useState(false);
+
+  useEffect(() => {
+    const updateRanking = async () => {
+        // Only show ranking skeleton if filters are actually applied
+        const hasFilters = filterBreed || filterAge || (aiFilters && Object.keys(aiFilters).length > 0);
+        if (hasFilters) setIsRanking(true);
+        
+        const filters: SearchFilters = {
+            breed: filterBreed,
+            age: filterAge,
+            ...aiFilters
+        };
+        const results = await searchService.rankPets(petsForAdoption, filters);
+        setRankedPets(results);
+        setIsRanking(false);
+    };
+    updateRanking();
+  }, [petsForAdoption, filterBreed, filterAge, aiFilters]);
 
   const filteredPets = useMemo(() => {
     return petsForAdoption.filter(pet => {
@@ -70,17 +93,23 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         return;
     }
     analyticsService.trackAdoptionInquiry(pet.id, pet.name);
+    optimizationService.recordSearchInteraction(pet.id, 'inquiry');
     onInquire(pet);
   }
 
-  const nextSlide = () => setCarouselIndex(prev => (prev + 1) % filteredPets.length);
-  const prevSlide = () => setCarouselIndex(prev => (prev - 1 + filteredPets.length) % filteredPets.length);
+  const handlePetView = (pet: PetProfile) => {
+    analyticsService.trackPetView(pet.id, pet.name, pet.status);
+    optimizationService.recordSearchInteraction(pet.id, 'view');
+  };
+
+  const nextSlide = () => setCarouselIndex(prev => (prev + 1) % rankedPets.length);
+  const prevSlide = () => setCarouselIndex(prev => (prev - 1 + rankedPets.length) % rankedPets.length);
 
   const AdoptionCard: React.FC<{ pet: PetProfile; mode?: ViewMode }> = ({ pet, mode = 'grid' }) => (
         <GlassCard 
             variant="interactive" 
             className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl`}
-            onClick={() => analyticsService.trackPetView(pet.id, pet.name, pet.status)}
+            onClick={() => handlePetView(pet)}
         >
             <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
                 <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
@@ -177,14 +206,39 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                     {/* Smart AI Search */}
                     <div className="pb-4">
                         <SmartSearchBar onSearch={setAiFilters} />
-                        {aiFilters && (
-                            <div className="flex justify-center mt-4">
+                        {(aiFilters || filterBreed || filterAge) && (
+                            <div className="flex justify-center mt-4 gap-4">
                                 <button 
-                                    onClick={() => setAiFilters(null)} 
-                                    className="text-xs text-primary/60 hover:text-primary uppercase tracking-[0.2em] font-black flex items-center gap-2"
+                                    onClick={async () => {
+                                        if (!currentUser) {
+                                            addSnackbar(t('loginToSaveSearchWarning') || 'Log in to save this search', 'error');
+                                            return;
+                                        }
+                                        const name = prompt("Enter a name for this search:", "My Search");
+                                        if (name) {
+                                            await searchService.saveSearch(currentUser.email, name, {
+                                                breed: filterBreed,
+                                                age: filterAge,
+                                                ...aiFilters
+                                            });
+                                            addSnackbar('Search saved successfully!', 'success');
+                                        }
+                                    }}
+                                    className="text-xs text-primary hover:text-primary/80 uppercase tracking-[0.2em] font-black flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20 transition-all hover:scale-105"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                    SAVE SEARCH
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setAiFilters(null);
+                                        setFilterBreed('');
+                                        setFilterAge('');
+                                    }} 
+                                    className="text-xs text-slate-400 hover:text-white uppercase tracking-[0.2em] font-black flex items-center gap-2 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                                    {t('clearAiSearch') || "Clear AI Filters"}
+                                    {t('clearAiSearch') || "Clear Filters"}
                                 </button>
                             </div>
                         )}
@@ -254,22 +308,22 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                         <div className="ml-auto text-sm text-muted-foreground font-mono">
             
-                            {t('dashboard:adoption.matchesFound', { count: filteredPets.length })}
+                            {t('dashboard:adoption.matchesFound', { count: rankedPets.length })}
             
                         </div>
             
                     </div>
         
         {/* Content */}
-        {isLoading ? (
+        {isLoading || isRanking ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3, 4, 5, 6].map(i => <CardSkeleton key={i} />)}
             </div>
-        ) : filteredPets.length > 0 ? (
+        ) : rankedPets.length > 0 ? (
             <>
                 {viewMode === 'grid' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
-                        {filteredPets.map(pet => (
+                        {rankedPets.map(pet => (
                             <AdoptionCard key={pet.id} pet={pet} />
                         ))}
                     </div>
@@ -277,7 +331,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
 
                 {viewMode === 'list' && (
                     <div className="space-y-4 animate-fade-in">
-                        {filteredPets.map(pet => (
+                        {rankedPets.map(pet => (
                             <AdoptionCard key={pet.id} pet={pet} mode="list" />
                         ))}
                     </div>
@@ -290,7 +344,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                         </button>
                         
                         <div className="w-full max-w-4xl h-full">
-                            <AdoptionCard pet={filteredPets[carouselIndex]} mode="grid" />
+                            <AdoptionCard pet={rankedPets[carouselIndex]} mode="grid" />
                         </div>
 
                         <button onClick={nextSlide} className="absolute right-4 z-20 p-4 rounded-full bg-black/50 hover:bg-primary text-white transition-all backdrop-blur-md border border-white/10">
@@ -298,7 +352,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                         </button>
 
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                            {filteredPets.map((_, idx) => (
+                            {rankedPets.map((_, idx) => (
                                 <button 
                                     key={idx} 
                                     onClick={() => setCarouselIndex(idx)}
@@ -312,7 +366,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                 {viewMode === 'map' && (
                     <div className="h-[50vh] md:h-[600px] w-full rounded-3xl overflow-hidden border border-white/10 animate-fade-in">
                         <Suspense fallback={<MapSidebarSkeleton />}>
-                            <AdoptionMap adoptablePets={filteredPets} onAdoptMe={handleInquire} isLoading={isLoading} />
+                            <AdoptionMap adoptablePets={rankedPets} onAdoptMe={handleInquire} isLoading={isLoading} />
                         </Suspense>
                     </div>
                 )}

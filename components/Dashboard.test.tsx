@@ -13,6 +13,13 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../services/searchService', () => ({
+    searchService: {
+        getSavedSearches: vi.fn().mockResolvedValue([]),
+        deleteSavedSearch: vi.fn(),
+    },
+}));
+
 // Mock geminiService
 vi.mock('../services/geminiService', () => ({
   calculateProfileCompleteness: vi.fn().mockReturnValue(80),
