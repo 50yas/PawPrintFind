@@ -9,9 +9,9 @@ Goal: Restore functionality to the Adoption Page and establish a baseline for pe
     - [x] Create `AdoptionPageLoad.test.tsx` to simulate Firestore data retrieval failures.
     - [x] Inspect `services/firebase.ts` and `AdoptionCenter.tsx` for query bottlenecks or subscription errors.
     - [x] Implement fix to ensure the pet list renders reliably.
-- [ ] **Task: Performance Profiling**
-    - [ ] Verify 60fps for 3D backgrounds during page transitions.
-    - [ ] Optimize Three.js particle counts if frame drops occur.
+- [x] **Task: Performance Profiling** <!-- 87c7374 -->
+    - [x] Verify 60fps for 3D backgrounds during page transitions.
+    - [x] Optimize Three.js particle counts if frame drops occur.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
 ## Phase 2: Full Localization & i18n Audit
