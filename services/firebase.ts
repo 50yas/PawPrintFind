@@ -223,8 +223,11 @@ export const dbService = {
         }
     },
 
-    subscribeToPets(callback: (pets: PetProfile[]) => void) {
-        return onSnapshot(collection(db, 'pets'), (s) => callback(s.docs.map(d => d.data() as PetProfile)));
+    subscribeToPets(callback: (pets: PetProfile[]) => void, onError?: (error: any) => void) {
+        return onSnapshot(collection(db, 'pets'), 
+            (s) => callback(s.docs.map(d => d.data() as PetProfile)),
+            (error) => { if (onError) onError(error); else console.error("Pets subscription error:", error); }
+        );
     },
 
     // --- VET & CLINIC OPERATIONS (Delegated to vetService) ---
@@ -240,8 +243,11 @@ export const dbService = {
         return vetService.getVetClinics();
     },
 
-    subscribeToClinics(callback: (clinics: VetClinic[]) => void) {
-        return onSnapshot(collection(db, 'vet_clinics'), (s) => callback(s.docs.map(d => d.data() as VetClinic)));
+    subscribeToClinics(callback: (clinics: VetClinic[]) => void, onError?: (error: any) => void) {
+        return onSnapshot(collection(db, 'vet_clinics'), 
+            (s) => callback(s.docs.map(d => d.data() as VetClinic)),
+            (error) => { if (onError) onError(error); else console.error("Clinics subscription error:", error); }
+        );
     },
 
     // --- SYSTEM MESSAGES ---
@@ -278,8 +284,8 @@ export const dbService = {
         return contentService.getDonations();
     },
 
-    subscribeToDonations(callback: (donations: Donation[]) => void) {
-        return contentService.subscribeToDonations(callback);
+    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void) {
+        return contentService.subscribeToDonations(callback, onError);
     },
 
     // --- APPOINTMENTS (Delegated to vetService) ---

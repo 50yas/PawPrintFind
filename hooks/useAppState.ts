@@ -23,21 +23,41 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
             }
         };
 
-        const unsubPets = dbService.subscribeToPets((data) => {
-            setAllPets(data);
-            petsLoaded = true;
+        const handleSubError = (source: string, error: any) => {
+            console.error(`Subscription error for ${source}:`, error);
+            // Mark as loaded to avoid infinite loading screen
+            if (source === 'pets') petsLoaded = true;
+            if (source === 'donations') donationsLoaded = true;
+            if (source === 'clinics') clinicsLoaded = true;
             checkLoaded();
-        });
-        const unsubDonations = dbService.subscribeToDonations((data) => {
-            setDonations(data);
-            donationsLoaded = true;
-            checkLoaded();
-        });
-        const unsubClinics = dbService.subscribeToClinics((data) => {
-            setVetClinics(data);
-            clinicsLoaded = true;
-            checkLoaded();
-        });
+        };
+
+        const unsubPets = dbService.subscribeToPets(
+            (data) => {
+                setAllPets(data);
+                petsLoaded = true;
+                checkLoaded();
+            },
+            (error) => handleSubError('pets', error)
+        );
+
+        const unsubDonations = dbService.subscribeToDonations(
+            (data) => {
+                setDonations(data);
+                donationsLoaded = true;
+                checkLoaded();
+            },
+            (error) => handleSubError('donations', error)
+        );
+
+        const unsubClinics = dbService.subscribeToClinics(
+            (data) => {
+                setVetClinics(data);
+                clinicsLoaded = true;
+                checkLoaded();
+            },
+            (error) => handleSubError('clinics', error)
+        );
 
         return () => { unsubPets(); unsubDonations(); unsubClinics(); };
     }, []);

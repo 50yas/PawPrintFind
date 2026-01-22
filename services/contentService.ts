@@ -75,7 +75,7 @@ export const contentService = {
         }
     },
 
-    subscribeToDonations(callback: (donations: Donation[]) => void) {
+    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void) {
         const q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
         return onSnapshot(q, (s) => {
             const donations = s.docs.map(d => {
@@ -84,7 +84,8 @@ export const contentService = {
             });
             callback(donations);
         }, (error) => {
-             logger.error('Error in donation subscription:', error);
+             if (onError) onError(error);
+             else logger.error('Error in donation subscription:', error);
         });
     },
 
