@@ -70,9 +70,13 @@ const Particles = ({ color, scrollProgress, dpr }: { color: string, scrollProgre
   // Adaptive particle count based on DPR and Screen size
   const count = useMemo(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const baseCount = isMobile ? 1200 : 4000;
-    // Scale count by DPR factor (dpr is usually between 0.5 and 2.0 based on PerformanceMonitor)
-    return Math.floor(baseCount * dpr);
+    // Reduced base counts for better performance (60fps target)
+    const baseCount = isMobile ? 800 : 2500; 
+    
+    // If DPR is low (performance fallback), drastically reduce particles
+    const performanceFactor = dpr < 1 ? 0.6 : 1.0;
+    
+    return Math.floor(baseCount * dpr * performanceFactor);
   }, [dpr]);
   
   // Generate shapes
