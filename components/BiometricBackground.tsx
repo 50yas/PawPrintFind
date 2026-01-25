@@ -61,7 +61,7 @@ const MorphMaterial = shaderMaterial(
 extend({ MorphMaterial });
 
 // Particle Component
-const Particles = ({ color, scrollProgress, dpr }: { color: string, scrollProgress: number, dpr: number }) => {
+export const Particles = ({ color, scrollProgress, dpr }: { color: string, scrollProgress: number, dpr: number }) => {
   const ref = useRef<any>();
   const materialRef = useRef<any>();
   const threeColor = useMemo(() => new THREE.Color(color), [color]);

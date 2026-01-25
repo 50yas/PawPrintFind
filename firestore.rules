@@ -139,6 +139,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // 12. SEARCH CONFIGURATION (For AI Optimization)
+    match /search_config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 13. OPTIMIZATION TRIALS (For AI Optimization)
+    match /optimization_trials/{trialId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 14. SEARCH INTERACTIONS (For AI Optimization Feedback)
+    match /search_interactions/{interactionId} {
+      allow create: if true; // Allow anyone to record an interaction (view/click)
+      allow read: if isAdmin();
+    }
+
+    // 15. SAVED SEARCHES (User Identikits)
+    match /saved_searches/{searchId} {
+      allow create: if isSignedIn() && request.resource.data.userEmail == request.auth.token.email;
+      allow read, update, delete: if isSignedIn() && resource.data.userEmail == request.auth.token.email;
+    }
+
     // --- STRIPE EXTENSION RULES ---
     match /customers/{uid} {
       allow read: if request.auth.uid == uid;

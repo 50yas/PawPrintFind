@@ -1,6 +1,6 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BiometricBackground } from './BiometricBackground';
+import { BiometricBackground, Particles } from './BiometricBackground';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -8,7 +8,11 @@ import '@testing-library/jest-dom';
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children: React.ReactNode }) => <div data-testid="three-canvas">{children}</div>,
   useFrame: vi.fn(),
-  useThree: () => ({ size: { width: 100, height: 100 }, viewport: { width: 100, height: 100 } }),
+  useThree: () => ({ 
+    size: { width: 1024, height: 768 }, 
+    viewport: { width: 10, height: 10 },
+    mouse: { x: 0, y: 0 }
+  }),
   extend: vi.fn(),
 }));
 
@@ -17,10 +21,17 @@ vi.mock('@react-three/drei', () => ({
   OrbitControls: () => null,
   Float: ({ children }: any) => <div data-testid="three-float">{children}</div>,
   Stars: () => <div data-testid="three-stars">Stars</div>,
-  Points: ({ children }: any) => <div data-testid="three-points">{children}</div>,
+  Points: ({ children, ...props }: any) => <div data-testid="three-points" data-count={props.count}>{children}</div>,
   PointMaterial: () => <div data-testid="three-point-material" />,
   PerformanceMonitor: ({ children }: any) => <>{children}</>,
   shaderMaterial: vi.fn(() => function MockMaterial() {}),
+}));
+
+// Mock utils
+vi.mock('../src/utils/particleGenerators', () => ({
+  generateSphere: vi.fn(() => new Float32Array(300)),
+  generateHelix: vi.fn(() => new Float32Array(300)),
+  generatePaw: vi.fn(() => new Float32Array(300)),
 }));
 
 // Mock useTheme
@@ -39,6 +50,39 @@ describe('BiometricBackground', () => {
     render(<BiometricBackground />);
     expect(screen.getByTestId('three-canvas')).toBeInTheDocument();
   });
+
+  describe('Particles Adaptive Logic', () => {
+    it('calculates particle count correctly for high DPR desktop', () => {
+      // @ts-ignore
+      window.innerWidth = 1200;
+      const { container } = render(<Particles color="#fff" scrollProgress={0} dpr={2.0} />);
+      const attr = container.querySelector('bufferattribute[attach="attributes-position"]');
+      // baseCount = 2500, dpr = 2.0, performanceFactor = 1.0 (since dpr >= 1)
+      // expected = 2500 * 2.0 * 1.0 = 5000
+      expect(attr?.getAttribute('count')).toBe('5000');
+    });
+
+    it('drastically reduces particles for low DPR (low performance mode)', () => {
+      // @ts-ignore
+      window.innerWidth = 1200;
+      const { container } = render(<Particles color="#fff" scrollProgress={0} dpr={0.75} />);
+      const attr = container.querySelector('bufferattribute[attach="attributes-position"]');
+      // baseCount = 2500, dpr = 0.75, performanceFactor = 0.6 (since dpr < 1)
+      // expected = 2500 * 0.75 * 0.6 = 1125
+      expect(attr?.getAttribute('count')).toBe('1125');
+    });
+
+    it('uses lower base count for mobile devices', () => {
+      // @ts-ignore
+      window.innerWidth = 375; // Mobile width
+      const { container } = render(<Particles color="#fff" scrollProgress={0} dpr={1.0} />);
+      const attr = container.querySelector('bufferattribute[attach="attributes-position"]');
+      // baseCount = 800, dpr = 1.0, performanceFactor = 1.0
+      // expected = 800 * 1.0 * 1.0 = 800
+      expect(attr?.getAttribute('count')).toBe('800');
+    });
+  });
+
 
   it('renders cinematic overlay gradients', () => {
     const { container } = render(<BiometricBackground />);
