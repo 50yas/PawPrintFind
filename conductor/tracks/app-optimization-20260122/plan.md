@@ -17,7 +17,7 @@ Goal: Restore functionality to the Adoption Page and establish a baseline for pe
 ## Phase 2: Full Localization & i18n Audit
 Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 
-- [ ] **Task: Extract Hardcoded Strings**
+- [~] **Task: Extract Hardcoded Strings**
     - [ ] Audit `App.tsx`, `AdoptionCenter.tsx`, and `AdminDashboard.tsx` for missing translation keys.
     - [ ] Update `translations.ts` and ensure namespaces are balanced across languages.
 - [ ] **Task: Localize Dynamic AI Content**

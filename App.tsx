@@ -36,7 +36,8 @@ import { useTranslations } from './hooks/useTranslations';
 import { generateAdoptionInquiry } from './src/utils/templateUtils';
 
 const DevMarquee = () => {
-    const devText = "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •";
+    const { t } = useTranslations();
+    const devText = t('devModeMarquee');
 
     return (
         <div className="fixed top-0 left-0 w-full h-8 overflow-hidden bg-yellow-400 border-b-2 border-black shadow-lg select-none flex items-center shrink-0 z-[250]">
@@ -119,14 +120,14 @@ export default function App() {
         await dbService.logout();
         setCurrentUser(null);
         setCurrentView('home');
-        addSnackbar("Secure session closed.", 'info');
+        addSnackbar(t('secureSessionClosed'), 'info');
     };
 
     const handleRegisterPet = async (pet: PetProfile) => {
         try {
             console.log(`[App-Logic] Transmitting biometric data for ${pet.name}...`);
             await dbService.savePet(pet);
-            addSnackbar(`Sync Successful: ${pet.name} is now protected.`, 'success');
+            addSnackbar(t('syncSuccessful', { name: pet.name }), 'success');
             setEditingPet(null);
             
             // Redirect based on active protocol
@@ -134,7 +135,7 @@ export default function App() {
             setCurrentView(nextView);
         } catch (err: any) { 
             console.error("App Register Error:", err);
-            addSnackbar("Critical Sync Failure: " + (err.message || "Network Timeout"), 'error'); 
+            addSnackbar(t('criticalSyncFailure') + (err.message || t('networkTimeout')), 'error'); 
         }
     };
 

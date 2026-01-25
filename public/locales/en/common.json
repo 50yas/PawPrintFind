@@ -287,5 +287,15 @@
   "invalidAdminCredentials": "SECURITY ALERT: Invalid administrative credentials. Access denied.",
   "invalidSecurityKey": "SYSTEM ERROR: Invalid Private Security Key.",
   "initializationFailed": "Initialization failed: {{error}}",
-  "fileFormatWarning": "PDF, JPG, PNG (MAX. 5MB)"
+  "fileFormatWarning": "PDF, JPG, PNG (MAX. 5MB)",
+  "searchNamePrompt": "Enter a name for this search:",
+  "searchSavedSuccess": "Search saved successfully!",
+  "saveSearchButton": "SAVE SEARCH",
+  "clearAiSearch": "Clear Filters",
+  "secureSessionClosed": "Secure session closed.",
+  "syncSuccessful": "Sync Successful: {{name}} is now protected.",
+  "criticalSyncFailure": "Critical Sync Failure: ",
+  "networkTimeout": "Network Timeout",
+  "devModeMarquee": "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •",
+  "loginToContactOwner": "Please login to contact the owner."
 }

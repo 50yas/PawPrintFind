@@ -226,5 +226,15 @@
   "vetTermsItem4": "Non utilizzare la piattaforma per pubblicità non autorizzata o spam.",
   "vetTermsItem5": "Riconoscere che lo stato del tuo account è soggetto a verifica delle tue credenziali professionali.",
   "acceptTermsLabel": "Accetto i Termini e le Condizioni e certifico di essere un veterinario abilitato.",
-  "submitVerification": "Invia per la Verifica"
+  "submitVerification": "Invia per la Verifica",
+  "searchNamePrompt": "Inserisci un nome per questa ricerca:",
+  "searchSavedSuccess": "Ricerca salvata con successo!",
+  "saveSearchButton": "SALVA RICERCA",
+  "clearAiSearch": "Cancella Filtri",
+  "secureSessionClosed": "Sessione sicura chiusa.",
+  "syncSuccessful": "Sincronizzazione Riuscita: {{name}} è ora protetto.",
+  "criticalSyncFailure": "Errore Critico di Sincronizzazione: ",
+  "networkTimeout": "Timeout di Rete",
+  "devModeMarquee": "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •",
+  "loginToContactOwner": "Effettua il login per contattare il proprietario."
 }

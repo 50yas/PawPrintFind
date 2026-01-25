@@ -211,23 +211,23 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                 <button 
                                     onClick={async () => {
                                         if (!currentUser) {
-                                            addSnackbar(t('loginToSaveSearchWarning') || 'Log in to save this search', 'error');
+                                            addSnackbar(t('loginToSaveSearchWarning'), 'error');
                                             return;
                                         }
-                                        const name = prompt("Enter a name for this search:", "My Search");
+                                        const name = prompt(t('searchNamePrompt'), "My Search");
                                         if (name) {
                                             await searchService.saveSearch(currentUser.email, name, {
                                                 breed: filterBreed,
                                                 age: filterAge,
                                                 ...aiFilters
                                             });
-                                            addSnackbar('Search saved successfully!', 'success');
+                                            addSnackbar(t('searchSavedSuccess'), 'success');
                                         }
                                     }}
                                     className="text-xs text-primary hover:text-primary/80 uppercase tracking-[0.2em] font-black flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20 transition-all hover:scale-105"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                    SAVE SEARCH
+                                    {t('saveSearchButton')}
                                 </button>
                                 <button 
                                     onClick={() => {
@@ -238,7 +238,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                     className="text-xs text-slate-400 hover:text-white uppercase tracking-[0.2em] font-black flex items-center gap-2 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                                    {t('clearAiSearch') || "Clear Filters"}
+                                    {t('clearAiSearch')}
                                 </button>
                             </div>
                         )}

@@ -99,7 +99,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 setBlogPosts(posts);
             } catch (err) {
                 console.error("Blog Fetch Error:", err);
-                addSnackbar("Access Denied: Blog collection unreachable.", 'error');
+                addSnackbar(t('dashboard:admin.blogAccessDenied'), 'error');
             }
         };
         fetchBlog();
@@ -111,19 +111,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             await onRefresh();
             const posts = await dbService.getBlogPosts();
             setBlogPosts(posts);
-            addSnackbar("System Node Synchronized", 'success');
+            addSnackbar(t('dashboard:admin.nodeSynchronized'), 'success');
         } catch (e: any) {
-            addSnackbar("Refresh failed: " + e.message, 'error');
+            addSnackbar(t('dashboard:admin.refreshFailed') + e.message, 'error');
         }
         setIsRefreshing(false);
     };
 
     const handleDeleteUser = async (uid: string) => {
-        if (!confirm(t('confirmDeleteUser') || 'TERMINATE IDENTITY?')) return;
+        if (!confirm(t('dashboard:admin.confirmTerminateIdentity'))) return;
         setIsRefreshing(true);
         try {
             await onDeleteUser(uid);
-            addSnackbar("Identity Purged", 'success');
+            addSnackbar(t('dashboard:admin.identityPurged'), 'success');
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     };
@@ -147,14 +147,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 details: `Changed role for ${user.email} to ${newRole}`
             });
 
-            addSnackbar("Clearance Updated", 'success');
+            addSnackbar(t('dashboard:admin.clearanceUpdated'), 'success');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
     };
 
     const deleteClinic = async (id: string) => {
-        if (!confirm(t('confirmDeleteClinic') || 'DISMANTLE CLINIC NODE?')) return;
+        if (!confirm(t('dashboard:admin.confirmDismantleClinic'))) return;
         setIsRefreshing(true);
         try {
             await dbService.deleteClinic(id);
@@ -164,7 +164,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 targetId: id,
                 details: `Deleted clinic ${id}`
             });
-            addSnackbar("Clinic Node Dismantled", 'success');
+            addSnackbar(t('dashboard:admin.clinicDismantled'), 'success');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
@@ -181,7 +181,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 targetId: user.uid,
                 details: `Approved credentials for ${user.email}`
             });
-            addSnackbar(t('vetRegisteredAlert', { clinicName: user.email }), 'success');
+            addSnackbar(t('dashboard:admin.approvedCredentials', { email: user.email }), 'success');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
@@ -189,7 +189,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
     const rejectUser = async (user: User) => {
         if (!user.uid) return;
-        if (!confirm(t('confirmRejectVerification') || `Reject verification for ${user.email}?`)) return;
+        if (!confirm(t('dashboard:admin.rejectVerificationPrompt', { email: user.email }))) return;
         setIsRefreshing(true);
         try {
             const { verificationData, ...userWithoutVerification } = user;
@@ -202,7 +202,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 details: `Rejected credentials for ${user.email}`
             });
             
-            addSnackbar("Verification Rejected", 'info');
+            addSnackbar(t('dashboard:admin.verificationRejected'), 'info');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
         setIsRefreshing(false);
@@ -283,7 +283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
                         { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
-                        { id: 'optimization', label: 'OPTIMIZE', icon: '🧠' },
+                        { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
                         { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
                         { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
                     ].map((tab) => (
