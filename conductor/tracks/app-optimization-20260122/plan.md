@@ -2,7 +2,7 @@
 
 This plan covers the resolution of the Adoption Page loading issue, complete localization, and the implementation of advanced search, favorites, and AI match features.
 
-## Phase 1: Diagnostics & Core Fixes
+## Phase 1: Diagnostics & Core Fixes [checkpoint: 1435717]
 Goal: Restore functionality to the Adoption Page and establish a baseline for performance.
 
 - [x] **Task: Debug Adoption Page Loading** <!-- 80b0823 -->
@@ -12,7 +12,7 @@ Goal: Restore functionality to the Adoption Page and establish a baseline for pe
 - [x] **Task: Performance Profiling** <!-- 87c7374 -->
     - [x] Verify 60fps for 3D backgrounds during page transitions.
     - [x] Optimize Three.js particle counts if frame drops occur.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
 ## Phase 2: Full Localization & i18n Audit
 Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
