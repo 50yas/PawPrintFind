@@ -36,7 +36,9 @@ describe('UserRouter', () => {
         handleStartChat: vi.fn().mockResolvedValue(undefined),
         handleLogout: vi.fn(),
         setIsLoginModalOpen: vi.fn(),
-        setHealthCheckingPet: vi.fn()
+        setHealthCheckingPet: vi.fn(),
+        onApplySearch: vi.fn(),
+        predefinedFilters: null
     };
 
     it('renders Dashboard for dashboard view', async () => {

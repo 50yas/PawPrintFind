@@ -1,6 +1,13 @@
 {
   "admin": {
     "commandCore": "COMMAND_CORE",
+    "systemRootActive": "SYSTEM_ROOT_ACTIVE",
+    "contentIntelligence": "Content_Intelligence",
+    "rankAlpha": "Rank: ALPHA",
+    "rankBeta": "Rank: BETA",
+    "rankGamma": "Rank: GAMMA",
+    "zeroViews": "0 VIEWS",
+    "viewsLabel": "VIEWS",
     "urgentProtocol": "Urgent_Protocol",
     "loadFactor": "Load_Factor",
     "uptime": "Uptime",

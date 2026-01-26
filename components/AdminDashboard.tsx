@@ -224,7 +224,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse group-hover:bg-primary/40 transition-all"></div>
                             <div className="relative bg-slate-900 border border-primary/50 text-primary text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(20,184,166,0.3)]">
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping mr-2"></span>
-                                SYSTEM_ROOT_ACTIVE
+                                {t('dashboard:admin.systemRootActive')}
                             </div>
                         </div>
                         <div className="h-8 w-px bg-white/10 hidden md:block"></div>
@@ -316,12 +316,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                                 <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
                                     <span className="text-xl">📈</span>
-                                    Content_Intelligence
+                                    {t('dashboard:admin.contentIntelligence')}
                                 </h4>
                                 <div className="flex gap-4 items-center">
                                     <div className="flex flex-col items-end">
                                         <span className="text-[8px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalEngagement')}</span>
-                                        <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} VIEWS</span>
+                                        <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} {t('dashboard:admin.viewsLabel')}</span>
                                     </div>
                                     <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t('dashboard:admin.trendingArticles')}</span>
                                 </div>
@@ -334,8 +334,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                         <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
                                         <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
                                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                            <span className="text-[10px] font-black text-primary">{post.views || 0} VIEWS</span>
-                                            <span className="text-[8px] font-mono text-slate-600 uppercase">Rank: {i === 0 ? 'ALPHA' : i === 1 ? 'BETA' : 'GAMMA'}</span>
+                                            <span className="text-[10px] font-black text-primary">{post.views || 0} {t('dashboard:admin.viewsLabel')}</span>
+                                            <span className="text-[8px] font-mono text-slate-600 uppercase">
+                                                {i === 0 ? t('dashboard:admin.rankAlpha') : i === 1 ? t('dashboard:admin.rankBeta') : t('dashboard:admin.rankGamma')}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}

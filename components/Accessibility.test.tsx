@@ -94,6 +94,7 @@ describe('Accessibility Audit', () => {
               onSharePet={vi.fn()}
               onHealthCheck={vi.fn()}
               onTransferOwnership={vi.fn()}
+              onApplySearch={vi.fn()}
             />
           </ThemeProvider>
         </LanguageProvider>

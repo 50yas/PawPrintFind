@@ -61,7 +61,8 @@ describe('Dashboard Component', () => {
     onLinkVet: vi.fn(),
     onSharePet: vi.fn(),
     onHealthCheck: vi.fn(),
-    onTransferOwnership: vi.fn()
+    onTransferOwnership: vi.fn(),
+    onApplySearch: vi.fn()
   };
 
   beforeEach(() => {

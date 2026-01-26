@@ -272,4 +272,26 @@ export const en = {
     clinicSaved: `Clinic details saved successfully!`,
     
     verifiedVetBadge: `Verified Vet`,
+
+    // Added keys
+    loginToSaveSearchWarning: `You must be logged in to save a search.`,
+
+    dashboard: {
+        admin: {
+            systemRootActive: `SYSTEM_ROOT_ACTIVE`,
+            contentIntelligence: `Content_Intelligence`,
+            rankAlpha: `Rank: ALPHA`,
+            rankBeta: `Rank: BETA`,
+            rankGamma: `Rank: GAMMA`,
+            zeroViews: `0 VIEWS`,
+            viewsLabel: `VIEWS`,
+            totalEngagement: `Total_Engagement`
+        },
+        adoption: {
+             matchesFound: `{{count}} matches found`,
+             noMatchingPets: `No matching pets found`,
+             adjustFiltersSuggestion: `Try adjusting your filters to see more adoptable friends.`,
+             clearFiltersButton: `Clear all filters`
+        }
+    }
 };

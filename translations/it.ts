@@ -566,6 +566,26 @@ export const it = {
     locateMeButton: `Trovami`,
     adoptMeButton: `Adottami`,
     adoptionInquiryTemplate: `Ciao! Sono molto interessato ad adottare {{petName}}. Potresti fornirmi maggiori informazioni sul processo di adozione?`,
+    loginToSaveSearchWarning: `Devi essere loggato per salvare una ricerca.`,
+
+    dashboard: {
+        admin: {
+            systemRootActive: `ROOT DI SISTEMA ATTIVO`,
+            contentIntelligence: `Intelligence Contenuti`,
+            rankAlpha: `Rango: ALPHA`,
+            rankBeta: `Rango: BETA`,
+            rankGamma: `Rango: GAMMA`,
+            zeroViews: `0 VISUALIZZAZIONI`,
+            viewsLabel: `VISUALIZZAZIONI`,
+            totalEngagement: `COINVOLGIMENTO TOTALE`
+        },
+        adoption: {
+             matchesFound: `{{count}} corrispondenze trovate`,
+             noMatchingPets: `Nessun animale corrispondente trovato`,
+             adjustFiltersSuggestion: `Prova a modificare i filtri per vedere più risultati.`,
+             clearFiltersButton: `Cancella tutti i filtri`
+        }
+    },
     
     // Tutorial
     tutorial: {

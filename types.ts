@@ -538,7 +538,7 @@ export const OptimizationTrialSchema = z.object({
 
   timestamp: z.number(),
 
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 
 });
 
