@@ -20,9 +20,9 @@ Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 - [x] **Task: Extract Hardcoded Strings** <!-- 452d19b -->
     - [x] Audit `App.tsx`, `AdoptionCenter.tsx`, and `AdminDashboard.tsx` for missing translation keys.
     - [x] Update `translations.ts` and ensure namespaces are balanced across languages.
-- [~] **Task: Localize Dynamic AI Content**
-    - [ ] Update `AIIdentikitCard.tsx` and `AIHealthCheckModal.tsx` to request localized responses from Gemini.
-    - [ ] Ensure breed names and health insights translate correctly.
+- [x] **Task: Localize Dynamic AI Content** <!-- 09ffe19 -->
+    - [x] Update `AIIdentikitCard.tsx` and `AIHealthCheckModal.tsx` to request localized responses from Gemini.
+    - [x] Ensure breed names and health insights translate correctly.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
 
 ## Phase 3: Advanced Features & UI Polish
