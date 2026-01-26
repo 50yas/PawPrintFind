@@ -17,10 +17,10 @@ Goal: Restore functionality to the Adoption Page and establish a baseline for pe
 ## Phase 2: Full Localization & i18n Audit
 Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 
-- [~] **Task: Extract Hardcoded Strings**
-    - [ ] Audit `App.tsx`, `AdoptionCenter.tsx`, and `AdminDashboard.tsx` for missing translation keys.
-    - [ ] Update `translations.ts` and ensure namespaces are balanced across languages.
-- [ ] **Task: Localize Dynamic AI Content**
+- [x] **Task: Extract Hardcoded Strings** <!-- 452d19b -->
+    - [x] Audit `App.tsx`, `AdoptionCenter.tsx`, and `AdminDashboard.tsx` for missing translation keys.
+    - [x] Update `translations.ts` and ensure namespaces are balanced across languages.
+- [~] **Task: Localize Dynamic AI Content**
     - [ ] Update `AIIdentikitCard.tsx` and `AIHealthCheckModal.tsx` to request localized responses from Gemini.
     - [ ] Ensure breed names and health insights translate correctly.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
