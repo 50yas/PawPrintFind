@@ -1,5 +1,6 @@
 import React from 'react';
 import { PetProfile } from '../types';
+import { useTranslations } from '../hooks/useTranslations';
 
 interface AIIdentikitCardProps {
   pet: PetProfile;
@@ -7,7 +8,17 @@ interface AIIdentikitCardProps {
 }
 
 export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => {
+  const { t } = useTranslations();
   const photoUrl = pet.photos.length > 0 ? pet.photos[0].url : '/default-pet.png';
+
+  const displayGender = (gender: string | undefined) => {
+      if (!gender) return t('genderUnknown');
+      const lower = gender.toLowerCase();
+      if (lower === 'male') return t('genderMale');
+      if (lower === 'female') return t('genderFemale');
+      if (lower === 'unknown') return t('genderUnknown');
+      return gender;
+  };
 
   return (
     <div id={id} className="relative w-full max-w-sm mx-auto overflow-hidden rounded-2xl bg-black border border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
@@ -19,8 +30,8 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
       {/* Header */}
       <div className="relative z-10 p-4 border-b border-cyan-500/30 bg-black/50 backdrop-blur-sm flex justify-between items-center">
         <div className="flex flex-col">
-            <span className="text-[10px] tracking-[0.2em] text-cyan-400 font-bold uppercase">Paw Print // AI Core</span>
-            <span className="text-xs text-cyan-200/70">BIOMETRIC IDENTITY VERIFIED</span>
+            <span className="text-[10px] tracking-[0.2em] text-cyan-400 font-bold uppercase">{t('aiCore')}</span>
+            <span className="text-xs text-cyan-200/70">{t('biometricVerified')}</span>
         </div>
         <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_cyan]"></div>
       </div>
@@ -36,7 +47,7 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
                 
                 {/* Overlay UI elements */}
                 <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded text-[10px] text-cyan-400 border border-cyan-500/30">
-                    SCANNING...
+                    {t('scanning')}
                 </div>
                 
                 {/* Corner Brackets */}
@@ -50,28 +61,28 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
         {/* Data Matrix */}
         <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-gray-500">Subject Name</label>
+                <label className="text-[10px] uppercase tracking-wider text-gray-500">{t('subjectName')}</label>
                 <div className="text-xl font-bold text-white tracking-wide">{pet.name}</div>
             </div>
             <div className="space-y-1 text-right">
-                <label className="text-[10px] uppercase tracking-wider text-gray-500">Identity Code</label>
+                <label className="text-[10px] uppercase tracking-wider text-gray-500">{t('identityCode')}</label>
                 <div className="text-sm font-mono text-cyan-400 bg-cyan-950/30 px-2 py-1 rounded border border-cyan-500/30 inline-block">
-                    {pet.aiIdentityCode || 'PENDING-GEN'}
+                    {pet.aiIdentityCode || t('pendingGen')}
                 </div>
             </div>
             
             <div className="col-span-2 grid grid-cols-3 gap-2 py-4 border-t border-dashed border-gray-800">
                  <div>
-                    <div className="text-[10px] text-gray-500 uppercase">Breed</div>
+                    <div className="text-[10px] text-gray-500 uppercase">{t('breedLabel')}</div>
                     <div className="text-sm text-gray-300 truncate">{pet.breed}</div>
                  </div>
                  <div>
-                    <div className="text-[10px] text-gray-500 uppercase">Age</div>
+                    <div className="text-[10px] text-gray-500 uppercase">{t('ageLabel')}</div>
                     <div className="text-sm text-gray-300">{pet.age}</div>
                  </div>
                  <div>
-                    <div className="text-[10px] text-gray-500 uppercase">Gender</div>
-                    <div className="text-sm text-gray-300">{pet.gender}</div>
+                    <div className="text-[10px] text-gray-500 uppercase">{t('genderLabel')}</div>
+                    <div className="text-sm text-gray-300">{displayGender(pet.gender)}</div>
                  </div>
             </div>
         </div>
@@ -79,7 +90,7 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
         {/* AI Analysis Snippet */}
         {pet.aiPhysicalDescription && (
             <div className="p-3 rounded bg-gray-900/80 border-l-2 border-fuchsia-500">
-                <div className="text-[10px] text-fuchsia-400 mb-1 uppercase tracking-widest">Visual Analysis</div>
+                <div className="text-[10px] text-fuchsia-400 mb-1 uppercase tracking-widest">{t('visualAnalysis')}</div>
                 <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
                     {pet.aiPhysicalDescription}
                 </p>
@@ -89,7 +100,7 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
 
       {/* Footer */}
       <div className="relative z-10 p-3 bg-black border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-600">
-        <span>GENERATED BY GEMINI 2.5</span>
+        <span>{t('generatedByGemini')}</span>
         <span className="font-mono">{new Date().toLocaleDateString()}</span>
       </div>
     </div>

@@ -561,6 +561,10 @@ export const it = {
     // Navbar
     adoptionLink: `Adozioni`,
     filterAgeLabel: `Età`,
+    genderLabel: `Sesso`,
+    genderMale: `Maschio`,
+    genderFemale: `Femmina`,
+    genderUnknown: `Sconosciuto`,
     blogButton: `Blog`,
     adoptionMapTitle: `Mappa Adozioni`,
     locateMeButton: `Trovami`,
