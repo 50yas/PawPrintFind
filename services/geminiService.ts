@@ -62,7 +62,7 @@ const fileToGenerativePart = async (file: File, onProgress?: (percent: number) =
     };
 };
 
-export const autoFillPetDetails = async (photo: File): Promise<any> => {
+export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Promise<any> => {
     // Offline Fallback
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         const localResult = await identifyBreedLocally(photo);
@@ -78,7 +78,7 @@ export const autoFillPetDetails = async (photo: File): Promise<any> => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
             'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt() }] },
+            { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt(locale) }] },
             {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -109,7 +109,7 @@ export const analyzeImageForDescription = async (photo: File): Promise<string> =
     });
 };
 
-export const identifyBreedFromImage = async (photo: File): Promise<string> => {
+export const identifyBreedFromImage = async (photo: File, locale: string = 'en'): Promise<string> => {
     // Offline Fallback
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
         const localResult = await identifyBreedLocally(photo);
@@ -120,18 +120,18 @@ export const identifyBreedFromImage = async (photo: File): Promise<string> => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
             'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt() }] }
+            { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt(locale) }] }
         );
         return response.text?.trim() || "Unknown Breed";
     });
 };
 
-export const generatePetIdentikit = async (photo: File): Promise<{ code: string, description: string }> => {
+export const generatePetIdentikit = async (photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
         const imagePart = await fileToGenerativePart(photo);
         const response = await callGeminiFunction(
             'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt() }] },
+            { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt(locale) }] },
             {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -329,8 +329,8 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     }
 };
 
-export const performAIHealthCheck = async (pet: PetProfile, symptoms: string): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms);
+export const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
+    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
             'gemini-2.5-pro',

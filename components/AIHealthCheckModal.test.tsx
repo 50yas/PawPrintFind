@@ -7,7 +7,10 @@ import React from 'react';
 
 // Mocks
 vi.mock('../hooks/useTranslations', () => ({
-  useTranslations: () => ({ t: (key: string, params: any) => key }),
+  useTranslations: () => ({ 
+    t: (key: string, params: any) => key,
+    locale: 'en'
+  }),
 }));
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({ addSnackbar: vi.fn() }),
@@ -43,7 +46,7 @@ describe('AIHealthCheckModal', () => {
     fireEvent.click(screen.getByText('analyzeSymptomsButton'));
 
     await waitFor(() => {
-      expect(performAIHealthCheck).toHaveBeenCalledWith(mockPet, 'coughing');
+      expect(performAIHealthCheck).toHaveBeenCalledWith(mockPet, 'coughing', 'en');
       expect(screen.getByText('Analysis result')).toBeInTheDocument();
     });
 

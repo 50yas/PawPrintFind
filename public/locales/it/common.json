@@ -236,5 +236,13 @@
   "criticalSyncFailure": "Errore Critico di Sincronizzazione: ",
   "networkTimeout": "Timeout di Rete",
   "devModeMarquee": "DEV MODE: DEVELOPMENT IN PROGRESS • SVILUPPO IN CORSO • EN DESARROLLO • EN DÉVELOPPEMENT • ENTWICKLUNG LÄUFT • 正在开发中 • قيد التطوير • ÎN DEZVOLTARE •",
-  "loginToContactOwner": "Effettua il login per contattare il proprietario."
+  "loginToContactOwner": "Effettua il login per contattare il proprietario.",
+  "aiCore": "Paw Print // AI Core",
+  "biometricVerified": "IDENTITÀ BIOMETRICA VERIFICATA",
+  "subjectName": "Nome Soggetto",
+  "identityCode": "Codice Identità",
+  "pendingGen": "IN ATTESA",
+  "visualAnalysis": "Analisi Visiva",
+  "generatedByGemini": "GENERATO DA GEMINI 2.5",
+  "genderLabel": "Sesso"
 }

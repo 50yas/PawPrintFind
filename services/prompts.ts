@@ -5,18 +5,21 @@ export const getImageDescriptionPrompt = (): string => {
   return "Describe this pet in detail for identification. Mention breed, colors, patterns, and any unique physical features visible. Be very specific.";
 };
 
-export const getBreedIdentificationPrompt = (): string => {
-    return "Based on this image, what is the most likely breed of this pet? If it's a mix, suggest the most prominent breed. Respond with only the breed name.";
+export const getBreedIdentificationPrompt = (locale: string = 'en'): string => {
+    return `Based on this image, what is the most likely breed of this pet? If it's a mix, suggest the most prominent breed. Respond with only the breed name in "${locale}".`;
 };
 
 // New Prompt for Auto-filling Pet Details from Image
-export const getAutoFillPetDetailsPrompt = (): string => {
+export const getAutoFillPetDetailsPrompt = (locale: string = 'en'): string => {
     return `
     Analyze the uploaded image of the pet and extract the following details to auto-fill a registration form.
     
     **Task:**
     Identify the pet's characteristics as accurately as possible.
     
+    **Language:**
+    Provide all string values (like breed, color) in "${locale}".
+
     **Output Schema (JSON ONLY):**
     {
       "breed": "string (e.g., 'Golden Retriever', 'Siamese Mix')",
@@ -32,7 +35,7 @@ export const getAutoFillPetDetailsPrompt = (): string => {
     `;
 };
 
-export const getPetIdentikitPrompt = (): string => {
+export const getPetIdentikitPrompt = (locale: string = 'en'): string => {
     return `
     Analyze this image and generate a unique "Visual Identity Code" and a detailed physical description.
     
@@ -40,6 +43,9 @@ export const getPetIdentikitPrompt = (): string => {
     1. Visual Identity Code: Create a short, unique alphanumeric code (format: ABC-123) based on the pet's visual features (e.g. 'BLK-LAB' for Black Lab).
     2. Physical Description: A detailed description of the pet's appearance, including distinctive markings, color patterns, and estimated build.
     
+    **Language:**
+    Write the Physical Description in "${locale}".
+
     Output JSON.
     `;
 };
@@ -144,12 +150,14 @@ export const getChatSuggestionParts = (chatHistory: ChatMessage[], userRole: 'ow
     return { systemInstruction, userPrompt };
 };
 
-export const getAIHealthCheckParts = (pet: PetProfile, symptoms: string): { systemInstruction: string; userPrompt: string } => {
+export const getAIHealthCheckParts = (pet: PetProfile, symptoms: string, locale: string = 'en'): { systemInstruction: string; userPrompt: string } => {
     const systemInstruction = `You are an AI Veterinary Health Assistant. Your role is to provide a preliminary analysis of a pet's symptoms based on its health record. You MUST NOT provide a definitive diagnosis. Your response MUST begin with the following disclaimer, formatted exactly like this:
 
 "***Disclaimer: I am an AI assistant and not a veterinarian. This is a preliminary analysis and not a substitute for professional veterinary advice. Please consult a qualified veterinarian for an accurate diagnosis and treatment plan.***"
 
-After the disclaimer, provide a structured, helpful, and cautious response.`;
+(Provide the disclaimer in ${locale} if possible, or keep it in English but provide the rest of the response in ${locale}).
+
+After the disclaimer, provide a structured, helpful, and cautious response in ${locale}.`;
 
     const userPrompt = `
     **Pet's Profile:**
@@ -166,12 +174,15 @@ After the disclaimer, provide a structured, helpful, and cautious response.`;
     "${symptoms}"
 
     **Task:**
-    1.  Start your response with the mandatory disclaimer.
+    1.  Start your response with the mandatory disclaimer (localized to ${locale}).
     2.  Based on the pet's profile and the described symptoms, provide a potential analysis of what might be happening. Use cautious language (e.g., "could be related to," "it's possible that," "symptoms like these sometimes indicate").
     3.  Consider the pet's breed and medical history in your analysis.
     4.  Suggest general, safe, at-home care steps if applicable (e.g., "ensure the pet has access to fresh water," "monitor for changes").
     5.  List key signs or symptoms that would warrant an immediate vet visit (e.g., "difficulty breathing," "unresponsiveness").
     6.  Conclude by strongly reiterating the importance of consulting a veterinarian.
+    
+    **Language:**
+    Respond in "${locale}".
     `;
     return { systemInstruction, userPrompt };
 };

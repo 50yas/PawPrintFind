@@ -214,7 +214,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                             addSnackbar(t('loginToSaveSearchWarning'), 'error');
                                             return;
                                         }
-                                        const name = prompt(t('searchNamePrompt'), "My Search");
+                                        const name = prompt(t('searchNamePrompt'), t('defaultSearchName'));
                                         if (name) {
                                             await searchService.saveSearch(currentUser.email, name, {
                                                 breed: filterBreed,
@@ -250,7 +250,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                         <div className="flex flex-col gap-1">
             
-                            <label htmlFor="breed-filter" className="sr-only">Filter by breed</label>
+                            <label htmlFor="breed-filter" className="sr-only">{t('filterByBreedLabel')}</label>
             
                             <select 
             
@@ -279,7 +279,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                         <div className="flex flex-col gap-1">
             
-                            <label htmlFor="age-filter" className="sr-only">Filter by age</label>
+                            <label htmlFor="age-filter" className="sr-only">{t('filterByAgeLabel')}</label>
             
                             <select 
             

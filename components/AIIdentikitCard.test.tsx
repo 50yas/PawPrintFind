@@ -1,7 +1,19 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { AIIdentikitCard } from './AIIdentikitCard';
 import { PetProfile } from '../types';
+import React from 'react';
+
+// Mock translations
+vi.mock('../hooks/useTranslations', () => ({
+  useTranslations: () => ({
+    t: (key: string) => {
+        if (key === 'genderMale') return 'Male';
+        if (key === 'genderUnknown') return 'Unknown';
+        return key;
+    },
+  }),
+}));
 
 describe('AIIdentikitCard', () => {
   const mockPet: PetProfile = {
@@ -46,6 +58,19 @@ describe('AIIdentikitCard', () => {
 
   it('displays the futuristic header', () => {
     render(<AIIdentikitCard pet={mockPet} />);
-    expect(screen.getByText(/BIOMETRIC IDENTITY/i)).toBeInTheDocument();
+    expect(screen.getByText('biometricVerified')).toBeInTheDocument();
+  });
+
+  it('localizes the gender correctly', () => {
+    const malePet = { ...mockPet, gender: 'Male' };
+    const { rerender } = render(<AIIdentikitCard pet={malePet} />);
+    // Note: If using real translations, it will be 'Male' or 'Maschio' etc.
+    // If it's falling back to key or using English, it will be 'Male'.
+    expect(screen.getByText(/Male/i)).toBeInTheDocument();
+
+    const unknownPet = { ...mockPet, gender: undefined };
+    rerender(<AIIdentikitCard pet={unknownPet} />);
+    // Should show localized Unknown
+    expect(screen.getByText(/Unknown/i)).toBeInTheDocument();
   });
 });

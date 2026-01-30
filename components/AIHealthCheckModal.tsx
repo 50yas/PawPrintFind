@@ -15,7 +15,7 @@ interface AIHealthCheckModalProps {
 }
 
 export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onClose, onComplete, onBookAppointment }) => {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const { addSnackbar } = useSnackbar();
   const [symptoms, setSymptoms] = useState('');
   const [analysis, setAnalysis] = useState('');
@@ -27,7 +27,7 @@ export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onC
     setIsLoading(true);
     setAnalysis('');
     try {
-      const result = await performAIHealthCheck(pet, symptoms);
+      const result = await performAIHealthCheck(pet, symptoms, locale);
       setAnalysis(result);
       const newHealthCheck: HealthCheck = {
         timestamp: Date.now(),

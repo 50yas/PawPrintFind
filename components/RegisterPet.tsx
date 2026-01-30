@@ -98,7 +98,7 @@ const HomeAreaMap: React.FC<{ locations: Geolocation[], onAdd: (loc: Geolocation
 };
 
 export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashboard, currentUser, existingPet, mode }) => {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   
   const getSteps = () => {
     switch (mode) {
@@ -214,7 +214,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       
       if (photos.filter(p => p).length === 0) {
         setIsIdentifyingBreed(true);
-        identifyBreedFromImage(file).then(suggestedBreed => {
+        identifyBreedFromImage(file, locale).then(suggestedBreed => {
             if (suggestedBreed && !breed) {
                 setBreed(suggestedBreed);
             }
@@ -248,7 +248,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
               }
 
               // 2. Call AI
-              const details = await autoFillPetDetails(file);
+              const details = await autoFillPetDetails(file, locale);
               
               if (details.breed) setBreed(details.breed);
               if (details.age) setAge(details.age);
@@ -268,7 +268,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       const validPhotos = photos.filter((p): p is PhotoWithMarks => p !== undefined && p.file !== undefined);
       if (validPhotos.length === 0) return;
       setIsGeneratingIdentity(true);
-      const result = await generatePetIdentikit(validPhotos[0].file!);
+      const result = await generatePetIdentikit(validPhotos[0].file!, locale);
       setAiIdentityCode(result.code);
       setAiPhysicalDescription(result.description);
       setIsGeneratingIdentity(false);

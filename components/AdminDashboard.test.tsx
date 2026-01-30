@@ -139,7 +139,7 @@ describe('AdminDashboard Cyber HUD', () => {
         
         // Match regex because key "dashboard:admin.commandCore" doesn't match "dashboard:admin.commandCore_" (with appended underscore)
         expect(screen.getByText(/dashboard:admin.commandCore/)).toBeInTheDocument();
-        expect(screen.getByText('SYSTEM_ROOT_ACTIVE')).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.systemRootActive')).toBeInTheDocument();
     });
 
     it('renders system status bar elements', () => {
@@ -189,12 +189,12 @@ describe('AdminDashboard Cyber HUD', () => {
 
         fireEvent.click(screen.getByText('dashboard:admin.adminTabOverview'));
 
-        expect(screen.getByText('Content_Intelligence')).toBeInTheDocument();
+        expect(screen.getByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('Article One')).toBeInTheDocument();
-            expect(screen.getByText(/100 VIEWS/i)).toBeInTheDocument();
-            expect(screen.getByText(/Rank: ALPHA/i)).toBeInTheDocument();
+            expect(screen.getByText(/100 dashboard:admin.viewsLabel/i)).toBeInTheDocument();
+            expect(screen.getByText(/dashboard:admin.rankAlpha/i)).toBeInTheDocument();
         });
    });
 
