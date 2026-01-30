@@ -61,9 +61,24 @@ export const contentService = {
         }
     },
 
-    async getDonations(): Promise<Donation[]> {
+    async deleteDonation(id: string): Promise<void> {
         try {
-            const q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+            if (!auth.currentUser) throw new Error("Authentication required.");
+            await deleteDoc(doc(db, 'donations', id));
+        } catch (error) {
+            logger.error('Error deleting donation:', error);
+            throw error;
+        }
+    },
+
+    async getDonations(all: boolean = false): Promise<Donation[]> {
+        try {
+            let q;
+            if (all) {
+                q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
+            } else {
+                q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+            }
             const snap = await getDocs(q);
             return snap.docs.map(d => {
                 const data = { ...d.data(), id: d.id };
@@ -75,8 +90,13 @@ export const contentService = {
         }
     },
 
-    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void) {
-        const q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void, all: boolean = false) {
+        let q;
+        if (all) {
+            q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
+        } else {
+            q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+        }
         return onSnapshot(q, (s) => {
             const donations = s.docs.map(d => {
                 const data = { ...d.data(), id: d.id };

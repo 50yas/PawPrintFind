@@ -31,9 +31,10 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'verification' | 'logs' | 'optimization'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+    const [allDonations, setAllDonations] = useState<Donation[]>(donations);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showEditor, setShowEditor] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -45,6 +46,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [roleFilter, setRoleFilter] = useState<string>('all');
     const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unverified'>('all');
     const [petStatusFilter, setPetStatusFilter] = useState<'all' | 'lost' | 'forAdoption' | 'owned'>('all');
+
+    useEffect(() => {
+        const unsubDonations = dbService.subscribeToDonations(setAllDonations, undefined, true);
+        return () => unsubDonations();
+    }, []);
+
+    const handleDeleteDonation = async (id: string) => {
+        if (!confirm(t('dashboard:admin.confirmPurgeDonation'))) return;
+        setIsRefreshing(true);
+        try {
+            await dbService.deleteDonation(id);
+            await dbService.logAdminAction({
+                adminEmail: currentUser.email,
+                action: 'DELETE_DONATION',
+                targetId: id,
+                details: `Purged donation record: ${id}`
+            });
+            addSnackbar(t('dashboard:admin.donationPurged'), 'success');
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
+        setIsRefreshing(false);
+    };
 
     useEffect(() => {
         dbService.logAdminAction({
@@ -283,6 +305,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
                         { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
+                        { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
                         { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
                         { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
                         { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
@@ -689,6 +712,69 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'optimization' && (
                         <div className="animate-fade-in">
                             <SearchOptimizationDashboard />
+                        </div>
+                    )}
+
+                    {activeTab === 'donations' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <div className="flex justify-between items-center px-2">
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabDonations')}</h3>
+                                <div className="text-right">
+                                    <p className="text-[10px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalRevenue')}</p>
+                                    <p className="text-xl font-black text-primary">€{allDonations.reduce((acc, d) => acc + (d.numericValue || 0), 0).toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
+                                <div className="overflow-x-auto custom-scrollbar">
+                                    <table className="w-full text-left text-xs min-w-[800px]">
+                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                            <tr className="border-b border-white/10">
+                                                <th className="p-5">{t('dashboard:admin.donor')}</th>
+                                                <th className="p-5">{t('dashboard:admin.amount')}</th>
+                                                <th className="p-5">{t('dashboard:admin.status')}</th>
+                                                <th className="p-5">{t('dashboard:admin.date')}</th>
+                                                <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {allDonations.map(d => (
+                                                <tr key={d.id} className="hover:bg-white/5 transition-colors group">
+                                                    <td className="p-5">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                                                                {d.avatarUrl ? <img src={d.avatarUrl} alt="" className="w-full h-full object-cover" /> : d.donorName.charAt(0)}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-white">{d.donorName}</p>
+                                                                <p className="text-[9px] text-slate-500 font-mono">{d.email || t('dashboard:admin.anonymousDonor')}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-5 font-black text-primary">{d.amount}</td>
+                                                    <td className="p-5">
+                                                        <span className={`px-2 py-1 rounded text-[9px] font-black uppercase ${
+                                                            d.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-500'
+                                                        }`}>
+                                                            {t(`dashboard:admin.status_${d.status}`)}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-5 text-slate-500 font-mono text-[10px]">
+                                                        {new Date(d.timestamp).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="p-5 text-right">
+                                                        <button 
+                                                            onClick={() => handleDeleteDonation(d.id)}
+                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                        >
+                                                            {t('dashboard:admin.terminateButton')}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </GlassCard>
                         </div>
                     )}
 

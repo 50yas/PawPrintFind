@@ -298,12 +298,16 @@ export const dbService = {
         return contentService.recordDonation(donation);
     },
 
-    async getDonations(): Promise<Donation[]> {
-        return contentService.getDonations();
+    async getDonations(all: boolean = false): Promise<Donation[]> {
+        return contentService.getDonations(all);
     },
 
-    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void) {
-        return contentService.subscribeToDonations(callback, onError);
+    async deleteDonation(id: string): Promise<void> {
+        return contentService.deleteDonation(id);
+    },
+
+    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void, all: boolean = false) {
+        return contentService.subscribeToDonations(callback, onError, all);
     },
 
     // --- APPOINTMENTS (Delegated to vetService) ---
