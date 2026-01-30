@@ -27,6 +27,10 @@ vi.mock('../services/analyticsService', () => ({
   },
 }));
 
+vi.mock('../services/geminiService', () => ({
+    generateMatchExplanation: vi.fn().mockResolvedValue('Matches perfectly!'),
+}));
+
 vi.mock('../services/searchService', () => ({
     searchService: {
         rankPets: vi.fn((pets, filters) => {
@@ -41,6 +45,14 @@ vi.mock('../services/searchService', () => ({
         }),
         saveSearch: vi.fn().mockResolvedValue('search123'),
     },
+}));
+
+vi.mock('./FavoriteButton', () => ({
+    FavoriteButton: () => <div data-testid="favorite-button">Fav</div>,
+}));
+
+vi.mock('./ShareButton', () => ({
+    ShareButton: () => <div data-testid="share-button">Share</div>,
 }));
 
 vi.mock('../services/optimizationService', () => ({
@@ -228,6 +240,49 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             expect(screen.getByText('Buddy')).toBeInTheDocument();
             expect(screen.queryByText('Mittens')).toBeNull(); // Cat, Small
             expect(screen.queryByText('Max')).toBeNull(); // Dog, Large but wrong breed
+        });
+    });
+
+    it('should display AI match explanation when filters are active', async () => {
+        render(
+            <AdoptionCenter 
+              petsForAdoption={mockPets} 
+              onInquire={vi.fn()} 
+              goBack={vi.fn()} 
+              currentUser={null} 
+              isLoading={false} 
+            />
+        );
+
+        const sizeSelect = screen.getByLabelText('filterBySizeLabel');
+        fireEvent.change(sizeSelect, { target: { value: 'Small' } });
+
+        // Wait for Mittens to be the only one (proves filter worked)
+        await waitFor(() => {
+            expect(screen.getByText('Mittens')).toBeInTheDocument();
+            expect(screen.queryByText('Buddy')).toBeNull();
+        });
+
+        // Now wait for the explanation
+        await waitFor(() => {
+            expect(screen.getByText(/Matches perfectly!/i)).toBeInTheDocument();
+        }, { timeout: 3000 });
+    });
+
+    it('should display action buttons (Favorite & Share) on cards', async () => {
+        render(
+            <AdoptionCenter 
+              petsForAdoption={mockPets} 
+              onInquire={vi.fn()} 
+              goBack={vi.fn()} 
+              currentUser={null} 
+              isLoading={false} 
+            />
+        );
+
+        await waitFor(() => {
+            expect(screen.getAllByTestId('favorite-button').length).toBeGreaterThan(0);
+            expect(screen.getAllByTestId('share-button').length).toBeGreaterThan(0);
         });
     });
 });

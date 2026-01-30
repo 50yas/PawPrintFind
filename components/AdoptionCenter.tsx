@@ -8,6 +8,9 @@ import { SmartSearchBar } from './SmartSearchBar';
 import { analyticsService } from '../services/analyticsService';
 import { searchService, SearchFilters } from '../services/searchService';
 import { optimizationService } from '../services/optimizationService';
+import { generateMatchExplanation } from '../services/geminiService';
+import { FavoriteButton } from './FavoriteButton';
+import { ShareButton } from './ShareButton';
 
 const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
@@ -29,63 +32,52 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filterBreed, setFilterBreed] = useState(predefinedFilters?.breed || '');
   const [filterAge, setFilterAge] = useState(predefinedFilters?.age || '');
+  const [filterSize, setFilterSize] = useState(predefinedFilters?.size || '');
+  const [filterLocation, setFilterLocation] = useState(predefinedFilters?.location || '');
+  const [sortBy, setSortBy] = useState<'newest' | 'relevance' | 'distance'>('relevance');
   const [aiFilters, setAiFilters] = useState<any>(predefinedFilters || null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [rankedPets, setRankedPets] = useState<PetProfile[]>(petsForAdoption);
   const [isRanking, setIsRanking] = useState(false);
+  const [explanations, setExplanations] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const updateRanking = async () => {
         // Only show ranking skeleton if filters are actually applied
-        const hasFilters = filterBreed || filterAge || (aiFilters && Object.keys(aiFilters).length > 0);
+        const hasFilters = filterBreed || filterAge || filterSize || filterLocation || (aiFilters && Object.keys(aiFilters).length > 0);
         if (hasFilters) setIsRanking(true);
         
         const filters: SearchFilters = {
             breed: filterBreed,
             age: filterAge,
+            size: filterSize,
+            location: filterLocation,
+            sortBy,
             ...aiFilters
         };
         const results = await searchService.rankPets(petsForAdoption, filters);
         setRankedPets(results);
         setIsRanking(false);
-    };
-    updateRanking();
-  }, [petsForAdoption, filterBreed, filterAge, aiFilters]);
 
-  const filteredPets = useMemo(() => {
-    return petsForAdoption.filter(pet => {
-        // AI Filters
-        if (aiFilters) {
-            if (aiFilters.species && pet.type !== aiFilters.species.toLowerCase()) return false;
-            if (aiFilters.breed && !pet.breed.toLowerCase().includes(aiFilters.breed.toLowerCase())) return false;
-            if (aiFilters.color && !pet.color?.toLowerCase().includes(aiFilters.color.toLowerCase())) return false;
-            if (aiFilters.size && pet.size !== aiFilters.size) return false;
-            if (aiFilters.age && pet.age !== aiFilters.age) return false;
-            if (aiFilters.gender && pet.gender !== aiFilters.gender) return false;
-            
-            // Tag matching (loose)
-            if (aiFilters.tags && aiFilters.tags.length > 0) {
-                const petText = `${pet.behavior} ${pet.breed} ${pet.description}`.toLowerCase();
-                const matchesAnyTag = aiFilters.tags.some((tag: string) => petText.includes(tag.toLowerCase()));
-                if (!matchesAnyTag) return false;
-            }
-
-            // Fallback keyword search
-            if (aiFilters.keyword) {
-                const petText = `${pet.name} ${pet.breed} ${pet.behavior} ${pet.description}`.toLowerCase();
-                if (!petText.includes(aiFilters.keyword.toLowerCase())) return false;
+        // Generate match explanation for the top match if filters are active
+        if (hasFilters && results.length > 0) {
+            const topPet = results[0];
+            if (!explanations[topPet.id]) {
+                try {
+                    const explanation = await generateMatchExplanation(topPet, filters);
+                    setExplanations(prev => ({ ...prev, [topPet.id]: explanation }));
+                } catch (e) {
+                    console.error("Failed to generate match explanation:", e);
+                }
             }
         }
-
-        // Standard Filters
-        if (filterBreed && !pet.breed.toLowerCase().includes(filterBreed.toLowerCase())) return false;
-        if (filterAge && !pet.age.includes(filterAge)) return false;
-        return true;
-    });
-  }, [petsForAdoption, filterBreed, filterAge, aiFilters]);
+    };
+    updateRanking();
+  }, [petsForAdoption, filterBreed, filterAge, filterSize, filterLocation, sortBy, aiFilters]);
 
   const uniqueBreeds = useMemo(() => [...new Set(petsForAdoption.map(p => p.breed))], [petsForAdoption]);
   const uniqueAges = useMemo(() => [...new Set(petsForAdoption.map(p => p.age))], [petsForAdoption]);
+  const uniqueSizes = useMemo(() => [...new Set(petsForAdoption.map(p => p.size).filter(Boolean))], [petsForAdoption]);
 
   const handleInquire = (pet: PetProfile) => {
     if (!currentUser) {
@@ -108,13 +100,18 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
   const AdoptionCard: React.FC<{ pet: PetProfile; mode?: ViewMode }> = ({ pet, mode = 'grid' }) => (
         <GlassCard 
             variant="interactive" 
-            className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl`}
+            className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl relative`}
             onClick={() => handlePetView(pet)}
         >
             <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
                 <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                    <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
+                </div>
+                {/* Action Overlays */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    <FavoriteButton petId={pet.id} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
+                    <ShareButton pet={pet} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
                 </div>
             </div>
                     <div className="p-6 flex flex-col flex-grow">
@@ -125,6 +122,14 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                             </div>                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md">{pet.age}</span>
                 </div>
                 
+                {/* Match Explanation */}
+                {explanations[pet.id] && (
+                    <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20 animate-pulse-slow">
+                        <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1">{t('aiMatchReason')}</p>
+                        <p className="text-xs text-slate-100 italic">"{explanations[pet.id]}"</p>
+                    </div>
+                )}
+
                 <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
                 
                 <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
@@ -234,6 +239,8 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                         setAiFilters(null);
                                         setFilterBreed('');
                                         setFilterAge('');
+                                        setFilterSize('');
+                                        setFilterLocation('');
                                     }} 
                                     className="text-xs text-slate-400 hover:text-white uppercase tracking-[0.2em] font-black flex items-center gap-2 transition-colors"
                                 >
@@ -303,6 +310,48 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                             </select>
             
                         </div>
+
+                        <div className="flex flex-col gap-1">
+                            <label htmlFor="size-filter" className="sr-only">{t('filterBySizeLabel')}</label>
+                            <select 
+                                id="size-filter"
+                                value={filterSize} 
+                                onChange={(e) => {
+                                    setFilterSize(e.target.value);
+                                    analyticsService.logEvent('smart_search_performed', { size: e.target.value, filter_type: 'standard' });
+                                }}
+                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            >
+                                <option value="">{t('dashboard:adoption.allSizes')}</option>
+                                {uniqueSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                             <label htmlFor="location-filter" className="sr-only">{t('filterByLocationLabel')}</label>
+                             <input 
+                                type="text"
+                                id="location-filter"
+                                placeholder={t('filterByLocationPlaceholder')}
+                                value={filterLocation}
+                                onChange={(e) => setFilterLocation(e.target.value)}
+                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                             />
+                        </div>
+
+                         <div className="flex flex-col gap-1">
+                            <label htmlFor="sort-by" className="sr-only">{t('sortByLabel')}</label>
+                            <select 
+                                id="sort-by"
+                                value={sortBy} 
+                                onChange={(e) => setSortBy(e.target.value as any)}
+                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            >
+                                <option value="relevance">{t('dashboard:adoption.sortRelevance')}</option>
+                                <option value="newest">{t('dashboard:adoption.sortNewest')}</option>
+                                <option value="distance">{t('dashboard:adoption.sortDistance')}</option>
+                            </select>
+                        </div>
             
                         
             
@@ -316,13 +365,13 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
         
         {/* Content */}
         {isLoading || isRanking ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div data-testid="loading-state" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3, 4, 5, 6].map(i => <CardSkeleton key={i} />)}
             </div>
         ) : rankedPets.length > 0 ? (
             <>
                 {viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
+                    <div data-testid="pets-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
                         {rankedPets.map(pet => (
                             <AdoptionCard key={pet.id} pet={pet} />
                         ))}

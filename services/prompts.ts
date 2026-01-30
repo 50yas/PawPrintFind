@@ -287,31 +287,29 @@ export const getHealthInsightsPrompt = (pet: PetProfile): string => {
     `;
 };
 
-export const getSuccessStoryPrompt = (pet: PetProfile): { systemInstruction: string; userPrompt: string } => {
-    const systemInstruction = `You are a storyteller for "Paw Print". You write heartwarming success stories about lost pets being reunited with their owners. Your tone is joyful, celebratory, and emphasizes community spirit.`;
+export const getMatchExplanationPrompt = (pet: PetProfile, filters: any): string => {
+    return `
+    **User Preferences:**
+    ${JSON.stringify(filters)}
 
-    const userPrompt = `
     **Pet Profile:**
     - Name: ${pet.name}
     - Breed: ${pet.breed}
     - Age: ${pet.age}
-    
-    **Event:**
-    This pet has been successfully reunited with its owner!
+    - Size: ${pet.size}
+    - Behavior: ${pet.behavior}
+    - Description: ${pet.description}
+    - AI Physical Description: ${pet.aiPhysicalDescription}
 
     **Task:**
-    Write a heartwarming "Success Story" blog post about this reunion.
-    
-    **Requirements:**
-    1.  **Title:** Emotional and catchy (e.g., "Welcome Home, ${pet.name}!").
-    2.  **Summary:** A brief, 1-2 sentence teaser.
-    3.  **Content:** A short story (approx 200 words) celebrating the reunion. Mention the power of the Paw Print community and AI technology in bringing them home. Use HTML tags (<p>, <strong>).
-    4.  **SEO Title:** Title for search engines.
-    5.  **SEO Description:** Meta description.
-    6.  **Tags:** ["Success Story", "Reunion", "${pet.breed}", "Paw Print Community"].
-    
-    Return the result in JSON format ONLY with the BlogPost schema.
+    Explain why this pet is a good match for the user based on their preferences. 
+    Highlight matching traits (e.g., "Buddy matches your preference for a Large dog...").
+    If there are mismatches, mention them gently as "things to consider".
+    Keep it short (max 2 sentences), encouraging, and personalized.
+
+    **Output:**
+    Return ONLY the explanation text.
     `;
-    return { systemInstruction, userPrompt };
 };
+
 

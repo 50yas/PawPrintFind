@@ -19,6 +19,10 @@ vi.mock('./FavoriteButton', () => ({
     FavoriteButton: () => <button data-testid="favorite-btn">Fav</button>
 }));
 
+vi.mock('./ShareButton', () => ({
+    ShareButton: () => <button data-testid="share-btn">Share</button>
+}));
+
 describe('AIIdentikitCard', () => {
   const mockPet: PetProfile = {
     id: '123',
