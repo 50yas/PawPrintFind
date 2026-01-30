@@ -78,6 +78,7 @@ vi.mock('./BlogPostEditor', () => ({ BlogPostEditor: () => <div>BlogPostEditor</
 vi.mock('./AddPatientModal', () => ({ AddPatientModal: () => <div>AddPatientModal</div> }));
 vi.mock('./AddClinicModal', () => ({ AddClinicModal: () => <div>AddClinicModal</div> }));
 vi.mock('./AddVetModal', () => ({ AddVetModal: () => <div>AddVetModal</div> }));
+vi.mock('./SystemHealth', () => ({ SystemHealth: () => <div data-testid="system-health-chart">SystemHealth Chart</div> }));
 vi.mock('../src/utils/adminUtils', () => ({
     calculateGrowth: vi.fn().mockReturnValue({ total: 10, newLastWeek: 2, velocity: 0.3 }),
 }));
@@ -133,6 +134,22 @@ describe('AdminDashboard Cyber HUD', () => {
         onRefresh: vi.fn()
     };
 
+    it('uses a sidebar layout for navigation on desktop', () => {
+        render(<AdminDashboard {...mockProps} />);
+        const layout = screen.getByTestId('admin-layout');
+        expect(layout).toHaveClass('md:flex-row'); // Sidebar layout
+        
+        const sidebar = screen.getByTestId('admin-sidebar');
+        expect(sidebar).toBeInTheDocument();
+        expect(sidebar.className).toContain('w-64');
+        expect(sidebar.className).toContain('md:flex');
+    });
+
+    it('renders visual stats charts via SystemHealth', async () => {
+        render(<AdminDashboard {...mockProps} />);
+        expect(await screen.findByTestId('system-health-chart')).toBeInTheDocument();
+    });
+
     it('renders the Command Core header', () => {
         render(
             <AdminDashboard {...mockProps} />
@@ -150,7 +167,6 @@ describe('AdminDashboard Cyber HUD', () => {
 
         expect(screen.getAllByText('statTotalUsers').length).toBeGreaterThan(0);
         expect(screen.getByText('dashboard:admin.uptime')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.loadFactor')).toBeInTheDocument();
     });
 
     it('renders navigation tabs with icons', () => {

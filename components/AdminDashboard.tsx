@@ -87,6 +87,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         return users.filter(u => ((u.roles || []).includes('vet') || (u.roles || []).includes('shelter')) && !u.isVerified && u.verificationData);
     }, [users]);
 
+    const tabs = useMemo(() => [
+        { id: 'overview', label: t('dashboard:admin.adminTabOverview'), icon: '📊' },
+        { id: 'users', label: t('dashboard:admin.adminTabUsers'), icon: '👥' },
+        { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
+        { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
+        { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
+        { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
+        { id: 'i18n', label: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
+        { id: 'social', label: t('dashboard:admin.adminTabSocial'), icon: '📡' },
+        { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
+        { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
+        { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
+    ], [t, pendingVerifications.length]);
+
     const filteredUsers = useMemo(() => {
         return users.filter(u => {
             const matchesSearch = 
@@ -152,31 +166,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         setIsRefreshing(false);
     };
 
-    const toggleUserRole = async (user: User, newRole: string) => {
-        setIsRefreshing(true);
-        try {
-            const updatedRoles = [...(user.roles || [])];
-            if (!updatedRoles.includes(newRole as any)) updatedRoles.push(newRole as any);
-            
-            await dbService.saveUser({ 
-                ...user, 
-                activeRole: newRole as any,
-                roles: updatedRoles as any
-            });
-
-            await dbService.logAdminAction({
-                adminEmail: currentUser.email,
-                action: 'UPDATE_USER_ROLE',
-                targetId: user.uid,
-                details: `Changed role for ${user.email} to ${newRole}`
-            });
-
-            addSnackbar(t('dashboard:admin.clearanceUpdated'), 'success');
-            await onRefresh();
-        } catch (e: any) { addSnackbar(e.message, 'error'); }
-        setIsRefreshing(false);
-    };
-
     const deleteClinic = async (id: string) => {
         if (!confirm(t('dashboard:admin.confirmDismantleClinic'))) return;
         setIsRefreshing(true);
@@ -232,34 +221,88 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         setIsRefreshing(false);
     }
 
+    const SidebarItem = ({ tab }: { tab: any }) => (
+        <button
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`w-full px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 rounded-xl border ${activeTab === tab.id
+                ? 'bg-primary/10 text-white border-primary shadow-[0_0_15px_rgba(20,184,166,0.2)]'
+                : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-white/5'
+                }`}
+        >
+            <span className="text-base">{tab.icon}</span>
+            <span className="flex-1 text-left">{tab.label}</span>
+            {tab.count !== undefined && tab.count > 0 && (
+                <span className="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[8px] animate-pulse">{tab.count}</span>
+            )}
+        </button>
+    );
+
     return (
-        <div className="min-h-screen bg-slate-950 pb-32 text-foreground transition-colors duration-500 relative">
-            {/* Cyber HUD Background Effects */}
+        <div data-testid="admin-layout" className="min-h-screen bg-slate-950 text-foreground transition-colors duration-500 relative flex flex-col md:flex-row overflow-hidden">
+            {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-primary/10">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(20,184,166,0.05),transparent_70%)]"></div>
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-scanline"></div>
             </div>
 
-            {/* HUD HEADER */}
-            <div className="sticky top-0 z-[100] w-full px-4 md:px-6 py-4">
-                <GlassCard className="flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-3 border-primary/30 shadow-[0_0_30px_rgba(20,184,166,0.2)] bg-black/60 backdrop-blur-2xl">
-                    <div className="flex items-center gap-6 w-full md:w-auto">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse group-hover:bg-primary/40 transition-all"></div>
-                            <div className="relative bg-slate-900 border border-primary/50 text-primary text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(20,184,166,0.3)]">
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping mr-2"></span>
-                                {t('dashboard:admin.systemRootActive')}
-                            </div>
-                        </div>
-                        <div className="h-8 w-px bg-white/10 hidden md:block"></div>
-                        <h1 className="text-2xl font-black tracking-tighter uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-                            {t('dashboard:admin.commandCore').split('_')[0]}_<span className="text-primary">{t('dashboard:admin.commandCore').split('_')[1]}</span>
-                        </h1>
+            {/* SIDEBAR (Desktop) */}
+            <aside data-testid="admin-sidebar" className="hidden md:flex flex-col w-64 bg-slate-900/50 backdrop-blur-xl border-r border-white/10 h-screen sticky top-0 z-50">
+                <div className="p-6 border-b border-white/10 flex flex-col gap-2">
+                    <h1 className="text-xl font-black tracking-tighter uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] leading-none">
+                        {t('dashboard:admin.commandCore').split('_')[0]}_<span className="text-primary">{t('dashboard:admin.commandCore').split('_')[1]}</span>
+                    </h1>
+                    <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">{t('dashboard:admin.systemRootActive')}</span>
                     </div>
+                </div>
+
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+                    {tabs.map(tab => <SidebarItem key={tab.id} tab={tab} />)}
+                </nav>
+
+                <div className="p-4 border-t border-white/10 space-y-3 bg-black/20">
+                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                        <span>{t('statTotalUsers')}</span>
+                        <span className="text-white">{users.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                        <span>{t('dashboard:admin.uptime')}</span>
+                        <span className="text-white">99.99%</span>
+                    </div>
+                    <GlassButton onClick={handleRefresh} variant="secondary" className="w-full !py-2 !text-[9px]">
+                        {isRefreshing ? <LoadingSpinner /> : t('dashboard:admin.syncNode')}
+                    </GlassButton>
+                    <GlassButton onClick={onLogout} variant="danger" className="w-full !py-2 !text-[9px]">
+                        {t('dashboard:admin.exitSession')}
+                    </GlassButton>
+                </div>
+            </aside>
+
+            {/* MAIN CONTENT */}
+            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10">
+                
+                {/* Mobile Header */}
+                <div className="md:hidden sticky top-0 z-[100] w-full px-4 py-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-lg font-black tracking-tighter uppercase text-white">
+                            CMD_<span className="text-primary">CORE</span>
+                        </h1>
+                        {pendingVerifications.length > 0 && (
+                            <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse">{pendingVerifications.length}</span>
+                        )}
+                    </div>
+                    <button onClick={onLogout} className="text-slate-400 hover:text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </div>
+
+                {/* Content Scroll Area */}
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                     
                     {/* Persistent Alert Feed */}
                     {pendingVerifications.length > 0 && (
-                        <div className="hidden xl:flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
+                        <div className="mb-6 flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
                             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{t('dashboard:admin.urgentProtocol')}:</span>
                             <span className="text-[10px] font-bold text-white uppercase">{pendingVerifications.length} {t('dashboard:admin.pendingVerificationsTitle')}</span>
                             <button 
@@ -270,367 +313,321 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             </button>
                         </div>
                     )}
-                    
-                    {/* System Status Bar - Mini HUD */}
-                    <div className="hidden lg:flex items-center gap-8 px-8 py-1 rounded-2xl bg-white/5 border border-white/5">
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t('dashboard:admin.loadFactor')}</span>
-                            <div className="flex gap-0.5 mt-1">
-                                {[1,2,3,4,5,6].map(i => <div key={i} className={`w-1.5 h-3 rounded-sm ${i < 5 ? 'bg-primary shadow-[0_0_5px_#14b8a6]' : 'bg-white/10'}`}></div>)}
-                            </div>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t('statTotalUsers')}</span>
-                            <span className="text-xs font-mono text-white font-bold">{users.length}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{t('dashboard:admin.uptime')}</span>
-                            <span className="text-xs font-mono text-white font-bold tracking-tighter">99.998%</span>
-                        </div>
+
+                    {/* Mobile Horizontal Tabs */}
+                    <div className="md:hidden flex gap-3 pb-4 overflow-x-auto scrollbar-hide mb-4">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={`px-4 py-2 text-[9px] font-black uppercase tracking-wider whitespace-nowrap rounded-lg border ${activeTab === tab.id
+                                    ? 'bg-primary/10 text-white border-primary'
+                                    : 'bg-white/5 border-white/10 text-slate-500'
+                                    }`}
+                            >
+                                {tab.icon} {tab.label}
+                            </button>
+                        ))}
                     </div>
 
-                    <div className="flex gap-3 w-full md:w-auto justify-center">
-                        <GlassButton onClick={handleRefresh} variant="primary" className="flex-1 md:flex-none !py-2 !px-5 text-[10px] shadow-[0_0_15px_rgba(20,184,166,0.2)]">
-                            {isRefreshing ? <LoadingSpinner /> : t('dashboard:admin.syncNode')}
-                        </GlassButton>
-                        <GlassButton onClick={onLogout} variant="danger" className="flex-1 md:flex-none !py-2 !px-5 text-[10px]">{t('dashboard:admin.exitSession')}</GlassButton>
-                    </div>
-                </GlassCard>
-            </div>
+                    {activeTab === 'overview' && (
+                        <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
+                            <React.Suspense fallback={<LoadingSpinner />}>
+                                <SystemHealth />
+                            </React.Suspense>
 
-            <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 relative z-10">
-                {/* CYBER TABS */}
-                <div className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide">
-                    {[
-                        { id: 'overview', label: t('dashboard:admin.adminTabOverview'), icon: '📊' },
-                        { id: 'users', label: t('dashboard:admin.adminTabUsers'), icon: '👥' },
-                        { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
-                        { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
-                        { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
-                        { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
-                        { id: 'i18n', label: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
-                        { id: 'social', label: t('dashboard:admin.adminTabSocial'), icon: '📡' },
-                        { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
-                        { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
-                        { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`px-6 py-3 text-[10px] font-black uppercase tracking-[0.25em] transition-all flex items-center gap-3 rounded-2xl border-2 whitespace-nowrap relative overflow-hidden group ${activeTab === tab.id
-                                ? 'bg-primary/10 text-white border-primary shadow-[0_0_25px_rgba(20,184,166,0.3)] scale-105'
-                                : 'bg-white/5 border-white/10 text-slate-500 hover:text-white hover:border-white/20'
-                                }`}
-                        >
-                            {activeTab === tab.id && <div className="absolute inset-0 bg-primary/10 animate-pulse pointer-events-none"></div>}
-                            <span className="relative z-10">{tab.icon}</span>
-                            <span className="relative z-10">{tab.label}</span>
-                            {tab.count !== undefined && tab.count > 0 && (
-                                <span className="relative z-10 bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]">{tab.count}</span>
-                            )}
-                        </button>
-                    ))}
-                </div>
-
-                {activeTab === 'overview' && (
-                    <div className="space-y-8 animate-fade-in">
-                        <React.Suspense fallback={<LoadingSpinner />}>
-                            <SystemHealth />
-                        </React.Suspense>
-
-                        {/* Trending Blog Intelligence */}
-                        <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                                <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                                    <span className="text-xl">📈</span>
-                                    {t('dashboard:admin.contentIntelligence')}
-                                </h4>
-                                <div className="flex gap-4 items-center">
-                                    <div className="flex flex-col items-end">
-                                        <span className="text-[8px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalEngagement')}</span>
-                                        <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} {t('dashboard:admin.viewsLabel')}</span>
-                                    </div>
-                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t('dashboard:admin.trendingArticles')}</span>
-                                </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {blogPosts.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0,3).map((post, i) => (
-                                    <div key={post.id} className="relative group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
-                                        <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i+1}</div>
-                                        <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
-                                        <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
-                                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                            <span className="text-[10px] font-black text-primary">{post.views || 0} {t('dashboard:admin.viewsLabel')}</span>
-                                            <span className="text-[8px] font-mono text-slate-600 uppercase">
-                                                {i === 0 ? t('dashboard:admin.rankAlpha') : i === 1 ? t('dashboard:admin.rankBeta') : t('dashboard:admin.rankGamma')}
-                                            </span>
+                            {/* Trending Blog Intelligence */}
+                            <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                                    <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
+                                        <span className="text-xl">📈</span>
+                                        {t('dashboard:admin.contentIntelligence')}
+                                    </h4>
+                                    <div className="flex gap-4 items-center">
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[8px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalEngagement')}</span>
+                                            <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} {t('dashboard:admin.viewsLabel')}</span>
                                         </div>
                                     </div>
-                                ))}
-                                {blogPosts.length === 0 && (
-                                    <div className="col-span-3 text-center py-10 text-slate-600 font-mono text-xs uppercase tracking-[0.3em]">{t('dashboard:admin.noEngagementData')}</div>
-                                )}
-                            </div>
-                        </GlassCard>
-                    </div>
-                )}
-
-                {/* Data Tables Wrapper */}
-                <div className="animate-fade-in">
-                    {activeTab === 'users' && (
-                        <div className="space-y-6 animate-fade-in">
-                            <UserManagementTable />
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {blogPosts.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0,3).map((post, i) => (
+                                        <div key={post.id} className="relative group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
+                                            <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i+1}</div>
+                                            <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
+                                            <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                                <span className="text-[10px] font-black text-primary">{post.views || 0} {t('dashboard:admin.viewsLabel')}</span>
+                                                <span className="text-[8px] font-mono text-slate-600 uppercase">
+                                                    {i === 0 ? t('dashboard:admin.rankAlpha') : i === 1 ? t('dashboard:admin.rankBeta') : t('dashboard:admin.rankGamma')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {blogPosts.length === 0 && (
+                                        <div className="col-span-3 text-center py-10 text-slate-600 font-mono text-xs uppercase tracking-[0.3em]">{t('dashboard:admin.noEngagementData')}</div>
+                                    )}
+                                </div>
+                            </GlassCard>
                         </div>
                     )}
 
-                    {activeTab === 'clinics' && (
-                        <div className="space-y-8 animate-fade-in">
-                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabClinics')}</h3>
-                                <div className="flex flex-wrap items-center justify-center gap-3 w-full xl:w-auto">
-                                    <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20 flex-grow md:flex-grow-0">
-                                        + {t('dashboard:admin.newVetButton')}
-                                    </GlassButton>
-                                    <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px] flex-grow md:flex-grow-0">
-                                        + {t('dashboard:admin.newClinicButton')}
-                                    </GlassButton>
-                                </div>
+                    {/* Data Tables Wrapper */}
+                    <div className="animate-fade-in max-w-6xl mx-auto">
+                        {activeTab === 'users' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <UserManagementTable />
                             </div>
+                        )}
 
-                            {/* CLINICS TABLE */}
-                            <div className="space-y-4">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('dashboard:admin.authorizedFacilities')}</p>
-                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
-                                    <div className="overflow-x-auto custom-scrollbar">
-                                        <table className="w-full text-left text-xs min-w-[800px]">
-                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                                <tr className="border-b border-white/10">
-                                                    <th className="p-5">{t('dashboard:admin.clinicNameLabel')}</th>
-                                                    <th className="p-5">{t('dashboard:admin.contactTitle')}</th>
-                                                    <th className="p-5">{t('dashboard:admin.addressLabel')}</th>
-                                                    <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-white/5">
-                                                {vetClinics.map(c => (
-                                                    <tr key={c.id} className="hover:bg-white/5 transition-colors group">
-                                                        <td className="p-5">
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center font-black text-emerald-500 border border-emerald-500/20 group-hover:border-emerald-500/50 transition-colors shadow-lg">
-                                                                    🏥
-                                                                </div>
-                                                                <div>
-                                                                    <p className="font-bold text-white text-sm">{c.name}</p>
-                                                                    <div className="flex items-center gap-2 mt-1">
-                                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                                        <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-tighter">{t('dashboard:admin.verifiedStatus')}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="p-5">
-                                                            <div className="flex flex-col gap-1">
-                                                                <div className="flex items-center gap-2 text-slate-400">
-                                                                    <span className="text-[10px]">📧</span>
-                                                                    <span className="text-[10px] font-mono">{c.vetEmail}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-2 text-slate-400">
-                                                                    <span className="text-[10px]">📞</span>
-                                                                    <span className="text-[10px] font-mono">{c.phone}</span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="p-5 font-mono text-slate-500 text-[10px]">{c.address}</td>
-                                                        <td className="p-5 text-right">
-                                                            <button 
-                                                                onClick={() => deleteClinic(c.id!)} 
-                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                            >
-                                                                {t('dashboard:admin.dismantleButton')}
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                                {vetClinics.length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={4} className="text-center py-10">
-                                                            <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.3em] opacity-50">{t('dashboard:admin.noVetsFound')}</p>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
+                        {activeTab === 'clinics' && (
+                            <div className="space-y-8 animate-fade-in">
+                                <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabClinics')}</h3>
+                                    <div className="flex flex-wrap items-center justify-center gap-3 w-full xl:w-auto">
+                                        <GlassButton onClick={() => setShowAddVet(true)} variant="secondary" className="!py-2 !px-4 text-[10px] border-primary/20 flex-grow md:flex-grow-0">
+                                            + {t('dashboard:admin.newVetButton')}
+                                        </GlassButton>
+                                        <GlassButton onClick={() => setShowAddClinic(true)} variant="primary" className="!py-2 !px-4 text-[10px] flex-grow md:flex-grow-0">
+                                            + {t('dashboard:admin.newClinicButton')}
+                                        </GlassButton>
                                     </div>
-                                </GlassCard>
-                            </div>
+                                </div>
 
-                            {/* VETS PENDING INFRASTRUCTURE */}
-                            <div className="space-y-4">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('dashboard:admin.pendingInfrastructure')}</p>
-                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
-                                    <div className="overflow-x-auto custom-scrollbar">
-                                        <table className="w-full text-left text-xs min-w-[800px]">
-                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                                <tr className="border-b border-white/10">
-                                                    <th className="p-5">{t('dashboard:admin.tableRole')}</th>
-                                                    <th className="p-5">{t('dashboard:admin.status')}</th>
-                                                    <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-white/5">
-                                                {users.filter(u => (u.roles || []).includes('vet')).map(v => {
-                                                    const hasClinic = vetClinics.some(c => c.vetEmail === v.email);
-                                                    return (
-                                                        <tr key={v.uid} className="hover:bg-white/5 transition-colors group">
+                                {/* CLINICS TABLE */}
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('dashboard:admin.authorizedFacilities')}</p>
+                                    <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
+                                        <div className="overflow-x-auto custom-scrollbar">
+                                            <table className="w-full text-left text-xs min-w-[800px]">
+                                                <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                    <tr className="border-b border-white/10">
+                                                        <th className="p-5">{t('dashboard:admin.clinicNameLabel')}</th>
+                                                        <th className="p-5">{t('dashboard:admin.contactTitle')}</th>
+                                                        <th className="p-5">{t('dashboard:admin.addressLabel')}</th>
+                                                        <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-white/5">
+                                                    {vetClinics.map(c => (
+                                                        <tr key={c.id} className="hover:bg-white/5 transition-colors group">
                                                             <td className="p-5">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
-                                                                        {v.email.charAt(0).toUpperCase()}
+                                                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center font-black text-emerald-500 border border-emerald-500/20 group-hover:border-emerald-500/50 transition-colors shadow-lg">
+                                                                        🏥
                                                                     </div>
                                                                     <div>
-                                                                        <p className="font-bold text-white text-sm">{v.email}</p>
-                                                                        <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{v.uid}</p>
+                                                                        <p className="font-bold text-white text-sm">{c.name}</p>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                                            <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-tighter">{t('dashboard:admin.verifiedStatus')}</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td className="p-5">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${v.isVerified ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30'}`}>
-                                                                        {v.isVerified ? t('dashboard:admin.verifiedPro') : t('dashboard:admin.pendingVerification')}
-                                                                    </span>
-                                                                    {hasClinic ? (
-                                                                        <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">{t('dashboard:admin.linkedStatus')}</span>
-                                                                    ) : (
-                                                                        <span className="text-[8px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 uppercase font-bold">{t('dashboard:admin.unlinkedStatus')}</span>
-                                                                    )}
+                                                                <div className="flex flex-col gap-1">
+                                                                    <div className="flex items-center gap-2 text-slate-400">
+                                                                        <span className="text-[10px]">📧</span>
+                                                                        <span className="text-[10px] font-mono">{c.vetEmail}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 text-slate-400">
+                                                                        <span className="text-[10px]">📞</span>
+                                                                        <span className="text-[10px] font-mono">{c.phone}</span>
+                                                                    </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="p-5 text-right space-x-2">
-                                                                {!hasClinic && (
-                                                                    <button 
-                                                                        onClick={() => { setShowAddClinic(true); /* Ideally pre-fill email */ }}
-                                                                        className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                                    >
-                                                                        {t('dashboard:admin.createClinicAction')}
-                                                                    </button>
-                                                                )}
-                                                                {!v.isVerified && v.verificationData && (
-                                                                    <button 
-                                                                        onClick={() => setActiveTab('verification')}
-                                                                        className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                                    >
-                                                                        {t('dashboard:admin.verifyNowAction')}
-                                                                    </button>
-                                                                )}
+                                                            <td className="p-5 font-mono text-slate-500 text-[10px]">{c.address}</td>
+                                                            <td className="p-5 text-right">
+                                                                <button 
+                                                                    onClick={() => deleteClinic(c.id!)} 
+                                                                    className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                                >
+                                                                    {t('dashboard:admin.dismantleButton')}
+                                                                </button>
                                                             </td>
                                                         </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </GlassCard>
-                            </div>
-                        </div>
-                    )}
+                                                    ))}
+                                                    {vetClinics.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan={4} className="text-center py-10">
+                                                                <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.3em] opacity-50">{t('dashboard:admin.noVetsFound')}</p>
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </GlassCard>
+                                </div>
 
-                    {activeTab === 'pets' && (
-                        <div className="space-y-6 animate-fade-in">
-                            <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabPets')}</h3>
-                                <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
-                                    <select 
-                                        value={petStatusFilter}
-                                        onChange={(e) => setPetStatusFilter(e.target.value as any)}
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
-                                    >
-                                        <option value="all">{t('dashboard:admin.allStatus')}</option>
-                                        <option value="lost">{t('dashboard:admin.statusLost')}</option>
-                                        <option value="forAdoption">{t('dashboard:admin.statusAdoption')}</option>
-                                        <option value="owned">{t('dashboard:admin.statusOwned')}</option>
-                                    </select>
-                                    <div className="relative flex-grow md:w-64 min-w-[200px]">
-                                        <input 
-                                            value={petSearch}
-                                            onChange={e => setPetSearch(e.target.value)}
-                                            placeholder={t('dashboard:admin.searchPetPlaceholder')}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
-                                        />
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
-                                    </div>
+                                {/* VETS PENDING INFRASTRUCTURE */}
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-2">{t('dashboard:admin.pendingInfrastructure')}</p>
+                                    <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
+                                        <div className="overflow-x-auto custom-scrollbar">
+                                            <table className="w-full text-left text-xs min-w-[800px]">
+                                                <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                    <tr className="border-b border-white/10">
+                                                        <th className="p-5">{t('dashboard:admin.tableRole')}</th>
+                                                        <th className="p-5">{t('dashboard:admin.status')}</th>
+                                                        <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-white/5">
+                                                    {users.filter(u => (u.roles || []).includes('vet')).map(v => {
+                                                        const hasClinic = vetClinics.some(c => c.vetEmail === v.email);
+                                                        return (
+                                                            <tr key={v.uid} className="hover:bg-white/5 transition-colors group">
+                                                                <td className="p-5">
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-primary border border-white/10 group-hover:border-primary/50 transition-colors shadow-lg">
+                                                                            {v.email.charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="font-bold text-white text-sm">{v.email}</p>
+                                                                            <p className="text-[9px] font-mono text-slate-500 tracking-tighter">{v.uid}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="p-5">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase ${v.isVerified ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30'}`}>
+                                                                            {v.isVerified ? t('dashboard:admin.verifiedPro') : t('dashboard:admin.pendingVerification')}
+                                                                        </span>
+                                                                        {hasClinic ? (
+                                                                            <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 uppercase font-bold">{t('dashboard:admin.linkedStatus')}</span>
+                                                                        ) : (
+                                                                            <span className="text-[8px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 uppercase font-bold">{t('dashboard:admin.unlinkedStatus')}</span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="p-5 text-right space-x-2">
+                                                                    {!hasClinic && (
+                                                                        <button 
+                                                                            onClick={() => { setShowAddClinic(true); /* Ideally pre-fill email */ }}
+                                                                            className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                        >
+                                                                            {t('dashboard:admin.createClinicAction')}
+                                                                        </button>
+                                                                    )}
+                                                                    {!v.isVerified && v.verificationData && (
+                                                                        <button 
+                                                                            onClick={() => setActiveTab('verification')}
+                                                                            className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                        >
+                                                                            {t('dashboard:admin.verifyNowAction')}
+                                                                        </button>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </GlassCard>
                                 </div>
                             </div>
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
-                                <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[800px]">
-                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                            <tr className="border-b border-white/10">
-                                                <th className="p-5">{t('dashboard:admin.petNameLabel')}</th>
-                                                <th className="p-5">{t('dashboard:admin.status')}</th>
-                                                <th className="p-5">{t('dashboard:admin.location')}</th>
-                                                <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {filteredPets.map(p => (
-                                            <tr key={p.id} className="hover:bg-white/5 transition-colors group">
-                                                <td className="p-5">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
-                                                            {p.photos[0]?.url ? (
-                                                                <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-xl font-black">?</div>
-                                                            )}
+                        )}
+
+                        {activeTab === 'pets' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabPets')}</h3>
+                                    <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
+                                        <select 
+                                            value={petStatusFilter}
+                                            onChange={(e) => setPetStatusFilter(e.target.value as any)}
+                                            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
+                                        >
+                                            <option value="all">{t('dashboard:admin.allStatus')}</option>
+                                            <option value="lost">{t('dashboard:admin.statusLost')}</option>
+                                            <option value="forAdoption">{t('dashboard:admin.statusAdoption')}</option>
+                                            <option value="owned">{t('dashboard:admin.statusOwned')}</option>
+                                        </select>
+                                        <div className="relative flex-grow md:w-64 min-w-[200px]">
+                                            <input 
+                                                value={petSearch}
+                                                onChange={e => setPetSearch(e.target.value)}
+                                                placeholder={t('dashboard:admin.searchPetPlaceholder')}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none transition-all"
+                                            />
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 text-sm">🔍</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
+                                    <div className="overflow-x-auto custom-scrollbar">
+                                        <table className="w-full text-left text-xs min-w-[800px]">
+                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                <tr className="border-b border-white/10">
+                                                    <th className="p-5">{t('dashboard:admin.petNameLabel')}</th>
+                                                    <th className="p-5">{t('dashboard:admin.status')}</th>
+                                                    <th className="p-5">{t('dashboard:admin.location')}</th>
+                                                    <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {filteredPets.map(p => (
+                                                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
+                                                    <td className="p-5">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
+                                                                {p.photos[0]?.url ? (
+                                                                    <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-xl font-black">?</div>
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-white text-sm">{p.name}</p>
+                                                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{p.breed} • {p.age}</p>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <p className="font-bold text-white text-sm">{p.name}</p>
-                                                            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{p.breed} • {p.age}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="p-5">
-                                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${
-                                                        p.isLost ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
-                                                        p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                                        'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                                                    }`}>
-                                                        {p.isLost ? t('dashboard:admin.statusLost') : 
-                                                         p.status === 'forAdoption' ? t('dashboard:admin.statusAdoption') : 
-                                                         t('dashboard:admin.statusOwned')}
-                                                    </span>
-                                                </td>
-                                                <td className="p-5 font-mono text-slate-500 tracking-tighter">
-                                                    {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
-                                                </td>
-                                                <td className="p-5 text-right">
-                                                    <button 
-                                                        onClick={async () => { 
-                                                            if(confirm(t('dashboard:admin.confirmTerminateProfile'))) {
-                                                                await dbService.deletePet(p.id);
-                                                                await dbService.logAdminAction({
-                                                                    adminEmail: currentUser.email,
-                                                                    action: 'DELETE_PET',
-                                                                    targetId: p.id,
-                                                                    details: `Terminated pet profile: ${p.name}`
-                                                                });
-                                                                await onRefresh(); 
-                                                            }
-                                                        }}
-                                                        className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                    >
-                                                        {t('dashboard:admin.terminateButton')}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </GlassCard>
-                    </div>
-                )}
+                                                    </td>
+                                                    <td className="p-5">
+                                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${
+                                                            p.isLost ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
+                                                            p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                                            'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                                        }`}>
+                                                            {p.isLost ? t('dashboard:admin.statusLost') : 
+                                                             p.status === 'forAdoption' ? t('dashboard:admin.statusAdoption') : 
+                                                             t('dashboard:admin.statusOwned')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-5 font-mono text-slate-500 tracking-tighter">
+                                                        {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
+                                                    </td>
+                                                    <td className="p-5 text-right">
+                                                        <button 
+                                                            onClick={async () => { 
+                                                                if(confirm(t('dashboard:admin.confirmTerminateProfile'))) {
+                                                                    await dbService.deletePet(p.id);
+                                                                    await dbService.logAdminAction({
+                                                                        adminEmail: currentUser.email,
+                                                                        action: 'DELETE_PET',
+                                                                        targetId: p.id,
+                                                                        details: `Terminated pet profile: ${p.name}`
+                                                                    });
+                                                                    await onRefresh(); 
+                                                                }
+                                                            }}
+                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                        >
+                                                            {t('dashboard:admin.terminateButton')}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </GlassCard>
+                        </div>
+                    )}
 
                     {activeTab === 'blog' && (
                         <div className="space-y-6">
@@ -714,25 +711,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     )}
 
                     {activeTab === 'optimization' && (
-                        <div className="animate-fade-in">
+                        <div className="animate-fade-in max-w-6xl mx-auto">
                             <SearchOptimizationDashboard />
                         </div>
                     )}
 
                     {activeTab === 'i18n' && (
-                        <div className="animate-fade-in">
+                        <div className="animate-fade-in max-w-6xl mx-auto">
                             <TranslationHealthDashboard />
                         </div>
                     )}
 
                     {activeTab === 'social' && (
-                        <div className="animate-fade-in">
+                        <div className="animate-fade-in max-w-6xl mx-auto">
                             <SocialDiscoveryDashboard />
                         </div>
                     )}
 
                     {activeTab === 'donations' && (
-                        <div className="space-y-6 animate-fade-in">
+                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
                             <div className="flex justify-between items-center px-2">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabDonations')}</h3>
                                 <div className="text-right">
@@ -795,7 +792,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     )}
 
                     {activeTab === 'verification' && (
-                        <div className="space-y-6">
+                        <div className="space-y-6 max-w-6xl mx-auto">
                             <GlassCard className="bg-primary/10 border-primary/30 p-6 flex items-center gap-6 shadow-[0_0_30px_rgba(20,184,166,0.1)]">
                                 <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner border border-primary/20">🛡️</div>
                                 <div>
@@ -835,7 +832,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     )}
 
                     {activeTab === 'logs' && (
-                        <GlassCard className="bg-black/60 border-primary/20 shadow-2xl overflow-hidden rounded-[2rem]">
+                        <GlassCard className="bg-black/60 border-primary/20 shadow-2xl overflow-hidden rounded-[2rem] max-w-6xl mx-auto">
                             <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5">
                                 <div className="flex items-center gap-3">
                                     <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
@@ -859,6 +856,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     )}
                 </div>
             </div>
+            </main>
 
             {showEditor && (
                 <BlogPostEditor 
