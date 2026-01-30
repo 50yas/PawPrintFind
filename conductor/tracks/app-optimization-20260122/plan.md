@@ -28,9 +28,9 @@ Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 ## Phase 3: Advanced Features & UI Polish
 Goal: Implement filters, favorites, and AI matching.
 
-- [ ] **Task: Advanced Filtering & Sorting**
-    - [ ] Write tests for multi-parameter Firestore queries in `AdoptionCenter.test.tsx`.
-    - [ ] Implement UI for filters (breed, size, age) using Glassmorphism components.
+- [x] **Task: Advanced Filtering & Sorting** <!-- b8cef23 -->
+    - [x] Write tests for multi-parameter Firestore queries in `AdoptionCenter.test.tsx`.
+    - [x] Implement UI for filters (breed, size, age) using Glassmorphism components.
 - [ ] **Task: Favorites System**
     - [ ] Add `favorites` collection handling to `services/firebase.ts`.
     - [ ] Create `FavoriteButton` component and integrate into `AIIdentikitCard.tsx`.
