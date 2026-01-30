@@ -48,6 +48,7 @@ vi.mock('../services/firebase', () => ({
         deletePet: vi.fn(),
         deleteBlogPost: vi.fn(),
         deleteClinic: vi.fn(),
+        subscribeToDonations: vi.fn().mockReturnValue(() => {}),
         auth: {
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
         }

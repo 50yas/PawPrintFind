@@ -59,7 +59,7 @@ class SearchService {
             filteredPets = filteredPets.filter(p => p.size === filters.size);
         }
         if (filters.location) {
-             filteredPets = filteredPets.filter(p => p.location?.toLowerCase().includes(filters.location!.toLowerCase()) || false);
+             filteredPets = filteredPets.filter(p => p.lastSeenLocation?.address?.toLowerCase().includes(filters.location!.toLowerCase()) || false);
         }
         if (filters.gender) {
             filteredPets = filteredPets.filter(p => p.gender === filters.gender);

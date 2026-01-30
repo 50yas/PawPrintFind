@@ -8,6 +8,8 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard, GlassButton } from './ui';
 import { UserManagementTable } from './UserManagementTable';
 import { SearchOptimizationDashboard } from './SearchOptimizationDashboard';
+import { TranslationHealthDashboard } from './TranslationHealthDashboard';
+import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -31,7 +33,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [allDonations, setAllDonations] = useState<Donation[]>(donations);
@@ -306,6 +308,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
                         { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
                         { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
+                        { id: 'i18n', label: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
+                        { id: 'social', label: t('dashboard:admin.adminTabSocial'), icon: '📡' },
                         { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
                         { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
                         { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
@@ -712,6 +716,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'optimization' && (
                         <div className="animate-fade-in">
                             <SearchOptimizationDashboard />
+                        </div>
+                    )}
+
+                    {activeTab === 'i18n' && (
+                        <div className="animate-fade-in">
+                            <TranslationHealthDashboard />
+                        </div>
+                    )}
+
+                    {activeTab === 'social' && (
+                        <div className="animate-fade-in">
+                            <SocialDiscoveryDashboard />
                         </div>
                     )}
 

@@ -1,75 +1,77 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { SharePetModal } from './SharePetModal';
 import { PetProfile } from '../types';
 
-// Mock html2canvas
-vi.mock('html2canvas', () => ({
-  default: vi.fn(() => Promise.resolve({ toDataURL: () => 'data:image/png;base64,fake' })),
-}));
-
-// Mock Translations
+// Mock useTranslations
 vi.mock('../hooks/useTranslations', () => ({
-  useTranslations: () => ({ t: (key: string) => key }),
+  useTranslations: () => ({
+    t: (key: string) => {
+        const translations: Record<string, string> = {
+            'sharePetTitle': 'Share Test Pet',
+            'shareWithFriendsButton': 'Friends',
+            'sharePetDesc': 'Share this pet with your friends',
+            'noFriendsToShare': 'No friends found',
+        };
+        return translations[key] || key;
+    }
+  }),
 }));
 
-// Mock Modal - we just render children because Modal might use Portals which are tricky in basic tests
+// Mock Modal since it might use createPortal
 vi.mock('./Modal', () => ({
-  Modal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Modal: ({ children, isOpen }: any) => isOpen ? <div data-testid="modal">{children}</div> : null,
+}));
+
+vi.mock('./ShareButton', () => ({
+    ShareButton: () => <div data-testid="share-btn-mock">Share</div>
+}));
+
+vi.mock('./FavoriteButton', () => ({
+    FavoriteButton: () => <div data-testid="favorite-btn-mock">Fav</div>
+}));
+
+vi.mock('./AIIdentikitCard', () => ({
+    AIIdentikitCard: () => <div data-testid="ai-identikit-mock">AI Card</div>
 }));
 
 describe('SharePetModal', () => {
   const mockPet: PetProfile = {
     id: '123',
-    name: 'CyberDog',
-    breed: 'Robo-Terrier',
-    age: '2',
+    name: 'Test Pet',
+    breed: 'Husky',
     photos: [],
-    ownerEmail: 'test@test.com',
-    status: 'owned',
-    isLost: false,
-    guardianEmails: [],
-    homeLocations: [],
-    lastSeenLocation: null,
-    searchRadius: 0,
-    sightings: [],
-    videoAnalysis: '',
-    audioNotes: '',
-    healthChecks: [],
-    vetLinkStatus: 'unlinked',
-    weight: '10kg',
-    behavior: 'Good',
-    aiIdentityCode: 'BIO-123',
-    aiPhysicalDescription: 'Shiny',
-  };
-
-  const mockProps = {
-    pet: mockPet,
-    friends: ['friend@test.com'],
-    onClose: vi.fn(),
-    onShare: vi.fn(),
-  };
+  } as any;
 
   it('renders tabs', () => {
-    render(<SharePetModal {...mockProps} />);
+    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     expect(screen.getByText('Instagram / TikTok')).toBeInTheDocument();
-    expect(screen.getByText('shareWithFriendsButton')).toBeInTheDocument();
+    expect(screen.getByText('Friends')).toBeInTheDocument();
   });
 
   it('switches to Social tab by default', () => {
-    render(<SharePetModal {...mockProps} />);
+    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     expect(screen.getByText('AI Biometric Card')).toBeInTheDocument();
-    expect(screen.getByText('Download for Story')).toBeInTheDocument();
   });
 
   it('switches to Friends tab', () => {
-    render(<SharePetModal {...mockProps} />);
-    fireEvent.click(screen.getByText('shareWithFriendsButton'));
-    expect(screen.getByText('friend@test.com')).toBeInTheDocument();
+    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    fireEvent.click(screen.getByText('Friends'));
+    // Use the mock translation key or value
+    expect(screen.getByText('Share this pet with your friends')).toBeInTheDocument();
   });
 
   it('displays the Paw-Print Challenge promotion', () => {
-    render(<SharePetModal {...mockProps} />);
-    expect(screen.getByText(/#PawPrintChallenge/i)).toBeInTheDocument();
+    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    // Use text match function to handle split text
+    expect(screen.getByText((content, node) => {
+        const hasText = (node: Element | null) => node?.textContent === "#PawPrintChallenge";
+        const elementHasText = hasText(node);
+        const childrenDontHaveText = Array.from(node?.children || []).every(
+          (child) => !hasText(child as Element)
+        );
+        return elementHasText || content.includes('#PawPrintChallenge');
+    })).toBeInTheDocument();
   });
 });

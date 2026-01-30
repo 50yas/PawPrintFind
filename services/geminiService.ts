@@ -474,6 +474,36 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
     });
 };
 
+export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
+    return retryWithBackoff(async () => {
+        const response = await callGeminiFunction(
+            'gemini-2.5-flash',
+            { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
+            {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            title: { type: Type.STRING },
+                            content: { type: Type.STRING },
+                            type: { type: Type.STRING }
+                        },
+                        required: ["title", "content", "type"]
+                    }
+                }
+            }
+        );
+        const insights = JSON.parse(response.text?.trim() || "[]");
+        return insights.map((insight: any) => ({
+            ...insight,
+            id: Math.random().toString(36).substr(2, 9),
+            timestamp: Date.now()
+        }));
+    });
+};
+
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
