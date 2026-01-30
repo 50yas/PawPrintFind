@@ -31,9 +31,9 @@ Goal: Implement filters, favorites, and AI matching.
 - [x] **Task: Advanced Filtering & Sorting** <!-- b8cef23 -->
     - [x] Write tests for multi-parameter Firestore queries in `AdoptionCenter.test.tsx`.
     - [x] Implement UI for filters (breed, size, age) using Glassmorphism components.
-- [ ] **Task: Favorites System**
-    - [ ] Add `favorites` collection handling to `services/firebase.ts`.
-    - [ ] Create `FavoriteButton` component and integrate into `AIIdentikitCard.tsx`.
+- [x] **Task: Favorites System** <!-- 835ddf7 -->
+    - [x] Add `favorites` collection handling to `services/firebase.ts`.
+    - [x] Create `FavoriteButton` component and integrate into `AIIdentikitCard.tsx`.
 - [ ] **Task: AI Match Explanations & Sharing**
     - [ ] Implement Gemini logic to generate match descriptions based on search queries.
     - [ ] Add Web Share API integration for pet profiles.
