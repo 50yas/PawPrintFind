@@ -48,3 +48,17 @@ Goal: Reach 100% WCAG compliance and final visual refinements.
 - [ ] **Task: Final UI/UX Consistency Check**
     - [ ] Verify Material You color harmony across all views.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)**
+
+## Phase 5: Enterprise Admin Tools & Social Discovery
+Goal: Empower admins with donation management, automated translation enhancement, and social media scraping.
+
+- [x] **Task: Admin Donation Management** <!-- 00f52b9 -->
+    - [x] Implement `deleteDonation` in `services/contentService.ts`.
+    - [x] Add "Donations" tab to `AdminDashboard.tsx` with list and delete actions.
+- [~] **Task: AI-Powered Translation Enhancer**
+    - [ ] Create `services/translationService.ts` using Gemini to audit and fill `translations.ts`.
+    - [ ] Add "i18n Health" dashboard to Admin tools.
+- [ ] **Task: Social Media Scraper Agent**
+    - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
+    - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.
+- [ ] **Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)**
