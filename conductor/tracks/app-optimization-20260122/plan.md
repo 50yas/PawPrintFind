@@ -14,7 +14,7 @@ Goal: Restore functionality to the Adoption Page and establish a baseline for pe
     - [x] Optimize Three.js particle counts if frame drops occur.
 - [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
-## Phase 2: Full Localization & i18n Audit
+## Phase 2: Full Localization & i18n Audit [checkpoint: 87951b2]
 Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 
 - [x] **Task: Extract Hardcoded Strings** <!-- 452d19b -->
@@ -23,7 +23,7 @@ Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
 - [x] **Task: Localize Dynamic AI Content** <!-- 09ffe19 -->
     - [x] Update `AIIdentikitCard.tsx` and `AIHealthCheckModal.tsx` to request localized responses from Gemini.
     - [x] Ensure breed names and health insights translate correctly.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
 
 ## Phase 3: Advanced Features & UI Polish
 Goal: Implement filters, favorites, and AI matching.
