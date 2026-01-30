@@ -55,10 +55,10 @@ Goal: Empower admins with donation management, automated translation enhancement
 - [x] **Task: Admin Donation Management** <!-- 00f52b9 -->
     - [x] Implement `deleteDonation` in `services/contentService.ts`.
     - [x] Add "Donations" tab to `AdminDashboard.tsx` with list and delete actions.
-- [~] **Task: Admin Dashboard UI/UX & Functionality Overhaul**
-    - [ ] Refactor `AdminDashboard.tsx` to use "Glassmorphism 2.0" cards and responsive grid layouts.
-    - [ ] Enhance "Stats Overview" with real-time charts (using placeholders or simple SVG charts if library constrained).
-    - [ ] Improve navigation ergonomics within the dashboard.
+- [x] **Task: Admin Dashboard UI/UX & Functionality Overhaul** <!-- c69c63b -->
+    - [x] Refactor `AdminDashboard.tsx` to use "Glassmorphism 2.0" cards and responsive grid layouts.
+    - [x] Enhance "Stats Overview" with real-time charts (using placeholders or simple SVG charts if library constrained).
+    - [x] Improve navigation ergonomics within the dashboard.
 - [~] **Task: AI-Powered Translation Enhancer**
     - [ ] Create `services/translationService.ts` using Gemini to audit and fill `translations.ts`.
     - [ ] Add "i18n Health" dashboard to Admin tools.
