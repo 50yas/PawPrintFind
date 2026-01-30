@@ -82,9 +82,27 @@ import { petService } from './petService';
 import { vetService } from './vetService';
 import { contentService } from './contentService';
 import { adminService } from './adminService';
+import { favoritesService } from './favoritesService';
 
 export const dbService = {
     auth,
+
+    // --- FAVORITES (Delegated to favoritesService) ---
+    async addFavorite(userId: string, petId: string): Promise<void> {
+        return favoritesService.addFavorite(userId, petId);
+    },
+
+    async removeFavorite(userId: string, petId: string): Promise<void> {
+        return favoritesService.removeFavorite(userId, petId);
+    },
+
+    async checkIsFavorite(userId: string, petId: string): Promise<boolean> {
+        return favoritesService.checkIsFavorite(userId, petId);
+    },
+
+    async getUserFavorites(userId: string): Promise<string[]> {
+        return favoritesService.getUserFavorites(userId);
+    },
 
     // --- AUTHENTICATION (Delegated to authService) ---
     async loginWithEmail(email: string, pass: string) {

@@ -15,6 +15,10 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('./FavoriteButton', () => ({
+    FavoriteButton: () => <button data-testid="favorite-btn">Fav</button>
+}));
+
 describe('AIIdentikitCard', () => {
   const mockPet: PetProfile = {
     id: '123',

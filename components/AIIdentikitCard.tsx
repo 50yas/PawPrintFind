@@ -1,6 +1,7 @@
 import React from 'react';
 import { PetProfile } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { FavoriteButton } from './FavoriteButton';
 
 interface AIIdentikitCardProps {
   pet: PetProfile;
@@ -33,7 +34,10 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
             <span className="text-[10px] tracking-[0.2em] text-cyan-400 font-bold uppercase">{t('aiCore')}</span>
             <span className="text-xs text-cyan-200/70">{t('biometricVerified')}</span>
         </div>
-        <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_cyan]"></div>
+        <div className="flex items-center gap-3">
+             <FavoriteButton petId={pet.id} className="text-cyan-400 hover:text-cyan-200" />
+             <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_cyan]"></div>
+        </div>
       </div>
 
       {/* Main Content */}
