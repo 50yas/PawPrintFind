@@ -34,9 +34,9 @@ Goal: Implement filters, favorites, and AI matching.
 - [x] **Task: Favorites System** <!-- 835ddf7 -->
     - [x] Add `favorites` collection handling to `services/firebase.ts`.
     - [x] Create `FavoriteButton` component and integrate into `AIIdentikitCard.tsx`.
-- [ ] **Task: AI Match Explanations & Sharing**
-    - [ ] Implement Gemini logic to generate match descriptions based on search queries.
-    - [ ] Add Web Share API integration for pet profiles.
+- [x] **Task: AI Match Explanations & Sharing** <!-- 005090e -->
+    - [x] Implement Gemini logic to generate match descriptions based on search queries.
+    - [x] Add Web Share API integration for pet profiles.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
 
 ## Phase 4: Accessibility & Final Polish
