@@ -46,7 +46,27 @@ class SearchService {
             ageWeight: 0.2
         };
 
-        const scoredPets = pets.map(pet => {
+        // 1. Strict Filtering
+        let filteredPets = pets;
+
+        if (filters.breed) {
+            filteredPets = filteredPets.filter(p => p.breed === filters.breed);
+        }
+        if (filters.age) {
+            filteredPets = filteredPets.filter(p => p.age === filters.age);
+        }
+        if (filters.size) {
+            filteredPets = filteredPets.filter(p => p.size === filters.size);
+        }
+        if (filters.location) {
+             filteredPets = filteredPets.filter(p => p.location?.toLowerCase().includes(filters.location!.toLowerCase()) || false);
+        }
+        if (filters.gender) {
+            filteredPets = filteredPets.filter(p => p.gender === filters.gender);
+        }
+
+        // 2. Scoring & Ranking
+        const scoredPets = filteredPets.map(pet => {
             let score = 0;
 
             // Species (Hard filter usually, but here we can weight it or just filter)
@@ -55,22 +75,6 @@ class SearchService {
                 score -= 1.0; 
             }
 
-            // Breed Match (Weighted)
-            if (filters.breed) {
-                if (pet.breed.toLowerCase().includes(filters.breed.toLowerCase())) {
-                    score += config.breedMatchWeight;
-                }
-            }
-
-            // Age Match (Weighted)
-            if (filters.age) {
-                if (pet.age === filters.age) {
-                    score += config.ageWeight;
-                }
-            } else {
-                // Partial credit for near ages if we had numeric age? 
-                // For now simple match.
-            }
 
             // Tag matching (Bonus)
             if (filters.tags && filters.tags.length > 0) {
