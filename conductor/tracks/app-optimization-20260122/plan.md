@@ -25,7 +25,7 @@ Goal: Eliminate hardcoded strings and ensure dynamic content is localized.
     - [x] Ensure breed names and health insights translate correctly.
 - [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
 
-## Phase 3: Advanced Features & UI Polish
+## Phase 3: Advanced Features & UI Polish [checkpoint: 3b18ae8]
 Goal: Implement filters, favorites, and AI matching.
 
 - [x] **Task: Advanced Filtering & Sorting** <!-- b8cef23 -->
@@ -37,7 +37,7 @@ Goal: Implement filters, favorites, and AI matching.
 - [x] **Task: AI Match Explanations & Sharing** <!-- 005090e -->
     - [x] Implement Gemini logic to generate match descriptions based on search queries.
     - [x] Add Web Share API integration for pet profiles.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
 
 ## Phase 4: Accessibility & Final Polish
 Goal: Reach 100% WCAG compliance and final visual refinements.
@@ -55,6 +55,10 @@ Goal: Empower admins with donation management, automated translation enhancement
 - [x] **Task: Admin Donation Management** <!-- 00f52b9 -->
     - [x] Implement `deleteDonation` in `services/contentService.ts`.
     - [x] Add "Donations" tab to `AdminDashboard.tsx` with list and delete actions.
+- [ ] **Task: Admin Dashboard UI/UX & Functionality Overhaul**
+    - [ ] Refactor `AdminDashboard.tsx` to use "Glassmorphism 2.0" cards and responsive grid layouts.
+    - [ ] Enhance "Stats Overview" with real-time charts (using placeholders or simple SVG charts if library constrained).
+    - [ ] Improve navigation ergonomics within the dashboard.
 - [~] **Task: AI-Powered Translation Enhancer**
     - [ ] Create `services/translationService.ts` using Gemini to audit and fill `translations.ts`.
     - [ ] Add "i18n Health" dashboard to Admin tools.
