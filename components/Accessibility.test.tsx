@@ -8,6 +8,12 @@ import { AdoptionCenter } from './AdoptionCenter';
 import { Auth } from './Auth';
 import { Home } from './Home';
 import { Navbar } from './Navbar';
+import { AdminDashboard } from './AdminDashboard';
+import { FavoriteButton } from './FavoriteButton';
+import { DonationModal } from './DonationModal';
+import { AIIdentikitCard } from './AIIdentikitCard';
+import { AIHealthCheckModal } from './AIHealthCheckModal';
+import { RegisterPet } from './RegisterPet';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
@@ -34,7 +40,53 @@ Object.defineProperty(window, 'matchMedia', {
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
     t: (key: string) => key,
+    locale: 'en',
   }),
+}));
+
+// Mock dbService
+vi.mock('../services/firebase', () => {
+  const authMock = {
+    currentUser: { uid: '123', email: 'test@example.com', isAnonymous: false, displayName: 'Test User' }
+  };
+  return {
+    dbService: {
+      subscribeToDonations: vi.fn(() => vi.fn()),
+      logAdminAction: vi.fn().mockResolvedValue(undefined),
+      getBlogPosts: vi.fn().mockResolvedValue([]),
+      savePet: vi.fn().mockResolvedValue(undefined),
+      deletePet: vi.fn().mockResolvedValue(undefined),
+      deleteClinic: vi.fn().mockResolvedValue(undefined),
+      saveUser: vi.fn().mockResolvedValue(undefined),
+      checkIsFavorite: vi.fn().mockResolvedValue(false),
+      addFavorite: vi.fn().mockResolvedValue(undefined),
+      removeFavorite: vi.fn().mockResolvedValue(undefined),
+      recordDonation: vi.fn().mockResolvedValue(undefined),
+      createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://checkout.test' }),
+      auth: authMock
+    },
+    auth: authMock,
+    db: {}
+  };
+});
+
+// Mock loggerService
+vi.mock('../services/loggerService', () => ({
+  logger: {
+    subscribe: vi.fn(() => vi.fn()),
+    clearLogs: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  }
+}));
+
+// Mock searchService
+vi.mock('../services/searchService', () => ({
+  searchService: {
+    getSavedSearches: vi.fn().mockResolvedValue({ docs: [] }),
+    rankPets: vi.fn().mockResolvedValue([]),
+  }
 }));
 
 const mockUser: User = {
@@ -47,6 +99,12 @@ const mockUser: User = {
   friendRequests: [],
   points: 0,
   badges: [],
+};
+
+const mockAdmin: User = {
+  ...mockUser,
+  activeRole: 'admin',
+  roles: ['admin'],
 };
 
 const mockPets: PetProfile[] = [
@@ -168,6 +226,110 @@ describe('Accessibility Audit', () => {
               setView={vi.fn()} 
               onLoginClick={vi.fn()} 
               onLogoutClick={vi.fn()} 
+            />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('AdminDashboard should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AdminDashboard 
+              users={[mockUser, mockAdmin]}
+              currentUser={mockAdmin}
+              allPets={mockPets}
+              vetClinics={[]}
+              donations={[]}
+              onDeleteUser={vi.fn().mockResolvedValue(undefined)}
+              onLogout={vi.fn()}
+              onRefresh={vi.fn().mockResolvedValue(undefined)}
+            />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('FavoriteButton should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <FavoriteButton petId="pet1" />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('DonationModal should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <DonationModal isOpen={true} onClose={vi.fn()} />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('AIIdentikitCard should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AIIdentikitCard pet={mockPets[0]} />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('AIHealthCheckModal should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AIHealthCheckModal 
+              pet={mockPets[0]} 
+              onClose={vi.fn()} 
+              onComplete={vi.fn()} 
+              onBookAppointment={vi.fn()} 
+            />
+          </ThemeProvider>
+        </LanguageProvider>
+      </SnackbarProvider>
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  }, 30000);
+
+  it('RegisterPet should have no accessibility violations', async () => {
+    const { container } = render(
+      <SnackbarProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <RegisterPet 
+              currentUser={mockUser}
+              onRegister={vi.fn()}
+              goToDashboard={vi.fn()}
+              existingPet={null}
+              mode="owned"
             />
           </ThemeProvider>
         </LanguageProvider>

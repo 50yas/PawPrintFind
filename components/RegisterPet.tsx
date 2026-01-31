@@ -479,7 +479,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-foreground">AI Auto-Fill</h4>
+                                    <h3 className="text-sm font-bold text-foreground">AI Auto-Fill</h3>
                                     <p className="text-[10px] text-muted-foreground">Upload a photo to auto-detect breed & details.</p>
                                 </div>
                             </div>
@@ -568,10 +568,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                     {validPhotosCount > 0 && (
                         <div className="grid md:grid-cols-2 gap-8 pt-6 border-t border-border">
                             <div className="bg-gradient-to-br from-card to-muted/30 border border-border p-6 rounded-2xl shadow-sm">
-                                <h4 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
                                     <span className="p-1.5 bg-primary/10 rounded-lg text-primary"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg></span>
                                     {t('aiBiometricIdentity')}
-                                </h4>
+                                </h3>
                                 {!aiIdentityCode ? (
                                     <button type="button" onClick={handleGenerateIdentikit} disabled={isGeneratingIdentity} className="btn btn-secondary w-full py-4 text-sm font-bold border-2 hover:border-primary transition-all">
                                         {isGeneratingIdentity ? <LoadingSpinner /> : t('generateVisualHash')}
@@ -590,7 +590,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
 
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-lg font-bold text-foreground">{t('tagUniqueMarks')}</h4>
+                                    <h3 className="text-lg font-bold text-foreground">{t('tagUniqueMarks')}</h3>
                                     <span className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-md font-bold uppercase tracking-wider">{t('dashboard:register.recommended')}</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{t('tagUniqueMarksDesc')}</p>
@@ -607,7 +607,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             {showAI && (
                 <div className="grid md:grid-cols-2 gap-8">
                     <div className="border border-border rounded-2xl p-6 hover:border-primary/50 transition-colors bg-card shadow-sm">
-                        <h4 className="font-bold text-lg mb-4 text-foreground">{t('videoUploadLabel')}</h4>
+                        <h3 className="font-bold text-lg mb-4 text-foreground">{t('videoUploadLabel')}</h3>
                         <div className="flex items-center gap-4">
                             <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
                                 {videoFile ? t('changePhotoButton') : t('selectVideo')}
@@ -624,7 +624,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                     </div>
 
                     <div className="border border-border rounded-2xl p-6 hover:border-primary/50 transition-colors bg-card shadow-sm">
-                        <h4 className="font-bold text-lg mb-4 text-foreground">{t('audioUploadLabel')}</h4>
+                        <h3 className="font-bold text-lg mb-4 text-foreground">{t('audioUploadLabel')}</h3>
                         <div className="flex items-center gap-4">
                             <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
                                 {audioFile ? t('changePhotoButton') : t('selectAudio')}
@@ -653,7 +653,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                     
                     <div className="bg-muted/20 p-6 rounded-2xl border border-border">
                         <div className="flex justify-between items-center mb-6">
-                            <h4 className="font-bold text-lg text-foreground">{t('vaccinationsTitle')}</h4>
+                            <h3 className="font-bold text-lg text-foreground">{t('vaccinationsTitle')}</h3>
                             <button type="button" onClick={addVaccination} className="text-sm font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-primary/20">{t('dashboard:register.addRecord')}</button>
                         </div>
                         {vaccinations.length === 0 ? (
@@ -683,7 +683,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
                         <div>
-                            <h4 className="font-bold text-foreground text-lg">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('foundLocationTitle') : t('homeAreasTitle')}</h4>
+                            <h3 className="font-bold text-foreground text-lg">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('foundLocationTitle') : t('homeAreasTitle')}</h3>
                             <p className="text-sm text-muted-foreground mt-1">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('finalStepForAdoption') : t('step4DescOwner')}</p>
                         </div>
                     </div>

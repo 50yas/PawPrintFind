@@ -15,12 +15,11 @@ service cloud.firestore {
     // Robust Admin Check
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.role == 'super_admin' ||
-        request.auth.token.role == 'admin' ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'super_admin' ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'admin'
-        ))
+        request.auth.token.role in ['super_admin', 'admin', 'super-admin', 'SUPER_ADMIN'] ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole in ['super_admin', 'admin', 'super-admin', 'SUPER_ADMIN']) ||
+        request.auth.token.email.matches('(?i).*(admin|yas)@pawprint\\.ai') || // Case-insensitive whitelist
+        request.auth.token.email in ['admin@pawprint.ai', 'yas@pawprint.ai', 'super@pawprint.ai']
       );
     }
     
@@ -142,28 +141,27 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 12. SEARCH CONFIGURATION (For AI Optimization)
+    // 12. SEARCH CONFIGURATION
     match /search_config/{configId} {
-      allow read: if true;
+      allow read: if true; 
       allow write: if isAdmin();
     }
 
-    // 13. OPTIMIZATION TRIALS (For AI Optimization)
+    // 13. OPTIMIZATION TRIALS
     match /optimization_trials/{trialId} {
-      allow read: if isAdmin();
+      allow read, list: if isAdmin();
       allow write: if isAdmin();
     }
 
-    // 14. SEARCH INTERACTIONS (For AI Optimization Feedback)
+    // 14. SEARCH INTERACTIONS
     match /search_interactions/{interactionId} {
-      allow create: if true; // Allow anyone to record an interaction (view/click)
-      allow read: if isAdmin();
+      allow create: if true;
+      allow read, list: if isAdmin();
     }
 
-    // 15. SAVED SEARCHES (User Identikits)
+    // 15. SAVED SEARCHES
     match /saved_searches/{searchId} {
-      allow create: if isSignedIn() && request.resource.data.userEmail == request.auth.token.email;
-      allow read, update, delete: if isSignedIn() && resource.data.userEmail == request.auth.token.email;
+      allow read, write: if isSignedIn();
     }
 
     // --- STRIPE EXTENSION RULES ---

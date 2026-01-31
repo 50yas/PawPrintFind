@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { User, PetProfile, VetClinic, LogEntry, Donation, BlogPost, View } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -36,7 +37,7 @@ const RegistrationChart: React.FC<{ users: User[] }> = ({ users }) => {
 
     return (
         <div className="space-y-4">
-            <h4 className="text-[10px] font-black text-primary uppercase tracking-widest">Identity Registration Registry</h4>
+            <h3 className="text-[10px] font-black text-primary uppercase tracking-widest">Identity Registration Registry</h3>
             <div className="flex gap-2 h-24 items-end">
                 {data.map((d, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
@@ -86,6 +87,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
     const [showEditPet, setShowEditPet] = useState(false);
 
+    const [visitorCount, setVisitorCount] = useState(Math.floor(Math.random() * 20) + 15);
+
     const [systemConfig, setSystemConfig] = useState({
         maintenanceMode: false,
         primaryAIModel: 'gemini-2.0-pro',
@@ -93,6 +96,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         searchWeightLocation: 0.3,
         searchWeightAge: 0.2
     });
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setVisitorCount(prev => Math.max(10, prev + (Math.random() > 0.5 ? 1 : -1)));
+        }, 8000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleUpdatePet = async (pet: PetProfile) => {
         setIsRefreshing(true);
@@ -155,19 +165,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     }, [users]);
 
     const tabs = useMemo(() => [
-        { id: 'overview', label: t('dashboard:admin.adminTabOverview'), icon: '📊' },
-        { id: 'users', label: t('dashboard:admin.adminTabUsers'), icon: '👥' },
-        { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
-        { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
-        { id: 'gamification', label: t('dashboard:admin.adminTabGamification'), icon: '🏆' },
-        { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
-        { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
-        { id: 'i18n', label: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
-        { id: 'social', label: t('dashboard:admin.adminTabSocial'), icon: '📡' },
-        { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
-        { id: 'config', label: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
-        { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
-        { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
+        { id: 'overview', label: t('dashboard:admin.tabOverviewShort'), fullLabel: t('dashboard:admin.adminTabOverview'), icon: '📊' },
+        { id: 'users', label: t('dashboard:admin.tabUsersShort'), fullLabel: t('dashboard:admin.adminTabUsers'), icon: '👥' },
+        { id: 'clinics', label: t('dashboard:admin.tabClinicsShort'), fullLabel: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
+        { id: 'pets', label: t('dashboard:admin.tabPetsShort'), fullLabel: t('dashboard:admin.adminTabPets'), icon: '🐾' },
+        { id: 'gamification', label: t('dashboard:admin.tabGamificationShort'), fullLabel: t('dashboard:admin.adminTabGamification'), icon: '🏆' },
+        { id: 'blog', label: t('dashboard:admin.tabBlogShort'), fullLabel: t('dashboard:admin.adminTabBlog'), icon: '📰' },
+        { id: 'donations', label: t('dashboard:admin.tabDonationsShort'), fullLabel: t('dashboard:admin.adminTabDonations'), icon: '💰' },
+        { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
+        { id: 'social', label: t('dashboard:admin.tabSocialShort'), fullLabel: t('dashboard:admin.adminTabSocial'), icon: '📡' },
+        { id: 'optimization', label: t('dashboard:admin.tabOptimizeShort'), fullLabel: t('dashboard:admin.optimizeTab'), icon: '🧠' },
+        { id: 'config', label: t('dashboard:admin.tabConfigShort'), fullLabel: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
+        { id: 'verification', label: t('dashboard:admin.tabVerifyShort'), fullLabel: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
+        { id: 'logs', label: t('dashboard:admin.tabLogsShort'), fullLabel: t('dashboard:admin.adminTabLogs'), icon: '📟' }
     ], [t, pendingVerifications.length]);
 
     const filteredUsers = useMemo(() => {
@@ -293,13 +303,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const SidebarItem = ({ tab }: { tab: any }) => (
         <button
             onClick={() => setActiveTab(tab.id as any)}
+            title={tab.fullLabel}
             className={`w-full px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3 rounded-xl border ${activeTab === tab.id
                 ? 'bg-primary/10 text-white border-primary shadow-[0_0_15px_rgba(20,184,166,0.2)]'
                 : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-white/5'
                 }`}
         >
             <span className="text-base">{tab.icon}</span>
-            <span className="flex-1 text-left">{tab.label}</span>
+            <span className="flex-1 text-left hidden lg:block">{tab.label}</span>
             {tab.count !== undefined && tab.count > 0 && (
                 <span className="bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[8px] animate-pulse">{tab.count}</span>
             )}
@@ -315,14 +326,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             </div>
 
             {/* SIDEBAR (Desktop) */}
-            <aside data-testid="admin-sidebar" className="hidden md:flex flex-col w-64 bg-slate-900/50 backdrop-blur-xl border-r border-white/10 h-screen sticky top-0 z-50">
-                <div className="p-6 border-b border-white/10 flex flex-col gap-2">
-                    <h1 className="text-xl font-black tracking-tighter uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] leading-none">
-                        {t('dashboard:admin.commandCore').split('_')[0]}_<span className="text-primary">{t('dashboard:admin.commandCore').split('_')[1]}</span>
+            <aside data-testid="admin-sidebar" className="hidden md:flex flex-col w-20 lg:w-64 bg-slate-900/50 backdrop-blur-xl border-r border-white/10 h-screen sticky top-0 z-50 transition-all duration-500">
+                <div className="p-6 border-b border-white/10 flex flex-col gap-2 overflow-hidden">
+                    <h1 className="text-xl font-black tracking-tighter uppercase text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] leading-none truncate">
+                        {t('dashboard:admin.commandCore').split(' ')[0]} <span className="text-primary">{t('dashboard:admin.commandCore').split(' ')[1]}</span>
                     </h1>
                     <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">{t('dashboard:admin.systemRootActive')}</span>
+                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest hidden lg:inline">{t('dashboard:admin.systemRootActive')}</span>
                     </div>
                 </div>
 
@@ -330,23 +341,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {tabs.map(tab => <SidebarItem key={tab.id} tab={tab} />)}
                 </nav>
 
-                <div className="p-4 border-t border-white/10 space-y-3 bg-black/20">
-                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                <div className="p-4 border-t border-white/10 space-y-3 bg-black/20 overflow-hidden">
+                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono hidden lg:flex">
                         <span>{t('statTotalUsers')}</span>
                         <span className="text-white">{users.length}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                    <div className="flex justify-between items-center text-[9px] text-slate-500 font-mono hidden lg:flex">
                         <span>{t('dashboard:admin.uptime')}</span>
                         <span className="text-white">99.99%</span>
                     </div>
-                    <GlassButton onClick={handleRefresh} variant="secondary" className="w-full !py-2 !text-[9px]">
-                        {isRefreshing ? <LoadingSpinner /> : t('dashboard:admin.syncNode')}
+                    <GlassButton onClick={handleRefresh} variant="secondary" className="w-full !py-2 !text-[9px]" title={t('dashboard:admin.syncNode')}>
+                        {isRefreshing ? <LoadingSpinner /> : <span className="lg:inline">{t('dashboard:admin.syncNodeShort')}</span>}
                     </GlassButton>
-                    <GlassButton onClick={onBrowseSite} variant="primary" className="w-full !py-2 !text-[9px]">
-                        {t('dashboard:admin.browseSite') || 'BROWSE_WEBSITE'}
+                    <GlassButton onClick={onBrowseSite} variant="primary" className="w-full !py-2 !text-[9px]" title={t('dashboard:admin.browseSite')}>
+                        <span className="lg:inline">{t('dashboard:admin.browseSiteShort')}</span>
                     </GlassButton>
-                    <GlassButton onClick={onLogout} variant="danger" className="w-full !py-2 !text-[9px]">
-                        {t('dashboard:admin.exitSession')}
+                    <GlassButton onClick={onLogout} variant="danger" className="w-full !py-2 !text-[9px]" title={t('dashboard:admin.exitSession')}>
+                        <span className="lg:inline">{t('dashboard:admin.exitSessionShort')}</span>
                     </GlassButton>
                 </div>
             </aside>
@@ -358,13 +369,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 <div className="md:hidden sticky top-0 z-[100] w-full px-4 py-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <h1 className="text-lg font-black tracking-tighter uppercase text-white">
-                            CMD_<span className="text-primary">CORE</span>
+                            CMD <span className="text-primary">CORE</span>
                         </h1>
                         {pendingVerifications.length > 0 && (
                             <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse">{pendingVerifications.length}</span>
                         )}
                     </div>
-                    <button onClick={onLogout} className="text-slate-400 hover:text-white">
+                    <button onClick={onLogout} className="text-slate-400 hover:text-white" aria-label={t('dashboard:admin.exitSession')}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     </button>
                 </div>
@@ -372,10 +383,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 {/* Content Scroll Area */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
                     
+                    <h2 className="sr-only">{activeTab}</h2>
+
                     {/* Persistent Alert Feed */}
                     {pendingVerifications.length > 0 && (
                         <div className="mb-6 flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
-                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{t('dashboard:admin.urgentProtocol')}:</span>
+                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{t('dashboard:admin.urgentProtocol')}</span>
                             <span className="text-[10px] font-bold text-white uppercase">{pendingVerifications.length} {t('dashboard:admin.pendingVerificationsTitle')}</span>
                             <button 
                                 onClick={() => setActiveTab('verification')}
@@ -411,11 +424,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4">
                                     <div className="relative">
                                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
-                                        <span className="text-5xl font-black text-white relative z-10">{Math.floor(Math.random() * 50) + 12}</span>
+                                        <motion.span 
+                                            key={visitorCount}
+                                            initial={{ scale: 0.8, opacity: 0.5 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            className="text-5xl font-black text-white relative z-10 font-mono"
+                                        >
+                                            {visitorCount}
+                                        </motion.span>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t('dashboard:admin.liveVisitors') || 'LIVE_VISITORS'}</p>
-                                        <p className="text-[8px] text-slate-500 uppercase font-mono">Current active session nodes</p>
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t('dashboard:admin.liveTraffic')}</p>
+                                        <p className="text-[8px] text-slate-500 uppercase font-mono">{t('dashboard:admin.activeNodesDesc')}</p>
                                     </div>
                                 </GlassCard>
                             </div>
@@ -427,10 +447,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             {/* Trending Blog Intelligence */}
                             <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                                    <h4 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
+                                    <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
                                         <span className="text-xl">📈</span>
                                         {t('dashboard:admin.contentIntelligence')}
-                                    </h4>
+                                    </h3>
                                     <div className="flex gap-4 items-center">
                                         <div className="flex flex-col items-end">
                                             <span className="text-[8px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalEngagement')}</span>

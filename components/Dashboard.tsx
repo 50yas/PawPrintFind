@@ -364,7 +364,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
                     <p className="text-slate-300 mt-1 flex items-center gap-2 text-sm font-medium">
-                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--md-sys-color-primary)]"></span>
                         <span className="font-mono text-[10px] tracking-widest uppercase">{t('dashboard:common.systemActive')}</span> 
                         <span className="text-white/20">•</span>
                         <span>{userPets.length} {t('protectedPets', { count: userPets.length })}</span>
@@ -421,7 +421,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
       {myChats.length > 0 && (
           <div className="animate-fade-in">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_#2dd4bf]"></span>
+                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--md-sys-color-primary)]"></span>
                   {t('messagesTitle')}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

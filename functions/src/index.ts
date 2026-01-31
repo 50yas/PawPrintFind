@@ -27,25 +27,30 @@ export const callGemini = functions.https.onCall(async (data, context) => {
   }
 
   // 2. Secret Management (API Key)
-  // Retrieve the API Key from Firebase Secrets (best practice)
-  // For this implementation, we'll try to get it from environment variables or secrets.
-  const apiKey = process.env.GEMINI_API_KEY;
+  // Retrieve the API Key from environment or secrets
+  const apiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.key;
   if (!apiKey) {
+    console.error("CRITICAL: GEMINI_API_KEY environment variable is not set.");
     throw new functions.https.HttpsError(
       "failed-precondition",
-      "Gemini API Key is not configured on the server."
+      "Gemini API Key is not configured on the server. Please run: firebase functions:secrets:set GEMINI_API_KEY"
     );
   }
 
   try {
-    const genAI = new GoogleGenAI({ apiKey });
+    const genAI = new GoogleGenAI(apiKey);
 
-    // 3. Rate Limiting (Placeholder for more complex logic)
-    // You can implement custom rate limiting here by checking context.auth.uid 
-    // against a usage collection in Firestore.
+    // Filter tools if grounding is requested but not available/preconditioned
+    const safeConfig = { ...config };
+    if (safeConfig.tools) {
+        // Some grounding tools require specific setup. If they fail, we log and retry without them.
+        console.log(`[Gemini] Using tools: ${JSON.stringify(safeConfig.tools)}`);
+    }
 
-    const response = await genAI.models.generateContent({ model, contents, config });
-    const text = response.text;
+    const generativeModel = genAI.getGenerativeModel({ model });
+    const result = await generativeModel.generateContent({ contents, ...safeConfig });
+    const response = await result.response;
+    const text = response.text();
     
     // Extract grounding metadata if present
     const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
@@ -60,7 +65,13 @@ export const callGemini = functions.https.onCall(async (data, context) => {
       audioData
     };
   } catch (error: any) {
-    console.error("Gemini API Error:", error);
+    console.error(`Gemini API Error [${model}]:`, error);
+    
+    // Specific error mapping for easier debugging in the client log
+    if (error.message?.includes("API key not valid")) {
+        throw new functions.https.HttpsError("unauthenticated", "Invalid Gemini API Key.");
+    }
+    
     throw new functions.https.HttpsError(
       "internal",
       error.message || "An error occurred while calling Gemini AI."

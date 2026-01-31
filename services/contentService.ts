@@ -101,22 +101,50 @@ export const contentService = {
     },
 
     subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void, all: boolean = false) {
-        let q;
-        if (all) {
-            q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
-        } else {
-            q = query(collection(db, 'donations'), where('isPublic', '==', true), where('isConfirmed', '==', true), orderBy('timestamp', 'desc'));
-        }
-        return onSnapshot(q, (s) => {
+        const buildQuery = (useComposite: boolean) => {
+            if (all) {
+                return query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
+            }
+            if (useComposite) {
+                // Requires index: isPublic (ASC), isConfirmed (ASC), timestamp (DESC)
+                return query(collection(db, 'donations'), where('isPublic', '==', true), where('isConfirmed', '==', true), orderBy('timestamp', 'desc'));
+            }
+            // Fallback query (less precise but won't fail if index is missing)
+            return query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+        };
+
+        let q = buildQuery(true);
+        
+        let unsub = onSnapshot(q, (s) => {
             const donations = s.docs.map(d => {
                 const data = { ...d.data(), id: d.id };
                 return validationService.validate(DonationSchema, data, `subscribeToDonations:${d.id}`);
             });
             callback(donations);
         }, (error) => {
-             if (onError) onError(error);
-             else logger.error('Error in donation subscription:', error);
+             if (error.code === 'failed-precondition' && !all) {
+                 console.warn("Donation composite index missing. Falling back to simple query.");
+                 unsub(); // Stop current listener
+                 // Retry with simple query
+                 q = buildQuery(false);
+                 unsub = onSnapshot(q, (s) => {
+                     const donations = s.docs.map(d => {
+                         const data = { ...d.data(), id: d.id };
+                         return validationService.validate(DonationSchema, data, `subscribeToDonations:${d.id}`);
+                     });
+                     // Filter confirms manually if in fallback
+                     callback(donations.filter(d => d.isConfirmed));
+                 }, (innerError) => {
+                     if (onError) onError(innerError);
+                     else logger.error('Donation fallback subscription failed:', innerError);
+                 });
+             } else {
+                 if (onError) onError(error);
+                 else logger.error('Error in donation subscription:', error);
+             }
         });
+
+        return () => unsub();
     },
 
     // --- BLOG ---

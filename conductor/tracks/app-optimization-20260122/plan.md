@@ -42,7 +42,7 @@ Goal: Implement filters, favorites, and AI matching.
 ## Phase 4: Accessibility & Final Polish
 Goal: Reach 100% WCAG compliance and final visual refinements.
 
-- [ ] **Task: Accessibility Audit & Remediation**
+- [~] **Task: Accessibility Audit & Remediation**
     - [ ] Run `vitest-axe` on all new components.
     - [ ] Fix contrast issues and ensure keyboard navigation works for all modals.
 - [ ] **Task: Final UI/UX Consistency Check**
@@ -59,20 +59,30 @@ Goal: Empower admins with donation management, automated translation enhancement
     - [x] Refactor `AdminDashboard.tsx` to use "Glassmorphism 2.0" cards and responsive grid layouts.
     - [x] Enhance "Stats Overview" with real-time charts (using placeholders or simple SVG charts if library constrained).
     - [x] Improve navigation ergonomics within the dashboard.
-- [x] **Task: Admin Pet Management & Extended Controls** <!-- a5122f1 -->
+- [x] **Task: Admin Pet Management & Extended Controls** <!-- 9982e5f -->
     - [x] Implement "Edit Pet" functionality in `AdminDashboard.tsx` using a shared modal with `RegisterPet`.
     - [x] Add "Gamification & XP" management tab to Admin tools.
     - [x] Implement "System Configuration" tab to manage global AI settings (e.g., model selection, thresholds).
-- [x] **Task: Search Optimization HUD v2** <!-- a5122f1 -->
+- [x] **Task: Search Optimization HUD v2** <!-- 9982e5f -->
     - [x] Enhance `SearchOptimizationDashboard.tsx` with visual neural impact analysis charts.
     - [x] Add "AI Tuning" controls to adjust search relevance parameters.
+- [x] **Task: Donation Confirmation & Cost Transparency** <!-- 9982e5f -->
+    - [x] Implement `isConfirmed` logic for donations.
+    - [x] Add cost breakdown (API, server, development) to `DonationModal`.
+    - [x] Update `Donors.tsx` to only show confirmed contributions.
+- [x] **Task: Admin Website Navigation Mode** <!-- 9982e5f -->
+    - [x] Implement toggle to allow Admins to browse the live site.
+    - [x] Add "Return to Admin" floating banner in preview mode.
+- [x] **Task: Visual Admin Analytics** <!-- 9982e5f -->
+    - [x] Add Identity Registration Registry chart to track user growth.
+    - [x] Implement Live Visitors simulated counter.
 - [x] **Task: AI-Powered Translation Enhancer** <!-- 2d982f0 -->
     - [x] Create `services/translationService.ts` using Gemini to audit and fill `translations.ts`.
     - [x] Add "i18n Health" dashboard to Admin tools.
     - [x] Synchronized and enhanced all translation files (it, es, fr, de, zh, ar, ro) using Gemini AI.
-- [x] **Task: Translation Clarity Refinement** <!-- a5122f1 -->
+- [x] **Task: Translation Clarity Refinement** <!-- 9982e5f -->
     - [x] Reviewed `translations/` for jargon and replaced with educational, descriptive labels.
-    - [x] Added context to Admin tools to help users "understand better the app".
+    - [x] Removed underscores and dashes from Italian UI buttons.
 - [ ] **Task: Social Media Scraper Agent**
     - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
     - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.

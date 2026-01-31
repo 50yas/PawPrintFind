@@ -20,7 +20,7 @@ vi.mock('./DonationModal', () => ({
 describe('Donors Component', () => {
   const mockGoBack = vi.fn();
   const mockDonations: any[] = [
-    { id: '1', donorName: 'John', amount: '€10', timestamp: Date.now(), approved: true, isPublic: true, message: 'Go!' }
+    { id: '1', donorName: 'John', amount: '€10', timestamp: Date.now(), isConfirmed: true, isPublic: true, message: 'Go!' }
   ];
 
   beforeEach(() => {

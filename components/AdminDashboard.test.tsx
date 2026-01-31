@@ -174,9 +174,9 @@ describe('AdminDashboard Cyber HUD', () => {
            <AdminDashboard {...mockProps} />
        );
 
-       expect(screen.getByText('dashboard:admin.adminTabOverview')).toBeInTheDocument();
-       expect(screen.getByText('dashboard:admin.adminTabUsers')).toBeInTheDocument();
-       expect(screen.getByText('dashboard:admin.adminTabPets')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.adminTabOverview')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.adminTabUsers')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.adminTabPets')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
@@ -187,7 +187,7 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        expect(screen.getByText('dashboard:admin.urgentProtocol:')).toBeInTheDocument();
+        expect(screen.getByText(/dashboard:admin.urgentProtocol/)).toBeInTheDocument();
         expect(screen.getByText(/1 dashboard:admin.pendingVerificationsTitle/i)).toBeInTheDocument();
         expect(screen.getByText('dashboard:admin.resolveNow')).toBeInTheDocument();
    });
@@ -204,7 +204,7 @@ describe('AdminDashboard Cyber HUD', () => {
             <AdminDashboard {...mockProps} />
         );
 
-        fireEvent.click(screen.getByText('dashboard:admin.adminTabOverview'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabOverview'));
 
         expect(screen.getByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
         
@@ -228,7 +228,7 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByText('dashboard:admin.adminTabPets'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
 
         const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
@@ -251,7 +251,7 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByText('dashboard:admin.adminTabClinics'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
         
         const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
