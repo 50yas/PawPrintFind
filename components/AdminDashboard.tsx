@@ -10,6 +10,7 @@ import { UserManagementTable } from './UserManagementTable';
 import { SearchOptimizationDashboard } from './SearchOptimizationDashboard';
 import { TranslationHealthDashboard } from './TranslationHealthDashboard';
 import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
+import { AdminPetEditorModal } from './AdminPetEditorModal';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -33,7 +34,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [allDonations, setAllDonations] = useState<Donation[]>(donations);
@@ -48,6 +49,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [roleFilter, setRoleFilter] = useState<string>('all');
     const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unverified'>('all');
     const [petStatusFilter, setPetStatusFilter] = useState<'all' | 'lost' | 'forAdoption' | 'owned'>('all');
+
+    const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
+    const [showEditPet, setShowEditPet] = useState(false);
+
+    const [systemConfig, setSystemConfig] = useState({
+        maintenanceMode: false,
+        primaryAIModel: 'gemini-2.0-pro',
+        searchWeightBreed: 0.5,
+        searchWeightLocation: 0.3,
+        searchWeightAge: 0.2
+    });
+
+    const handleUpdatePet = async (pet: PetProfile) => {
+        setIsRefreshing(true);
+        try {
+            await dbService.savePet(pet);
+            await dbService.logAdminAction({
+                adminEmail: currentUser.email,
+                action: 'UPDATE_PET',
+                targetId: pet.id,
+                details: `Admin override update for pet: ${pet.name}`
+            });
+            addSnackbar(t('dashboard:admin.petUpdated'), 'success');
+            await onRefresh();
+        } catch (e: any) { addSnackbar(e.message, 'error'); }
+        setIsRefreshing(false);
+    };
+
+    const handleUpdateConfig = async (newConfig: any) => {
+        setSystemConfig(newConfig);
+        addSnackbar(t('dashboard:admin.configUpdated'), 'success');
+        // Logic to persist config to Firestore would go here
+    };
 
     useEffect(() => {
         const unsubDonations = dbService.subscribeToDonations(setAllDonations, undefined, true);
@@ -92,11 +126,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         { id: 'users', label: t('dashboard:admin.adminTabUsers'), icon: '👥' },
         { id: 'clinics', label: t('dashboard:admin.adminTabClinics'), icon: '🏥' },
         { id: 'pets', label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
+        { id: 'gamification', label: t('dashboard:admin.adminTabGamification'), icon: '🏆' },
         { id: 'blog', label: t('dashboard:admin.adminTabBlog'), icon: '📰' },
         { id: 'donations', label: t('dashboard:admin.adminTabDonations'), icon: '💰' },
         { id: 'i18n', label: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
         { id: 'social', label: t('dashboard:admin.adminTabSocial'), icon: '📡' },
         { id: 'optimization', label: t('dashboard:admin.optimizeTab'), icon: '🧠' },
+        { id: 'config', label: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
         { id: 'verification', label: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
         { id: 'logs', label: t('dashboard:admin.adminTabLogs'), icon: '📟' }
     ], [t, pendingVerifications.length]);
@@ -598,39 +634,101 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                              t('dashboard:admin.statusOwned')}
                                                         </span>
                                                     </td>
-                                                    <td className="p-5 font-mono text-slate-500 tracking-tighter">
-                                                        {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
-                                                    </td>
-                                                    <td className="p-5 text-right">
-                                                        <button 
-                                                            onClick={async () => { 
-                                                                if(confirm(t('dashboard:admin.confirmTerminateProfile'))) {
-                                                                    await dbService.deletePet(p.id);
-                                                                    await dbService.logAdminAction({
-                                                                        adminEmail: currentUser.email,
-                                                                        action: 'DELETE_PET',
-                                                                        targetId: p.id,
-                                                                        details: `Terminated pet profile: ${p.name}`
-                                                                    });
-                                                                    await onRefresh(); 
-                                                                }
-                                                            }}
-                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                        >
-                                                            {t('dashboard:admin.terminateButton')}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </GlassCard>
-                        </div>
-                    )}
-
-                    {activeTab === 'blog' && (
-                        <div className="space-y-6">
+                                                                                                    <td className="p-5 font-mono text-slate-500 tracking-tighter">
+                                                                                                        {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
+                                                                                                    </td>
+                                                                                                    <td className="p-5 text-right space-x-2">
+                                                                                                        <button 
+                                                                                                            onClick={() => { setEditingPet(p); setShowEditPet(true); }}
+                                                                                                            className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                                                        >
+                                                                                                            {t('dashboard:admin.editButton')}
+                                                                                                        </button>
+                                                                                                        <button 
+                                                                                                            onClick={async () => { 
+                                                                                                                if(confirm(t('dashboard:admin.confirmTerminateProfile'))) {
+                                                                                                                    await dbService.deletePet(p.id);
+                                                                                                                    await dbService.logAdminAction({
+                                                                                                                        adminEmail: currentUser.email,
+                                                                                                                        action: 'DELETE_PET',
+                                                                                                                        targetId: p.id,
+                                                                                                                        details: `Terminated pet profile: ${p.name}`
+                                                                                                                    });
+                                                                                                                    await onRefresh(); 
+                                                                                                                }
+                                                                                                            }}
+                                                                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                                                                        >
+                                                                                                            {t('dashboard:admin.terminateButton')}
+                                                                                                        </button>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            ))}
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </GlassCard>
+                                                                        </div>
+                                                                    )}
+                                                    
+                                                                    {activeTab === 'gamification' && (
+                                                                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                                                                            <GlassCard className="p-8 border-primary/20 bg-black/40">
+                                                                                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabGamification')}</h3>
+                                                                                <div className="grid gap-4">
+                                                                                    {users.filter(u => u.points > 0 || u.badges.length > 0).map(u => (
+                                                                                        <div key={u.uid} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
+                                                                                            <div>
+                                                                                                <p className="font-bold text-white">{u.email}</p>
+                                                                                                <p className="text-[10px] text-primary font-black uppercase tracking-widest">{u.points} XP</p>
+                                                                                            </div>
+                                                                                            <div className="flex gap-2">
+                                                                                                {u.badges.map(b => (
+                                                                                                    <span key={b} className="px-2 py-1 bg-primary/20 text-primary border border-primary/30 rounded text-[8px] font-black uppercase">{b}</span>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </GlassCard>
+                                                                        </div>
+                                                                    )}
+                                                    
+                                                                    {activeTab === 'config' && (
+                                                                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                                                                            <GlassCard className="p-8 border-primary/20 bg-black/40">
+                                                                                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabConfig')}</h3>
+                                                                                <div className="space-y-6">
+                                                                                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                                                                                        <div>
+                                                                                            <p className="font-bold text-white">Maintenance Mode</p>
+                                                                                            <p className="text-xs text-slate-500">Lock the platform for updates.</p>
+                                                                                        </div>
+                                                                                        <input 
+                                                                                            type="checkbox" 
+                                                                                            checked={systemConfig.maintenanceMode} 
+                                                                                            onChange={(e) => handleUpdateConfig({...systemConfig, maintenanceMode: e.target.checked})}
+                                                                                            className="w-6 h-6 accent-primary"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="space-y-4">
+                                                                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">Primary AI Model</p>
+                                                                                        <select 
+                                                                                            value={systemConfig.primaryAIModel}
+                                                                                            onChange={(e) => handleUpdateConfig({...systemConfig, primaryAIModel: e.target.value})}
+                                                                                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-primary"
+                                                                                        >
+                                                                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
+                                                                                            <option value="gemini-2.0-pro">Gemini 2.0 Pro (Intelligent)</option>
+                                                                                            <option value="gemini-exp-1206">Gemini Experimental</option>
+                                                                                        </select>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </GlassCard>
+                                                                        </div>
+                                                                    )}
+                                                    
+                                                                        {activeTab === 'blog' && (                        <div className="space-y-6">
                             <div className="flex justify-between items-center px-2">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter drop-shadow-md">{t('dashboard:admin.blogRepository').split(' ')[0]} <span className="text-primary">{t('dashboard:admin.blogRepository').split(' ')[1]}</span></h3>
                                 <GlassButton 
@@ -888,6 +986,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     onClose={() => setShowAddVet(false)}
                     onSuccess={handleRefresh}
                     adminEmail={currentUser.email}
+                />
+            )}
+
+            {showEditPet && editingPet && (
+                <AdminPetEditorModal 
+                    pet={editingPet}
+                    currentUser={currentUser}
+                    isOpen={showEditPet}
+                    onClose={() => setShowEditPet(false)}
+                    onUpdate={handleUpdatePet}
                 />
             )}
 

@@ -358,7 +358,11 @@ export const ro = {
             "unlinkedStatus": "DECONECTAT",
             "createClinicAction": "CREARE",
             "verifyNowAction": "VERIFICARE",
-            "noEngagementData": "NU_EXISTĂ_DATE_DE_ANGAJAMENT"
+            "noEngagementData": "NU_EXISTĂ_DATE_DE_ANGAJAMENT",
+            "adminTabGamification": "Gamificare & XP",
+            "adminTabConfig": "Configurare Sistem",
+            "petUpdated": "Înregistrarea biometrică a animalului de companie a fost actualizată cu succes.",
+            "configUpdated": "Configurația sistemului a fost actualizată în toate nodurile."
         },
         "adoption": {
             "matchesFound": "S-au găsit {{count}} potriviri",

@@ -358,7 +358,11 @@ export const es = {
             "unlinkedStatus": "DESENLAZADO",
             "createClinicAction": "CREAR",
             "verifyNowAction": "VERIFICAR",
-            "noEngagementData": "NO_DATA_ENGAGEMENT"
+            "noEngagementData": "NO_DATA_ENGAGEMENT",
+            "adminTabGamification": "Gamificación & XP",
+            "adminTabConfig": "Configuración del Sistema",
+            "petUpdated": "Registro biométrico de la mascota actualizado exitosamente.",
+            "configUpdated": "Configuración del sistema actualizada en todos los nodos."
         },
         "adoption": {
             "matchesFound": "{{count}} coincidencias encontradas",

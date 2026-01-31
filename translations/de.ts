@@ -358,7 +358,11 @@ export const de = {
             "unlinkedStatus": "GETRENNT",
             "createClinicAction": "ERSTELLEN",
             "verifyNowAction": "VERIFIZIEREN",
-            "noEngagementData": "KEINE_INTERAKTIONS_DATEN"
+            "noEngagementData": "KEINE_INTERAKTIONS_DATEN",
+            "adminTabGamification": "Gamifizierung & XP",
+            "adminTabConfig": "Systemkonfiguration",
+            "petUpdated": "Biometrischer Datensatz des Haustiers erfolgreich aktualisiert.",
+            "configUpdated": "Systemkonfiguration auf allen Nodes aktualisiert."
         },
         "adoption": {
             "matchesFound": "{{count}} Übereinstimmungen gefunden",

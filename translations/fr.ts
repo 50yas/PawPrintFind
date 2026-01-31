@@ -358,7 +358,11 @@ export const fr = {
             "unlinkedStatus": "NON_LIEE",
             "createClinicAction": "CREER",
             "verifyNowAction": "VERIFIER",
-            "noEngagementData": "AUCUNE_DONNEE_D_ENGAGEMENT"
+            "noEngagementData": "AUCUNE_DONNEE_D_ENGAGEMENT",
+            "adminTabGamification": "Gamification & XP",
+            "adminTabConfig": "Configuration Système",
+            "petUpdated": "Enregistrement biométrique de l'animal mis à jour avec succès.",
+            "configUpdated": "Configuration du système mise à jour sur tous les nœuds."
         },
         "adoption": {
             "matchesFound": "{{count}} correspondances trouvées",

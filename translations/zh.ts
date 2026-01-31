@@ -358,7 +358,11 @@ export const zh = {
             "unlinkedStatus": "未链接",
             "createClinicAction": "创建",
             "verifyNowAction": "验证",
-            "noEngagementData": "无互动数据"
+            "noEngagementData": "无互动数据",
+            "adminTabGamification": "游戏化及经验值",
+            "adminTabConfig": "系统配置",
+            "petUpdated": "宠物生物识别记录更新成功。",
+            "configUpdated": "系统配置已在所有节点上更新。"
         },
         "adoption": {
             "matchesFound": "找到{{count}}个匹配项",

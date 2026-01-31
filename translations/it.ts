@@ -648,7 +648,11 @@ export const it = {
             "commandCore": "COMMAND_CORE",
             "urgentProtocol": "URGENT_PROTOCOL",
             "resolveNow": "RESOLVE_NOW",
-            "loadFactor": "LOAD_FACTOR"
+            "loadFactor": "LOAD_FACTOR",
+            "adminTabGamification": "Gamification & XP",
+            "adminTabConfig": "Configurazione di Sistema",
+            "petUpdated": "Record biometrico dell'animale domestico aggiornato con successo.",
+            "configUpdated": "Configurazione di sistema aggiornata su tutti i nodi."
         },
         "adoption": {
             "matchesFound": "{{count}} corrispondenze trovate",

@@ -143,6 +143,22 @@ export const SearchOptimizationDashboard: React.FC = () => {
                                     <div className="pt-4 text-[8px] text-slate-500">
                                         LAST UPDATED: {new Date(config.lastUpdated).toLocaleString()}
                                     </div>
+                                    <div className="pt-6 border-t border-white/5 space-y-4">
+                                        <h4 className="text-[10px] font-black text-primary uppercase tracking-widest">Neural Impact Analysis</h4>
+                                        <div className="flex gap-2 h-20 items-end">
+                                            {[
+                                                { label: 'BRD', val: config.breedMatchWeight * 100 },
+                                                { label: 'LOC', val: config.locationWeight * 100 },
+                                                { label: 'AGE', val: config.ageWeight * 100 }
+                                            ].map((d, i) => (
+                                                <div key={i} className="flex-1 bg-white/5 rounded-t-lg relative group overflow-hidden border border-white/5">
+                                                    <div className="w-full bg-primary/30 absolute bottom-0 transition-all duration-1000" style={{ height: `${d.val}%` }}></div>
+                                                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">{d.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[8px] text-slate-500 italic">Relative influence of biometric parameters on match scoring.</p>
+                                    </div>
                                 </div>
                             ) : (
                                 <p className="text-[10px] text-slate-500 italic text-center py-10">No active configuration found. Defaults in use.</p>

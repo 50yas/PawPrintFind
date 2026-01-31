@@ -358,7 +358,11 @@ export const ar = {
             "unlinkedStatus": "غير مرتبط",
             "createClinicAction": "إنشاء",
             "verifyNowAction": "تحقق",
-            "noEngagementData": "لا توجد بيانات تفاعل"
+            "noEngagementData": "لا توجد بيانات تفاعل",
+            "adminTabGamification": "التحفيز ونقاط الخبرة",
+            "adminTabConfig": "تكوين النظام",
+            "petUpdated": "تم تحديث سجل القياسات الحيوية للحيوان الأليف بنجاح.",
+            "configUpdated": "تم تحديث تكوين النظام عبر جميع العقد."
         },
         "adoption": {
             "matchesFound": "تم العثور على {{count}} مطابقات",
