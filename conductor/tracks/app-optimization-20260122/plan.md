@@ -39,15 +39,15 @@ Goal: Implement filters, favorites, and AI matching.
     - [x] Add Web Share API integration for pet profiles.
 - [x] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
 
-## Phase 4: Accessibility & Final Polish
+## Phase 4: Accessibility & Final Polish [checkpoint: cdd397b]
 Goal: Reach 100% WCAG compliance and final visual refinements.
 
-- [~] **Task: Accessibility Audit & Remediation**
-    - [ ] Run `vitest-axe` on all new components.
-    - [ ] Fix contrast issues and ensure keyboard navigation works for all modals.
-- [ ] **Task: Final UI/UX Consistency Check**
-    - [ ] Verify Material You color harmony across all views.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)**
+- [x] **Task: Accessibility Audit & Remediation** <!-- cdd397b -->
+    - [x] Run `vitest-axe` on all new components.
+    - [x] Fix contrast issues and ensure keyboard navigation works for all modals.
+- [x] **Task: Final UI/UX Consistency Check** <!-- cdd397b -->
+    - [x] Verify Material You color harmony across all views.
+- [x] **Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)** <!-- cdd397b -->
 
 ## Phase 5: Enterprise Admin Tools & Social Discovery
 Goal: Empower admins with donation management, automated translation enhancement, and social media scraping.
@@ -83,6 +83,10 @@ Goal: Empower admins with donation management, automated translation enhancement
 - [x] **Task: Translation Clarity Refinement** <!-- 9982e5f -->
     - [x] Reviewed `translations/` for jargon and replaced with educational, descriptive labels.
     - [x] Removed underscores and dashes from Italian UI buttons.
+- [ ] **Task: UI/UX & Logic Refinements (User Feedback)**
+    - [ ] "Mutton avoid the ." - Review and fix button text/labels in Admin Dashboard or elsewhere (likely removing trailing dots or fixing layout/text issues).
+    - [ ] Enhance UI - General polish pass on Admin Dashboard cards and interactions.
+    - [ ] Fix Live Visitors Counter - Improve the simulated counter logic/visuals in `AdminDashboard.tsx` to look more realistic or "fixed".
 - [ ] **Task: Social Media Scraper Agent**
     - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
     - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.
