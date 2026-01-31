@@ -12,7 +12,7 @@ vi.mock('./firebase', () => ({
 
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),
-  doc: vi.fn(),
+  doc: vi.fn().mockReturnValue({ id: 'mock-doc' }),
   setDoc: vi.fn().mockResolvedValue(undefined),
   updateDoc: vi.fn().mockResolvedValue(undefined),
   deleteDoc: vi.fn().mockResolvedValue(undefined),
@@ -127,5 +127,10 @@ describe('contentService', () => {
   it('getBlogPosts calls getDocs', async () => {
     await contentService.getBlogPosts();
     expect(getDocs).toHaveBeenCalled();
+  });
+
+  it('confirmDonation calls updateDoc with isConfirmed true', async () => {
+    await contentService.confirmDonation('d1');
+    expect(updateDoc).toHaveBeenCalledWith(expect.anything(), { isConfirmed: true, approved: true });
   });
 });

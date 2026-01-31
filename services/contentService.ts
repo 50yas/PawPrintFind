@@ -71,13 +71,23 @@ export const contentService = {
         }
     },
 
+    async confirmDonation(id: string): Promise<void> {
+        try {
+            if (!auth.currentUser) throw new Error("Authentication required.");
+            await updateDoc(doc(db, 'donations', id), { isConfirmed: true, approved: true });
+        } catch (error) {
+            logger.error('Error confirming donation:', error);
+            throw error;
+        }
+    },
+
     async getDonations(all: boolean = false): Promise<Donation[]> {
         try {
             let q;
             if (all) {
                 q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
             } else {
-                q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+                q = query(collection(db, 'donations'), where('isPublic', '==', true), where('isConfirmed', '==', true), orderBy('timestamp', 'desc'));
             }
             const snap = await getDocs(q);
             return snap.docs.map(d => {
@@ -95,7 +105,7 @@ export const contentService = {
         if (all) {
             q = query(collection(db, 'donations'), orderBy('timestamp', 'desc'));
         } else {
-            q = query(collection(db, 'donations'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
+            q = query(collection(db, 'donations'), where('isPublic', '==', true), where('isConfirmed', '==', true), orderBy('timestamp', 'desc'));
         }
         return onSnapshot(q, (s) => {
             const donations = s.docs.map(d => {

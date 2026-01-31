@@ -272,6 +272,7 @@ export interface Donation {
   avatarUrl?: string;
   status: 'pending_payment' | 'paid' | 'failed';
   approved: boolean;
+  isConfirmed?: boolean; // Admin manually confirms the donation
   isPublic: boolean;
   stripeSessionId?: string;
 }

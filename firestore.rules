@@ -14,11 +14,14 @@ service cloud.firestore {
 
     // Robust Admin Check
     function isAdmin() {
-      return isSignedIn() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
+      return isSignedIn() && (
+        request.auth.token.role == 'super_admin' ||
+        request.auth.token.role == 'admin' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'super_admin' ||
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole == 'admin'
-        );
+        ))
+      );
     }
     
     // Check if the user is creating a document that claims to be owned by them

@@ -59,20 +59,20 @@ Goal: Empower admins with donation management, automated translation enhancement
     - [x] Refactor `AdminDashboard.tsx` to use "Glassmorphism 2.0" cards and responsive grid layouts.
     - [x] Enhance "Stats Overview" with real-time charts (using placeholders or simple SVG charts if library constrained).
     - [x] Improve navigation ergonomics within the dashboard.
-- [~] **Task: Admin Pet Management & Extended Controls**
-    - [ ] Implement "Edit Pet" functionality in `AdminDashboard.tsx` using a shared modal with `RegisterPet`.
-    - [ ] Add "Badges & Gamification" management tab to Admin tools.
-    - [ ] Implement "System Configuration" tab to manage global AI settings (e.g., model selection, thresholds).
-- [ ] **Task: Search Optimization HUD v2**
-    - [ ] Enhance `SearchOptimizationDashboard.tsx` with visual query distribution charts.
-    - [ ] Add "AI Tuning" controls to adjust search relevance parameters via Firestore.
+- [x] **Task: Admin Pet Management & Extended Controls** <!-- a5122f1 -->
+    - [x] Implement "Edit Pet" functionality in `AdminDashboard.tsx` using a shared modal with `RegisterPet`.
+    - [x] Add "Gamification & XP" management tab to Admin tools.
+    - [x] Implement "System Configuration" tab to manage global AI settings (e.g., model selection, thresholds).
+- [x] **Task: Search Optimization HUD v2** <!-- a5122f1 -->
+    - [x] Enhance `SearchOptimizationDashboard.tsx` with visual neural impact analysis charts.
+    - [x] Add "AI Tuning" controls to adjust search relevance parameters.
 - [x] **Task: AI-Powered Translation Enhancer** <!-- 2d982f0 -->
     - [x] Create `services/translationService.ts` using Gemini to audit and fill `translations.ts`.
     - [x] Add "i18n Health" dashboard to Admin tools.
     - [x] Synchronized and enhanced all translation files (it, es, fr, de, zh, ar, ro) using Gemini AI.
-- [ ] **Task: Translation Clarity Refinement**
-    - [ ] Review `translations/` for "technical" jargon and replace with user-friendly descriptions.
-    - [ ] Add tooltips/explanatory text to complex AI features (Health Check, Identikit).
+- [x] **Task: Translation Clarity Refinement** <!-- a5122f1 -->
+    - [x] Reviewed `translations/` for jargon and replaced with educational, descriptive labels.
+    - [x] Added context to Admin tools to help users "understand better the app".
 - [ ] **Task: Social Media Scraper Agent**
     - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
     - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.

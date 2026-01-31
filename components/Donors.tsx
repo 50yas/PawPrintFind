@@ -13,8 +13,8 @@ export const Donors: React.FC<DonorsProps> = ({ goBack, donations }) => {
     const { t } = useTranslations();
     const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
-    // Filter only approved and public donations, or show all if specifically needed (usually filtered by backend/service)
-    const displayDonations = donations.filter(d => d.approved && d.isPublic);
+    // Filter only confirmed and public donations
+    const displayDonations = (donations || []).filter(d => d.isConfirmed && d.isPublic);
 
     return (
         <div className="max-w-5xl mx-auto pb-12">

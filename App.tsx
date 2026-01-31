@@ -103,6 +103,8 @@ export default function App() {
     const [petToLink, setPetToLink] = useState<PetProfile | null>(null);
     const [healthCheckingPet, setHealthCheckingPet] = useState<PetProfile | null>(null);
 
+    const [isAdminBrowsing, setIsAdminBrowsing] = useState(false);
+
     const lostPets = allPets.filter(p => p.isLost);
     const petsForAdoption = allPets.filter(p => p.status === 'forAdoption');
 
@@ -120,6 +122,7 @@ export default function App() {
         await dbService.logout();
         setCurrentUser(null);
         setCurrentView('home');
+        setIsAdminBrowsing(false);
         addSnackbar(t('secureSessionClosed'), 'info');
     };
 
@@ -131,7 +134,7 @@ export default function App() {
             setEditingPet(null);
             
             // Redirect based on active protocol
-            const nextView = currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : 'dashboard';
+            const nextView = currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : (currentUser?.activeRole === 'super_admin' ? 'adminDashboard' : 'dashboard');
             setCurrentView(nextView);
         } catch (err: any) { 
             console.error("App Register Error:", err);
@@ -197,7 +200,7 @@ export default function App() {
             );
         }
 
-        if (currentUser.activeRole === 'super_admin') {
+        if (currentUser.activeRole === 'super_admin' && !isAdminBrowsing) {
             if (currentView === 'blogPost' && selectedPost) {
                 return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
             }
@@ -229,6 +232,39 @@ export default function App() {
                         setSelectedPost(post);
                         setCurrentView('blogPost');
                     }}
+                    onBrowseSite={() => setIsAdminBrowsing(true)}
+                />
+            );
+        }
+
+        if (currentUser.activeRole === 'super_admin' && isAdminBrowsing) {
+            return (
+                <UserRouter
+                    currentView={currentView}
+                    setView={setCurrentView}
+                    currentUser={currentUser}
+                    allPets={allPets}
+                    vetClinics={vetClinics}
+                    appointments={appointments}
+                    chatSessions={chatSessions}
+                    lostPets={lostPets}
+                    petsForAdoption={petsForAdoption}
+                    donations={donations}
+                    allUsers={allUsers}
+                    editingPet={editingPet}
+                    setEditingPet={setEditingPet}
+                    petToLink={petToLink}
+                    setPetToLink={setPetToLink}
+                    selectedPost={selectedPost}
+                    setSelectedPost={setSelectedPost}
+                    handleRegisterPet={handleRegisterPet}
+                    handleStartChat={handleStartChat}
+                    handleLogout={handleLogout}
+                    setIsLoginModalOpen={setIsLoginModalOpen}
+                    setHealthCheckingPet={setHealthCheckingPet}
+                    onApplySearch={handleApplySearch}
+                    predefinedFilters={predefinedFilters}
+                    isLoading={isLoading}
                 />
             );
         }
@@ -317,13 +353,28 @@ export default function App() {
             <DevMarquee />
             <OfflineBanner />
 
+            {isAdminBrowsing && (
+                <div className="fixed top-8 left-0 w-full z-[300] bg-primary/90 backdrop-blur-md border-b border-black/20 p-2 flex justify-between items-center px-6">
+                    <span className="text-[10px] font-black text-black uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+                        Admin Website Navigation Mode
+                    </span>
+                    <button 
+                        onClick={() => setIsAdminBrowsing(false)}
+                        className="bg-black text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:scale-105 transition-all uppercase tracking-widest"
+                    >
+                        Return to Command Core
+                    </button>
+                </div>
+            )}
+
             <Navbar
                 currentUser={currentUser}
                 setCurrentUser={setCurrentUser}
                 onLoginClick={() => setIsLoginModalOpen(true)}
                 onLogoutClick={handleLogout}
                 setView={setCurrentView}
-                className="!top-8"
+                className={isAdminBrowsing ? "!top-20" : "!top-8"}
             />
 
             <ErrorBoundary>

@@ -15,6 +15,7 @@ interface AdminRouterProps {
     onLogout: () => void;
     onRefresh: () => Promise<void>;
     onViewPost?: (post: BlogPost) => void;
+    onBrowseSite?: () => void;
 }
 
 export const AdminRouter: React.FC<AdminRouterProps> = (props) => {
@@ -30,6 +31,7 @@ export const AdminRouter: React.FC<AdminRouterProps> = (props) => {
                 onLogout={props.onLogout}
                 onRefresh={props.onRefresh}
                 onViewPost={props.onViewPost}
+                onBrowseSite={props.onBrowseSite}
             />
         </Suspense>
     );

@@ -306,6 +306,10 @@ export const dbService = {
         return contentService.deleteDonation(id);
     },
 
+    async confirmDonation(id: string): Promise<void> {
+        return contentService.confirmDonation(id);
+    },
+
     subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void, all: boolean = false) {
         return contentService.subscribeToDonations(callback, onError, all);
     },

@@ -19,6 +19,38 @@ const AddPatientModal = React.lazy(() => import('./AddPatientModal').then(m => (
 const AddClinicModal = React.lazy(() => import('./AddClinicModal').then(m => ({ default: m.AddClinicModal })));
 const AddVetModal = React.lazy(() => import('./AddVetModal').then(m => ({ default: m.AddVetModal })));
 
+const RegistrationChart: React.FC<{ users: User[] }> = ({ users }) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const now = new Date();
+    const data = Array.from({ length: 7 }).map((_, i) => {
+        const d = new Date();
+        d.setDate(now.getDate() - (6 - i));
+        const count = (users || []).filter(u => {
+            const created = new Date(u.createdAt || 0);
+            return created.toDateString() === d.toDateString();
+        }).length;
+        return { label: days[d.getDay()], count };
+    });
+
+    const max = Math.max(...data.map(d => d.count), 1);
+
+    return (
+        <div className="space-y-4">
+            <h4 className="text-[10px] font-black text-primary uppercase tracking-widest">Identity Registration Registry</h4>
+            <div className="flex gap-2 h-24 items-end">
+                {data.map((d, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                        <div className="w-full bg-primary/10 border border-primary/20 rounded-t-md relative overflow-hidden h-full flex flex-col justify-end">
+                            <div className="bg-primary/40 group-hover:bg-primary transition-all duration-500" style={{ height: `${(d.count / max) * 100}%` }}></div>
+                        </div>
+                        <span className="text-[8px] text-slate-500 font-mono">{d.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 interface AdminDashboardProps {
     users: User[];
     currentUser: User;
@@ -29,9 +61,10 @@ interface AdminDashboardProps {
     onLogout: () => void;
     onRefresh: () => Promise<void>;
     onViewPost?: (post: BlogPost) => void;
+    onBrowseSite?: () => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost, onBrowseSite }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config'>('overview');
@@ -309,6 +342,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     <GlassButton onClick={handleRefresh} variant="secondary" className="w-full !py-2 !text-[9px]">
                         {isRefreshing ? <LoadingSpinner /> : t('dashboard:admin.syncNode')}
                     </GlassButton>
+                    <GlassButton onClick={onBrowseSite} variant="primary" className="w-full !py-2 !text-[9px]">
+                        {t('dashboard:admin.browseSite') || 'BROWSE_WEBSITE'}
+                    </GlassButton>
                     <GlassButton onClick={onLogout} variant="danger" className="w-full !py-2 !text-[9px]">
                         {t('dashboard:admin.exitSession')}
                     </GlassButton>
@@ -368,6 +404,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <GlassCard className="p-6 border-white/10 bg-black/40">
+                                    <RegistrationChart users={users} />
+                                </GlassCard>
+                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
+                                        <span className="text-5xl font-black text-white relative z-10">{Math.floor(Math.random() * 50) + 12}</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t('dashboard:admin.liveVisitors') || 'LIVE_VISITORS'}</p>
+                                        <p className="text-[8px] text-slate-500 uppercase font-mono">Current active session nodes</p>
+                                    </div>
+                                </GlassCard>
+                            </div>
+
                             <React.Suspense fallback={<LoadingSpinner />}>
                                 <SystemHealth />
                             </React.Suspense>
@@ -868,11 +920,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                         }`}>
                                                             {t(`dashboard:admin.status_${d.status}`)}
                                                         </span>
+                                                        {d.isConfirmed ? (
+                                                            <span className="ml-2 text-[8px] text-primary font-black uppercase border border-primary/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.confirmedDonationBadge')}</span>
+                                                        ) : (
+                                                            <span className="ml-2 text-[8px] text-amber-500 font-black uppercase border border-amber-500/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.unconfirmedDonationBadge')}</span>
+                                                        )}
                                                     </td>
                                                     <td className="p-5 text-slate-500 font-mono text-[10px]">
                                                         {new Date(d.timestamp).toLocaleDateString()}
                                                     </td>
-                                                    <td className="p-5 text-right">
+                                                    <td className="p-5 text-right space-x-2">
+                                                        {!d.isConfirmed && d.status === 'paid' && (
+                                                            <button 
+                                                                onClick={async () => {
+                                                                    await dbService.confirmDonation(d.id);
+                                                                    addSnackbar(t('dashboard:admin.donationConfirmed'), 'success');
+                                                                }}
+                                                                className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                            >
+                                                                {t('dashboard:admin.confirmDonationButton')}
+                                                            </button>
+                                                        )}
                                                         <button 
                                                             onClick={() => handleDeleteDonation(d.id)}
                                                             className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"

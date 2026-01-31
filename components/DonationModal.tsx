@@ -109,6 +109,34 @@ const CRYPTO_WALLETS = [
     }
 ];
 
+const CostBreakdown = ({ t }: { t: any }) => (
+    <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 space-y-4 shadow-inner">
+        <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+            {t('dashboard:admin.platformCostsTitle')}
+        </h4>
+        <div className="space-y-3">
+            {[
+                { label: t('dashboard:admin.apiCallsLabel'), val: '€120.00', icon: '🤖' },
+                { label: t('dashboard:admin.serverCostsLabel'), val: '€45.00', icon: '☁️' },
+                { label: t('dashboard:admin.devHoursLabel'), val: '450+ hrs', icon: '👨‍💻' }
+            ].map((c, i) => (
+                <div key={i} className="flex justify-between items-center group">
+                    <span className="text-xs text-slate-400 flex items-center gap-2 group-hover:text-white transition-colors">
+                        <span className="text-sm">{c.icon}</span> {c.label}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-white bg-white/5 px-2 py-0.5 rounded border border-white/5">{c.val}</span>
+                </div>
+            ))}
+            <div className="pt-3 border-t border-white/10 flex justify-between items-center">
+                <span className="text-xs font-black text-white uppercase">{t('dashboard:admin.totalCostsLabel')}</span>
+                <span className="text-sm font-black text-primary drop-shadow-[0_0_8px_rgba(20,184,166,0.4)]">€165.00 / mo</span>
+            </div>
+        </div>
+        <p className="text-[9px] text-slate-500 italic leading-relaxed text-center">{t('dashboard:admin.helpUsCoverCosts')}</p>
+    </div>
+);
+
 export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, onSuccess }) => {
   const { t } = useTranslations();
   
@@ -296,6 +324,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                     </div>
 
                     {errorMsg && <div className="p-3 bg-red-100 text-red-600 rounded-lg text-sm font-bold text-center animate-pulse">{errorMsg}</div>}
+
+                    <CostBreakdown t={t} />
 
                     <div className="pt-2">
                         <button type="submit" disabled={isProcessing} className="w-full btn btn-primary py-4 text-lg shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3">
