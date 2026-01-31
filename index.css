@@ -204,6 +204,14 @@
   .custom-scrollbar::-webkit-scrollbar-button:vertical:increment {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
+
+  .glass-card-enhanced {
+    @apply backdrop-blur-2xl bg-white/5 border border-white/10 shadow-[0_0_15px_rgba(0,0,0,0.2)] transition-all duration-500;
+  }
+
+  .glass-card-enhanced:hover {
+    @apply bg-white/10 border-primary/30 shadow-[0_0_25px_rgba(20,184,166,0.3)] transform -translate-y-1;
+  }
 }
 
 @layer utilities {

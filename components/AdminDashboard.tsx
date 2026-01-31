@@ -87,7 +87,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
     const [showEditPet, setShowEditPet] = useState(false);
 
-    const [visitorCount, setVisitorCount] = useState(Math.floor(Math.random() * 20) + 15);
+    const [visitorCount, setVisitorCount] = useState(120 + Math.floor(Math.random() * 50));
 
     const [systemConfig, setSystemConfig] = useState({
         maintenanceMode: false,
@@ -99,8 +99,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setVisitorCount(prev => Math.max(10, prev + (Math.random() > 0.5 ? 1 : -1)));
-        }, 8000);
+            setVisitorCount(prev => {
+                let change = Math.floor(Math.random() * 7) - 3; // -3 to +3
+                if (change === 0) change = 1; // Always move
+                return Math.max(80, prev + change);
+            });
+        }, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -418,10 +422,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <GlassCard className="p-6 border-white/10 bg-black/40">
+                                <GlassCard className="p-6 border-white/10 bg-black/40 glass-card-enhanced">
                                     <RegistrationChart users={users} />
                                 </GlassCard>
-                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4">
+                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4 glass-card-enhanced">
                                     <div className="relative">
                                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
                                         <motion.span 
