@@ -47,6 +47,9 @@ This document outlines the core technologies used in the Paw Print application.
         - **Gemini 2.5 Pro:** Advanced reasoning for health assessments, data querying, and long-form content generation.
         - **Gemini 2.5 Flash:** Low-latency parsing for smart search, chat suggestions, and multilingual translation.
 
+- **Discovery Agents:** Stagehand & Browserbase
+    - **Description:** Headless browser automation and LLM-powered extraction used for social media scraping and external intelligence discovery.
+
 ## 4. Graphics & Mapping
 
 - **3D Graphics:** Three.js / React Three Fiber

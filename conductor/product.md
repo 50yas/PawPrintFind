@@ -38,6 +38,9 @@ Based on the file structure, the application includes the following features:
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON), centralized event tracking via **Firebase Analytics**, and trace correlation for rapid debugging and reliability.
     - **Hardened Security:** A robust zero-trust security model powered by strict **Firestore/Storage rules** and mandatory **Zod input validation** across all service layer entry points.
     - **System Health Diagnostics:** Real-time visual tracking of user and pet registration velocity, resource allocation, and donation trends via an advanced Analytics Dashboard.
+    - **Neural Tuning HUD:** Advanced AI parameter controls for fine-tuning search relevance, AI model selection, and biometric matching thresholds.
+- **Social Discovery & Intelligence:**
+    - **Autonomous Scraper Agent:** An AI-driven discovery engine powered by **Stagehand & Browserbase**, capable of automatically identifying lost pet announcements across external social platforms (Facebook, Nextdoor, etc.) and importing them as actionable community sightings.
 - **Community & Engagement:**
     - **Dynamic Interaction:** Full support for Material 3 state layers (ripples, elevation, focus states) across all interactive components.
     - A community forum or social space (`Community.tsx`).
