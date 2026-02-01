@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { trackUsage } from "./usage";
+import { checkQuota } from "./rateLimit";
 import * as Prompts from "./prompts";
 
 admin.initializeApp();
@@ -16,6 +17,15 @@ async function callGeminiAI(
     contents: any,
     config: any = {}
 ) {
+    // 1. Check Quota
+    const quotaCheck = await checkQuota(userId, featureName);
+    if (!quotaCheck.allowed) {
+        throw new functions.https.HttpsError(
+            "resource-exhausted",
+            quotaCheck.reason || "Daily quota exceeded."
+        );
+    }
+
     const apiKey = process.env.GEMINI_API_KEY || (functions.config().gemini as any)?.key;
     if (!apiKey) {
         throw new functions.https.HttpsError(

@@ -65,6 +65,14 @@ vi.mock('@google/generative-ai', () => {
     };
 });
 
+// Mock checkQuota
+const { mockCheckQuota } = vi.hoisted(() => ({
+    mockCheckQuota: vi.fn().mockResolvedValue({ allowed: true })
+}));
+vi.mock('./rateLimit', () => ({
+    checkQuota: mockCheckQuota
+}));
+
 import { trackUsage } from './usage';
 // @ts-ignore - these won't be exported yet
 import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
@@ -155,5 +163,14 @@ describe('AI Cloud Functions', () => {
         const context = { auth: { uid: 'user1' } };
         // @ts-ignore
         await expect(smartSearch({}, context)).rejects.toThrow('Query required.');
+    });
+
+    it('should throw resource-exhausted if quota exceeded', async () => {
+        const context = { auth: { uid: 'user1' } };
+        const data = { query: 'test' };
+        mockCheckQuota.mockResolvedValueOnce({ allowed: false, reason: 'Quota exceeded' });
+        
+        // @ts-ignore
+        await expect(smartSearch(data, context)).rejects.toThrow('Quota exceeded');
     });
 });
