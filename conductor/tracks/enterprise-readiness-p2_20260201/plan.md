@@ -9,7 +9,7 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Verify workflow triggers on PRs to `main`.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Continuous Integration Setup' (Protocol in workflow.md) [38336ee]
 
-## Phase 2: Cloud Functions Proxy & Secret Management
+## Phase 2: Cloud Functions Proxy & Secret Management [checkpoint: 3dd1fbb]
 - [x] Task: Initialize Firebase Functions [c078ca6]
     - [x] Set up the `functions/` directory with TypeScript.
     - [x] Configure `firebase.json` for functions deployment.
@@ -23,10 +23,10 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
 - [x] Task: Secure API Keys [6d53ff8]
     - [x] Configure Firebase Secrets Manager for `GEMINI_API_KEY`.
     - [x] Remove `VITE_GEMINI_API_KEY` from client-side `.env` and `services/firebase.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Cloud Functions Proxy' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Cloud Functions Proxy' (Protocol in workflow.md) [3dd1fbb]
 
 ## Phase 3: Rate Limiting & Admin Dashboard Updates
-- [ ] Task: Implement Rate Limiting Middleware
+- [~] Task: Implement Rate Limiting Middleware
     - [ ] Add logic to check user quotas against Firestore usage stats before executing AI calls.
     - [ ] Return structured errors for quota exceeded.
 - [ ] Task: Update Admin Dashboard
