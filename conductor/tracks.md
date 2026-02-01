@@ -7,5 +7,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Adoption page loading fix, complete translations, and app enhancements**
+- [x] **Track: Adoption page loading fix, complete translations, and app enhancements**
 *Link: [./tracks/app-optimization-20260122/](./tracks/app-optimization-20260122/)*
