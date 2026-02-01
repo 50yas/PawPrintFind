@@ -425,21 +425,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 <GlassCard className="p-6 border-white/10 bg-black/40 glass-card-enhanced">
                                     <RegistrationChart users={users} />
                                 </GlassCard>
-                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4 glass-card-enhanced">
+                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4 glass-card-enhanced relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity animate-scan"></div>
                                     <div className="relative">
-                                        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
-                                        <motion.span 
-                                            key={visitorCount}
-                                            initial={{ scale: 0.8, opacity: 0.5 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            className="text-5xl font-black text-white relative z-10 font-mono"
-                                        >
-                                            {visitorCount}
-                                        </motion.span>
+                                        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
+                                        <div className="flex flex-col items-center">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="flex h-2 w-2 relative">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                                </span>
+                                                <span className="text-[8px] font-mono text-primary font-black tracking-[0.2em] animate-pulse">LIVE</span>
+                                            </div>
+                                            <motion.span 
+                                                key={visitorCount}
+                                                initial={{ scale: 0.9, opacity: 0.7, filter: 'blur(4px)' }}
+                                                animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                                                className="text-6xl font-black text-white relative z-10 font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                                            >
+                                                {visitorCount}
+                                            </motion.span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">{t('dashboard:admin.liveTraffic')}</p>
-                                        <p className="text-[8px] text-slate-500 uppercase font-mono">{t('dashboard:admin.activeNodesDesc')}</p>
+                                    <div className="relative z-10">
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">{t('dashboard:admin.liveTraffic')}</p>
+                                        <p className="text-[8px] text-slate-500 uppercase font-mono leading-none">{t('dashboard:admin.activeNodesDesc')}</p>
                                     </div>
                                 </GlassCard>
                             </div>
