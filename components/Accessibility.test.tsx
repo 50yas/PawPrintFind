@@ -103,9 +103,8 @@ const mockUser: User = {
 
 const mockAdmin: User = {
   ...mockUser,
-  activeRole: 'admin',
-  roles: ['admin'],
-};
+        activeRole: 'super_admin',
+        roles: ['super_admin'],};
 
 const mockPets: PetProfile[] = [
   {

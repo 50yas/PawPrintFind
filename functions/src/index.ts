@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 admin.initializeApp();
 
@@ -28,7 +28,7 @@ export const callGemini = functions.https.onCall(async (data, context) => {
 
   // 2. Secret Management (API Key)
   // Retrieve the API Key from environment or secrets
-  const apiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.key;
+  const apiKey = process.env.GEMINI_API_KEY || (functions.config().gemini as any)?.key;
   if (!apiKey) {
     console.error("CRITICAL: GEMINI_API_KEY environment variable is not set.");
     throw new functions.https.HttpsError(
@@ -38,7 +38,7 @@ export const callGemini = functions.https.onCall(async (data, context) => {
   }
 
   try {
-    const genAI = new GoogleGenAI(apiKey);
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     // Filter tools if grounding is requested but not available/preconditioned
     const safeConfig = { ...config };

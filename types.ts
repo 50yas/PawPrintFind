@@ -459,6 +459,7 @@ export const DonationSchema = z.object({
   avatarUrl: z.string().url().optional().or(z.literal('')).default(''),
   status: z.enum(['pending_payment', 'paid', 'failed']).default('paid'),
   approved: z.boolean().default(true),
+  isConfirmed: z.boolean().optional(),
   isPublic: z.boolean().default(true),
   stripeSessionId: z.string().optional(),
 });

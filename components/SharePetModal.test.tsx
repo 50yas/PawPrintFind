@@ -45,25 +45,25 @@ describe('SharePetModal', () => {
   } as any;
 
   it('renders tabs', () => {
-    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    render(<SharePetModal onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     expect(screen.getByText('Instagram / TikTok')).toBeInTheDocument();
     expect(screen.getByText('Friends')).toBeInTheDocument();
   });
 
   it('switches to Social tab by default', () => {
-    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    render(<SharePetModal onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     expect(screen.getByText('AI Biometric Card')).toBeInTheDocument();
   });
 
   it('switches to Friends tab', () => {
-    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    render(<SharePetModal onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     fireEvent.click(screen.getByText('Friends'));
     // Use the mock translation key or value
     expect(screen.getByText('Share this pet with your friends')).toBeInTheDocument();
   });
 
   it('displays the Paw-Print Challenge promotion', () => {
-    render(<SharePetModal isOpen={true} onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
+    render(<SharePetModal onClose={() => {}} pet={mockPet} friends={[]} onShare={() => {}} />);
     // Use text match function to handle split text
     expect(screen.getByText((content, node) => {
         const hasText = (node: Element | null) => node?.textContent === "#PawPrintChallenge";
