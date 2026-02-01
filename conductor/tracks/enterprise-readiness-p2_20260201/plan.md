@@ -25,7 +25,7 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Remove `VITE_GEMINI_API_KEY` from client-side `.env` and `services/firebase.ts`.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Cloud Functions Proxy' (Protocol in workflow.md) [3dd1fbb]
 
-## Phase 3: Rate Limiting & Admin Dashboard Updates
+## Phase 3: Rate Limiting & Admin Dashboard Updates [checkpoint: d1d7d2e]
 - [x] Task: Implement Rate Limiting Middleware [56d7410]
     - [x] Add logic to check user quotas against Firestore usage stats before executing AI calls.
     - [x] Return structured errors for quota exceeded.
@@ -33,10 +33,10 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Extend `AdminDashboard.tsx` to display a "User Usage" table or modal.
     - [x] Fetch and display `usageStats` subcollection data for users.
     - [x] Add a button to reset usage counters for a specific user.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Rate Limiting & Admin Dashboard Updates' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Rate Limiting & Admin Dashboard Updates' (Protocol in workflow.md) [d1d7d2e]
 
 ## Phase 4: App Check & Final Security
-- [ ] Task: Enable Firebase App Check
+- [~] Task: Enable Firebase App Check
     - [ ] Initialize App Check in the React app (`services/firebase.ts`).
     - [ ] Enforce App Check protection on Cloud Functions and Firestore.
 - [ ] Task: Frontend Service Refactor
