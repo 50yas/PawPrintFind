@@ -7,14 +7,49 @@ import * as Prompts from './prompts';
 import { captureError } from './monitoringService';
 import { identifyBreedLocally } from './localInferenceService';
 
+// --- SPECIALIZED CLOUD FUNCTION CALLERS ---
+
+const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
+    const fn = httpsCallable(functions, 'visionIdentification');
+    const result = await fn({ image, task, locale });
+    return result.data as { success: boolean, text: string };
+};
+
+const callSmartSearchAI = async (query: string) => {
+    const fn = httpsCallable(functions, 'smartSearch');
+    const result = await fn({ query });
+    return result.data as { success: boolean, text: string };
+};
+
+const callHealthAssessmentAI = async (pet: PetProfile, symptoms: string, locale: string = 'en') => {
+    const fn = httpsCallable(functions, 'healthAssessment');
+    const result = await fn({ pet, symptoms, locale });
+    return result.data as { success: boolean, text: string };
+};
+
+const callBlogGenerationAI = async (topic: string) => {
+    const fn = httpsCallable(functions, 'blogGeneration');
+    const result = await fn({ topic });
+    return result.data as { success: boolean, text: string };
+};
+
 /**
- * Calls the Cloud Function to interact with Gemini AI.
- * This ensures the API key remains secret and allows for server-side rate limiting.
+ * Legacy caller for non-migrated features.
  */
 const callGeminiFunction = async (model: string, contents: any, config?: any) => {
     const callGemini = httpsCallable(functions, 'callGemini');
     const result = await callGemini({ model, contents, config });
     return result.data as { success: boolean, text: string };
+};
+
+const checkRateLimitError = (error: any) => {
+    if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
+        window.dispatchEvent(new CustomEvent('pawprint_rate_limit', { 
+            detail: { message: error.message || "Daily AI limit reached." } 
+        }));
+        return true;
+    }
+    return false;
 };
 
 // --- UTILITY: Exponential Backoff Retry Wrapper ---
@@ -27,6 +62,8 @@ async function retryWithBackoff<T>(
     try {
         return await operation();
     } catch (error: any) {
+        if (checkRateLimitError(error)) throw error; // Don't retry rate limits
+
         // If the request fails with "Requested entity was not found", it indicates an issue with the current key selection.
         if (error.message?.includes("Requested entity was not found.")) {
             window.dispatchEvent(new CustomEvent('pawprint_api_error', { detail: { message: error.message } }));
@@ -42,12 +79,12 @@ async function retryWithBackoff<T>(
     }
 }
 
-const fileToGenerativePart = async (file: File, onProgress?: (percent: number) => void) => {
-    const base64EncodedDataPromise = new Promise<string>((resolve) => {
+const fileToBase64 = async (file: File, onProgress?: (percent: number) => void): Promise<string> => {
+    return new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => {
             if (onProgress) onProgress(100);
-            resolve((reader.result as string).split(',')[1])
+            resolve((reader.result as string).split(',')[1]);
         };
         reader.onprogress = (event) => {
             if (event.lengthComputable && onProgress) {
@@ -57,9 +94,6 @@ const fileToGenerativePart = async (file: File, onProgress?: (percent: number) =
         };
         reader.readAsDataURL(file);
     });
-    return {
-        inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
-    };
 };
 
 export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Promise<any> => {
@@ -75,36 +109,16 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
     }
 
     return retryWithBackoff(async () => {
-        const imagePart = await fileToGenerativePart(photo);
-        const response = await callGeminiFunction(
-            'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getAutoFillPetDetailsPrompt(locale) }] },
-            {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        breed: { type: Type.STRING },
-                        color: { type: Type.STRING },
-                        age: { type: Type.STRING },
-                        size: { type: Type.STRING },
-                        gender: { type: Type.STRING }
-                    },
-                    required: ["breed", "color", "size"]
-                }
-            }
-        );
+        const base64 = await fileToBase64(photo);
+        const response = await callVisionAI(base64, 'autofill', locale);
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const analyzeImageForDescription = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
-        const imagePart = await fileToGenerativePart(photo);
-        const response = await callGeminiFunction(
-            'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getImageDescriptionPrompt() }] }
-        );
+        const base64 = await fileToBase64(photo);
+        const response = await callVisionAI(base64, 'describe');
         return response.text || "No description generated.";
     });
 };
@@ -117,10 +131,10 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
     }
 
     return retryWithBackoff(async () => {
-        const imagePart = await fileToGenerativePart(photo);
+        const base64 = await fileToBase64(photo);
         const response = await callGeminiFunction(
             'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getBreedIdentificationPrompt(locale) }] }
+            { parts: [{ inlineData: { data: base64, mimeType: photo.type } }, { text: Prompts.getBreedIdentificationPrompt(locale) }] }
         );
         return response.text?.trim() || "Unknown Breed";
     });
@@ -128,22 +142,8 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
 
 export const generatePetIdentikit = async (photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
-        const imagePart = await fileToGenerativePart(photo);
-        const response = await callGeminiFunction(
-            'gemini-2.0-pro-vision',
-            { parts: [imagePart, { text: Prompts.getPetIdentikitPrompt(locale) }] },
-            {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        visualIdentityCode: { type: Type.STRING },
-                        physicalDescription: { type: Type.STRING }
-                    },
-                    required: ["visualIdentityCode", "physicalDescription"]
-                }
-            }
-        );
+        const base64 = await fileToBase64(photo);
+        const response = await callVisionAI(base64, 'identikit', locale);
         const json = JSON.parse(response.text?.trim() || "{}");
         return {
             code: json.visualIdentityCode || "UNKNOWN",
@@ -330,97 +330,32 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
 };
 
 export const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            userPrompt,
-            {
-                systemInstruction,
-                thinkingConfig: { thinkingBudget: 16384 }
-            }
-        );
+        const response = await callHealthAssessmentAI(pet, symptoms, locale);
         return response.text || "Analysis unavailable.";
     });
 };
 
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
-    const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            userPrompt,
-            {
-                systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        title: { type: Type.STRING },
-                        summary: { type: Type.STRING },
-                        content: { type: Type.STRING },
-                        seoTitle: { type: Type.STRING },
-                        seoDescription: { type: Type.STRING },
-                        tags: { type: Type.ARRAY, items: { type: Type.STRING } }
-                    },
-                    required: ["title", "summary", "content", "seoTitle", "seoDescription", "tags"]
-                },
-                thinkingConfig: { thinkingBudget: 16384 }
-            }
-        );
+        const response = await callBlogGenerationAI(topic);
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<BlogPost>> => {
-    const { systemInstruction, userPrompt } = Prompts.getSuccessStoryPrompt(pet);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            userPrompt,
-            {
-                systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        title: { type: Type.STRING },
-                        summary: { type: Type.STRING },
-                        content: { type: Type.STRING },
-                        seoTitle: { type: Type.STRING },
-                        seoDescription: { type: Type.STRING },
-                        tags: { type: Type.ARRAY, items: { type: Type.STRING } }
-                    },
-                    required: ["title", "summary", "content", "seoTitle", "seoDescription", "tags"]
-                },
-                thinkingConfig: { thinkingBudget: 16384 }
-            }
-        );
+        // Success story is a special type of blog generation
+        const fn = httpsCallable(functions, 'blogGeneration');
+        const result = await fn({ topic: `Success story for ${pet.name} (${pet.breed}) being reunited with owner.` });
+        const response = result.data as { success: boolean, text: string };
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] },
-            {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        species: { type: Type.STRING, nullable: true },
-                        breed: { type: Type.STRING, nullable: true },
-                        color: { type: Type.STRING, nullable: true },
-                        size: { type: Type.STRING, nullable: true },
-                        age: { type: Type.STRING, nullable: true },
-                        gender: { type: Type.STRING, nullable: true },
-                        tags: { type: Type.ARRAY, items: { type: Type.STRING }, nullable: true }
-                    }
-                }
-            }
-        );
+        const response = await callSmartSearchAI(query);
         return JSON.parse(response.text?.trim() || "{}");
     });
 };

@@ -61,6 +61,9 @@ export default function App() {
     const [showTutorial, setShowTutorial] = useState(false);
     const [predefinedFilters, setPredefinedFilters] = useState<any>(null);
 
+    const { addSnackbar } = useSnackbar();
+    const { t } = useTranslations();
+
     useEffect(() => {
         // Detect Brave to apply specific rendering fallbacks
         const checkBrave = async () => {
@@ -76,15 +79,28 @@ export default function App() {
             // Delay slightly to let the UI settle
             setTimeout(() => setShowTutorial(true), 3000);
         }
-    }, []);
+
+        // Global Security & Quota Listeners
+        const handleRateLimit = (e: any) => {
+            addSnackbar(e.detail?.message || "Daily AI quota exceeded. Please try again tomorrow.", 'error');
+        };
+        const handleApiError = (e: any) => {
+            addSnackbar(e.detail?.message || "API connection failed. System audit required.", 'error');
+        };
+
+        window.addEventListener('pawprint_rate_limit', handleRateLimit);
+        window.addEventListener('pawprint_api_error', handleApiError);
+
+        return () => {
+            window.removeEventListener('pawprint_rate_limit', handleRateLimit);
+            window.removeEventListener('pawprint_api_error', handleApiError);
+        };
+    }, [addSnackbar]);
 
     const handleTutorialClose = () => {
         setShowTutorial(false);
         localStorage.setItem('hasSeenTutorial', 'true');
     };
-
-    const { addSnackbar } = useSnackbar();
-    const { t } = useTranslations();
     const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
     const {
         allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,

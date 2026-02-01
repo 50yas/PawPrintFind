@@ -9,23 +9,28 @@ vi.mock('./configService', () => ({
 }));
 
 // Mock firebase/functions and capture the arguments
-const mockCallGemini = vi.fn().mockImplementation((args: any) => {
+const mockCallFn = vi.fn().mockImplementation((args: any) => {
     let text = "Golden Retriever";
-    if (args.model === 'gemini-2.0-pro-vision') {
-        if (JSON.stringify(args).includes('visualIdentityCode')) {
-            text = '{"visualIdentityCode": "MARK-123", "physicalDescription": "Test desc"}';
-        } else if (JSON.stringify(args).includes('breed') && JSON.stringify(args).includes('color')) {
-            text = '{"breed": "Golden Retriever", "color": "Golden", "size": "Large"}';
-        }
-    }
     return Promise.resolve({
-        data: { success: true, text }
+        data: { success: true, text: JSON.stringify({ breed: "Golden Retriever", color: "Golden", size: "Large", visualIdentityCode: "MARK-123", physicalDescription: "Test desc" }) }
     });
 });
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => mockCallGemini)
+  httpsCallable: vi.fn((_fns, name) => (args: any) => {
+      let text = "Golden Retriever";
+      if (name === 'visionIdentification') {
+          if (args.task === 'autofill') {
+              text = '{"breed": "Golden Retriever", "color": "Golden", "size": "Large"}';
+          } else if (args.task === 'identikit') {
+              text = '{"visualIdentityCode": "MARK-123", "physicalDescription": "Test desc"}';
+          }
+      }
+      return Promise.resolve({
+          data: { success: true, text }
+      });
+  })
 }));
 
 vi.mock('./firebase', () => ({
@@ -41,36 +46,24 @@ describe('Vision Model Upgrade', () => {
     vi.clearAllMocks();
   });
 
-  it('identifyBreedFromImage should use gemini-2.0-pro-vision', async () => {
+  it('identifyBreedFromImage should use legacy callGemini', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await identifyBreedFromImage(mockFile);
     
-    expect(mockCallGemini).toHaveBeenCalledWith(
-      expect.objectContaining({
-        model: 'gemini-2.0-pro-vision'
-      })
-    );
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
   });
 
-  it('autoFillPetDetails should use gemini-2.0-pro-vision', async () => {
+  it('autoFillPetDetails should use visionIdentification', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await autoFillPetDetails(mockFile);
     
-    expect(mockCallGemini).toHaveBeenCalledWith(
-      expect.objectContaining({
-        model: 'gemini-2.0-pro-vision'
-      })
-    );
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
   });
 
-  it('generatePetIdentikit should use gemini-2.0-pro-vision', async () => {
+  it('generatePetIdentikit should use visionIdentification', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await generatePetIdentikit(mockFile);
     
-    expect(mockCallGemini).toHaveBeenCalledWith(
-      expect.objectContaining({
-        model: 'gemini-2.0-pro-vision'
-      })
-    );
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
   });
 });

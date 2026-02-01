@@ -9,21 +9,32 @@ vi.mock('./configService', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(() => vi.fn().mockImplementation((args: any) => {
-    const prompt = JSON.stringify(args);
+  httpsCallable: vi.fn((_fns, name) => vi.fn().mockImplementation((args: any) => {
     let responseText = '{}';
     let groundingMetadata = undefined;
     
-    if (prompt.includes('Visual Identity Code')) {
-      responseText = '{"visualIdentityCode": "TEST-123", "physicalDescription": "A test pet"}';
-    } else if (prompt.includes('Parse this natural language search query')) {
+    if (name === 'visionIdentification') {
+        if (args.task === 'identikit') {
+            responseText = '{"visualIdentityCode": "TEST-123", "physicalDescription": "A test pet"}';
+        } else {
+            responseText = "Mocked vision response";
+        }
+    } else if (name === 'smartSearch') {
       responseText = '{"species": "dog", "breed": null, "color": null, "size": "Small", "age": null, "gender": null, "tags": ["friendly"]}';
-    } else if (prompt.includes('Translate the original content')) {
-      responseText = '{"es": "Hola Mundo", "fr": "Bonjour Monde"}';
-    } else if (prompt.includes('Generate 3 proactive, personalized health or behavior insights')) {
-      responseText = '[{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]';
-    } else if (prompt.includes('vets') || prompt.includes('clinic')) {
-      groundingMetadata = { groundingChunks: [{ maps: { title: 'Test Vet', address: '123 Test St' } }] };
+    } else if (name === 'blogGeneration') {
+        responseText = '{"title": "Mock Blog", "content": "Mock Content", "tags": []}';
+    } else if (name === 'callGemini') {
+        const prompt = JSON.stringify(args);
+        if (prompt.includes('Translate')) {
+            responseText = '{"es": "Hola Mundo", "fr": "Bonjour Monde"}';
+        } else if (prompt.includes('Insights') || prompt.includes('proactive')) {
+            responseText = JSON.stringify([{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]);
+        } else if (prompt.includes('vets') || prompt.includes('clinic')) {
+            groundingMetadata = { groundingChunks: [{ maps: { title: 'Test Vet', address: '123 Test St' } }] };
+        } else {
+            // Default fallback for other callGemini requests
+            responseText = JSON.stringify([]);
+        }
     }
 
     return Promise.resolve({
