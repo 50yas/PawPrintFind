@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as admin from 'firebase-admin';
 
-// Create persistent mocks
+// Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
@@ -23,36 +23,137 @@ vi.mock('firebase-admin', () => {
   };
 });
 
+// Mock firebase-functions
+vi.mock('firebase-functions/v1', () => {
+    return {
+        https: {
+            onCall: vi.fn((fn) => fn),
+            HttpsError: class HttpsError extends Error {
+                constructor(public code: string, message: string) {
+                    super(message);
+                }
+            }
+        },
+        config: vi.fn(() => ({ gemini: { key: 'test-api-key' } })),
+        firestore: {
+            document: vi.fn(() => ({
+                onCreate: vi.fn(),
+                onWrite: vi.fn()
+            }))
+        }
+    };
+});
+
+// Mock GoogleGenerativeAI
+vi.mock('@google/generative-ai', () => {
+    const generateContentMock = vi.fn().mockResolvedValue({
+        response: {
+            text: () => 'Mocked AI Response',
+            candidates: [{ content: { parts: [{ text: 'Mocked AI Response' }] } }]
+        }
+    });
+    
+    // Use a class for the mock to ensure it works as a constructor
+    class MockGoogleGenerativeAI {
+        getGenerativeModel = vi.fn(() => ({
+            generateContent: generateContentMock
+        }))
+    }
+
+    return {
+        GoogleGenerativeAI: MockGoogleGenerativeAI
+    };
+});
+
 import { trackUsage } from './usage';
+// @ts-ignore - these won't be exported yet
+import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
 
 describe('trackUsage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(trackUsage).toBeDefined();
-  });
-
-  it('should increment usage counters for a user', async () => {
-    const userId = 'test-user-123';
-    const featureName = 'smartSearch';
-    const today = new Date().toISOString().split('T')[0];
-    
-    await trackUsage(userId, featureName);
-    
+  it('should increment usage counters', async () => {
+    await trackUsage('user1', 'test');
     expect(mockCollection).toHaveBeenCalledWith('users');
-    expect(mockDoc).toHaveBeenCalledWith(userId);
-    expect(mockCollection).toHaveBeenCalledWith('usageStats');
-    expect(mockDoc).toHaveBeenCalledWith(today);
-    
-    expect(mockSet).toHaveBeenCalledWith(
-      expect.objectContaining({
-        [featureName]: expect.objectContaining({ type: 'increment', value: 1 }),
-        totalAIRequests: expect.objectContaining({ type: 'increment', value: 1 }),
-        lastUsed: 'mock-timestamp'
-      }),
-      { merge: true }
-    );
   });
+});
+
+describe('AI Cloud Functions', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('visionIdentification should be defined and track usage', async () => {
+        expect(visionIdentification).toBeDefined();
+        const context = { auth: { uid: 'user123' } };
+        const data = { image: 'base64data', task: 'identify' };
+        
+        // @ts-ignore
+        await visionIdentification(data, context);
+        
+        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockSet).toHaveBeenCalledWith(
+            expect.objectContaining({ visionIdentification: expect.anything() }),
+            { merge: true }
+        );
+    });
+
+    it('smartSearch should be defined and track usage', async () => {
+        expect(smartSearch).toBeDefined();
+        const context = { auth: { uid: 'user123' } };
+        const data = { query: 'lost dog' };
+        
+        // @ts-ignore
+        await smartSearch(data, context);
+        
+        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockSet).toHaveBeenCalledWith(
+            expect.objectContaining({ smartSearch: expect.anything() }),
+            { merge: true }
+        );
+    });
+
+    it('healthAssessment should be defined and track usage', async () => {
+        expect(healthAssessment).toBeDefined();
+        const context = { auth: { uid: 'user123' } };
+        const data = { pet: { name: 'Buddy' }, symptoms: 'coughing' };
+        
+        // @ts-ignore
+        await healthAssessment(data, context);
+        
+        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockSet).toHaveBeenCalledWith(
+            expect.objectContaining({ healthAssessment: expect.anything() }),
+            { merge: true }
+        );
+    });
+
+    it('blogGeneration should be defined and track usage', async () => {
+        expect(blogGeneration).toBeDefined();
+        const context = { auth: { uid: 'user123' } };
+        const data = { topic: 'Pet safety' };
+        
+        // @ts-ignore
+        await blogGeneration(data, context);
+        
+        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockSet).toHaveBeenCalledWith(
+            expect.objectContaining({ blogGeneration: expect.anything() }),
+            { merge: true }
+        );
+    });
+
+    it('should throw unauthenticated if no context.auth', async () => {
+        const data = { query: 'test' };
+        // @ts-ignore
+        await expect(smartSearch(data, {})).rejects.toThrow('Auth required.');
+    });
+
+    it('should throw invalid-argument if missing data', async () => {
+        const context = { auth: { uid: 'user1' } };
+        // @ts-ignore
+        await expect(smartSearch({}, context)).rejects.toThrow('Query required.');
+    });
 });

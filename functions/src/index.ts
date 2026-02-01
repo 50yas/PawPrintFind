@@ -2,275 +2,192 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { trackUsage } from "./usage";
+import * as Prompts from "./prompts";
 
 admin.initializeApp();
 
-// Configuration for Rate Limiting (example)
-// In a real production app, you might use a Redis-based rate limiter or Firestore to track usage per user.
-// For now, we'll implement a simple per-user check if needed, or rely on Firebase's built-in protections.
+/**
+ * Shared helper to call Gemini AI and track usage.
+ */
+async function callGeminiAI(
+    userId: string,
+    featureName: string,
+    modelName: string,
+    contents: any,
+    config: any = {}
+) {
+    const apiKey = process.env.GEMINI_API_KEY || (functions.config().gemini as any)?.key;
+    if (!apiKey) {
+        throw new functions.https.HttpsError(
+            "failed-precondition",
+            "Gemini API Key is not configured."
+        );
+    }
 
-export const callGemini = functions.https.onCall(async (data, context) => {
-  // 1. Authentication Check
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      "unauthenticated",
-      "The function must be called while authenticated."
-    );
-  }
-
-  const { model, contents, config } = data;
-
-  if (!model || !contents) {
-    throw new functions.https.HttpsError(
-      "invalid-argument",
-      "Model and contents are required."
-    );
-  }
-
-  // 2. Secret Management (API Key)
-  // Retrieve the API Key from environment or secrets
-  const apiKey = process.env.GEMINI_API_KEY || (functions.config().gemini as any)?.key;
-  if (!apiKey) {
-    console.error("CRITICAL: GEMINI_API_KEY environment variable is not set.");
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Gemini API Key is not configured on the server. Please run: firebase functions:secrets:set GEMINI_API_KEY"
-    );
-  }
-
-  try {
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
-    // Filter tools if grounding is requested but not available/preconditioned
-    const safeConfig = { ...config };
-    if (safeConfig.tools) {
-        // Some grounding tools require specific setup. If they fail, we log and retry without them.
-        console.log(`[Gemini] Using tools: ${JSON.stringify(safeConfig.tools)}`);
+    try {
+        const result = await model.generateContent({ contents, ...config });
+        const response = await result.response;
+        const text = response.text();
+
+        // Track usage asynchronously
+        trackUsage(userId, featureName).catch(err => 
+            console.error(`Failed to track usage for ${featureName}:`, err)
+        );
+
+        return {
+            success: true,
+            text,
+            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            audioData: response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data
+        };
+    } catch (error: any) {
+        console.error(`Gemini API Error [${featureName}]:`, error);
+        throw new functions.https.HttpsError(
+            "internal",
+            error.message || `An error occurred during ${featureName}.`
+        );
+    }
+}
+
+/**
+ * Vision-based pet identification and details extraction.
+ */
+export const visionIdentification = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "Auth required.");
     }
 
-    const generativeModel = genAI.getGenerativeModel({ model });
-    const result = await generativeModel.generateContent({ contents, ...safeConfig });
-    const response = await result.response;
-    const text = response.text();
-    
-    // Extract grounding metadata if present
-    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
-    
-    // Handle audio for TTS if present
-    const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    const { image, task, locale = 'en' } = data;
+    if (!image) {
+        throw new functions.https.HttpsError("invalid-argument", "Image required.");
+    }
 
-    return {
-      success: true,
-      text: text,
-      groundingMetadata,
-      audioData
+    let prompt = "";
+    let schema: any = null;
+
+    if (task === 'autofill') {
+        prompt = Prompts.getAutoFillPetDetailsPrompt(locale);
+        schema = {
+            type: "object",
+            properties: {
+                breed: { type: "string" },
+                color: { type: "string" },
+                age: { type: "string" },
+                size: { type: "string" },
+                gender: { type: "string" }
+            },
+            required: ["breed", "color", "size"]
+        };
+    } else if (task === 'identikit') {
+        prompt = Prompts.getPetIdentikitPrompt(locale);
+        schema = {
+            type: "object",
+            properties: {
+                visualIdentityCode: { type: "string" },
+                physicalDescription: { type: "string" }
+            },
+            required: ["visualIdentityCode", "physicalDescription"]
+        };
+    } else {
+        prompt = "Describe this pet in detail.";
+    }
+
+    const contents = {
+        parts: [
+            { inlineData: { data: image, mimeType: "image/jpeg" } },
+            { text: prompt }
+        ]
     };
-  } catch (error: any) {
-    console.error(`Gemini API Error [${model}]:`, error);
-    
-    // Specific error mapping for easier debugging in the client log
-    if (error.message?.includes("API key not valid")) {
-        throw new functions.https.HttpsError("unauthenticated", "Invalid Gemini API Key.");
+
+    const config: any = {};
+    if (schema) {
+        config.responseMimeType = "application/json";
+        config.responseSchema = schema;
     }
-    
-    throw new functions.https.HttpsError(
-      "internal",
-      error.message || "An error occurred while calling Gemini AI."
+
+    return callGeminiAI(
+        context.auth.uid,
+        "visionIdentification",
+        "gemini-2.0-pro-vision",
+        contents,
+        config
     );
-  }
 });
 
 /**
- * Triggered when a new user is created in Firestore.
- * Queues a welcome email by writing to the 'mail' collection.
+ * Smart natural language search parsing.
  */
-export const onUserCreated = functions.firestore
-  .document("users/{userId}")
-  .onCreate(async (snapshot, context) => {
-    const userData = snapshot.data();
-    const email = userData.email;
-    const role = userData.activeRole || "owner";
+export const smartSearch = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    const { query } = data;
+    if (!query) throw new functions.https.HttpsError("invalid-argument", "Query required.");
 
-    if (!email) {
-      console.warn("User created without email, skipping welcome email.");
-      return;
-    }
+    const prompt = Prompts.getSearchParsingPrompt(query);
+    const contents = { parts: [{ text: prompt }] };
 
-    const isVet = role === "vet";
-    const subject = isVet ? "Welcome Partner! 🏥" : "Welcome to Paw Print! 🐾";
-
-    const PRIMARY_COLOR = "#0d9488";
-    const BG_COLOR = "#f8fafc";
-
-    const ownerContent = `
-        <h2 style="color: ${PRIMARY_COLOR}; margin-top: 0;">Welcome to the Family</h2>
-        <p>Thank you for joining <strong>Paw Print</strong>. You've taken the first step in securing your pet's safety using our advanced AI biometric system.</p>
-        <h3>Next Steps:</h3>
-        <ol>
-            <li><strong>Create an Impronta:</strong> Upload photos of your pet to create their digital ID.</li>
-            <li><strong>Tag Unique Marks:</strong> Help our AI by identifying scars or patterns.</li>
-            <li><strong>Sleep Soundly:</strong> Know that our community is ready to help if the unthinkable happens.</li>
-        </ol>
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="https://pawprint-50.web.app/dashboard" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Go to Dashboard</a>
-        </div>
-    `;
-
-    const vetContent = `
-        <h2 style="color: ${PRIMARY_COLOR}; margin-top: 0;">Welcome Partner Clinic</h2>
-        <p>Thank you for joining the <strong>Paw Print Vet Network</strong>. You are now part of a technology-first approach to pet recovery and care.</p>
-        <h3>Capabilities Unlocked:</h3>
-        <ul>
-            <li><strong>Digital Records:</strong> Manage patient history securely.</li>
-            <li><strong>AI Assistant:</strong> Use our Gemini-powered tools for scheduling and triage.</li>
-            <li><strong>Community Visibility:</strong> Local pet owners can now find you on our map.</li>
-        </ul>
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="https://pawprint-50.web.app/vetDashboard" style="background-color: ${PRIMARY_COLOR}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Access Vet Console</a>
-        </div>
-    `;
-
-    const html = `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: ${BG_COLOR}; padding: 40px 20px;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <div style="background-color: #0f172a; padding: 20px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: -0.5px;">Paw<span style="color: ${PRIMARY_COLOR};">Print</span></h1>
-                </div>
-                <div style="padding: 40px 30px; color: #334155; line-height: 1.6;">
-                    ${isVet ? vetContent : ownerContent}
-                </div>
-                <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
-                    <p>&copy; ${new Date().getFullYear()} Paw Print Open Source Project.</p>
-                    <p>Building a safer world for pets with AI.</p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    try {
-      await admin.firestore().collection("mail").add({
-        to: [email],
-        message: {
-          subject: subject,
-          html: html,
-          text: html.replace(/<[^>]*>?/gm, ""),
-        },
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log(`📧 Welcome email queued for: ${email}`);
-    } catch (error) {
-      console.error("Error queueing welcome email:", error);
-    }
-  });
-
-/**
- * Triggered when a payment is created/updated in the customers subcollection (by Stripe Extension).
- * Updates the corresponding 'donations' document to status='paid' and approved=true.
- */
-export const onStripePaymentSuccess = functions.firestore
-  .document("customers/{uid}/payments/{paymentId}")
-  .onWrite(async (change, context) => {
-    const payment = change.after.data();
-    
-    // If document was deleted or payment is not successful, ignore
-    if (!payment || payment.status !== "succeeded") {
-      return;
-    }
-
-    // Check if we have already processed this payment to avoid infinite loops (idempotency)
-    // The Stripe extension might update the document multiple times.
-    // However, our target is the 'donations' collection, so loop risk is low unless we write back to 'payments'.
-
-    const donationId = payment.metadata?.donationId;
-
-    if (!donationId) {
-      console.log("Payment succeeded but no donationId found in metadata. Skipping.");
-      return;
-    }
-
-    console.log(`💰 Payment succeeded for Donation ID: ${donationId}. Updating status...`);
-
-    try {
-      const donationRef = admin.firestore().collection("donations").doc(donationId);
-      const donationDoc = await donationRef.get();
-
-      if (!donationDoc.exists) {
-        console.warn(`Donation document ${donationId} not found.`);
-        return;
-      }
-
-      const donationData = donationDoc.data();
-      
-      // Idempotency check: if already paid, skip
-      if (donationData?.status === 'paid') {
-        console.log(`Donation ${donationId} is already marked as paid.`);
-        return;
-      }
-
-      await donationRef.update({
-        status: 'paid',
-        approved: true, // Auto-approve successful payments
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        stripePaymentId: context.params.paymentId,
-        amount_details: payment.amount_details || null // Optional: save extra details
-      });
-
-      console.log(`✅ Donation ${donationId} marked as PAID and APPROVED.`);
-
-    } catch (error) {
-      console.error(`Error updating donation ${donationId}:`, error);
-    }
-  });
-
-/**
- * Triggered when a subscription is created/updated in the customers subcollection (by Stripe Extension).
- * Syncs the subscription status to the User document to enable RBAC.
- */
-export const onSubscriptionChange = functions.firestore
-  .document("customers/{uid}/subscriptions/{subscriptionId}")
-  .onWrite(async (change, context) => {
-    const subscription = change.after.data();
-    const uid = context.params.uid;
-
-    if (!subscription) {
-      // Document deleted - revoke subscription
-      console.log(`🗑️ Subscription deleted for user ${uid}. Revoking access.`);
-      await admin.firestore().collection("users").doc(uid).update({
-        "subscription.status": "canceled",
-        "subscription.currentPeriodEnd": admin.firestore.FieldValue.serverTimestamp()
-      });
-      return;
-    }
-
-    const status = subscription.status; // active, past_due, trialing, canceled, etc.
-    const priceId = subscription.items?.[0]?.price?.id;
-    const currentPeriodEnd = subscription.current_period_end?.seconds 
-      ? subscription.current_period_end.seconds * 1000 
-      : Date.now();
-
-    console.log(`🔄 Subscription update for ${uid}: ${status} (${priceId})`);
-
-    // Map Stripe status to our internal status
-    // valid statuses for access: 'active', 'trialing'
-    
-    // Determine plan ID based on Stripe Price ID (You should map these to config/env variables)
-    // For now, if they have *any* subscription, we treat it as 'vet_pro' if status is valid.
-    const planId = (status === 'active' || status === 'trialing') ? 'vet_pro' : 'vet_free';
-
-    try {
-      await admin.firestore().collection("users").doc(uid).set({
-        subscription: {
-          status: status,
-          planId: planId,
-          currentPeriodEnd: currentPeriodEnd,
-          stripeSubscriptionId: context.params.subscriptionId,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    return callGeminiAI(
+        context.auth.uid,
+        "smartSearch",
+        "gemini-2.5-flash",
+        contents,
+        {
+            responseMimeType: "application/json"
         }
-      }, { merge: true });
-      
-      console.log(`✅ User ${uid} subscription synced: ${status} -> ${planId}`);
-    } catch (error) {
-      console.error(`Error syncing subscription for ${uid}:`, error);
-    }
-  });
+    );
+});
 
+/**
+ * AI-powered preliminary health assessment.
+ */
+export const healthAssessment = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    const { pet, symptoms, locale = 'en' } = data;
+    if (!pet || !symptoms) throw new functions.https.HttpsError("invalid-argument", "Pet and symptoms required.");
+
+    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
+    const contents = { parts: [{ text: userPrompt }] };
+
+    return callGeminiAI(
+        context.auth.uid,
+        "healthAssessment",
+        "gemini-2.5-pro",
+        contents,
+        { systemInstruction }
+    );
+});
+
+/**
+ * AI blog post generation.
+ */
+export const blogGeneration = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    const { topic } = data;
+    if (!topic) throw new functions.https.HttpsError("invalid-argument", "Topic required.");
+
+    const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
+    const contents = { parts: [{ text: userPrompt }] };
+
+    return callGeminiAI(
+        context.auth.uid,
+        "blogGeneration",
+        "gemini-2.5-pro",
+        contents,
+        {
+            systemInstruction,
+            responseMimeType: "application/json"
+        }
+    );
+});
+
+// Legacy generic function (keep for backward compatibility during transition if needed, but we'll remove it later)
+export const callGemini = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    const { model, contents, config } = data;
+    return callGeminiAI(context.auth.uid, "generic", model, contents, config);
+});
+
+// Firestore Triggers (re-exported)
+export { onUserCreated, onStripePaymentSuccess, onSubscriptionChange } from './triggers';
