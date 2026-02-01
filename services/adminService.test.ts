@@ -24,7 +24,7 @@ vi.mock('firebase/firestore', () => {
         setDoc: vi.fn(),
         deleteDoc: vi.fn(),
         addDoc: vi.fn(),
-        collection: vi.fn(),
+        collection: vi.fn(() => ({ id: 'mockColl' })),
         doc: vi.fn(() => ({ id: 'mockDoc' })),
         query: vi.fn(),
         where: vi.fn(),
@@ -245,6 +245,54 @@ describe('adminService', () => {
                 expect.anything(),
                 { subscription: expect.objectContaining({ status: 'inactive', planId: 'vet_free' }) },
                 { merge: true }
+            );
+        });
+    });
+
+    describe('getUserUsageStats', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.getUserUsageStats('u1')).rejects.toThrow('Authentication required');
+        });
+
+        it('should return usage stats if authenticated', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1' };
+            const mockUsage = { totalAIRequests: 5, lastUsed: 123 };
+            const mockSnapshot = {
+                docs: [
+                    { id: '2026-02-01', data: () => mockUsage }
+                ]
+            };
+            (getDocs as Mock).mockResolvedValue(mockSnapshot);
+
+            const stats = await adminService.getUserUsageStats('user-1');
+            expect(stats).toHaveLength(1);
+            expect(stats[0].totalAIRequests).toBe(5);
+        });
+    });
+
+    describe('resetUserUsageStats', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.resetUserUsageStats('u1')).rejects.toThrow('Authentication required');
+        });
+
+        it('should call setDoc with zeroed stats and log action', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1', email: 'admin@test.com' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            (addDoc as Mock).mockResolvedValue({ id: 'log-1' });
+
+            await adminService.resetUserUsageStats('user-123');
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ totalAIRequests: 0 }),
+                { merge: true }
+            );
+            expect(addDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    action: 'RESET_USAGE',
+                    targetId: 'user-123'
+                })
             );
         });
     });
