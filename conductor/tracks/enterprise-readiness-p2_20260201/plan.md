@@ -29,10 +29,10 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
 - [x] Task: Implement Rate Limiting Middleware [56d7410]
     - [x] Add logic to check user quotas against Firestore usage stats before executing AI calls.
     - [x] Return structured errors for quota exceeded.
-- [ ] Task: Update Admin Dashboard
-    - [ ] Extend `AdminDashboard.tsx` to display a "User Usage" table or modal.
-    - [ ] Fetch and display `usageStats` subcollection data for users.
-    - [ ] Add a button to reset usage counters for a specific user.
+- [x] Task: Update Admin Dashboard [62ddf98]
+    - [x] Extend `AdminDashboard.tsx` to display a "User Usage" table or modal.
+    - [x] Fetch and display `usageStats` subcollection data for users.
+    - [x] Add a button to reset usage counters for a specific user.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Rate Limiting & Admin Dashboard Updates' (Protocol in workflow.md)
 
 ## Phase 4: App Check & Final Security
