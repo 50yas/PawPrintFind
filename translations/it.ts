@@ -476,38 +476,69 @@ export const it = {
     "syncAllDataButton": "Sync Globale",
     "searchToSyncTitle": "Ricerca Sync",
     "searchToSyncDesc": "Trova struttura su G-Maps per auto-sync dati",
-    "placeholders": {
-        "email": "Email Sicura",
-        "password": "Access Key",
-        "confirmPassword": "Repeat Key",
-        "phoneNumber": "Mobile Alerts"
-    },
     "title": {
-        "login": "Login Sistema",
-        "register": "Nuovo ID",
-        "recovery": "Recupero Key",
-        "magicLink": "Magic Link"
+        "login": "Protocollo di Accesso",
+        "register": "Inizializzazione Profilo",
+        "recovery": "Recupero Credenziali",
+        "magicLink": "Accesso Rapido (Link)",
+        "phoneLogin": "Autenticazione Mobile",
+        "verifyPhone": "Verifica Identità"
     },
     "subtitle": {
-        "login": "Credenziali per accesso al Network",
-        "register": "Crea profilo biometrico sicuro",
-        "recovery": "Resetta chiave via email",
-        "magicLink": "Ricevi link di accesso rapido"
+        "login": "Accedi alla rete globale biometrica per proteggere il tuo branco",
+        "register": "Entra nell'ecosistema Paw Print e metti in sicurezza il tuo animale",
+        "recovery": "Ripristina l'accesso tramite identificatore email",
+        "magicLink": "Ricevi un link di decriptazione temporaneo",
+        "phoneLogin": "Inserisci il numero per ricevere il codice di sicurezza",
+        "verifyPhone": "Digita il codice a 6 cifre trasmesso al tuo dispositivo"
+    },
+    "labels": {
+        "securityProtocol": "Protocollo di Sicurezza",
+        "verified": "Verificato",
+        "externalUplink": "Uplink Esterno"
+    },
+    "roles": {
+        "owner": {
+            "label": "Proprietario",
+            "desc": "Trova il tuo animale o gestisci il tuo branco"
+        },
+        "vet": {
+            "label": "Veterinario",
+            "desc": "Gestisci pazienti, cartelle e appuntamenti"
+        },
+        "shelter": {
+            "label": "Rifugio",
+            "desc": "Elenca animali per adozione e trova casa"
+        },
+        "volunteer": {
+            "label": "Volontario",
+            "desc": "Aiuta la comunità a trovare animali smarriti"
+        }
+    },
+    "placeholders": {
+        "email": "Identificatore di Rete (Email)",
+        "password": "Chiave di Accesso (Password)",
+        "confirmPassword": "Conferma Chiave di Accesso",
+        "phoneNumber": "Numero Mobile (+39...)",
+        "verificationCode": "Codice 6 cifre"
     },
     "buttons": {
-        "decryptDashboard": "Decripta",
-        "authorizeNewAccount": "Autorizza",
-        "initiateRecovery": "Recupera",
-        "sendMagicLink": "Invia Link",
-        "alreadyRegistered": "Già registrato?",
-        "signInProtocol": "Protocollo Login",
-        "newOperative": "Nuovo Operativo?",
-        "initializeProfile": "Inizializza",
-        "lostCredentials": "Chiavi perse?",
-        "backToIdentification": "Torna a ID",
-        "syncGoogle": "Sync Google",
-        "useMagicLink": "Usa Magic",
-        "usePassword": "Usa Pass"
+        "decryptDashboard": "Decripta Dashboard",
+        "authorizeNewAccount": "Inizializza Profilo",
+        "initiateRecovery": "Recupera Accesso",
+        "sendMagicLink": "Invia Link di Accesso",
+        "alreadyRegistered": "Già operativo?",
+        "signInProtocol": "Protocollo di Login",
+        "newOperative": "Nuovo operativo?",
+        "initializeProfile": "Inizializza Profilo",
+        "lostCredentials": "CREDENZIALI SMARRITE?",
+        "backToIdentification": "Torna all'Identificazione",
+        "syncGoogle": "Sincronizza con Google",
+        "useMagicLink": "Usa Magic Link",
+        "usePassword": "Usa Password",
+        "usePhoneAuth": "Usa Autenticazione Mobile",
+        "useEmail": "Torna a Email",
+        "resendCode": "Trasmetti Nuovo Codice"
     },
     "errors": {
         "emailInUse": "Email già a registro",
