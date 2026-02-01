@@ -25,18 +25,13 @@ class ConfigService {
      * Retrieves the Gemini API Key.
      * Priority:
      * 1. Firebase Remote Config ('gemini_api_key')
-     * 2. Environment Variable (VITE_GEMINI_API_KEY)
      */
     async getGeminiKey(): Promise<string> {
         await this.init();
         
         // Remote Config returns an empty string if the key doesn't exist
         const remoteKey = getString(remoteConfig, 'gemini_api_key');
-        if (remoteKey && remoteKey.length > 0) {
-            return remoteKey;
-        }
-        
-        return import.meta.env.VITE_GEMINI_API_KEY || "";
+        return remoteKey || "";
     }
 }
 

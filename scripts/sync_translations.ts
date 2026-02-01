@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Use environment variable for security
-const API_KEY = process.env.VITE_GEMINI_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY;
 
 function getAllKeys(obj: any, prefix: string = ''): string[] {
     return Object.keys(obj).reduce((res: string[], el) => {

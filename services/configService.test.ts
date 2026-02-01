@@ -37,22 +37,20 @@ describe('configService', () => {
         expect(key).toBe('remote-key-123');
     });
 
-    it('should fallback to environment variable if Remote Config key is empty', async () => {
+    it('should return empty string if Remote Config key is empty', async () => {
         getStringMock.mockReturnValue(''); // Empty string from remote config
-        vi.stubEnv('VITE_GEMINI_API_KEY', 'env-key-456');
         
         const key = await configService.getGeminiKey();
         
-        expect(key).toBe('env-key-456');
+        expect(key).toBe('');
     });
 
-    it('should fallback to environment variable if Remote Config fetch fails', async () => {
+    it('should return empty string if Remote Config fetch fails', async () => {
         fetchAndActivateMock.mockRejectedValue(new Error('Fetch failed'));
-        vi.stubEnv('VITE_GEMINI_API_KEY', 'env-key-789');
         
         // configService swallows the error
         const key = await configService.getGeminiKey();
         
-        expect(key).toBe('env-key-789');
+        expect(key).toBe('');
     });
 });

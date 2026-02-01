@@ -186,8 +186,8 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
         // Use the new standard for Vite env vars
       const apiKey = await configService.getGeminiKey();
       if (!apiKey) {
-          console.error("Gemini API Key is missing. Please set VITE_GEMINI_API_KEY in your .env file.");
-          setChatLog(prev => [...prev, { speaker: 'model', text: "System Error: AI Identity Module not initialized (Missing API Key)." }]);
+          console.error("Gemini API Key is missing. Live Assistant requires a key via Remote Config.");
+          setChatLog(prev => [...prev, { speaker: 'model', text: "System Error: AI Identity Module not initialized (Security Policy Block)." }]);
           setStatus(t('statusError'));
           return;
       }

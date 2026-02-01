@@ -39,7 +39,6 @@ vi.mock('@google/genai', () => ({
 describe('LiveAssistant', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key');
   });
 
   const renderComponent = () => {

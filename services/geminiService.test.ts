@@ -47,7 +47,6 @@ import * as geminiService from './geminiService';
 describe('geminiService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-api-key');
   });
 
   it('calculateProfileCompleteness works correctly', () => {
