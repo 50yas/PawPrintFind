@@ -20,9 +20,9 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Implement `smartSearch` function with usage tracking.
     - [x] Implement `healthAssessment` function with usage tracking.
     - [x] Implement `blogGeneration` function with usage tracking.
-- [ ] Task: Secure API Keys
-    - [ ] Configure Firebase Secrets Manager for `GEMINI_API_KEY`.
-    - [ ] Remove `VITE_GEMINI_API_KEY` from client-side `.env` and `services/firebase.ts`.
+- [x] Task: Secure API Keys [6d53ff8]
+    - [x] Configure Firebase Secrets Manager for `GEMINI_API_KEY`.
+    - [x] Remove `VITE_GEMINI_API_KEY` from client-side `.env` and `services/firebase.ts`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Cloud Functions Proxy' (Protocol in workflow.md)
 
 ## Phase 3: Rate Limiting & Admin Dashboard Updates
