@@ -35,14 +35,14 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Add a button to reset usage counters for a specific user.
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Rate Limiting & Admin Dashboard Updates' (Protocol in workflow.md) [d1d7d2e]
 
-## Phase 4: App Check & Final Security
+## Phase 4: App Check & Final Security [checkpoint: 38f49a7]
 - [x] Task: Enable Firebase App Check [af1b8ce]
     - [x] Initialize App Check in the React app (`services/firebase.ts`).
     - [x] Enforce App Check protection on Cloud Functions and Firestore (via Console).
-- [~] Task: Frontend Service Refactor
-    - [ ] Refactor `services/geminiService.ts` to call the new Cloud Functions.
-    - [ ] Handle rate limit errors in the UI (e.g., show a toast/notification).
-- [ ] Task: Security Audit
-    - [ ] Verify no secrets remain in the client bundle.
-    - [ ] Verify admin controls work as expected.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: App Check & Final Security' (Protocol in workflow.md)
+- [x] Task: Frontend Service Refactor [bd6029d]
+    - [x] Refactor `services/geminiService.ts` to call the new Cloud Functions.
+    - [x] Handle rate limit errors in the UI (e.g., show a toast/notification).
+- [x] Task: Security Audit [38f49a7]
+    - [x] Verify no secrets remain in the client bundle.
+    - [x] Verify admin controls work as expected.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: App Check & Final Security' (Protocol in workflow.md) [38f49a7]
