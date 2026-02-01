@@ -87,7 +87,7 @@ Goal: Empower admins with donation management, automated translation enhancement
     - [x] "Mutton avoid the ." - Review and fix button text/labels in Admin Dashboard or elsewhere (likely removing trailing dots or fixing layout/text issues).
     - [x] Enhance UI - General polish pass on Admin Dashboard cards and interactions.
     - [x] Fix Live Visitors Counter - Improve the simulated counter logic/visuals in `AdminDashboard.tsx` to look more realistic or "fixed".
-- [ ] **Task: Social Media Scraper Agent**
-    - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
-    - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.
+- [x] **Task: Social Media Scraper Agent** <!-- 9f625e0 -->
+    - [x] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
+    - [x] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)**
