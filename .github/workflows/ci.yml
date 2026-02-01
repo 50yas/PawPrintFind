@@ -1,35 +1,42 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [ master, main ]
   push:
-    branches: [ master, main ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build_and_test:
+  build:
+
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Lint
-        run: npm run lint
+    - name: Lint
+      run: npm run lint
+      continue-on-error: false
 
-      - name: Test
-        run: npm test
+    - name: Test
+      run: npm test
+      env:
+        CI: true
 
-      - name: Build
-        run: npm run build
-
-      - name: Build Functions
-        run: cd functions && npm install && npm run build
+    - name: Build
+      run: npm run build
+      env:
+        CI: true
