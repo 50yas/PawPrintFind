@@ -83,10 +83,10 @@ Goal: Empower admins with donation management, automated translation enhancement
 - [x] **Task: Translation Clarity Refinement** <!-- 9982e5f -->
     - [x] Reviewed `translations/` for jargon and replaced with educational, descriptive labels.
     - [x] Removed underscores and dashes from Italian UI buttons.
-- [ ] **Task: UI/UX & Logic Refinements (User Feedback)**
-    - [ ] "Mutton avoid the ." - Review and fix button text/labels in Admin Dashboard or elsewhere (likely removing trailing dots or fixing layout/text issues).
-    - [ ] Enhance UI - General polish pass on Admin Dashboard cards and interactions.
-    - [ ] Fix Live Visitors Counter - Improve the simulated counter logic/visuals in `AdminDashboard.tsx` to look more realistic or "fixed".
+- [x] **Task: UI/UX & Logic Refinements (User Feedback)** <!-- aded7aa -->
+    - [x] "Mutton avoid the ." - Review and fix button text/labels in Admin Dashboard or elsewhere (likely removing trailing dots or fixing layout/text issues).
+    - [x] Enhance UI - General polish pass on Admin Dashboard cards and interactions.
+    - [x] Fix Live Visitors Counter - Improve the simulated counter logic/visuals in `AdminDashboard.tsx` to look more realistic or "fixed".
 - [ ] **Task: Social Media Scraper Agent**
     - [ ] Implement `scraperService.ts` leveraging Browserbase/Stagehand to discover lost pet announcements.
     - [ ] Create "Social Feed" in Admin Dashboard to review and import scraped sightings.
