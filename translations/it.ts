@@ -722,7 +722,20 @@ export const it = {
             "importSighting": "Importa Segnale",
             "ignoreSighting": "Ignora",
             "noSocialSignals": "Nessun segnale social da revisionare",
-            "agentDiscoveryLaunched": "Job in coda - Agente Stagehand allertato"
+            "agentDiscoveryLaunched": "Job in coda - Agente Stagehand allertato",
+            "adminTabUsage": "Telemetria AI",
+            "tabUsageShort": "AI",
+            "selectOperative": "Seleziona Operativo",
+            "aiUsageTelemetry": "Telemetria Utilizzo AI",
+            "resetQuota": "RESET QUOTA GIORNALIERA",
+            "cycleDate": "Ciclo (Data)",
+            "usageVision": "Vision",
+            "usageSearch": "Search",
+            "usageHealth": "Health",
+            "usageBlog": "Blog",
+            "usageTotal": "Totale",
+            "noUsageRecords": "Nessun record di utilizzo per questo ciclo",
+            "donationConfirmed": "Contributo confermato"
         },
         "adoption": {
             "matchesFound": "{{count}} match",

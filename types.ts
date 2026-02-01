@@ -603,3 +603,25 @@ export const PromoCodeSchema = z.object({
   status: z.enum(['active', 'expired', 'revoked']).default('active'),
   createdBy: z.string().email()
 });
+
+export interface AIUsageStats {
+  id: string; // date YYYY-MM-DD
+  userId: string;
+  visionIdentification?: number;
+  smartSearch?: number;
+  healthAssessment?: number;
+  blogGeneration?: number;
+  totalAIRequests: number;
+  lastUsed: number;
+}
+
+export const AIUsageStatsSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  visionIdentification: z.number().optional(),
+  smartSearch: z.number().optional(),
+  healthAssessment: z.number().optional(),
+  blogGeneration: z.number().optional(),
+  totalAIRequests: z.number(),
+  lastUsed: z.number()
+});

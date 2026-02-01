@@ -15,12 +15,56 @@ import {
     where
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { User, AdminAuditLog, UserRole, UserSchema, AdminAuditLogSchema } from '../types';
+import { User, AdminAuditLog, UserRole, UserSchema, AdminAuditLogSchema, AIUsageStats, AIUsageStatsSchema } from '../types';
 import { authService } from './authService';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 
 export const adminService = {
+    async getUserUsageStats(userId: string): Promise<AIUsageStats[]> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to fetch usage stats.");
+            }
+            const snap = await getDocs(collection(db, 'users', userId, 'usageStats'));
+            return snap.docs.map(d => {
+                const data = { ...d.data(), id: d.id, userId };
+                return validationService.validate(AIUsageStatsSchema, data, `getUserUsageStats:${userId}:${d.id}`);
+            });
+        } catch (error) {
+            logger.error('Error fetching user usage stats:', error);
+            throw error;
+        }
+    },
+
+    async resetUserUsageStats(userId: string): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to reset usage stats.");
+            }
+            const today = new Date().toISOString().split('T')[0];
+            const usageRef = doc(db, 'users', userId, 'usageStats', today);
+            await setDoc(usageRef, {
+                visionIdentification: 0,
+                smartSearch: 0,
+                healthAssessment: 0,
+                blogGeneration: 0,
+                totalAIRequests: 0,
+                lastUsed: Date.now()
+            }, { merge: true });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'RESET_USAGE',
+                targetId: userId,
+                details: `Reset AI usage stats for user ${userId}`
+            });
+        } catch (error) {
+            logger.error('Error resetting user usage stats:', error);
+            throw error;
+        }
+    },
+
     async getSystemStats(): Promise<{
         totalUsers: number;
         totalPets: number;

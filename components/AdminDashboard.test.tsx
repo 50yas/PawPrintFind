@@ -78,6 +78,7 @@ vi.mock('./BlogPostEditor', () => ({ BlogPostEditor: () => <div>BlogPostEditor</
 vi.mock('./AddPatientModal', () => ({ AddPatientModal: () => <div>AddPatientModal</div> }));
 vi.mock('./AddClinicModal', () => ({ AddClinicModal: () => <div>AddClinicModal</div> }));
 vi.mock('./AddVetModal', () => ({ AddVetModal: () => <div>AddVetModal</div> }));
+vi.mock('./AIUsageTable', () => ({ AIUsageTable: () => <div data-testid="ai-usage-table">AIUsageTable</div> }));
 vi.mock('./SystemHealth', () => ({ SystemHealth: () => <div data-testid="system-health-chart">SystemHealth Chart</div> }));
 vi.mock('../src/utils/adminUtils', () => ({
     calculateGrowth: vi.fn().mockReturnValue({ total: 10, newLastWeek: 2, velocity: 0.3 }),
@@ -260,5 +261,13 @@ describe('AdminDashboard Cyber HUD', () => {
             expect(dbService.deleteClinic).toHaveBeenCalledWith('c1');
             expect(mockOnRefresh).toHaveBeenCalled();
         });
+   });
+
+   it('renders AI Usage tab when selected', async () => {
+        render(<AdminDashboard {...mockProps} />);
+        
+        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        
+        expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
 });

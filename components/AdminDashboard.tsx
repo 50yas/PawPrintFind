@@ -12,6 +12,7 @@ import { SearchOptimizationDashboard } from './SearchOptimizationDashboard';
 import { TranslationHealthDashboard } from './TranslationHealthDashboard';
 import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
 import { AdminPetEditorModal } from './AdminPetEditorModal';
+import { AIUsageTable } from './AIUsageTable';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -68,7 +69,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost, onBrowseSite }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [allDonations, setAllDonations] = useState<Donation[]>(donations);
@@ -178,6 +179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         { id: 'donations', label: t('dashboard:admin.tabDonationsShort'), fullLabel: t('dashboard:admin.adminTabDonations'), icon: '💰' },
         { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
         { id: 'social', label: t('dashboard:admin.tabSocialShort'), fullLabel: t('dashboard:admin.adminTabSocial'), icon: '📡' },
+        { id: 'usage', label: t('dashboard:admin.tabUsageShort'), fullLabel: t('dashboard:admin.adminTabUsage'), icon: '🧠' },
         { id: 'optimization', label: t('dashboard:admin.tabOptimizeShort'), fullLabel: t('dashboard:admin.optimizeTab'), icon: '🧠' },
         { id: 'config', label: t('dashboard:admin.tabConfigShort'), fullLabel: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
         { id: 'verification', label: t('dashboard:admin.tabVerifyShort'), fullLabel: t('dashboard:admin.pendingVerificationsTitle'), count: pendingVerifications.length, icon: '🛡️' },
@@ -1028,6 +1030,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.5em] opacity-50">{t('dashboard:admin.noPendingSequences')}</p>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {activeTab === 'usage' && (
+                        <div className="animate-fade-in max-w-6xl mx-auto">
+                            <AIUsageTable />
                         </div>
                     )}
 
