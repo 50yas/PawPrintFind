@@ -10,11 +10,11 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Continuous Integration Setup' (Protocol in workflow.md) [38336ee]
 
 ## Phase 2: Cloud Functions Proxy & Secret Management
-- [ ] Task: Initialize Firebase Functions
-    - [ ] Set up the `functions/` directory with TypeScript.
-    - [ ] Configure `firebase.json` for functions deployment.
-- [ ] Task: Implement Usage Tracking Helpers
-    - [ ] Create a helper function `trackUsage(userId, featureName)` in Cloud Functions to increment Firestore counters.
+- [x] Task: Initialize Firebase Functions [c078ca6]
+    - [x] Set up the `functions/` directory with TypeScript.
+    - [x] Configure `firebase.json` for functions deployment.
+- [x] Task: Implement Usage Tracking Helpers [589af7a]
+    - [x] Create a helper function `trackUsage(userId, featureName)` in Cloud Functions to increment Firestore counters.
 - [ ] Task: Migrate Gemini AI logic to Functions
     - [ ] Implement `visionIdentification` function with usage tracking.
     - [ ] Implement `smartSearch` function with usage tracking.
