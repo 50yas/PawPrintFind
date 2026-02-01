@@ -15,11 +15,11 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Configure `firebase.json` for functions deployment.
 - [x] Task: Implement Usage Tracking Helpers [589af7a]
     - [x] Create a helper function `trackUsage(userId, featureName)` in Cloud Functions to increment Firestore counters.
-- [ ] Task: Migrate Gemini AI logic to Functions
-    - [ ] Implement `visionIdentification` function with usage tracking.
-    - [ ] Implement `smartSearch` function with usage tracking.
-    - [ ] Implement `healthAssessment` function with usage tracking.
-    - [ ] Implement `blogGeneration` function with usage tracking.
+- [x] Task: Migrate Gemini AI logic to Functions [308542b]
+    - [x] Implement `visionIdentification` function with usage tracking.
+    - [x] Implement `smartSearch` function with usage tracking.
+    - [x] Implement `healthAssessment` function with usage tracking.
+    - [x] Implement `blogGeneration` function with usage tracking.
 - [ ] Task: Secure API Keys
     - [ ] Configure Firebase Secrets Manager for `GEMINI_API_KEY`.
     - [ ] Remove `VITE_GEMINI_API_KEY` from client-side `.env` and `services/firebase.ts`.
