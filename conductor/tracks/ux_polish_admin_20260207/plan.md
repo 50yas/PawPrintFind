@@ -1,15 +1,15 @@
 # Implementation Plan: UX Polish & Admin Organization
 
-## Phase 1: Foundation & Localization (Infrastructure)
+## Phase 1: Foundation & Localization (Infrastructure) [checkpoint: cd301cf]
 **Goal:** Prepare the localization layer and design system tokens for the new UI structure.
 
-- [ ] Task: Audit `translations.ts` and `i18n.ts` for truncated strings
+- [x] Task: Audit `translations.ts` and `i18n.ts` for truncated strings [cd301cf]
     - Search for keys ending in `...` or with vague names like `loading`.
     - Create new, descriptive keys for all Auth labels, placeholders, and error messages.
     - Add keys for Admin categories: `operations`, `community`, `system`.
-- [ ] Task: Define new CSS/Tailwind utility classes for Glassmorphism 2.0 Side-Split
+- [x] Task: Define new CSS/Tailwind utility classes for Glassmorphism 2.0 Side-Split [cd301cf]
     - Ensure classes for `glass-card-premium` and `cinematic-split` are defined in `index.css`.
-- [ ] Task: Conductor - User Manual Verification 'Foundation & Localization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Foundation & Localization' (Protocol in workflow.md) [cd301cf]
 
 ## Phase 2: Auth Flow Redesign
 **Goal:** Implement the premium, responsive side-split authentication experience.
