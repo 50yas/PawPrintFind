@@ -45,15 +45,15 @@
     - Implement the collapsible sidebar toggle to expand data tables.
 - [x] Task: Conductor - User Manual Verification 'Admin Command Center Reorganization' (Protocol in workflow.md) [d378d23]
 
-## Phase 4: Global Copy Audit & Refinement
+## Phase 4: Global Copy Audit & Refinement [checkpoint: 4df7c30]
 **Goal:** Final pass to eliminate all "incomplete copy" and ensure responsive perfection.
 
-- [ ] Task: Audit and fix Pet/Clinic cards
+- [x] Task: Audit and fix Pet/Clinic cards [4df7c30]
     - Update `AdoptionCenter.tsx`, `FindVet.tsx`, and `AdoptionMap.tsx`.
     - Fix truncated titles or descriptions using flexible flexbox layouts or tooltips.
-- [ ] Task: Refactor "..." loading states in buttons
+- [x] Task: Refactor "..." loading states in buttons [4df7c30]
     - Replace `...` with descriptive localized strings (e.g., `Processing...`, `Locating...`) or accessible spinners.
-- [ ] Task: Final Responsive & Accessibility Verification
+- [x] Task: Final Responsive & Accessibility Verification [4df7c30]
     - Test all new components across 375px, 768px, and 1440px widths.
     - Verify ARIA labels for the new Admin categories and collapsible states.
-- [ ] Task: Conductor - User Manual Verification 'Global Copy Audit & Refinement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Global Copy Audit & Refinement' (Protocol in workflow.md) [4df7c30]

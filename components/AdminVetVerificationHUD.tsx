@@ -141,14 +141,14 @@ export const AdminVetVerificationHUD: React.FC = () => {
                                     <div className="flex gap-2">
                                         <GlassButton 
                                             onClick={() => handleApprove(false)} 
-                                            loading={processing}
+                                            isLoading={processing}
                                             className="flex-1 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border-emerald-500/30"
                                         >
                                             Approve Free
                                         </GlassButton>
                                         <GlassButton 
                                             onClick={() => handleApprove(true)} 
-                                            loading={processing}
+                                            isLoading={processing}
                                             className="flex-1 bg-amber-500/20 hover:bg-amber-500/40 text-amber-400 border-amber-500/30 shadow-lg shadow-amber-500/10"
                                         >
                                             Approve + PRO 👑

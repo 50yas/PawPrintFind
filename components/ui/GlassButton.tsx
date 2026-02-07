@@ -26,6 +26,14 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
     loadingText,
     disabled,
     onClick,
+    // Destructure custom props to prevent them from leaking into ...props
+    variant: _variant,
+    size: _size,
+    isLoading: _isLoading,
+    icon: _icon,
+    iconPosition: _iconPosition,
+    fullWidth: _fullWidth,
+    haptic: _haptic,
     ...props
 }, ref) => {
     const { t } = useTranslation('common');

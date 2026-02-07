@@ -343,6 +343,7 @@ export const dbService = {
             return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VetVerificationRequest));
         } catch (error: any) {
             logger.error('Get pending verifications failed', error);
+            // Return empty array instead of throwing to prevent UI crash
             return [];
         }
     },

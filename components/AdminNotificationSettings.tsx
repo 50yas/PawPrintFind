@@ -64,7 +64,7 @@ export const AdminNotificationSettings: React.FC = () => {
                     <span className="text-primary">🔔</span>
                     Notification Center
                 </h2>
-                <GlassButton onClick={handleSave} loading={saving} className="px-8">
+                <GlassButton onClick={handleSave} isLoading={saving} className="px-8">
                     Save Configuration 💾
                 </GlassButton>
             </div>
