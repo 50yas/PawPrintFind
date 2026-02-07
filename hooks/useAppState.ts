@@ -79,11 +79,12 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
             }
 
             return () => { unsubAppts(); unsubChats(); };
+            return () => { unsubAppts(); unsubChats(); };
         } else {
             setAppointments([]);
             setChatSessions([]);
         }
-    }, [currentUser]);
+    }, [currentUser?.uid, currentUser?.email, currentUser?.activeRole]);
 
     const handleRefreshAdminData = useCallback(async () => {
         setIsLoading(true);

@@ -46,7 +46,7 @@ export const useAuthSync = (
             }
         });
         return () => unsubscribeAuth();
-    }, [currentView, setCurrentView, setIsLoginModalOpen]);
+    }, [setIsLoginModalOpen]); // Removed currentView and setCurrentView dependencies
 
     return { currentUser, setCurrentUser };
 };

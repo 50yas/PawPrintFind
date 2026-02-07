@@ -38,7 +38,8 @@ import { getFunctions } from 'firebase/functions';
 import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import { getRemoteConfig } from "firebase/remote-config";
-import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema, Sighting } from '../types';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema, Sighting, VetVerificationRequest, VetVerificationRequestSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 
@@ -64,6 +65,21 @@ const storage = getStorage(app);
 const functions = getFunctions(app);
 const remoteConfig = getRemoteConfig(app);
 const googleProvider = new GoogleAuthProvider();
+
+// Initialize App Check
+if (typeof window !== 'undefined') {
+    const siteKey = import.meta.env.VITE_APP_CHECK_SITE_KEY;
+    if (siteKey) {
+        initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider(siteKey),
+            isTokenAutoRefreshEnabled: true
+        });
+    } else if (import.meta.env.DEV || (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN) {
+        // Allow debug token in dev mode if siteKey is missing to avoid blocking UI
+        (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        console.warn("App Check site key missing. Falling back to debug mode.");
+    }
+}
 
 // Initialize Performance and Analytics only in browser
 if (typeof window !== 'undefined') {
@@ -142,6 +158,184 @@ export const dbService = {
         return adminService.saveUser(userData);
     },
 
+    async getFilteredPets(filters: any): Promise<PetProfile[]> {
+        return petService.getFilteredPets(filters);
+    },
+
+    // --- VET VERIFICATION & PRO SUBSCRIPTION ---
+    async submitVetVerification(request: Omit<VetVerificationRequest, 'id'>): Promise<string> {
+        try {
+            const fullRequest = { 
+                ...request, 
+                submittedAt: Date.now(),
+                status: 'pending' as const
+            };
+            
+            validationService.validate(VetVerificationRequestSchema, fullRequest, 'submitVetVerification');
+            
+            const requestsRef = collection(db, 'vet_verification_requests');
+            const docRef = await addDoc(requestsRef, fullRequest);
+
+            // Update user to mark documents as submitted
+            await setDoc(doc(db, 'users', request.vetUid), {
+                vetDocumentsSubmitted: true,
+                vetLicenseNumber: request.licenseNumber,
+                vetSpecialization: request.specialization
+            }, { merge: true });
+
+            logger.logInfo('Vet verification submitted', { vetUid: request.vetUid, requestId: docRef.id });
+            return docRef.id;
+        } catch (error: any) {
+            logger.logError('Submit vet verification failed', error);
+            throw new Error('Failed to submit verification request: ' + error.message);
+        }
+    },
+
+    async uploadVerificationDoc(file: File, vetUid: string): Promise<string> {
+        try {
+            const fileExtension = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+            const storageRef = ref(storage, `verification_docs/${vetUid}/${fileName}`);
+
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+
+            logger.logInfo('Verification document uploaded', { vetUid, fileName });
+            return url;
+        } catch (error: any) {
+            logger.logError('Upload verification doc failed', error);
+            throw new Error('Failed to upload document');
+        }
+    },
+
+    async getVerificationStatus(vetUid: string): Promise<VetVerificationRequest | null> {
+        try {
+            const requestsRef = collection(db, 'vet_verification_requests');
+            const q = query(requestsRef, where('vetUid', '==', vetUid), orderBy('submittedAt', 'desc'));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) return null;
+
+            const doc = snapshot.docs[0];
+            return { id: doc.id, ...doc.data() } as VetVerificationRequest;
+        } catch (error: any) {
+            logger.logError('Get verification status failed', error);
+            return null;
+        }
+    },
+
+    async approveVetVerification(requestId: string, grantPro: boolean = false): Promise<void> {
+        try {
+            const requestRef = doc(db, 'vet_verification_requests', requestId);
+            const requestSnap = await getDoc(requestRef);
+
+            if (!requestSnap.exists()) throw new Error('Verification request not found');
+
+            const request = requestSnap.data() as VetVerificationRequest;
+            const currentUser = auth.currentUser;
+
+            // Update verification request
+            await setDoc(requestRef, {
+                status: 'approved',
+                reviewedAt: Date.now(),
+                reviewedBy: currentUser?.email || 'admin',
+                grantedProOnApproval: grantPro
+            }, { merge: true });
+
+            // Update user
+            const userUpdate: Partial<User> = {
+                isVetVerified: true
+            };
+
+            if (grantPro) {
+                userUpdate.vetTier = 'pro';
+                userUpdate.vetProExpiry = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year
+                userUpdate.vetMonthlyPatientsLimit = 999999; // Unlimited
+            } else {
+                userUpdate.vetTier = 'free';
+                userUpdate.vetMonthlyPatientsLimit = 5;
+            }
+
+            await setDoc(doc(db, 'users', request.vetUid), userUpdate, { merge: true });
+
+            logger.logInfo('Vet verification approved', { vetUid: request.vetUid, grantedPro: grantPro });
+        } catch (error: any) {
+            logger.logError('Approve vet verification failed', error);
+            throw new Error('Failed to approve verification');
+        }
+    },
+
+    async rejectVetVerification(requestId: string, reason: string): Promise<void> {
+        try {
+            const requestRef = doc(db, 'vet_verification_requests', requestId);
+            const currentUser = auth.currentUser;
+
+            await setDoc(requestRef, {
+                status: 'rejected',
+                reviewedAt: Date.now(),
+                reviewedBy: currentUser?.email || 'admin',
+                rejectionReason: reason
+            }, { merge: true });
+
+            logger.logInfo('Vet verification rejected', { requestId, reason });
+        } catch (error: any) {
+            logger.logError('Reject vet verification failed', error);
+            throw new Error('Failed to reject verification');
+        }
+    },
+
+    async checkPatientLimit(vetUid: string): Promise<{ reached: boolean; current: number; limit: number }> {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', vetUid));
+            if (!userDoc.exists()) throw new Error('User not found');
+
+            const user = userDoc.data() as User;
+            const current = user.vetCurrentMonthPatients || 0;
+            const limit = user.vetMonthlyPatientsLimit || 5;
+
+            return {
+                reached: current >= limit,
+                current,
+                limit
+            };
+        } catch (error: any) {
+            logger.logError('Check patient limit failed', error);
+            return { reached: false, current: 0, limit: 5 };
+        }
+    },
+
+    async createVetProCheckout(vetUid: string, plan: 'monthly' | 'yearly'): Promise<{ url: string }> {
+        try {
+            // This will use Stripe checkout similar to donations
+            // Price: €49/month or €490/year
+            const amount = plan === 'monthly' ? 4900 : 49000; // in cents
+
+            // In production, call Stripe API or Cloud Function
+            // For now, return a placeholder
+            logger.logInfo('Vet Pro checkout created', { vetUid, plan, amount });
+
+            return {
+                url: `https://checkout.stripe.com/pay/vet_pro_${plan}_${vetUid}`
+            };
+        } catch (error: any) {
+            logger.logError('Create vet pro checkout failed', error);
+            throw new Error('Failed to create checkout session');
+        }
+    },
+
+    async getPendingVerifications(): Promise<VetVerificationRequest[]> {
+        try {
+            const requestsRef = collection(db, 'vet_verification_requests');
+            const q = query(requestsRef, where('status', '==', 'pending'), orderBy('submittedAt', 'desc'));
+            const snapshot = await getDocs(q);
+
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VetVerificationRequest));
+        } catch (error: any) {
+            logger.logError('Get pending verifications failed', error);
+            return [];
+        }
+    },
+
     async deleteUser(uid: string): Promise<void> {
         return adminService.deleteUser(uid);
     },
@@ -209,11 +403,11 @@ export const dbService = {
 
     async markPetFound(pet: PetProfile) {
         await petService.savePet({ ...pet, isLost: false });
-        
+
         try {
             const { generateSuccessStory } = await import('./geminiService');
             const story = await generateSuccessStory(pet);
-            
+
             if (story.title) {
                 const blogPost: BlogPost = {
                     id: Date.now().toString(),
@@ -231,9 +425,9 @@ export const dbService = {
                 await this.saveBlogPost(blogPost);
                 // Also award badge for reunion if applicable?
                 if (auth.currentUser) {
-                     // Increment reunion supported count manually or via another service method
-                     // For now, let's just leave it to reportSighting for badges, 
-                     // or we can add a 'markFound' stat increment logic in authService later.
+                    // Increment reunion supported count manually or via another service method
+                    // For now, let's just leave it to reportSighting for badges, 
+                    // or we can add a 'markFound' stat increment logic in authService later.
                 }
             }
         } catch (e) {
@@ -242,7 +436,7 @@ export const dbService = {
     },
 
     subscribeToPets(callback: (pets: PetProfile[]) => void, onError?: (error: any) => void) {
-        return onSnapshot(collection(db, 'pets'), 
+        return onSnapshot(collection(db, 'pets'),
             (s) => callback(s.docs.map(d => d.data() as PetProfile)),
             (error) => { if (onError) onError(error); else console.error("Pets subscription error:", error); }
         );
@@ -262,7 +456,7 @@ export const dbService = {
     },
 
     subscribeToClinics(callback: (clinics: VetClinic[]) => void, onError?: (error: any) => void) {
-        return onSnapshot(collection(db, 'vet_clinics'), 
+        return onSnapshot(collection(db, 'vet_clinics'),
             (s) => callback(s.docs.map(d => d.data() as VetClinic)),
             (error) => { if (onError) onError(error); else console.error("Clinics subscription error:", error); }
         );
@@ -333,9 +527,9 @@ export const dbService = {
             // Sanitize filename to avoid path issues
             const safePath = path.replace(/\s+/g, '_');
             const storageRef = ref(storage, safePath);
-            
+
             console.log(`[Upload] Starting upload to ${safePath} for user ${auth.currentUser.uid}`);
-            
+
             const snapshot = await uploadBytes(storageRef, file);
             return await getDownloadURL(snapshot.ref);
         } catch (error: any) {

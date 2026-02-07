@@ -13,6 +13,7 @@ import { TranslationHealthDashboard } from './TranslationHealthDashboard';
 import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
 import { AdminPetEditorModal } from './AdminPetEditorModal';
 import { AIUsageTable } from './AIUsageTable';
+import { AdminVetVerificationHUD } from './AdminVetVerificationHUD';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -76,7 +77,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showEditor, setShowEditor] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-    const [showAddVetPet, setShowAddVetPet] = useState<{show: boolean, email: string}>({ show: false, email: '' });
+    const [showAddVetPet, setShowAddVetPet] = useState<{ show: boolean, email: string }>({ show: false, email: '' });
     const [showAddClinic, setShowAddClinic] = useState(false);
     const [showAddVet, setShowAddVet] = useState(false);
     const [userSearch, setUserSearch] = useState('');
@@ -88,26 +89,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
     const [showEditPet, setShowEditPet] = useState(false);
 
-    const [visitorCount, setVisitorCount] = useState(120 + Math.floor(Math.random() * 50));
-
     const [systemConfig, setSystemConfig] = useState({
         maintenanceMode: false,
-        primaryAIModel: 'gemini-2.0-pro',
-        searchWeightBreed: 0.5,
-        searchWeightLocation: 0.3,
-        searchWeightAge: 0.2
+        primaryAIModel: 'gemini-2.0-flash'
     });
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setVisitorCount(prev => {
-                let change = Math.floor(Math.random() * 7) - 3; // -3 to +3
-                if (change === 0) change = 1; // Always move
-                return Math.max(80, prev + change);
-            });
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+
 
     const handleUpdatePet = async (pet: PetProfile) => {
         setIsRefreshing(true);
@@ -188,29 +175,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
     const filteredUsers = useMemo(() => {
         return users.filter(u => {
-            const matchesSearch = 
+            const matchesSearch =
                 u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
                 u.activeRole?.toLowerCase().includes(userSearch.toLowerCase()) ||
                 u.uid.toLowerCase().includes(userSearch.toLowerCase());
-            
+
             const matchesRole = roleFilter === 'all' || (u.roles || []).includes(roleFilter as any);
-            const matchesVerification = verificationFilter === 'all' || 
-                (verificationFilter === 'verified' && u.isVerified) || 
+            const matchesVerification = verificationFilter === 'all' ||
+                (verificationFilter === 'verified' && u.isVerified) ||
                 (verificationFilter === 'unverified' && !u.isVerified);
-            
+
             return matchesSearch && matchesRole && matchesVerification;
         });
     }, [users, userSearch, roleFilter, verificationFilter]);
 
     const filteredPets = useMemo(() => {
         return allPets.filter(p => {
-            const matchesSearch = 
+            const matchesSearch =
                 p.name.toLowerCase().includes(petSearch.toLowerCase()) ||
                 p.breed.toLowerCase().includes(petSearch.toLowerCase()) ||
                 p.id.toLowerCase().includes(petSearch.toLowerCase());
-            
+
             const matchesStatus = petStatusFilter === 'all' || p.status === petStatusFilter;
-            
+
             return matchesSearch && matchesStatus;
         });
     }, [allPets, petSearch, petStatusFilter]);
@@ -292,14 +279,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         try {
             const { verificationData, ...userWithoutVerification } = user;
             await dbService.saveUser({ ...userWithoutVerification, isVerified: false });
-            
+
             await dbService.logAdminAction({
                 adminEmail: currentUser.email,
                 action: 'REJECT_VERIFICATION',
                 targetId: user.uid,
                 details: `Rejected credentials for ${user.email}`
             });
-            
+
             addSnackbar(t('dashboard:admin.verificationRejected'), 'info');
             await onRefresh();
         } catch (e: any) { addSnackbar(e.message, 'error'); }
@@ -370,7 +357,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
             {/* MAIN CONTENT */}
             <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10">
-                
+
                 {/* Mobile Header */}
                 <div className="md:hidden sticky top-0 z-[100] w-full px-4 py-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -388,7 +375,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                 {/* Content Scroll Area */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
-                    
+
                     <h2 className="sr-only">{activeTab}</h2>
 
                     {/* Persistent Alert Feed */}
@@ -396,7 +383,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         <div className="mb-6 flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
                             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{t('dashboard:admin.urgentProtocol')}</span>
                             <span className="text-[10px] font-bold text-white uppercase">{pendingVerifications.length} {t('dashboard:admin.pendingVerificationsTitle')}</span>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('verification')}
                                 className="ml-2 text-[10px] font-black text-primary hover:underline uppercase"
                             >
@@ -437,21 +424,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                                                 </span>
-                                                <span className="text-[8px] font-mono text-primary font-black tracking-[0.2em] animate-pulse">LIVE</span>
+                                                <span className="text-[8px] font-mono text-primary font-black tracking-[0.2em] uppercase">{t('dashboard:admin.systemStatusOnline')}</span>
                                             </div>
-                                            <motion.span 
-                                                key={visitorCount}
-                                                initial={{ scale: 0.9, opacity: 0.7, filter: 'blur(4px)' }}
-                                                animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                                            <motion.span
+                                                initial={{ scale: 0.9, opacity: 0.7 }}
+                                                animate={{ scale: 1, opacity: 1 }}
                                                 className="text-6xl font-black text-white relative z-10 font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
                                             >
-                                                {visitorCount}
+                                                {users.length}
                                             </motion.span>
                                         </div>
                                     </div>
                                     <div className="relative z-10">
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">{t('dashboard:admin.liveTraffic')}</p>
-                                        <p className="text-[8px] text-slate-500 uppercase font-mono leading-none">{t('dashboard:admin.activeNodesDesc')}</p>
+                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">{t('dashboard:admin.totalPopulation')}</p>
+                                        <p className="text-[8px] text-slate-500 uppercase font-mono leading-none">
+                                            {users.filter(u => new Date(u.createdAt || 0).toDateString() === new Date().toDateString()).length} {t('dashboard:admin.newSignalsToday')}
+                                        </p>
                                     </div>
                                 </GlassCard>
                             </div>
@@ -474,11 +462,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {blogPosts.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0,3).map((post, i) => (
+                                    {blogPosts.sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3).map((post, i) => (
                                         <div key={post.id} className="relative group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
-                                            <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i+1}</div>
+                                            <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i + 1}</div>
                                             <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
                                             <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
                                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
@@ -564,8 +552,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                             </td>
                                                             <td className="p-5 font-mono text-slate-500 text-[10px]">{c.address}</td>
                                                             <td className="p-5 text-right">
-                                                                <button 
-                                                                    onClick={() => deleteClinic(c.id!)} 
+                                                                <button
+                                                                    onClick={() => deleteClinic(c.id!)}
                                                                     className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                                 >
                                                                     {t('dashboard:admin.dismantleButton')}
@@ -629,7 +617,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                 </td>
                                                                 <td className="p-5 text-right space-x-2">
                                                                     {!hasClinic && (
-                                                                        <button 
+                                                                        <button
                                                                             onClick={() => { setShowAddClinic(true); /* Ideally pre-fill email */ }}
                                                                             className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                                         >
@@ -637,7 +625,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                                         </button>
                                                                     )}
                                                                     {!v.isVerified && v.verificationData && (
-                                                                        <button 
+                                                                        <button
                                                                             onClick={() => setActiveTab('verification')}
                                                                             className="px-3 py-1 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                                         >
@@ -661,7 +649,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 <div className="flex flex-col xl:flex-row justify-between items-center px-2 gap-6">
                                     <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabPets')}</h3>
                                     <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full xl:w-auto">
-                                        <select 
+                                        <select
                                             value={petStatusFilter}
                                             onChange={(e) => setPetStatusFilter(e.target.value as any)}
                                             className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-mono text-white focus:border-primary/50 outline-none uppercase tracking-wider flex-grow md:flex-grow-0"
@@ -672,7 +660,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                             <option value="owned">{t('dashboard:admin.statusOwned')}</option>
                                         </select>
                                         <div className="relative flex-grow md:w-64 min-w-[200px]">
-                                            <input 
+                                            <input
                                                 value={petSearch}
                                                 onChange={e => setPetSearch(e.target.value)}
                                                 placeholder={t('dashboard:admin.searchPetPlaceholder')}
@@ -695,131 +683,130 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                             </thead>
                                             <tbody className="divide-y divide-white/5">
                                                 {filteredPets.map(p => (
-                                                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="p-5">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
-                                                                {p.photos[0]?.url ? (
-                                                                    <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
-                                                                ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center text-xl font-black">?</div>
-                                                                )}
+                                                    <tr key={p.id} className="hover:bg-white/5 transition-colors group">
+                                                        <td className="p-5">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
+                                                                    {p.photos[0]?.url ? (
+                                                                        <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-xl font-black">?</div>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-white text-sm">{p.name}</p>
+                                                                    <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{p.breed} • {p.age}</p>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-white text-sm">{p.name}</p>
-                                                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{p.breed} • {p.age}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${
-                                                            p.isLost ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
-                                                            p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                                            'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                                                        }`}>
-                                                            {p.isLost ? t('dashboard:admin.statusLost') : 
-                                                             p.status === 'forAdoption' ? t('dashboard:admin.statusAdoption') : 
-                                                             t('dashboard:admin.statusOwned')}
-                                                        </span>
-                                                    </td>
-                                                                                                    <td className="p-5 font-mono text-slate-500 tracking-tighter">
-                                                                                                        {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
-                                                                                                    </td>
-                                                                                                    <td className="p-5 text-right space-x-2">
-                                                                                                        <button 
-                                                                                                            onClick={() => { setEditingPet(p); setShowEditPet(true); }}
-                                                                                                            className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                                                                        >
-                                                                                                            {t('dashboard:admin.editButton')}
-                                                                                                        </button>
-                                                                                                        <button 
-                                                                                                            onClick={async () => { 
-                                                                                                                if(confirm(t('dashboard:admin.confirmTerminateProfile'))) {
-                                                                                                                    await dbService.deletePet(p.id);
-                                                                                                                    await dbService.logAdminAction({
-                                                                                                                        adminEmail: currentUser.email,
-                                                                                                                        action: 'DELETE_PET',
-                                                                                                                        targetId: p.id,
-                                                                                                                        details: `Terminated pet profile: ${p.name}`
-                                                                                                                    });
-                                                                                                                    await onRefresh(); 
-                                                                                                                }
-                                                                                                            }}
-                                                                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                                                                        >
-                                                                                                            {t('dashboard:admin.terminateButton')}
-                                                                                                        </button>
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            ))}
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                </div>
-                                                                            </GlassCard>
-                                                                        </div>
-                                                                    )}
-                                                    
-                                                                    {activeTab === 'gamification' && (
-                                                                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
-                                                                            <GlassCard className="p-8 border-primary/20 bg-black/40">
-                                                                                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabGamification')}</h3>
-                                                                                <div className="grid gap-4">
-                                                                                    {users.filter(u => u.points > 0 || u.badges.length > 0).map(u => (
-                                                                                        <div key={u.uid} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
-                                                                                            <div>
-                                                                                                <p className="font-bold text-white">{u.email}</p>
-                                                                                                <p className="text-[10px] text-primary font-black uppercase tracking-widest">{u.points} XP</p>
-                                                                                            </div>
-                                                                                            <div className="flex gap-2">
-                                                                                                {u.badges.map(b => (
-                                                                                                    <span key={b} className="px-2 py-1 bg-primary/20 text-primary border border-primary/30 rounded text-[8px] font-black uppercase">{b}</span>
-                                                                                                ))}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            </GlassCard>
-                                                                        </div>
-                                                                    )}
-                                                    
-                                                                    {activeTab === 'config' && (
-                                                                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
-                                                                            <GlassCard className="p-8 border-primary/20 bg-black/40">
-                                                                                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabConfig')}</h3>
-                                                                                <div className="space-y-6">
-                                                                                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                                                                                        <div>
-                                                                                            <p className="font-bold text-white">Maintenance Mode</p>
-                                                                                            <p className="text-xs text-slate-500">Lock the platform for updates.</p>
-                                                                                        </div>
-                                                                                        <input 
-                                                                                            type="checkbox" 
-                                                                                            checked={systemConfig.maintenanceMode} 
-                                                                                            onChange={(e) => handleUpdateConfig({...systemConfig, maintenanceMode: e.target.checked})}
-                                                                                            className="w-6 h-6 accent-primary"
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className="space-y-4">
-                                                                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">Primary AI Model</p>
-                                                                                        <select 
-                                                                                            value={systemConfig.primaryAIModel}
-                                                                                            onChange={(e) => handleUpdateConfig({...systemConfig, primaryAIModel: e.target.value})}
-                                                                                            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-primary"
-                                                                                        >
-                                                                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
-                                                                                            <option value="gemini-2.0-pro">Gemini 2.0 Pro (Intelligent)</option>
-                                                                                            <option value="gemini-exp-1206">Gemini Experimental</option>
-                                                                                        </select>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </GlassCard>
-                                                                        </div>
-                                                                    )}
-                                                    
-                                                                        {activeTab === 'blog' && (                        <div className="space-y-6">
+                                                        </td>
+                                                        <td className="p-5">
+                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase shadow-sm ${p.isLost ? 'bg-red-500/20 text-red-500 border border-red-500/30' :
+                                                                p.status === 'forAdoption' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                                                    'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                                                }`}>
+                                                                {p.isLost ? t('dashboard:admin.statusLost') :
+                                                                    p.status === 'forAdoption' ? t('dashboard:admin.statusAdoption') :
+                                                                        t('dashboard:admin.statusOwned')}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-5 font-mono text-slate-500 tracking-tighter">
+                                                            {p.lastSeenLocation ? `${p.lastSeenLocation.latitude.toFixed(4)}, ${p.lastSeenLocation.longitude.toFixed(4)}` : t('dashboard:admin.orbitalUnknown')}
+                                                        </td>
+                                                        <td className="p-5 text-right space-x-2">
+                                                            <button
+                                                                onClick={() => { setEditingPet(p); setShowEditPet(true); }}
+                                                                className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                            >
+                                                                {t('dashboard:admin.editButton')}
+                                                            </button>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    if (confirm(t('dashboard:admin.confirmTerminateProfile'))) {
+                                                                        await dbService.deletePet(p.id);
+                                                                        await dbService.logAdminAction({
+                                                                            adminEmail: currentUser.email,
+                                                                            action: 'DELETE_PET',
+                                                                            targetId: p.id,
+                                                                            details: `Terminated pet profile: ${p.name}`
+                                                                        });
+                                                                        await onRefresh();
+                                                                    }
+                                                                }}
+                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                            >
+                                                                {t('dashboard:admin.terminateButton')}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </GlassCard>
+                            </div>
+                        )}
+
+                        {activeTab === 'gamification' && (
+                            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                                <GlassCard className="p-8 border-primary/20 bg-black/40">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabGamification')}</h3>
+                                    <div className="grid gap-4">
+                                        {users.filter(u => u.points > 0 || u.badges.length > 0).map(u => (
+                                            <div key={u.uid} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
+                                                <div>
+                                                    <p className="font-bold text-white">{u.email}</p>
+                                                    <p className="text-[10px] text-primary font-black uppercase tracking-widest">{u.points} XP</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    {u.badges.map(b => (
+                                                        <span key={b} className="px-2 py-1 bg-primary/20 text-primary border border-primary/30 rounded text-[8px] font-black uppercase">{b}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </GlassCard>
+                            </div>
+                        )}
+
+                        {activeTab === 'config' && (
+                            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                                <GlassCard className="p-8 border-primary/20 bg-black/40">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('dashboard:admin.adminTabConfig')}</h3>
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                                            <div>
+                                                <p className="font-bold text-white">Maintenance Mode</p>
+                                                <p className="text-xs text-slate-500">Lock the platform for updates.</p>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={systemConfig.maintenanceMode}
+                                                onChange={(e) => handleUpdateConfig({ ...systemConfig, maintenanceMode: e.target.checked })}
+                                                className="w-6 h-6 accent-primary"
+                                            />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Primary AI Model</p>
+                                            <select
+                                                value={systemConfig.primaryAIModel}
+                                                onChange={(e) => handleUpdateConfig({ ...systemConfig, primaryAIModel: e.target.value })}
+                                                className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-primary"
+                                            >
+                                                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast)</option>
+                                                <option value="gemini-2.0-pro">Gemini 2.0 Pro (Intelligent)</option>
+                                                <option value="gemini-exp-1206">Gemini Experimental</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                            </div>
+                        )}
+
+                        {activeTab === 'blog' && (<div className="space-y-6">
                             <div className="flex justify-between items-center px-2">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter drop-shadow-md">{t('dashboard:admin.blogRepository').split(' ')[0]} <span className="text-primary">{t('dashboard:admin.blogRepository').split(' ')[1]}</span></h3>
-                                <GlassButton 
+                                <GlassButton
                                     onClick={() => { setEditingPost(null); setShowEditor(true); }}
                                     variant="primary"
                                     className="scale-110 shadow-primary/20"
@@ -856,32 +843,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                     </td>
                                                     <td className="p-5 text-right flex justify-end gap-3 pt-7">
                                                         {onViewPost && (
-                                                            <button 
+                                                            <button
                                                                 onClick={() => onViewPost(p)}
                                                                 className="px-3 py-1 rounded-md bg-white/5 text-white hover:bg-white/10 transition-all font-black text-[9px] tracking-widest border border-white/10"
                                                             >
                                                                 {t('dashboard:admin.viewButton')}
                                                             </button>
                                                         )}
-                                                        <button 
+                                                        <button
                                                             onClick={() => { setEditingPost(p); setShowEditor(true); }}
                                                             className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
                                                         >
                                                             {t('dashboard:admin.editButton')}
                                                         </button>
-                                                        <button 
-                                                            onClick={async () => { 
-                                                                if(confirm(t('dashboard:admin.confirmPurgeContent'))) { 
-                                                                    await dbService.deleteBlogPost(p.id); 
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (confirm(t('dashboard:admin.confirmPurgeContent'))) {
+                                                                    await dbService.deleteBlogPost(p.id);
                                                                     await dbService.logAdminAction({
                                                                         adminEmail: currentUser.email,
                                                                         action: 'DELETE_BLOG_POST',
                                                                         targetId: p.id,
                                                                         details: `Purged blog post: ${p.title}`
                                                                     });
-                                                                    onRefresh(); 
-                                                                } 
-                                                            }} 
+                                                                    onRefresh();
+                                                                }
+                                                            }}
                                                             className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
                                                         >
                                                             {t('dashboard:admin.deleteUserButton')}
@@ -894,180 +881,145 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 </div>
                             </GlassCard>
                         </div>
-                    )}
+                        )}
 
-                    {activeTab === 'optimization' && (
-                        <div className="animate-fade-in max-w-6xl mx-auto">
-                            <SearchOptimizationDashboard />
-                        </div>
-                    )}
-
-                    {activeTab === 'i18n' && (
-                        <div className="animate-fade-in max-w-6xl mx-auto">
-                            <TranslationHealthDashboard />
-                        </div>
-                    )}
-
-                    {activeTab === 'social' && (
-                        <div className="animate-fade-in max-w-6xl mx-auto">
-                            <SocialDiscoveryDashboard />
-                        </div>
-                    )}
-
-                    {activeTab === 'donations' && (
-                        <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
-                            <div className="flex justify-between items-center px-2">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabDonations')}</h3>
-                                <div className="text-right">
-                                    <p className="text-[10px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalRevenue')}</p>
-                                    <p className="text-xl font-black text-primary">€{allDonations.reduce((acc, d) => acc + (d.numericValue || 0), 0).toFixed(2)}</p>
-                                </div>
+                        {activeTab === 'optimization' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <SearchOptimizationDashboard />
                             </div>
-                            <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
-                                <div className="overflow-x-auto custom-scrollbar">
-                                    <table className="w-full text-left text-xs min-w-[800px]">
-                                        <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
-                                            <tr className="border-b border-white/10">
-                                                <th className="p-5">{t('dashboard:admin.donor')}</th>
-                                                <th className="p-5">{t('dashboard:admin.amount')}</th>
-                                                <th className="p-5">{t('dashboard:admin.status')}</th>
-                                                <th className="p-5">{t('dashboard:admin.date')}</th>
-                                                <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {allDonations.map(d => (
-                                                <tr key={d.id} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="p-5">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
-                                                                {d.avatarUrl ? <img src={d.avatarUrl} alt="" className="w-full h-full object-cover" /> : d.donorName.charAt(0)}
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-bold text-white">{d.donorName}</p>
-                                                                <p className="text-[9px] text-slate-500 font-mono">{d.email || t('dashboard:admin.anonymousDonor')}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5 font-black text-primary">{d.amount}</td>
-                                                    <td className="p-5">
-                                                        <span className={`px-2 py-1 rounded text-[9px] font-black uppercase ${
-                                                            d.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-500'
-                                                        }`}>
-                                                            {t(`dashboard:admin.status_${d.status}`)}
-                                                        </span>
-                                                        {d.isConfirmed ? (
-                                                            <span className="ml-2 text-[8px] text-primary font-black uppercase border border-primary/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.confirmedDonationBadge')}</span>
-                                                        ) : (
-                                                            <span className="ml-2 text-[8px] text-amber-500 font-black uppercase border border-amber-500/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.unconfirmedDonationBadge')}</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-5 text-slate-500 font-mono text-[10px]">
-                                                        {new Date(d.timestamp).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="p-5 text-right space-x-2">
-                                                        {!d.isConfirmed && d.status === 'paid' && (
-                                                            <button 
-                                                                onClick={async () => {
-                                                                    await dbService.confirmDonation(d.id);
-                                                                    addSnackbar(t('dashboard:admin.donationConfirmed'), 'success');
-                                                                }}
-                                                                className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
-                                                            >
-                                                                {t('dashboard:admin.confirmDonationButton')}
-                                                            </button>
-                                                        )}
-                                                        <button 
-                                                            onClick={() => handleDeleteDonation(d.id)}
-                                                            className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
-                                                        >
-                                                            {t('dashboard:admin.terminateButton')}
-                                                        </button>
-                                                    </td>
+                        )}
+
+                        {activeTab === 'i18n' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <TranslationHealthDashboard />
+                            </div>
+                        )}
+
+                        {activeTab === 'social' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <SocialDiscoveryDashboard />
+                            </div>
+                        )}
+
+                        {activeTab === 'donations' && (
+                            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                                <div className="flex justify-between items-center px-2">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">{t('dashboard:admin.adminTabDonations')}</h3>
+                                    <div className="text-right">
+                                        <p className="text-[10px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalRevenue')}</p>
+                                        <p className="text-xl font-black text-primary">€{allDonations.reduce((acc, d) => acc + (d.numericValue || 0), 0).toFixed(2)}</p>
+                                    </div>
+                                </div>
+                                <GlassCard className="overflow-hidden border-white/10 bg-black/20 rounded-[2rem]">
+                                    <div className="overflow-x-auto custom-scrollbar">
+                                        <table className="w-full text-left text-xs min-w-[800px]">
+                                            <thead className="bg-white/5 text-slate-400 uppercase font-mono tracking-tighter">
+                                                <tr className="border-b border-white/10">
+                                                    <th className="p-5">{t('dashboard:admin.donor')}</th>
+                                                    <th className="p-5">{t('dashboard:admin.amount')}</th>
+                                                    <th className="p-5">{t('dashboard:admin.status')}</th>
+                                                    <th className="p-5">{t('dashboard:admin.date')}</th>
+                                                    <th className="p-5 text-right">{t('dashboard:admin.tableActions')}</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </GlassCard>
-                        </div>
-                    )}
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {allDonations.map(d => (
+                                                    <tr key={d.id} className="hover:bg-white/5 transition-colors group">
+                                                        <td className="p-5">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                                                                    {d.avatarUrl ? <img src={d.avatarUrl} alt="" className="w-full h-full object-cover" /> : d.donorName.charAt(0)}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-white">{d.donorName}</p>
+                                                                    <p className="text-[9px] text-slate-500 font-mono">{d.email || t('dashboard:admin.anonymousDonor')}</p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-5 font-black text-primary">{d.amount}</td>
+                                                        <td className="p-5">
+                                                            <span className={`px-2 py-1 rounded text-[9px] font-black uppercase ${d.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-500'
+                                                                }`}>
+                                                                {t(`dashboard:admin.status_${d.status}`)}
+                                                            </span>
+                                                            {d.isConfirmed ? (
+                                                                <span className="ml-2 text-[8px] text-primary font-black uppercase border border-primary/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.confirmedDonationBadge')}</span>
+                                                            ) : (
+                                                                <span className="ml-2 text-[8px] text-amber-500 font-black uppercase border border-amber-500/30 px-1.5 py-0.5 rounded">{t('dashboard:admin.unconfirmedDonationBadge')}</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="p-5 text-slate-500 font-mono text-[10px]">
+                                                            {new Date(d.timestamp).toLocaleDateString()}
+                                                        </td>
+                                                        <td className="p-5 text-right space-x-2">
+                                                            {!d.isConfirmed && d.status === 'paid' && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        await dbService.confirmDonation(d.id);
+                                                                        addSnackbar(t('dashboard:admin.donationConfirmed'), 'success');
+                                                                    }}
+                                                                    className="px-3 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary hover:text-black transition-all font-black text-[9px] tracking-widest border border-primary/20"
+                                                                >
+                                                                    {t('dashboard:admin.confirmDonationButton')}
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                onClick={() => handleDeleteDonation(d.id)}
+                                                                className="px-3 py-1 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-black text-[9px] tracking-widest border border-red-500/20"
+                                                            >
+                                                                {t('dashboard:admin.terminateButton')}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </GlassCard>
+                            </div>
+                        )}
 
-                    {activeTab === 'verification' && (
-                        <div className="space-y-6 max-w-6xl mx-auto">
-                            <GlassCard className="bg-primary/10 border-primary/30 p-6 flex items-center gap-6 shadow-[0_0_30px_rgba(20,184,166,0.1)]">
-                                <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-3xl shadow-inner border border-primary/20">🛡️</div>
-                                <div>
-                                    <h3 className="font-black text-white text-lg uppercase tracking-tighter">{t('dashboard:admin.pendingVerificationsTitle')}</h3>
-                                    <p className="text-sm text-primary/80 font-medium">{t('dashboard:admin.pendingVerificationsDesc')}</p>
-                                </div>
-                            </GlassCard>
+                        {activeTab === 'verification' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <AdminVetVerificationHUD />
+                            </div>
+                        )}
 
-                            {pendingVerifications.length > 0 ? (
-                                <div className="grid gap-4">
-                                    {pendingVerifications.map(u => (
-                                        <GlassCard key={u.uid} className="p-6 border-white/10 bg-white/5 flex flex-col md:flex-row justify-between items-center gap-6 hover:bg-white/10 transition-colors">
-                                            <div className="flex items-center gap-5 text-emerald-400">
-                                                <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl border border-white/10 shadow-lg">🏥</div>
-                                                <div>
-                                                    <h4 className="font-bold text-white text-lg">{u.email}</h4>
-                                                    <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Clearance: {u.activeRole || 'User'}</p>
-                                                    <p className="text-[10px] text-slate-500 mt-1 font-mono tracking-tighter">SYNCED: {u.verificationData ? new Date(u.verificationData.timestamp).toLocaleString() : 'N/A'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3">
-                                                {u.verificationData?.docUrl && (
-                                                    <a href={u.verificationData.docUrl} target="_blank" rel="noreferrer" className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black tracking-widest text-white hover:bg-white/10 transition-all uppercase">{t('dashboard:admin.viewDocs')}</a>
-                                                )}
-                                                <button onClick={() => approveUser(u)} className="px-6 py-2 rounded-xl bg-primary text-black text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg uppercase">{t('dashboard:admin.acceptButton')}</button>
-                                                <button onClick={() => rejectUser(u)} className="px-5 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-black tracking-widest hover:bg-red-500 hover:text-white transition-all uppercase">{t('dashboard:admin.declineButton')}</button>
-                                            </div>
-                                        </GlassCard>
+                        {activeTab === 'usage' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <AIUsageTable />
+                            </div>
+                        )}
+
+                        {activeTab === 'logs' && (
+                            <GlassCard className="bg-black/60 border-primary/20 shadow-2xl overflow-hidden rounded-[2rem] max-w-6xl mx-auto">
+                                <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                                        <span className="font-mono text-[10px] font-black text-primary uppercase tracking-[0.3em]">{t('dashboard:admin.adminTabLogs')}</span>
+                                    </div>
+                                    <button onClick={() => logger.clearLogs()} className="text-primary/50 hover:text-primary transition-colors font-mono text-[9px] uppercase tracking-widest">{t('dashboard:admin.flushMemory')}</button>
+                                </div>
+                                <div className="p-6 h-[600px] overflow-y-auto font-mono text-[11px] custom-scrollbar">
+                                    {logs.map(log => (
+                                        <div key={log.id} className="mb-2 flex gap-4 opacity-80 hover:opacity-100 transition-opacity border-l-2 border-white/5 pl-4 py-1">
+                                            <span className="text-slate-600 shrink-0">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                            <span className={`font-black uppercase shrink-0 w-12 ${log.level === 'error' ? 'text-red-500' : log.level === 'warn' ? 'text-yellow-500' : 'text-primary'
+                                                }`}>
+                                                {log.level}:
+                                            </span>
+                                            <span className="text-slate-300 break-all">{log.message}</span>
+                                        </div>
                                     ))}
                                 </div>
-                            ) : (
-                                <div className="text-center py-24 border-2 border-dashed border-white/10 rounded-[3rem] bg-black/20">
-                                    <p className="text-slate-600 font-mono text-xs uppercase tracking-[0.5em] opacity-50">{t('dashboard:admin.noPendingSequences')}</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'usage' && (
-                        <div className="animate-fade-in max-w-6xl mx-auto">
-                            <AIUsageTable />
-                        </div>
-                    )}
-
-                    {activeTab === 'logs' && (
-                        <GlassCard className="bg-black/60 border-primary/20 shadow-2xl overflow-hidden rounded-[2rem] max-w-6xl mx-auto">
-                            <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-                                    <span className="font-mono text-[10px] font-black text-primary uppercase tracking-[0.3em]">{t('dashboard:admin.adminTabLogs')}</span>
-                                </div>
-                                <button onClick={() => logger.clearLogs()} className="text-primary/50 hover:text-primary transition-colors font-mono text-[9px] uppercase tracking-widest">{t('dashboard:admin.flushMemory')}</button>
-                            </div>
-                            <div className="p-6 h-[600px] overflow-y-auto font-mono text-[11px] custom-scrollbar">
-                                {logs.map(log => (
-                                    <div key={log.id} className="mb-2 flex gap-4 opacity-80 hover:opacity-100 transition-opacity border-l-2 border-white/5 pl-4 py-1">
-                                        <span className="text-slate-600 shrink-0">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
-                                        <span className={`font-black uppercase shrink-0 w-12 ${log.level === 'error' ? 'text-red-500' : log.level === 'warn' ? 'text-yellow-500' : 'text-primary'
-                                            }`}>
-                                            {log.level}:
-                                        </span>
-                                        <span className="text-slate-300 break-all">{log.message}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </GlassCard>
-                    )}
+                            </GlassCard>
+                        )}
+                    </div>
                 </div>
-            </div>
             </main>
 
             {showEditor && (
-                <BlogPostEditor 
+                <BlogPostEditor
                     post={editingPost}
                     currentUser={currentUser}
                     onSave={() => { setShowEditor(false); handleRefresh(); }}
@@ -1076,7 +1028,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             )}
 
             {showAddVetPet.show && (
-                <AddPatientModal 
+                <AddPatientModal
                     onClose={() => setShowAddVetPet({ show: false, email: '' })}
                     onSuccess={handleRefresh}
                     vetEmail={showAddVetPet.email}
@@ -1084,7 +1036,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             )}
 
             {showAddClinic && (
-                <AddClinicModal 
+                <AddClinicModal
                     onClose={() => setShowAddClinic(false)}
                     onSuccess={handleRefresh}
                     adminEmail={currentUser.email}
@@ -1092,7 +1044,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             )}
 
             {showAddVet && (
-                <AddVetModal 
+                <AddVetModal
                     onClose={() => setShowAddVet(false)}
                     onSuccess={handleRefresh}
                     adminEmail={currentUser.email}
@@ -1100,7 +1052,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             )}
 
             {showEditPet && editingPet && (
-                <AdminPetEditorModal 
+                <AdminPetEditorModal
                     pet={editingPet}
                     currentUser={currentUser}
                     isOpen={showEditPet}

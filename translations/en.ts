@@ -16,26 +16,26 @@ export const en = {
     cancelButton: `Cancel`,
     closeButton: `Close`,
     improntaSavedAlert: `{{petName}}'s Impronta has been saved`,
-    footerText: `Paw Print - Your pet's unique digital imprint to find them faster`,
+    footerText: `PawPrintFind - Your pet's unique digital imprint to find them faster`,
     openSourceFooter: `Proudly Open Source - Join our community on GitHub`,
     vetRegisteredAlert: `Thank you! {{clinicName}} has been registered as a partner clinic`,
-    
+
     // Hero Section
     homeTitle1: `Every PawPrint`,
-    homeTitle2: `is Unique`, 
+    homeTitle2: `is Unique`,
     homeSubtitle: `The fastest way to reunite with your lost pet. Create a secure digital passport today`,
     createImprontaButton: `Create Impronta 🐾`,
     foundPetButton: `I Found a Pet 🐱`,
     explorerMapButton: `Explorer Map`,
     aiScannerButton: `AI Scanner`,
-    
+
     // Ecosystem
     howItWorksTitle: `Ecosystem Explorer`,
-    ecosystemDesc: `Paw Print connects owners, finders, and vets in a seamless network`,
+    ecosystemDesc: `PawPrintFind connects owners, finders, and vets in a seamless network`,
     roleOwner: `Pet Owner`,
     roleFinder: `Pet Finder`,
     roleVet: `Veterinarian`,
-    
+
     roleOwnerStep1Title: `Create Digital ID`,
     roleOwnerStep1Desc: `Build a comprehensive biometric profile with photos, marks, and medical data`,
     roleOwnerStep2Title: `Smart Alert System`,
@@ -58,7 +58,7 @@ export const en = {
     forVetsDesc: `Join our network of heroes. Help reunite families and promote your clinic`,
     registerClinicButton: `Register Your Clinic`,
     openSourceTitle: `A Community Effort`,
-    openSourceDesc: `Paw Print is an open-source project. We believe collaboration is key`,
+    openSourceDesc: `PawPrintFind is an open-source project. We believe collaboration is key`,
     poweredByGemini: `Powered by Gemini AI`,
     liveAssistantTitle: `Live AI Assistant`,
     createImprontaTitle: `Create Your Pet's Impronta`,
@@ -108,7 +108,7 @@ export const en = {
     // --- New Translations ---
     adoptionInquiriesTitle: `Adoption Inquiries`,
     inquiryAbout: `Inquiry about {{petName}}`,
-    
+
     // Auth
     placeholders: {
         email: `Enter Secure Email`,
@@ -161,7 +161,7 @@ export const en = {
         accountCreated: `Identity authorized - Welcome to the network`,
         magicLinkSent: `Magic link sent - Check your inbox`,
     },
-    
+
     // Admin Professional Mgmt
     infrastructureTitle: `Veterinary Infrastructure`,
     newVetButton: `New Vet Identity`,
@@ -177,7 +177,7 @@ export const en = {
     dismantleButton: `Dismantle`,
     purgeButton: `Purge`,
     terminateButton: `Terminate`,
-    
+
     // Filters
     allRoles: `All Roles`,
     allStatus: `All Status`,
@@ -186,11 +186,11 @@ export const en = {
     statusLost: `Lost`,
     statusAdoption: `Adoption`,
     statusOwned: `Owned`,
-    
+
     // Map Filters
     showLostPets: `Lost Pets`,
     showAdoptablePets: `Adoption`,
-    
+
     // Navbar & Adoption Center
     adoptionLink: `Adoption`,
     adoptionCenterTitle: `Adoption Center`,
@@ -211,7 +211,7 @@ export const en = {
     adoptionInquiryTemplate: `Hello! I am very interested in adopting {{petName}}`,
     loginToContactOwner: `Please login to contact the owner`,
     contactOwnerButton: `Contact Owner`,
-    
+
     // Tutorial
     tutorial: {
         step: `Step`,
@@ -273,7 +273,7 @@ export const en = {
     noGoogleMapsVets: `No clinics found`,
     addressNotFound: `Address not found`,
     clinicSaved: `Clinic details saved successfully`,
-    
+
     verifiedVetBadge: `Verified Vet`,
 
     // Added keys
@@ -376,12 +376,12 @@ export const en = {
             confirmDonationButton: `Confirm Donation`,
             unconfirmedDonationBadge: `Pending`,
             confirmedDonationBadge: `Confirmed`,
-            platformCostsTitle: `Live Operational Costs`,
-            apiCallsLabel: `AI API Calls`,
-            serverCostsLabel: `Infrastructure`,
-            devHoursLabel: `Dev Hours`,
-            totalCostsLabel: `Total Costs`,
-            helpUsCoverCosts: `Donations directly cover these operational expenses`,
+            platformCostsTitle: `Monthly Operational Costs`,
+            aiInferenceCosts: `AI Model Inference`,
+            cloudInfrastructure: `Cloud Infrastructure`,
+            developmentTime: `Development Time`,
+            totalMonthlyCosts: `Total Monthly Costs`,
+            donationsHelpCover: `Your donations help cover these real operational expenses`,
             tabOverviewShort: `Ops`,
             tabUsersShort: `ID`,
             tabClinicsShort: `Nodes`,
@@ -414,10 +414,10 @@ export const en = {
             "agentDiscoveryLaunched": "Discovery job queued - Stagehand Agent notified"
         },
         "adoption": {
-             matchesFound: `{{count}} match found`,
-             noMatchingPets: `No matching pets found`,
-             adjustFiltersSuggestion: `Adjust filters for more results`,
-             clearFiltersButton: `Reset Filters`
+            matchesFound: `{{count}} match found`,
+            noMatchingPets: `No matching pets found`,
+            adjustFiltersSuggestion: `Adjust filters for more results`,
+            clearFiltersButton: `Reset Filters`
         }
     }
 };

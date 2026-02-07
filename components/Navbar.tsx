@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
     : 'bg-transparent py-3 lg:py-6';
 
   return (
-    <nav 
+    <nav
       className={`fixed top-0 inset-x-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
       style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
     >
@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-black tracking-tighter text-white">Paw<span className="logo-print-text">Print</span></span>
+            <span className="text-2xl font-black tracking-tighter text-white">PawPrint<span className="logo-print-text">Find</span></span>
             <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">{t('visualBiometrics')}</span>
           </div>
         </div>
@@ -141,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
         <div className="flex items-center gap-4">
           {/* Mobile Menu Trigger */}
           <div className="lg:hidden">
-             <button
+            <button
               data-testid="mobile-menu-trigger"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
               aria-label="Toggle mobile menu"
@@ -170,9 +170,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
           ) : (
             <div className="flex items-center gap-4 relative">
               {currentUser && <RoleSwitcher currentUser={currentUser} setCurrentUser={setCurrentUser} />}
-              
+
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="relative group/avatar focus:outline-none"
                 >
@@ -221,11 +221,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                         </div>
 
                         <div className="pt-2 space-y-2">
-                          <button 
-                             onClick={() => { setShowRedeemModal(true); setShowProfileMenu(false); }}
-                             className="w-full py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                          <button
+                            onClick={() => { setShowRedeemModal(true); setShowProfileMenu(false); }}
+                            className="w-full py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
                           >
-                             <span>🎁</span> {t('redeemCodeButton')}
+                            <span>🎁</span> {t('redeemCodeButton')}
                           </button>
 
                           <GlassButton
@@ -246,7 +246,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
         </div>
       </div>
 
-      <NavigationBottomSheet 
+      <NavigationBottomSheet
         isOpen={showMobileMenu}
         onClose={() => setShowMobileMenu(false)}
         setView={(view) => handleNavClick(view)}

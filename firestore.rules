@@ -166,6 +166,13 @@ service cloud.firestore {
       allow read, write: if isSignedIn();
     }
 
+    // 16. VET VERIFICATION REQUESTS
+    match /vet_verification_requests/{requestId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.vetUid == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.vetUid == request.auth.uid && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
     // --- STRIPE EXTENSION RULES ---
     match /customers/{uid} {
       allow read: if request.auth.uid == uid;

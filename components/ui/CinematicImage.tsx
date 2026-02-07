@@ -6,9 +6,18 @@ interface CinematicImageProps {
     alt: string;
     className?: string;
     priority?: boolean;
+    srcset?: string; // For responsive images: "image-320w.jpg 320w, image-640w.jpg 640w"
+    sizes?: string;  // For viewport-based selection: "(max-width: 640px) 100vw, 640px"
 }
 
-export const CinematicImage: React.FC<CinematicImageProps> = ({ src, alt, className = "", priority = false }) => {
+export const CinematicImage: React.FC<CinematicImageProps> = ({
+    src,
+    alt,
+    className = "",
+    priority = false,
+    srcset,
+    sizes
+}) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
@@ -22,10 +31,12 @@ export const CinematicImage: React.FC<CinematicImageProps> = ({ src, alt, classN
                     </svg>
                 </div>
             )}
-            
-            <img 
-                src={src} 
-                alt={alt} 
+
+            <img
+                src={src}
+                srcSet={srcset}
+                sizes={sizes}
+                alt={alt}
                 className={`w-full h-full object-cover transition-all duration-1000 ease-out ${isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-110 blur-xl'}`}
                 onLoad={() => setIsLoaded(true)}
                 loading={priority ? "eager" : "lazy"}

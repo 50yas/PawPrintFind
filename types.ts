@@ -88,6 +88,42 @@ export interface BlogPost {
   };
 }
 
+export interface VetVerificationRequest {
+  id: string;
+  vetUid: string;
+  vetEmail: string;
+  clinicName: string;
+  licenseNumber: string;
+  specialization: string[];
+  documentUrls: string[];           // URLs to uploaded docs in Firebase Storage
+  documentTypes?: Record<string, string>; // Mapping of doc URL to type (e.g. 'Medical License')
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;              // Admin email
+  rejectionReason?: string;
+  grantedProOnApproval?: boolean;   // Whether admin granted Pro tier on approval
+}
+
+
+export const VetVerificationRequestSchema = z.object({
+  id: z.string().optional(),
+  vetUid: z.string(),
+  vetEmail: z.string().email(),
+  clinicName: z.string().min(2),
+  licenseNumber: z.string().min(3),
+  specialization: z.array(z.string()).min(1),
+  documentUrls: z.array(z.string().url()).min(1),
+  documentTypes: z.record(z.string(), z.string()).optional(),
+  status: z.enum(['pending', 'approved', 'rejected']),
+  submittedAt: z.number(),
+  reviewedAt: z.number().optional(),
+  reviewedBy: z.string().optional(),
+  rejectionReason: z.string().optional(),
+  grantedProOnApproval: z.boolean().optional(),
+});
+
+
 export interface User {
   uid: string;
   email: string;
@@ -111,7 +147,7 @@ export interface User {
     sightingsReported: number;
     reunionsSupported: number;
   };
-  
+
   // Vet Subscription Status
   subscription?: {
     status: 'active' | 'inactive' | 'past_due' | 'canceled' | 'trialing';
@@ -119,6 +155,16 @@ export interface User {
     currentPeriodEnd: number;
     stripeSubscriptionId?: string;
   };
+
+  // Vet Freemium Fields
+  vetTier?: 'free' | 'pro';                    // Current subscription tier
+  vetProExpiry?: number;                       // Timestamp when Pro expires
+  vetMonthlyPatientsLimit?: number;            // Free: 5, Pro: unlimited
+  vetCurrentMonthPatients?: number;            // Current month patient count
+  vetDocumentsSubmitted?: boolean;             // Has submitted verification docs
+  vetLicenseNumber?: string;                   // Professional license number
+  vetSpecialization?: string[];                // Specializations
+  isVetVerified?: boolean;                     // Admin approved verification
 }
 
 export interface MatchResult {

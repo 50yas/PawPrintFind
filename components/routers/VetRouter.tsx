@@ -38,9 +38,9 @@ interface VetRouterProps {
 export const VetRouter: React.FC<VetRouterProps> = ({
     currentView, setView, currentUser, allPets, lostPets, petsForAdoption, vetClinics, donations, appointments, viewingPatient, setViewingPatient, selectedPost, setSelectedPost, handleStartChat, setIsLoginModalOpen, isLoading
 }) => {
-    const vetApps = appointments.filter(a => a.vetEmail === currentUser.email);
-    const vetPatients = allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'linked');
-    const pendingRequests = allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'pending');
+    const vetApps = React.useMemo(() => appointments.filter(a => a.vetEmail === currentUser.email), [appointments, currentUser.email]);
+    const vetPatients = React.useMemo(() => allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'linked'), [allPets, currentUser.email]);
+    const pendingRequests = React.useMemo(() => allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'pending'), [allPets, currentUser.email]);
 
     return (
         <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><LoadingSpinner /></div>}>

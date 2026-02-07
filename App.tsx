@@ -64,6 +64,17 @@ export default function App() {
     const { addSnackbar } = useSnackbar();
     const { t } = useTranslations();
 
+
+    const handleTutorialClose = () => {
+        setShowTutorial(false);
+        localStorage.setItem('hasSeenTutorial', 'true');
+    };
+    const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
+    const {
+        allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
+        handleRefreshAdminData, setAllPets
+    } = useAppState(currentUser, currentView);
+
     useEffect(() => {
         // Detect Brave to apply specific rendering fallbacks
         const checkBrave = async () => {
@@ -72,12 +83,13 @@ export default function App() {
             }
         };
         checkBrave();
-        
-        // Check tutorial status
+
+        // Check tutorial status - ONLY show if logged in AND splash is done
         const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-        if (!hasSeenTutorial) {
-            // Delay slightly to let the UI settle
-            setTimeout(() => setShowTutorial(true), 3000);
+        if (currentUser && !hasSeenTutorial && !isLoading && !showSplash) {
+            // Delay to allow dashboard to render fully, but shorter to reduce perceived lag
+            const timer = setTimeout(() => setShowTutorial(true), 800);
+            return () => clearTimeout(timer);
         }
 
         // Global Security & Quota Listeners
@@ -95,22 +107,23 @@ export default function App() {
             window.removeEventListener('pawprint_rate_limit', handleRateLimit);
             window.removeEventListener('pawprint_api_error', handleApiError);
         };
-    }, [addSnackbar]);
+    }, [addSnackbar, currentUser, isLoading, showSplash]);
 
-    const handleTutorialClose = () => {
-        setShowTutorial(false);
-        localStorage.setItem('hasSeenTutorial', 'true');
-    };
-    const { currentUser, setCurrentUser } = useAuthSync(currentView, setCurrentView, setIsLoginModalOpen);
-    const {
-        allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
-        handleRefreshAdminData, setAllPets
-    } = useAppState(currentUser, currentView);
+    // Enhanced Navigation with View Transitions
+    const handleSetView = useCallback((newView: View) => {
+        if ((document as any).startViewTransition) {
+            (document as any).startViewTransition(() => {
+                setCurrentView(newView);
+            });
+        } else {
+            setCurrentView(newView);
+        }
+    }, []);
 
     const handleApplySearch = useCallback((filters: any) => {
         setPredefinedFilters(filters);
-        setCurrentView('adoptionCenter');
-    }, []);
+        handleSetView('adoptionCenter');
+    }, [handleSetView]);
 
     const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
@@ -124,8 +137,9 @@ export default function App() {
     const lostPets = allPets.filter(p => p.isLost);
     const petsForAdoption = allPets.filter(p => p.status === 'forAdoption');
 
+    // Optimize initial load - shorter splash, faster to interactive
     useEffect(() => {
-        setTimeout(() => setShowSplash(false), 2500);
+        setTimeout(() => setShowSplash(false), 1500);
     }, []);
 
     useEffect(() => {
@@ -148,13 +162,13 @@ export default function App() {
             await dbService.savePet(pet);
             addSnackbar(t('syncSuccessful', { name: pet.name }), 'success');
             setEditingPet(null);
-            
+
             // Redirect based on active protocol
             const nextView = currentUser?.activeRole === 'shelter' ? 'shelterDashboard' : (currentUser?.activeRole === 'super_admin' ? 'adminDashboard' : 'dashboard');
             setCurrentView(nextView);
-        } catch (err: any) { 
+        } catch (err: any) {
             console.error("App Register Error:", err);
-            addSnackbar(t('criticalSyncFailure') + (err.message || t('networkTimeout')), 'error'); 
+            addSnackbar(t('criticalSyncFailure') + (err.message || t('networkTimeout')), 'error');
         }
     };
 
@@ -165,7 +179,7 @@ export default function App() {
             return;
         }
         const sessionId = [pet.id, currentUser.uid].sort().join('_');
-        
+
         // Check if session exists to determine if we should send initial message
         const existingSession = chatSessions.find(s => s.id === sessionId);
         const messages = existingSession?.messages || [];
@@ -223,7 +237,7 @@ export default function App() {
             if (currentView === 'blogDetail' && selectedPost) {
                 return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
             }
-            
+
             return (
                 <AdminRouter
                     users={allUsers}
@@ -375,7 +389,7 @@ export default function App() {
                         <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
                         Admin Website Navigation Mode
                     </span>
-                    <button 
+                    <button
                         onClick={() => setIsAdminBrowsing(false)}
                         className="bg-black text-white text-[10px] font-black px-4 py-1.5 rounded-full hover:scale-105 transition-all uppercase tracking-widest"
                     >
@@ -389,7 +403,7 @@ export default function App() {
                 setCurrentUser={setCurrentUser}
                 onLoginClick={() => setIsLoginModalOpen(true)}
                 onLogoutClick={handleLogout}
-                setView={setCurrentView}
+                setView={handleSetView}
                 className={isAdminBrowsing ? "!top-20" : "!top-8"}
             />
 
@@ -414,7 +428,7 @@ export default function App() {
                     </main>
 
                     <div className="pb-32 md:pb-0">
-                        <Footer setView={setCurrentView} currentUser={currentUser} />
+                        <Footer setView={handleSetView} currentUser={currentUser} />
                     </div>
                 </div>
             </ErrorBoundary>
@@ -422,7 +436,7 @@ export default function App() {
             {/* Global UI Elements - Moved outside main wrapper for better z-index management and fixed positioning */}
             <MobileNavigation
                 currentView={currentView}
-                setView={setCurrentView}
+                setView={handleSetView}
                 userRole={currentUser?.activeRole}
                 onAssistantClick={() => setIsAssistantOpen(true)}
             />

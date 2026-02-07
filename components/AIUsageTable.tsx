@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { adminService } from '../services/adminService';
 import { User, AIUsageStats } from '../types';
 import { useTranslations } from '../hooks/useTranslations';

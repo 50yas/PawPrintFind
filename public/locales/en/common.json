@@ -312,5 +312,10 @@
   "genderUnknown": "Unknown",
   "filterByBreedLabel": "Filter by Breed",
   "filterByAgeLabel": "Filter by Age",
-  "defaultSearchName": "My Search"
+  "defaultSearchName": "My Search",
+  "moreButton": "More",
+  "communityButton": "Community",
+  "selectLanguageLabel": "Select Language",
+  "dashLabel": "Dashboard",
+  "loginLabel": "Login"
 }

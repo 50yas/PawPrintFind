@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => {
           enabled: true
         },
         manifest: {
-          name: 'Paw Print - Pet Finder AI',
-          short_name: 'Paw Print',
-          description: 'AI-powered pet finder and health assistant.',
+          name: 'PawPrintFind - AI Pet Locator',
+          short_name: 'PawPrintFind',
+          description: 'PawPrintFind: The AI-powered global network for reuniting lost pets.',
           theme_color: '#000000',
           background_color: '#000000',
           display: 'standalone',
@@ -71,20 +71,20 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-           skipWaiting: true,
-           clientsClaim: true,
-           globPatterns: mode === 'development' ? [] : ['**/*.{js,css,html,ico,png,svg,json}'],
-           runtimeCaching: [{
-                urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*$/,
-                handler: 'NetworkFirst',
-                options: {
-                    cacheName: 'firestore-data',
-                    expiration: {
-                        maxEntries: 50,
-                        maxAgeSeconds: 60 * 60 * 24 // 1 day
-                    }
-                }
-           }]
+          skipWaiting: true,
+          clientsClaim: true,
+          globPatterns: mode === 'development' ? [] : ['**/*.{js,css,html,ico,png,svg,json}'],
+          runtimeCaching: [{
+            urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'firestore-data',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              }
+            }
+          }]
         }
       })
     ],

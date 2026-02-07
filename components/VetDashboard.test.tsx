@@ -22,37 +22,34 @@ vi.mock('../services/subscriptionService', () => ({
 }));
 
 // Mock child components
-vi.mock('./VetVerification', () => ({ VetVerification: () => <div data-testid="vet-verification">Verification</div> }));
-vi.mock('./VetPremiumModal', () => ({ VetPremiumModal: () => <div data-testid="premium-modal">Premium Modal</div> }));
-vi.mock('./AIAnalyticsView', () => ({ AIAnalyticsView: ({ onClose }: any) => (
-    <div data-testid="analytics-view">
-        Analytics View
-        <button onClick={onClose}>Close</button>
-    </div>
-)}));
-vi.mock('./PrioritySupportModal', () => ({ PrioritySupportModal: ({ isOpen, onClose }: any) => isOpen ? (
-    <div data-testid="support-modal">
-        Support Modal
-        <button onClick={onClose}>Close</button>
-    </div>
-) : null }));
+vi.mock('./VetVerificationModal', () => ({ VetVerificationModal: () => <div data-testid="vet-verification-modal">Verification Modal</div> }));
+vi.mock('./VetProUpgradeModal', () => ({ VetProUpgradeModal: () => <div data-testid="upgrade-modal">Upgrade Modal</div> }));
+vi.mock('./ui/ProFeatureTeaser', () => ({ ProFeatureTeaser: ({ title }: any) => <div data-testid="pro-teaser">{title}</div> }));
+vi.mock('../services/firebase', () => ({
+  dbService: {
+    checkPatientLimit: vi.fn().mockResolvedValue({ current: 0, limit: 5, reached: false }),
+    getVerificationStatus: vi.fn().mockResolvedValue(null)
+  }
+}));
 
 describe('VetDashboard Component', () => {
   const mockProUser: User = {
     uid: 'vet1',
     email: 'vet@example.com',
-    isVerified: true,
-    subscription: { status: 'active' }
+    isVetVerified: true,
+    vetTier: 'pro',
+    vetProExpiry: Date.now() + 1000000
   } as any;
 
   const mockFreeUser: User = {
     uid: 'vet2',
     email: 'free@example.com',
-    isVerified: true,
-    subscription: { status: 'none' }
+    isVetVerified: false,
+    vetTier: 'free'
   } as any;
 
   const defaultProps = {
+    user: mockFreeUser,
     setView: vi.fn(),
     pendingPatientCount: 2,
     pendingAppointmentCount: 1,
@@ -65,50 +62,23 @@ describe('VetDashboard Component', () => {
     vi.clearAllMocks();
   });
 
-  it('shows Upgrade to Pro button for free users', () => {
+  it('shows Submit Documents button for unverified free users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
-    expect(screen.getByText('🦁 Upgrade to Pro')).toBeInTheDocument();
+    expect(screen.getByText('Submit Documents 📄')).toBeInTheDocument();
   });
 
-  it('shows Manage Subscription button for Pro users', () => {
+  it('shows Pro Active status for Pro users', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('🦁 Manage Subscription')).toBeInTheDocument();
+    expect(screen.getByText('👑 Pro Active')).toBeInTheDocument();
   });
 
-  it('calls openBillingPortal when Manage Subscription is clicked', async () => {
+  it('shows AI Health Analytics for Pro users', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    const manageBtn = screen.getByText('🦁 Manage Subscription');
-    fireEvent.click(manageBtn);
-    expect(subscriptionService.openBillingPortal).toHaveBeenCalled();
+    expect(screen.getByText('AI Health Analytics')).toBeInTheDocument();
   });
 
-  it('shows AI Analytics action card for Pro users', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('aiAnalyticsDashboardTitle')).toBeInTheDocument();
-  });
-
-  it('shows Priority Support action card for Pro users', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('prioritySupportTitle')).toBeInTheDocument();
-  });
-
-  it('does NOT show Pro features for free users', () => {
+  it('shows teaser for Pro features for free users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
-    expect(screen.queryByText('aiAnalyticsDashboardTitle')).not.toBeInTheDocument();
-    expect(screen.queryByText('prioritySupportTitle')).not.toBeInTheDocument();
-  });
-
-  it('opens AI Analytics view when action card is clicked', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    const analyticsBtn = screen.getByText('aiAnalyticsDashboardTitle');
-    fireEvent.click(analyticsBtn);
-    expect(screen.getByTestId('analytics-view')).toBeInTheDocument();
-  });
-
-  it('opens Priority Support modal when action card is clicked', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    const supportBtn = screen.getByText('prioritySupportTitle');
-    fireEvent.click(supportBtn);
-    expect(screen.getByTestId('support-modal')).toBeInTheDocument();
+    expect(screen.getAllByTestId('pro-teaser')).toHaveLength(2);
   });
 });

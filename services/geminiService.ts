@@ -44,8 +44,8 @@ const callGeminiFunction = async (model: string, contents: any, config?: any) =>
 
 const checkRateLimitError = (error: any) => {
     if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
-        window.dispatchEvent(new CustomEvent('pawprint_rate_limit', { 
-            detail: { message: error.message || "Daily AI limit reached." } 
+        window.dispatchEvent(new CustomEvent('pawprint_rate_limit', {
+            detail: { message: error.message || "Daily AI limit reached." }
         }));
         return true;
     }
@@ -94,6 +94,13 @@ const fileToBase64 = async (file: File, onProgress?: (percent: number) => void):
         };
         reader.readAsDataURL(file);
     });
+};
+
+const fileToGenerativePart = async (file: File, onProgress?: (percent: number) => void): Promise<{ inlineData: { data: string; mimeType: string } }> => {
+    const base64 = await fileToBase64(file, onProgress);
+    return {
+        inlineData: { data: base64, mimeType: file.type },
+    };
 };
 
 export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Promise<any> => {
@@ -221,7 +228,7 @@ export const findNearbyVets = async (location: Geolocation): Promise<{ text: str
             }
         );
         const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
-        return { text: response.text || "", places: groundingChunks }; 
+        return { text: response.text || "", places: groundingChunks };
     });
 };
 
