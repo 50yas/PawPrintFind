@@ -25,7 +25,7 @@ Based on the file structure, the application includes the following features:
 - **Veterinary Services:**
     - A directory to find veterinarians (`FindVet.tsx`, `Vets.tsx`).
     - A dashboard for veterinarians (`VetDashboard.tsx`) to manage their clinic and patients (`MyClinic.tsx`, `MyPatients.tsx`).
-    - **Professional Management:** An administrative "Command Center" for manual clinic registration, professional credential verification, role-based access control, and account status management (suspension/banning).
+    - **Professional Management:** An administrative "Command Center" featuring a specialized **Vet Verification HUD** for reviewing multi-document credential submissions, manual clinic registration, role-based access control, and account status management (suspension/banning).
     - **Monetization (Vet Pro):**
         - **Subscription System:** A secure billing integration with Stripe, offering a "Vet Pro" tier (€18.00/month).
         - **Advanced Analytics:** Exclusive access for Pro Vets to an AI-powered Health Analytics dashboard, aggregating patient health scores and insights.
