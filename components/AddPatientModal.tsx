@@ -125,7 +125,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({ onClose, onSuc
                         {t('cancelButton')}
                     </GlassButton>
                     <GlassButton type="submit" variant="primary" className="flex-1" disabled={isLoading}>
-                        {isLoading ? '...' : t('addPatientOnlyButton')}
+                        {isLoading ? t('processing') : t('addPatientOnlyButton')}
                     </GlassButton>
                 </div>
             </form>

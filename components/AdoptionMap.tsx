@@ -166,7 +166,7 @@ export const AdoptionMap: React.FC<AdoptionMapProps> = ({ adoptablePets, onAdopt
                 className="!py-2 !px-4 text-[10px]"
                 disabled={locLoading}
             >
-                {locLoading ? '...' : t('locateMeButton')}
+                {locLoading ? t('locating') : t('locateMeButton')}
             </GlassButton>
         </div>
 

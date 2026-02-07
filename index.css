@@ -274,6 +274,40 @@
     transform: scale(2);
     transition: opacity 0.1s, transform 0.3s;
   }
+
+  /* Glassmorphism 2.0 Premium */
+  .glass-card-premium {
+    @apply backdrop-blur-3xl bg-white/5 border border-white/10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)];
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  }
+
+  .cinematic-split {
+    @apply grid lg:grid-cols-2 min-h-screen overflow-hidden;
+  }
+
+  .hud-sidebar {
+    @apply bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col transition-all duration-500 ease-in-out;
+  }
+
+  .hud-table-row {
+    @apply border-b border-white/5 hover:bg-white/5 transition-colors duration-200;
+  }
+
+  .hud-status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .hud-status-dot-active {
+    @apply bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)];
+  }
+
+  .hud-status-dot-pending {
+    @apply bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse;
+  }
+
+  .hud-status-dot-error {
+    @apply bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)];
+  }
 }
 
 @layer utilities {

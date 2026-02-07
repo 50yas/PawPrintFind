@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/firebase';
 import { VetVerificationRequest } from '../types';
 import { GlassButton } from './ui/GlassButton';
+import { useTranslation } from 'react-i18next';
 
 export const AdminVetVerificationHUD: React.FC = () => {
+    const { t } = useTranslation('common');
     const [requests, setRequests] = useState<VetVerificationRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedRequest, setSelectedRequest] = useState<VetVerificationRequest | null>(null);
@@ -54,7 +56,7 @@ export const AdminVetVerificationHUD: React.FC = () => {
         }
     };
 
-    if (loading) return <div className="text-primary animate-pulse p-8">Loading pending verifications...</div>;
+    if (loading) return <div className="text-primary font-mono animate-pulse p-8">{t('loadingVerifications')}</div>;
 
     return (
         <div className="space-y-6">

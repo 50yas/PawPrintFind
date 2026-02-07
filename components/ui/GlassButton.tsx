@@ -1,10 +1,12 @@
 import React, { forwardRef, useState, useCallback } from 'react';
 import { triggerHaptic } from '../../hooks/useHaptic';
+import { useTranslation } from 'react-i18next';
 
 interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
     size?: 'sm' | 'md' | 'lg';
     isLoading?: boolean;
+    loadingText?: string;
     icon?: React.ReactNode;
     iconPosition?: 'left' | 'right';
     fullWidth?: boolean;
@@ -21,10 +23,12 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
     iconPosition = 'left',
     fullWidth = false,
     haptic = true,
+    loadingText,
     disabled,
     onClick,
     ...props
 }, ref) => {
+    const { t } = useTranslation('common');
     const [ripple, setRipple] = useState<{ x: number; y: number } | null>(null);
 
     const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -148,7 +152,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
             {isLoading ? (
                 <>
                     <LoadingSpinner />
-                    <span className="opacity-80">Loading...</span>
+                    <span className="opacity-80">{loadingText || t('processing')}</span>
                 </>
             ) : (
                 <>

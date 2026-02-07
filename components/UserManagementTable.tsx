@@ -84,7 +84,7 @@ export const UserManagementTable: React.FC = () => {
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-  if (loading) return <div className="p-4 text-center">Loading users...</div>;
+  if (loading) return <div className="p-4 text-center text-primary font-mono">{t('loadingUsers')}</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
   return (
@@ -93,7 +93,7 @@ export const UserManagementTable: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Management</h2>
         <input
           type="text"
-          placeholder="Search users..."
+          placeholder={t('searchUsers')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
