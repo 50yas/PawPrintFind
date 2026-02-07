@@ -169,8 +169,13 @@ service cloud.firestore {
     // 16. VET VERIFICATION REQUESTS
     match /vet_verification_requests/{requestId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.vetUid == request.auth.uid);
-      allow create: if isSignedIn() && request.resource.data.vetUid == request.auth.uid && request.resource.data.status == 'pending';
+      allow create: if isSignedIn() && request.resource.data.vetUid == request.auth.uid;
       allow update, delete: if isAdmin();
+    }
+
+    // 17. SYSTEM CONFIGURATION (Notifications, etc.)
+    match /config/{configId} {
+      allow read, write: if isAdmin();
     }
 
     // --- STRIPE EXTENSION RULES ---

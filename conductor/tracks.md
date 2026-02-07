@@ -8,6 +8,12 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 - [x] **Track: Vet Verification Enhancement & Professional Section Hardening**
+
+---
+
+- [x] **Track: Admin Notification System**
+*Link: [./tracks/admin-notification-system/plan.md](./tracks/admin-notification-system/plan.md)*
+
 *Link: [./tracks/vet-verification-enhancement/plan.md](./tracks/vet-verification-enhancement/plan.md)*
 
 

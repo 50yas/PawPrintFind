@@ -14,6 +14,7 @@ import { User, UserRole, AdminKey, UserSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 import { checkBadgeEligibility } from './gamificationService';
+import { notificationService } from './notificationService';
 
 export const authService = {
     async loginWithEmail(email: string, pass: string) {
@@ -105,6 +106,9 @@ export const authService = {
             console.log(`[Auth-Registry] Establishing user identity: ${email} (${user.uid})`);
             validationService.validate(UserSchema, profile, 'registerUser');
             await setDoc(doc(db, 'users', user.uid), profile);
+
+            // Trigger Admin Notification
+            await notificationService.sendNotification('newUser', { email, role: initialRole });
         } catch (error: any) {
             logger.error("Registration Protocol Failure:", error);
             throw error;

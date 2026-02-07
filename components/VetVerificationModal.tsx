@@ -33,12 +33,18 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
         try {
             const newDocs = [];
             for (const file of Array.from(files)) {
+                // Check file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`File ${file.name} is too large. Max size is 10MB.`);
+                    continue;
+                }
                 const url = await dbService.uploadVerificationDoc(file, vetUid);
                 newDocs.push({ url, type: 'Medical License', name: file.name });
             }
             setUploadedDocs(prev => [...prev, ...newDocs]);
-        } catch (error) {
-            alert('Failed to upload documents. Please try again.');
+        } catch (error: any) {
+            console.error('[Upload Error]', error);
+            alert(`Failed to upload documents: ${error.message || 'Unknown error'}. Please try again.`);
         } finally {
             setUploading(false);
         }
@@ -113,13 +119,14 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
 
                 {/* Step 1: Clinic Info */}
                 {step === 1 && (
-                    <div className="space-y-4">
+                    <form onSubmit={(e) => { e.preventDefault(); setStep(2); }} className="space-y-4">
                         <h3 className="text-lg font-bold text-white mb-4">Clinic Information</h3>
 
                         <div>
                             <label className="block text-sm font-bold text-slate-300 mb-2">Clinic Name*</label>
                             <input
                                 type="text"
+                                autoFocus
                                 value={clinicName}
                                 onChange={(e) => setClinicName(e.target.value)}
                                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white focus:border-primary focus:outline-none"
@@ -127,21 +134,22 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
                             />
                         </div>
 
-                        <GlassButton onClick={() => setStep(2)} disabled={!clinicName} className="w-full mt-6">
+                        <GlassButton type="submit" disabled={!clinicName} className="w-full mt-6">
                             Next: License Info →
                         </GlassButton>
-                    </div>
+                    </form>
                 )}
 
                 {/* Step 2: License */}
                 {step === 2 && (
-                    <div className="space-y-4">
+                    <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="space-y-4">
                         <h3 className="text-lg font-bold text-white mb-4">Professional License</h3>
 
                         <div>
                             <label className="block text-sm font-bold text-slate-300 mb-2">License Number*</label>
                             <input
                                 type="text"
+                                autoFocus
                                 value={licenseNumber}
                                 onChange={(e) => setLicenseNumber(e.target.value)}
                                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white focus:border-primary focus:outline-none"
@@ -154,6 +162,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
                             <div className="grid grid-cols-2 gap-2">
                                 {specializations.map((spec) => (
                                     <button
+                                        type="button"
                                         key={spec}
                                         onClick={() => setSpecialization(prev =>
                                             prev.includes(spec) ? prev.filter(s => s !== spec) : [...prev, spec]
@@ -171,14 +180,14 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
                         </div>
 
                         <div className="flex gap-3 mt-6">
-                            <GlassButton onClick={() => setStep(1)} variant="secondary" className="flex-1">
+                            <GlassButton type="button" onClick={() => setStep(1)} variant="secondary" className="flex-1">
                                 ← Back
                             </GlassButton>
-                            <GlassButton onClick={() => setStep(3)} disabled={!licenseNumber || specialization.length === 0} className="flex-1">
+                            <GlassButton type="submit" disabled={!licenseNumber || specialization.length === 0} className="flex-1">
                                 Next: Upload Documents →
                             </GlassButton>
                         </div>
-                    </div>
+                    </form>
                 )}
 
                 {/* Step 3: Document Upload */}
@@ -263,7 +272,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
 
                 {/* Step 4: Review */}
                 {step === 4 && (
-                    <div className="space-y-4">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
                         <h3 className="text-lg font-bold text-white mb-4">Review Your Submission</h3>
 
                         <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 space-y-4">
@@ -314,14 +323,14 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
                         </div>
 
                         <div className="flex gap-3 mt-6">
-                            <GlassButton onClick={() => setStep(3)} variant="secondary" className="flex-1" disabled={loading}>
+                            <GlassButton type="button" onClick={() => setStep(3)} variant="secondary" className="flex-1" disabled={loading}>
                                 ← Back
                             </GlassButton>
-                            <GlassButton onClick={handleSubmit} className="flex-1" loading={loading}>
+                            <GlassButton type="submit" className="flex-1" isLoading={loading}>
                                 Submit for Verification ✓
                             </GlassButton>
                         </div>
-                    </div>
+                    </form>
                 )}
             </div>
         </div>

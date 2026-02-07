@@ -37,12 +37,23 @@ class LoggerService {
     }
 
     public addLog(level: 'info' | 'warn' | 'error', message: string, data?: any) {
+        // Handle Error objects in data
+        let safeData = data;
+        if (data instanceof Error) {
+            safeData = {
+                name: data.name,
+                message: data.message,
+                stack: data.stack,
+                ...data // Capture any other properties
+            };
+        }
+
         const entry: LogEntry = {
             id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
             timestamp: Date.now(),
             level,
             message,
-            data,
+            data: safeData,
             traceId: this.currentTraceId || undefined
         };
         

@@ -14,6 +14,7 @@ import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
 import { AdminPetEditorModal } from './AdminPetEditorModal';
 import { AIUsageTable } from './AIUsageTable';
 import { AdminVetVerificationHUD } from './AdminVetVerificationHUD';
+import { AdminNotificationSettings } from './AdminNotificationSettings';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -166,6 +167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         { id: 'donations', label: t('dashboard:admin.tabDonationsShort'), fullLabel: t('dashboard:admin.adminTabDonations'), icon: '💰' },
         { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
         { id: 'social', label: t('dashboard:admin.tabSocialShort'), fullLabel: t('dashboard:admin.adminTabSocial'), icon: '📡' },
+        { id: 'notifications', label: 'NOTIFY', fullLabel: 'Notification Center', icon: '🔔' },
         { id: 'usage', label: t('dashboard:admin.tabUsageShort'), fullLabel: t('dashboard:admin.adminTabUsage'), icon: '🧠' },
         { id: 'optimization', label: t('dashboard:admin.tabOptimizeShort'), fullLabel: t('dashboard:admin.optimizeTab'), icon: '🧠' },
         { id: 'config', label: t('dashboard:admin.tabConfigShort'), fullLabel: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
@@ -982,6 +984,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         {activeTab === 'verification' && (
                             <div className="animate-fade-in max-w-6xl mx-auto">
                                 <AdminVetVerificationHUD />
+                            </div>
+                        )}
+
+                        {activeTab === 'notifications' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <AdminNotificationSettings />
                             </div>
                         )}
 

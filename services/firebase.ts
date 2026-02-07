@@ -42,6 +42,7 @@ import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema, Sighting, VetVerificationRequest, VetVerificationRequestSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
+import { notificationService } from './notificationService';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -173,6 +174,8 @@ export const dbService = {
             
             validationService.validate(VetVerificationRequestSchema, fullRequest, 'submitVetVerification');
             
+            console.log('[submitVetVerification] Sending request to Firestore:', fullRequest);
+
             const requestsRef = collection(db, 'vet_verification_requests');
             const docRef = await addDoc(requestsRef, fullRequest);
 
@@ -183,10 +186,18 @@ export const dbService = {
                 vetSpecialization: request.specialization
             }, { merge: true });
 
-            logger.logInfo('Vet verification submitted', { vetUid: request.vetUid, requestId: docRef.id });
+            logger.info('Vet verification submitted', { vetUid: request.vetUid, requestId: docRef.id });
+            
+            // Trigger Admin Notification
+            await notificationService.sendNotification('vetVerification', { 
+                email: request.vetEmail, 
+                clinicName: request.clinicName, 
+                licenseNumber: request.licenseNumber 
+            });
+
             return docRef.id;
         } catch (error: any) {
-            logger.logError('Submit vet verification failed', error);
+            logger.error('Submit vet verification failed', error);
             throw new Error('Failed to submit verification request: ' + error.message);
         }
     },
@@ -195,16 +206,16 @@ export const dbService = {
         try {
             const fileExtension = file.name.split('.').pop();
             const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
-            const storageRef = ref(storage, `verification_docs/${vetUid}/${fileName}`);
+            const storageRef = ref(storage, `verifications/${vetUid}/${fileName}`);
 
             await uploadBytes(storageRef, file);
             const url = await getDownloadURL(storageRef);
 
-            logger.logInfo('Verification document uploaded', { vetUid, fileName });
+            logger.info('Verification document uploaded', { vetUid, fileName });
             return url;
         } catch (error: any) {
-            logger.logError('Upload verification doc failed', error);
-            throw new Error('Failed to upload document');
+            logger.error('Upload verification doc failed', error);
+            throw new Error(`Failed to upload document: ${error.message || 'Permission denied'}`);
         }
     },
 
@@ -219,7 +230,7 @@ export const dbService = {
             const doc = snapshot.docs[0];
             return { id: doc.id, ...doc.data() } as VetVerificationRequest;
         } catch (error: any) {
-            logger.logError('Get verification status failed', error);
+            logger.error('Get verification status failed', error);
             return null;
         }
     },
@@ -258,9 +269,9 @@ export const dbService = {
 
             await setDoc(doc(db, 'users', request.vetUid), userUpdate, { merge: true });
 
-            logger.logInfo('Vet verification approved', { vetUid: request.vetUid, grantedPro: grantPro });
+            logger.info('Vet verification approved', { vetUid: request.vetUid, grantedPro: grantPro });
         } catch (error: any) {
-            logger.logError('Approve vet verification failed', error);
+            logger.error('Approve vet verification failed', error);
             throw new Error('Failed to approve verification');
         }
     },
@@ -277,9 +288,9 @@ export const dbService = {
                 rejectionReason: reason
             }, { merge: true });
 
-            logger.logInfo('Vet verification rejected', { requestId, reason });
+            logger.info('Vet verification rejected', { requestId, reason });
         } catch (error: any) {
-            logger.logError('Reject vet verification failed', error);
+            logger.error('Reject vet verification failed', error);
             throw new Error('Failed to reject verification');
         }
     },
@@ -299,7 +310,7 @@ export const dbService = {
                 limit
             };
         } catch (error: any) {
-            logger.logError('Check patient limit failed', error);
+            logger.error('Check patient limit failed', error);
             return { reached: false, current: 0, limit: 5 };
         }
     },
@@ -312,13 +323,13 @@ export const dbService = {
 
             // In production, call Stripe API or Cloud Function
             // For now, return a placeholder
-            logger.logInfo('Vet Pro checkout created', { vetUid, plan, amount });
+            logger.info('Vet Pro checkout created', { vetUid, plan, amount });
 
             return {
                 url: `https://checkout.stripe.com/pay/vet_pro_${plan}_${vetUid}`
             };
         } catch (error: any) {
-            logger.logError('Create vet pro checkout failed', error);
+            logger.error('Create vet pro checkout failed', error);
             throw new Error('Failed to create checkout session');
         }
     },
@@ -331,7 +342,7 @@ export const dbService = {
 
             return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VetVerificationRequest));
         } catch (error: any) {
-            logger.logError('Get pending verifications failed', error);
+            logger.error('Get pending verifications failed', error);
             return [];
         }
     },

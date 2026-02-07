@@ -110,8 +110,8 @@ export const VetVerificationRequestSchema = z.object({
   id: z.string().optional(),
   vetUid: z.string(),
   vetEmail: z.string().email(),
-  clinicName: z.string().min(2),
-  licenseNumber: z.string().min(3),
+  clinicName: z.string().min(1),
+  licenseNumber: z.string().min(1),
   specialization: z.array(z.string()).min(1),
   documentUrls: z.array(z.string().url()).min(1),
   documentTypes: z.record(z.string(), z.string()).optional(),
@@ -670,4 +670,42 @@ export const AIUsageStatsSchema = z.object({
   blogGeneration: z.number().optional(),
   totalAIRequests: z.number(),
   lastUsed: z.number()
+});
+
+export interface NotificationChannelConfig {
+  enabled: boolean;
+  target?: string; // Email or Phone
+  apiKey?: string; // For WhatsApp/Telegram
+  chatId?: string; // For Telegram
+}
+
+export interface NotificationConfig {
+  email: NotificationChannelConfig;
+  whatsapp: NotificationChannelConfig;
+  telegram: NotificationChannelConfig;
+  events: {
+    newUser: boolean;
+    vetVerification: boolean;
+  };
+}
+
+export const NotificationConfigSchema = z.object({
+  email: z.object({
+    enabled: z.boolean(),
+    target: z.string().email().optional().or(z.literal(''))
+  }),
+  whatsapp: z.object({
+    enabled: z.boolean(),
+    target: z.string().optional(),
+    apiKey: z.string().optional()
+  }),
+  telegram: z.object({
+    enabled: z.boolean(),
+    apiKey: z.string().optional(), // Bot Token
+    chatId: z.string().optional()
+  }),
+  events: z.object({
+    newUser: z.boolean(),
+    vetVerification: z.boolean()
+  })
 });
