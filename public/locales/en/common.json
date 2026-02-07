@@ -322,5 +322,11 @@
   "loginLabel": "Authorize",
   "loadingUsers": "Acquiring Identity Logs...",
   "loadingVerifications": "Syncing Clearance Queue...",
-  "searchUsers": "Identify users..."
+  "searchUsers": "Identify users...",
+  "bootInitializing": "INITIALIZING BIOMETRIC ENGINE...",
+  "bootCalibrating": "CALIBRATING OPTICAL SENSORS...",
+  "bootConnecting": "CONNECTING TO VET NETWORK NODE [EU-WEST]...",
+  "bootSyncing": "SYNCHRONIZING SATELLITE GEOLOCATION...",
+  "bootLoading": "LOADING NEURAL WEIGHTS (v2.5)...",
+  "bootReady": "SYSTEM READY."
 }

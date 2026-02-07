@@ -215,7 +215,7 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                             <MissionCard 
                                 key={pet.id} 
                                 pet={pet} 
-                                distance="SCANNING..." 
+                                distance={t('scanning')} 
                                 points={250} 
                                 onClick={() => setView('find')}
                             />

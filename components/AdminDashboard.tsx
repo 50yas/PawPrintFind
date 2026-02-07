@@ -384,6 +384,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             {!sidebarCollapsed && (
                                 <button 
                                     onClick={() => toggleGroup(group.id)}
+                                    aria-expanded={expandedGroups.includes(group.id)}
                                     className="w-full flex items-center justify-between px-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] hover:text-white transition-colors group"
                                 >
                                     <div className="flex items-center gap-2">

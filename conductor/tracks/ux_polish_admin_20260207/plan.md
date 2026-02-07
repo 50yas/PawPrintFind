@@ -27,23 +27,23 @@
     - Optimize vertical padding for mobile "Thumb Zone" accessibility.
 - [x] Task: Conductor - User Manual Verification 'Auth Flow Redesign' (Protocol in workflow.md) [f4fc1bc]
 
-## Phase 3: Admin Command Center Reorganization
+## Phase 3: Admin Command Center Reorganization [checkpoint: d378d23]
 **Goal:** Refactor the Admin Dashboard into a highly organized, technical "Cyber HUD" interface.
 
-- [x] Task: Create Vitest navigation tests for `AdminDashboard.tsx` [f4fc1bc]
+- [x] Task: Create Vitest navigation tests for `AdminDashboard.tsx` [d378d23]
     - Verify that tabs are grouped into collapsible categories.
     - Verify that the sidebar can be toggled/collapsed.
-- [~] Task: Refactor Sidebar into Thematic Groups
+- [x] Task: Refactor Sidebar into Thematic Groups [d378d23]
     - Group existing tabs into:
         - **Operations:** Pets, Clinics, Verifications, Adoption Requests.
         - **Community:** Users, Gamification, Social Discovery.
         - **System:** Logs, AI Tuning, Config, Translation Health.
     - Add Lucide technical icons for each category.
-- [ ] Task: Implement Live Status Indicators & High-Density Styling
+- [x] Task: Implement Live Status Indicators & High-Density Styling [d378d23]
     - Add pulsing status dots next to headers (e.g., Amber for pending verifications).
     - Apply technical "Cyber HUD" styling (glowing borders, monospaced status text).
     - Implement the collapsible sidebar toggle to expand data tables.
-- [ ] Task: Conductor - User Manual Verification 'Admin Command Center Reorganization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Admin Command Center Reorganization' (Protocol in workflow.md) [d378d23]
 
 ## Phase 4: Global Copy Audit & Refinement
 **Goal:** Final pass to eliminate all "incomplete copy" and ensure responsive perfection.

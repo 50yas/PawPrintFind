@@ -38,15 +38,15 @@ const VetCard: React.FC<{
                 </div>
             </div>
 
-            <div className="relative z-20">
+            <div className="relative z-20 flex-1 min-w-0">
                 {isPartner && (
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{t('partnerVetsSectionTitle')}</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_#2dd4bf]"></span>
                     </div>
                 )}
-                <h3 className="font-bold text-white text-xl tracking-tight group-hover:text-primary transition-colors">{clinic.name}</h3>
-                <p className="text-sm text-slate-400 font-medium mt-1">{clinic.address}</p>
+                <h3 className="font-bold text-white text-xl tracking-tight group-hover:text-primary transition-colors truncate">{clinic.name}</h3>
+                <p className="text-sm text-slate-400 font-medium mt-1 line-clamp-2">{clinic.address}</p>
             </div>
 
             <div className="flex-shrink-0 flex items-center gap-3 relative z-20">

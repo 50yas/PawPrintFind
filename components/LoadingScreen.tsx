@@ -8,12 +8,12 @@ export const LoadingScreen: React.FC = () => {
   const [bootLine, setBootLine] = useState(0);
 
   const bootSequence = [
-      "INITIALIZING BIOMETRIC ENGINE...",
-      "CALIBRATING OPTICAL SENSORS...",
-      "CONNECTING TO VET NETWORK NODE [EU-WEST]...",
-      "SYNCHRONIZING SATELLITE GEOLOCATION...",
-      "LOADING NEURAL WEIGHTS (v2.5)...",
-      "SYSTEM READY."
+      t('bootInitializing'),
+      t('bootCalibrating'),
+      t('bootConnecting'),
+      t('bootSyncing'),
+      t('bootLoading'),
+      t('bootReady')
   ];
 
   useEffect(() => {

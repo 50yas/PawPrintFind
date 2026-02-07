@@ -116,10 +116,10 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             </div>
                     <div className="p-6 flex flex-col flex-grow">
                         <div className="flex justify-between items-start">
-                            <div>
-                                <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md">{pet.name}</h2>
-                                <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm">{pet.breed}</p>
-                            </div>                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md">{pet.age}</span>
+                            <div className="flex-1 min-w-0">
+                                <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md truncate">{pet.name}</h2>
+                                <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm truncate">{pet.breed}</p>
+                            </div>                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md flex-shrink-0 ml-2">{pet.age}</span>
                 </div>
                 
                 {/* Match Explanation */}
