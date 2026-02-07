@@ -36,7 +36,7 @@ Based on the file structure, the application includes the following features:
     - **Universal Access:** Fully WCAG 2.1 AA compliant interface with verified screen reader support, logical focus management, and high-contrast visuals.
     - **System Audit Logs:** Comprehensive logging of administrative actions for transparency and security.
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON), centralized event tracking via **Firebase Analytics**, and trace correlation for rapid debugging and reliability.
-    - **Hardened Security:** A robust zero-trust security model powered by strict **Firestore/Storage rules** and mandatory **Zod input validation** across all service layer entry points.
+    - **Hardened Security:** A robust zero-trust security model featuring a secure Cloud Functions backend proxy for all AI and payment operations, per-user rate limiting, Firebase App Check integration, strict **Firestore/Storage rules**, and mandatory **Zod input validation** across all service layer entry points.
     - **System Health Diagnostics:** Real-time visual tracking of user and pet registration velocity, resource allocation, and donation trends via an advanced Analytics Dashboard.
     - **Neural Tuning HUD:** Advanced AI parameter controls for fine-tuning search relevance, AI model selection, and biometric matching thresholds.
 - **Social Discovery & Intelligence:**

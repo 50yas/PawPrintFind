@@ -33,7 +33,8 @@ This document outlines the core technologies used in the Paw Print application.
             -   **Authentication:** Provides backend services, easy-to-use SDKs, and ready-made UI libraries to authenticate users.
             -   **Analytics:** Enterprise-grade user engagement and milestone tracking.
             -   **Performance Monitoring:** Real-time insight into the app's performance, frame rates (via @react-three/fiber integration), and latency.
-            -   **Cloud Functions (v1):** Serverless backend logic used to handle secure operations like Stripe webhook processing.
+            -   **Cloud Functions (v1):** Serverless backend logic used to handle secure operations like Stripe webhook processing and AI proxying.
+            -   **Security:** Firebase App Check (reCAPTCHA Enterprise), Firebase Secrets Manager.
     -   **Payments:** Stripe
         -   **Description:** A suite of APIs for processing online payments and managing subscriptions (client-side redirect flow + webhook handling).
     
@@ -65,5 +66,6 @@ This document outlines the core technologies used in the Paw Print application.
 
 ## 5. Testing & Quality
 - **Unit & Integration Testing:** Vitest
+- **CI/CD:** GitHub Actions
 - **Accessibility Audit:** vitest-axe / axe-core
     - **Description:** Integrated automated accessibility testing to ensure WCAG 2.1 AA compliance across all components.
