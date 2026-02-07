@@ -11,29 +11,29 @@
     - Ensure classes for `glass-card-premium` and `cinematic-split` are defined in `index.css`.
 - [x] Task: Conductor - User Manual Verification 'Foundation & Localization' (Protocol in workflow.md) [cd301cf]
 
-## Phase 2: Auth Flow Redesign
+## Phase 2: Auth Flow Redesign [checkpoint: f4fc1bc]
 **Goal:** Implement the premium, responsive side-split authentication experience.
 
-- [ ] Task: Create responsive Vitest tests for `Auth.tsx`
+- [x] Task: Create responsive Vitest tests for `Auth.tsx` [f4fc1bc]
     - Write failing tests that verify the presence of the side-split container on desktop (>1024px).
     - Verify centered card positioning on mobile (<768px).
-- [ ] Task: Refactor `Auth.tsx` JSX for Side-Split & Centered Card
+- [x] Task: Refactor `Auth.tsx` JSX for Side-Split & Centered Card [f4fc1bc]
     - Implement the cinematic 3D background wrapper on one side.
     - Implement the centered glassmorphic card for the form interaction.
     - Use `framer-motion` for smooth transitions between Login and Register states.
-- [ ] Task: Polish Auth Form Details
+- [x] Task: Polish Auth Form Details [f4fc1bc]
     - Replace short/incomplete strings with new localized keys.
     - Ensure input focus states match "Material You" primary colors.
     - Optimize vertical padding for mobile "Thumb Zone" accessibility.
-- [ ] Task: Conductor - User Manual Verification 'Auth Flow Redesign' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Auth Flow Redesign' (Protocol in workflow.md) [f4fc1bc]
 
 ## Phase 3: Admin Command Center Reorganization
 **Goal:** Refactor the Admin Dashboard into a highly organized, technical "Cyber HUD" interface.
 
-- [ ] Task: Create Vitest navigation tests for `AdminDashboard.tsx`
+- [x] Task: Create Vitest navigation tests for `AdminDashboard.tsx` [f4fc1bc]
     - Verify that tabs are grouped into collapsible categories.
     - Verify that the sidebar can be toggled/collapsed.
-- [ ] Task: Refactor Sidebar into Thematic Groups
+- [~] Task: Refactor Sidebar into Thematic Groups
     - Group existing tabs into:
         - **Operations:** Pets, Clinics, Verifications, Adoption Requests.
         - **Community:** Users, Gamification, Social Discovery.
