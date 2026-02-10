@@ -15,14 +15,21 @@ service cloud.firestore {
     // Robust Admin Check
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.role in ['super_admin', 'admin'] ||
-        request.auth.token.email.matches('(?i).*(admin|yas)@pawprint\\.ai') || 
-        request.auth.token.email in ['admin@pawprint.ai', 'yas@pawprint.ai', 'super@pawprint.ai'] ||
-        // Fallback to document check if custom claims aren't yet propagated
+        // 1. Email Whitelist (Reliable for core admins)
+        (request.auth.token.keys().hasAny(['email']) && (
+            request.auth.token.email.matches('(?i).*(admin|yas)@pawprint\\.ai') || 
+            request.auth.token.email in ['admin@pawprint.ai', 'yas@pawprint.ai', 'super@pawprint.ai']
+        )) ||
+        
+        // 2. Custom Claims (Optimized for performance)
+        (request.auth.token.keys().hasAny(['role']) && request.auth.token.role in ['super_admin', 'admin']) ||
+        
+        // 3. Firestore Document (Source of truth for UI roles)
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole in ['super_admin', 'admin'] ||
-          'admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles ||
-          'super_admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole in ['super_admin', 'admin'] ||
+           (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.keys().hasAny(['roles']) && 
+            ('admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles || 
+             'super_admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles))
         ))
       );
     }
@@ -70,8 +77,8 @@ service cloud.firestore {
     // 4. DONATIONS
     match /donations/{donationId} {
       // Hardened Read: Allow if public OR if admin. 
-      allow read: if (resource.data.isPublic == true) || isAdmin();
-      allow list: if isAdmin() || (isSignedIn() && resource.data.isPublic == true);
+      allow read: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
+      allow list: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
       
       // Hardened Create: Public can create, BUT must enforce initial status
       allow create: if 
@@ -177,6 +184,11 @@ service cloud.firestore {
 
     // 17. SYSTEM CONFIGURATION (Notifications, etc.)
     match /config/{configId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 18. SYSTEM CONFIGURATION (AI, API Keys)
+    match /system_config/{configId} {
       allow read, write: if isAdmin();
     }
 

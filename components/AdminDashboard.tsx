@@ -15,6 +15,7 @@ import { AdminPetEditorModal } from './AdminPetEditorModal';
 import { AIUsageTable } from './AIUsageTable';
 import { AdminVetVerificationHUD } from './AdminVetVerificationHUD';
 import { AdminNotificationSettings } from './AdminNotificationSettings';
+import { AdminAISettings } from './AdminAISettings';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -66,12 +67,13 @@ interface AdminDashboardProps {
     onRefresh: () => Promise<void>;
     onViewPost?: (post: BlogPost) => void;
     onBrowseSite?: () => void;
+    onViewPet: (pet: PetProfile) => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost, onBrowseSite }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost, onBrowseSite, onViewPet }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications' | 'ai'>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [allDonations, setAllDonations] = useState<Donation[]>(donations);
@@ -193,6 +195,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             tabs: [
                 { id: 'blog', label: t('dashboard:admin.tabBlogShort'), fullLabel: t('dashboard:admin.adminTabBlog'), icon: '📰' },
                 { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
+                { id: 'ai', label: 'AI SYSTEM', fullLabel: 'AI Configuration', icon: '🧠' },
                 { id: 'notifications', label: 'NOTIFY', fullLabel: 'Notification Center', icon: '🔔' },
                 { id: 'usage', label: t('dashboard:admin.tabUsageShort'), fullLabel: t('dashboard:admin.adminTabUsage'), icon: '🧠' },
                 { id: 'optimization', label: t('dashboard:admin.tabOptimizeShort'), fullLabel: t('dashboard:admin.optimizeTab'), icon: '🎯' },
@@ -779,7 +782,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                                 {filteredPets.map(p => (
                                                     <tr key={p.id} className="hud-table-row group">
                                                         <td className="p-5">
-                                                            <div className="flex items-center gap-4">
+                                                            <div 
+                                                                className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                                                onPointerDown={() => onViewPet(p)}
+                                                            >
                                                                 <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors shadow-xl text-primary/20">
                                                                     {p.photos[0]?.url ? (
                                                                         <img src={p.photos[0].url} alt={p.name} className="w-full h-full object-cover" />
@@ -1082,6 +1088,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         {activeTab === 'notifications' && (
                             <div className="animate-fade-in max-w-6xl mx-auto">
                                 <AdminNotificationSettings />
+                            </div>
+                        )}
+
+                        {activeTab === 'ai' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <AdminAISettings />
                             </div>
                         )}
 
