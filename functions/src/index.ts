@@ -4,8 +4,22 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { trackUsage } from "./usage";
 import { checkQuota } from "./rateLimit";
 import * as Prompts from "./prompts";
+import { callOpenRouterAI, fetchOpenRouterModels as fetchOpenRouterModelsHelper } from "./openRouter";
 
 admin.initializeApp();
+
+// --- OpenRouter Exports ---
+
+export const callOpenRouter = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    const { model, messages, config, task } = data;
+    return callOpenRouterAI(model, messages, config, task);
+});
+
+export const fetchOpenRouterModels = functions.https.onCall(async (data, context) => {
+    if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
+    return fetchOpenRouterModelsHelper();
+});
 
 /**
  * Shared helper to call Gemini AI and track usage.
