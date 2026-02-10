@@ -330,7 +330,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             onClick={() => setActiveTab(tab.id as any)}
             title={tab.fullLabel}
             className={`w-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 rounded-lg border ${activeTab === tab.id
-                ? 'bg-primary/10 text-white border-primary/50 shadow-[0_0_15px_rgba(20,184,166,0.1)]'
+                ? 'bg-primary/10 text-white border-primary/50 neon-glow-teal'
                 : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-white/5'
                 }`}
         >
@@ -360,7 +360,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             </div>
 
             {/* SIDEBAR (Desktop) */}
-            <aside data-testid="admin-sidebar" className={`hidden md:flex flex-col hud-sidebar h-screen sticky top-0 z-50 transition-all duration-500 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
+            <aside data-testid="admin-sidebar" className={`hidden md:flex flex-col hud-sidebar hud-grid-bg h-screen sticky top-0 z-50 transition-all duration-500 ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
                 <div className="p-6 border-b border-white/5 flex flex-col gap-2 overflow-hidden relative">
                     <button 
                         data-testid="sidebar-toggle"
@@ -447,7 +447,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             <main className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10 transition-all duration-500`}>
 
                 {/* Mobile Header */}
-                <div className="md:hidden sticky top-0 z-[100] w-full px-4 py-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10 flex justify-between items-center">
+                <div className="md:hidden sticky top-0 z-[100] w-full px-4 py-4 bg-slate-950/90 backdrop-blur-xl border-b border-primary/20 flex justify-between items-center relative">
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
                     <div className="flex items-center gap-2">
                         <h1 className="text-lg font-black tracking-tighter uppercase text-white">
                             CMD <span className="text-primary">CORE</span>
@@ -507,6 +508,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
+                            {/* Quick Stats Grid */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                {[
+                                    { label: t('dashboard:admin.statTotalUsers'), value: users.length, icon: '👥', glow: 'neon-glow-teal' },
+                                    { label: t('dashboard:admin.statTotalPets'), value: allPets.length, icon: '🐾', glow: '' },
+                                    { label: t('dashboard:admin.statTotalDonations'), value: `€${allDonations.reduce((a, d) => a + (d.numericValue || 0), 0).toFixed(0)}`, icon: '💰', glow: 'neon-glow-amber' },
+                                    { label: t('dashboard:admin.statActiveAlerts'), value: pendingVerifications.length, icon: pendingVerifications.length > 0 ? '🔴' : '✅', glow: pendingVerifications.length > 0 ? 'neon-glow-red' : 'neon-glow-green' },
+                                ].map((stat, i) => (
+                                    <div key={i} className={`p-5 rounded-2xl bg-white/5 border border-white/10 text-center transition-all duration-300 hover:bg-white/10 hover:-translate-y-1 scan-hover ${stat.glow}`}>
+                                        <span className="text-2xl">{stat.icon}</span>
+                                        <p className="text-2xl font-black text-white mt-2 font-mono">{stat.value}</p>
+                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-1">{stat.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <GlassCard className="p-6 border-white/10 bg-black/40 glass-card-enhanced">
                                     <RegistrationChart users={users} />

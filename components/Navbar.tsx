@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-black tracking-tighter text-white">PawPrint<span className="logo-print-text">Find</span></span>
+            <span className="text-2xl font-black tracking-tighter text-white">PAW PRINT <span className="logo-print-text">FIND</span></span>
             <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">{t('visualBiometrics')}</span>
           </div>
         </div>
@@ -116,6 +116,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
               {t('blogButton')}
             </button>
             <button
+              onClick={() => handleNavClick('lostPetsCenter')}
+              className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
+            >
+              {t('showLostPets')}
+            </button>
+            <button
               onClick={() => handleNavClick('adoptionCenter')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
@@ -139,8 +145,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-          {/* Mobile Menu Trigger */}
-          <div className="lg:hidden">
+          {/* Mobile Menu Trigger - HIDDEN as we use Bottom Nav now */}
+          <div className="hidden">
             <button
               data-testid="mobile-menu-trigger"
               onClick={() => setShowMobileMenu(!showMobileMenu)}

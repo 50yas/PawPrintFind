@@ -32,11 +32,12 @@ export const NavigationBottomSheet: React.FC<NavigationBottomSheetProps> = ({ is
 
   const navItems: { view: View; label: string; icon?: React.ReactNode }[] = [
     { view: 'home', label: t('homeButton') },
+    { view: 'lostPetsCenter', label: t('showLostPets') },
     { view: 'adoptionCenter', label: t('adoptionLink') },
-    { view: 'findVet', label: 'Find Vet' }, // specific key might need check
+    { view: 'findVet', label: t('findVetTitle') },
     { view: 'blog', label: t('blogButton') },
-    { view: 'community', label: 'Community' },
-    { view: 'donors', label: 'Donors' },
+    { view: 'community', label: t('communityHubButton') },
+    { view: 'donors', label: t('donorsButton') },
   ];
 
   return (

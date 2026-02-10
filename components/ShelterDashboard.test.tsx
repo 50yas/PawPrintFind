@@ -46,6 +46,7 @@ describe('ShelterDashboard Component', () => {
         chatSessions={mockChatSessions}
         onOpenChat={mockOnOpenChat}
         onTransferOwnership={mockOnTransferOwnership}
+        onViewPet={vi.fn()}
       />
     );
 

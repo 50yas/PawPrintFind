@@ -5,6 +5,7 @@ interface GlassCardProps {
     className?: string;
     variant?: 'default' | 'interactive';
     onClick?: () => void;
+    onPointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void;
     style?: React.CSSProperties;
 }
 
@@ -13,6 +14,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
     className = '',
     variant = 'default',
     onClick,
+    onPointerDown,
     style
 }, ref) => {
     const baseStyles = "backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl rounded-2xl overflow-hidden text-white outline-none ring-1 ring-white/5";
@@ -24,9 +26,12 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
         <div
             ref={ref}
             data-testid="glass-card"
+            role={variant === 'interactive' ? 'button' : undefined}
             tabIndex={variant === 'interactive' ? 0 : undefined}
+            aria-pressed={variant === 'interactive' ? 'false' : undefined}
             className={`${baseStyles} ${interactiveStyles} ${className}`}
             onClick={onClick}
+            onPointerDown={onPointerDown}
             style={style}
             onKeyDown={(e) => {
                 if (variant === 'interactive' && onClick && (e.key === 'Enter' || e.key === ' ')) {

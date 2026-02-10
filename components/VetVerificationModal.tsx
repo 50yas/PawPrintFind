@@ -31,7 +31,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
 
         setUploading(true);
         try {
-            const newDocs = [];
+            const newDocs: { url: string; type: string; name: string }[] = [];
             for (const file of Array.from(files)) {
                 // Check file size (10MB)
                 if (file.size > 10 * 1024 * 1024) {

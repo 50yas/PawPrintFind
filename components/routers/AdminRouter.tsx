@@ -2,6 +2,7 @@
 import React, { lazy, Suspense } from 'react';
 import { User, PetProfile, VetClinic, Donation, BlogPost } from '../../types';
 import { LoadingSpinner } from '../LoadingSpinner';
+import { DashboardSkeleton } from '../ui/LoadingSkeletons';
 
 const AdminDashboard = lazy(() => import('../AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 
@@ -16,11 +17,12 @@ interface AdminRouterProps {
     onRefresh: () => Promise<void>;
     onViewPost?: (post: BlogPost) => void;
     onBrowseSite?: () => void;
+    onViewPet: (pet: PetProfile) => void;
 }
 
 export const AdminRouter: React.FC<AdminRouterProps> = (props) => {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><LoadingSpinner /></div>}>
+        <Suspense fallback={<DashboardSkeleton />}>
             <AdminDashboard
                 users={props.users}
                 currentUser={props.currentUser}
@@ -32,6 +34,7 @@ export const AdminRouter: React.FC<AdminRouterProps> = (props) => {
                 onRefresh={props.onRefresh}
                 onViewPost={props.onViewPost}
                 onBrowseSite={props.onBrowseSite}
+                onViewPet={props.onViewPet}
             />
         </Suspense>
     );

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { SharePetModal } from './SharePetModal';
-import { CinematicImage } from './ui/CinematicImage';
+import { PetCard } from './PetCard';
 
 interface CommunityProps {
     currentUser: User;
@@ -12,40 +12,12 @@ interface CommunityProps {
     onFriendRequest: (toEmail: string) => void;
     onFriendResponse: (fromEmail: string, accept: boolean) => void;
     onSharePet: (pet: PetProfile, friendEmails: string[]) => void;
+    onViewPet: (pet: PetProfile) => void;
     goToDashboard: () => void;
 }
 
-const PetCard: React.FC<{ pet: PetProfile, onShare: (pet: PetProfile) => void, isGuardian: boolean }> = ({ pet, onShare, isGuardian }) => {
-    const { t } = useTranslations();
-    const statusColor = pet.isLost ? 'text-red-600 bg-red-100 dark:text-red-300 dark:bg-red-900/30' : 'text-green-600 bg-green-100 dark:text-green-300 dark:bg-green-900/30';
-    
-    return (
-        <div className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg">
-            <div className="md:flex">
-                <div className="md:flex-shrink-0 w-full md:w-48 h-48">
-                    <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-6 flex flex-col justify-between flex-grow">
-                    <div>
-                        <div className="flex justify-between items-start">
-                            <h3 className="text-2xl font-bold text-card-foreground">{pet.name}</h3>
-                            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${statusColor}`}>{pet.isLost ? t('statusLost') : t('statusSafe')}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">{pet.breed}</p>
-                        <p className="text-xs text-muted-foreground mt-2">{t('guardians')}: {pet.guardianEmails.length}</p>
-                    </div>
-                    <div className="mt-4 flex flex-row items-center justify-end gap-3">
-                        {isGuardian && <button className="btn btn-ghost !py-1 !px-2 text-sm">{t('editButton')}</button>}
-                        <button onClick={() => onShare(pet)} className="btn btn-secondary !py-2 !px-4 text-sm">{t('shareButton')}</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
-
 export const Community: React.FC<CommunityProps> = ({
-    currentUser, allUsers, allPets, onRegisterStray, onFriendRequest, onFriendResponse, onSharePet, goToDashboard
+    currentUser, allUsers, allPets, onRegisterStray, onFriendRequest, onFriendResponse, onSharePet, onViewPet, goToDashboard
 }) => {
     const { t } = useTranslations();
     const [activeTab, setActiveTab] = useState('animals');
@@ -87,7 +59,16 @@ export const Community: React.FC<CommunityProps> = ({
                             <button onClick={onRegisterStray} className="btn btn-primary">{t('registerStrayButton')}</button>
                         </div>
                         {communityPets.length > 0 ? (
-                             communityPets.map(pet => <PetCard key={pet.id} pet={pet} onShare={setSharingPet} isGuardian={pet.guardianEmails.includes(currentUser.email)} />)
+                             communityPets.map(pet => (
+                                <PetCard 
+                                    variant="community" 
+                                    key={pet.id} 
+                                    pet={pet} 
+                                    onShare={setSharingPet} 
+                                    onViewDetail={onViewPet}
+                                    isGuardian={pet.guardianEmails.includes(currentUser.email)} 
+                                />
+                             ))
                         ) : (
                             <p className="text-center py-8 text-muted-foreground">No community animals registered yet.</p>
                         )}

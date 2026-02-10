@@ -16,19 +16,37 @@ interface MissingPetsMapProps {
   isPostingMode?: boolean;
   onMapClick?: (latlng: {lat: number, lng: number}) => void;
   onContactOwner?: (pet: PetProfile) => void;
+  onViewPet?: (pet: PetProfile) => void;
+  hideLostToggle?: boolean;
+  hideAdoptableToggle?: boolean;
+  initialShowLost?: boolean;
+  initialShowAdoptable?: boolean;
 }
 
 type MapStyle = 'street' | 'satellite';
 
-export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adoptablePets = [], vetClinics = [], userLocation, isPostingMode, onMapClick, onContactOwner }) => {
+export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ 
+  lostPets, 
+  adoptablePets = [], 
+  vetClinics = [], 
+  userLocation, 
+  isPostingMode, 
+  onMapClick, 
+  onContactOwner,
+  onViewPet,
+  hideLostToggle = false,
+  hideAdoptableToggle = false,
+  initialShowLost = true,
+  initialShowAdoptable = true
+}) => {
   const { t } = useTranslations();
   const { colors } = useTheme();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any | null>(null);
   const markersGroupRef = useRef<any>(null);
   const [mapStyle, setMapStyle] = useState<MapStyle>('street');
-  const [showLost, setShowLost] = useState(true);
-  const [showAdoptable, setShowAdoptable] = useState(true);
+  const [showLost, setShowLost] = useState(initialShowLost);
+  const [showAdoptable, setShowAdoptable] = useState(initialShowAdoptable);
   const tilesRef = useRef<any>(null);
 
   const GOOGLE_STREETS = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
@@ -113,8 +131,15 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     
                     <div class="flex items-center justify-center gap-1 mb-3">
                         <span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                        <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider">Signal Lost</p>
+                        <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider">${t('signalLost')}</p>
                     </div>
+
+                    ${onViewPet ? `
+                    <button id="view-btn-${pet.id}" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase py-2 rounded-lg transition-all shadow-md mb-2 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                        ${t('viewButton')}
+                    </button>
+                    ` : ''}
 
                     ${onContactOwner ? `
                     <button id="contact-btn-${pet.id}" class="w-full bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase py-2 rounded-lg transition-all shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2">
@@ -127,14 +152,16 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                 const marker = L.marker([pet.lastSeenLocation.latitude, pet.lastSeenLocation.longitude], { icon })
                     .bindPopup(popupContent);
                 
-                if (onContactOwner) {
-                    marker.on('popupopen', () => {
+                marker.on('popupopen', () => {
+                    if (onContactOwner) {
                         const btn = document.getElementById(`contact-btn-${pet.id}`);
-                        if (btn) {
-                            btn.onclick = () => onContactOwner(pet);
-                        }
-                    });
-                }
+                        if (btn) btn.onclick = () => onContactOwner(pet);
+                    }
+                    if (onViewPet) {
+                        const btn = document.getElementById(`view-btn-${pet.id}`);
+                        if (btn) btn.onclick = () => onViewPet(pet);
+                    }
+                });
                     
                 group.addLayer(marker);
 
@@ -180,6 +207,13 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     <p class="text-[10px] text-muted-foreground mb-1 font-mono">${pet.breed}</p>
                     <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase mb-3 border border-slate-200">${pet.age} • ${pet.size || 'N/A'}</span>
 
+                    ${onViewPet ? `
+                    <button id="view-adopt-btn-${pet.id}" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase py-2 rounded-lg transition-all shadow-md mb-2 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                        ${t('viewButton')}
+                    </button>
+                    ` : ''}
+
                     ${onContactOwner ? `
                     <button id="adopt-btn-${pet.id}" class="w-full bg-primary text-white text-[10px] font-black uppercase py-2 rounded-lg hover:brightness-110 transition-all shadow-lg hover:shadow-primary/30 flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" /></svg>
@@ -191,14 +225,16 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                 const marker = L.marker([loc.latitude, loc.longitude], { icon })
                     .bindPopup(popupContent);
                 
-                if (onContactOwner) {
-                    marker.on('popupopen', () => {
+                marker.on('popupopen', () => {
+                    if (onContactOwner) {
                         const btn = document.getElementById(`adopt-btn-${pet.id}`);
-                        if (btn) {
-                            btn.onclick = () => onContactOwner(pet);
-                        }
-                    });
-                }
+                        if (btn) btn.onclick = () => onContactOwner(pet);
+                    }
+                    if (onViewPet) {
+                        const btn = document.getElementById(`view-adopt-btn-${pet.id}`);
+                        if (btn) btn.onclick = () => onViewPet(pet);
+                    }
+                });
 
                 group.addLayer(marker);
             }
@@ -228,9 +264,9 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     <div class="p-2 text-center min-w-[140px]">
                         <h4 class="font-bold text-slate-800">${clinic.name}</h4>
                         <p class="text-[10px] text-muted-foreground mb-2">${clinic.address}</p>
-                        ${clinic.isVerified ? '<span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase">Verified Partner</span>' : ''}
+                        ${clinic.isVerified ? `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase">${t('verifiedVetBadge')}</span>` : ''}
                         <div class="mt-2 pt-2 border-t border-slate-100">
-                            <a href="tel:${clinic.phone}" class="text-xs font-bold text-primary">Call Clinic</a>
+                            <a href="tel:${clinic.phone}" class="text-xs font-bold text-primary">${t('callClinicButton')}</a>
                         </div>
                     </div>
                 `);
@@ -271,6 +307,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
             </GlassCard>
             
             <GlassCard className="p-1 flex flex-col gap-1 border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
+                 {!hideLostToggle && (
                  <button 
                     onClick={() => setShowLost(!showLost)}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showLost ? 'text-white' : 'text-slate-400 opacity-50'}`}
@@ -279,6 +316,8 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     <span>{t('showLostPets')}</span>
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 </button>
+                )}
+                {!hideAdoptableToggle && (
                 <button 
                     onClick={() => setShowAdoptable(!showAdoptable)}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showAdoptable ? 'text-white' : 'text-slate-400 opacity-50'}`}
@@ -287,13 +326,14 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({ lostPets, adopta
                     <span>{t('showAdoptablePets')}</span>
                     <span className="w-2 h-2 rounded-full bg-white"></span>
                 </button>
+                )}
             </GlassCard>
             
             {vetClinics.length > 0 && (
                 <GlassCard className="p-2 px-3 border-white/20 text-center animate-fade-in" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
                     <p className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2" style={{ color: '#10b981' }}>
                         <span className="w-1.5 h-1.5 rounded-full shadow-[0_0_5px_#10b981]" style={{ backgroundColor: '#10b981' }}></span>
-                        {vetClinics.filter(v=>v.isVerified).length} Verified Vets
+                        {vetClinics.filter(v=>v.isVerified).length} {t('verifiedVetsCount')}
                     </p>
                 </GlassCard>
             )}

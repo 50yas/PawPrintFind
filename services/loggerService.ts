@@ -41,10 +41,10 @@ class LoggerService {
         let safeData = data;
         if (data instanceof Error) {
             safeData = {
+                ...(data as any),
                 name: data.name,
                 message: data.message,
-                stack: data.stack,
-                ...data // Capture any other properties
+                stack: data.stack
             };
         }
 

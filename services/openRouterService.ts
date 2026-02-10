@@ -128,3 +128,28 @@ export const fetchAvailableModels = async (): Promise<{ id: string, name: string
         return [];
     }
 };
+
+export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
+    // Placeholder - can be implemented similarly to other methods if needed
+    // For now, it will use the prompt-based approach via callOpenRouterAI
+    const { userPrompt } = Prompts.getMatchExplanationPrompt(pet, filters);
+    const messages = [{ role: "user", content: userPrompt }];
+    
+    try {
+        const response = await callOpenRouterAI('matching', messages, {}, 'matching');
+        return response.text || "Matches your preferences.";
+    } catch (error) {
+        console.error("OpenRouter generateMatchExplanation failed:", error);
+        return "Matches your preferences.";
+    }
+};
+
+// Export as a named object for better discoverability and consistency
+export const openRouterService = {
+    analyzeImageForDescription,
+    performAIHealthCheck,
+    generateChatSuggestions,
+    comparePets,
+    fetchAvailableModels,
+    generateMatchExplanation
+};

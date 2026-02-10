@@ -1,7 +1,8 @@
 import { dbService } from './firebase';
 import * as geminiService from './geminiService';
-import * as openRouterService from './openRouterService';
-import { PetProfile, AISettings, ChatSession } from '../types';
+import { openRouterService } from './openRouterService';
+import { adminService } from './adminService';
+import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
 
 export const aiBridgeService = {
     async getSettings(): Promise<AISettings | null> {
@@ -13,9 +14,13 @@ export const aiBridgeService = {
         }
     },
 
+    async testConnection(provider: AIProvider, apiKey: string): Promise<{ success: boolean, message: string }> {
+        return adminService.testAIConnection(provider, apiKey);
+    },
+
     async analyzeImageForDescription(photo: File): Promise<string> {
         const settings = await this.getSettings();
-        
+
         if (settings?.provider === 'openrouter') {
             return openRouterService.analyzeImageForDescription(photo);
         }
@@ -26,8 +31,7 @@ export const aiBridgeService = {
         const settings = await this.getSettings();
 
         if (settings?.provider === 'openrouter') {
-             // @ts-ignore - OpenRouter service might not fully implement this yet
-            return openRouterService.performAIHealthCheck(pet, symptoms, locale);
+            return (openRouterService as any).performAIHealthCheck(pet, symptoms, locale);
         }
         return geminiService.performAIHealthCheck(pet, symptoms, locale);
     },
@@ -36,8 +40,7 @@ export const aiBridgeService = {
         const settings = await this.getSettings();
 
         if (settings?.provider === 'openrouter') {
-            // @ts-ignore
-            return openRouterService.generateChatSuggestions(session, currentUserEmail);
+            return (openRouterService as any).generateChatSuggestions(session, currentUserEmail);
         }
         return geminiService.generateChatSuggestions(session, currentUserEmail);
     },
@@ -46,8 +49,7 @@ export const aiBridgeService = {
         const settings = await this.getSettings();
 
         if (settings?.provider === 'openrouter') {
-            // @ts-ignore
-            return openRouterService.comparePets(foundPetDesc, lostPet);
+            return (openRouterService as any).comparePets(foundPetDesc, lostPet);
         }
         return geminiService.comparePets(foundPetDesc, lostPet);
     },
@@ -56,8 +58,7 @@ export const aiBridgeService = {
         const settings = await this.getSettings();
 
         if (settings?.provider === 'openrouter') {
-            // @ts-ignore
-            return openRouterService.generateMatchExplanation?.(pet, filters) || geminiService.generateMatchExplanation(pet, filters);
+            return (openRouterService as any).generateMatchExplanation?.(pet, filters) || geminiService.generateMatchExplanation(pet, filters);
         }
         return geminiService.generateMatchExplanation(pet, filters);
     },

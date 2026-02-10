@@ -23,7 +23,11 @@ describe('PublicRouter', () => {
         selectedPost: null,
         setSelectedPost: vi.fn(),
         handleStartChat: vi.fn().mockResolvedValue(undefined),
-        setIsLoginModalOpen: vi.fn()
+        setIsLoginModalOpen: vi.fn(),
+        isLoading: false,
+        selectedPet: null,
+        setSelectedPet: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('renders Home by default', async () => {

@@ -38,7 +38,11 @@ describe('UserRouter', () => {
         setIsLoginModalOpen: vi.fn(),
         setHealthCheckingPet: vi.fn(),
         onApplySearch: vi.fn(),
-        predefinedFilters: null
+        predefinedFilters: null,
+        isLoading: false,
+        selectedPet: null,
+        setSelectedPet: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('renders Dashboard for dashboard view', async () => {

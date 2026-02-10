@@ -131,6 +131,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
               <AdoptionCenter 
                 petsForAdoption={mockPets} 
                 onInquire={vi.fn()} 
+                onViewPet={vi.fn()}
                 goBack={vi.fn()} 
                 currentUser={null} 
                 isLoading={false} 
@@ -150,6 +151,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 
@@ -170,6 +172,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 
@@ -197,6 +200,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={petsWithDates} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 
@@ -223,6 +227,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 
@@ -248,6 +253,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 
@@ -274,6 +280,7 @@ describe('AdoptionCenter Component - Advanced Filtering', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
               isLoading={false} 

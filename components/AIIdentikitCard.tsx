@@ -3,6 +3,7 @@ import { PetProfile } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareButton } from './ShareButton';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface AIIdentikitCardProps {
   pet: PetProfile;
@@ -49,10 +50,10 @@ export const AIIdentikitCard: React.FC<AIIdentikitCardProps> = ({ pet, id }) => 
         <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-lg opacity-75 blur group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-900 ring-1 ring-white/10">
-                <img src={photoUrl} alt={pet.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <CinematicImage src={photoUrl} alt={pet.name} className="w-full h-full" />
                 
                 {/* Overlay UI elements */}
-                <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded text-[10px] text-cyan-400 border border-cyan-500/30">
+                <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded text-[10px] text-cyan-400 border border-cyan-500/30 z-10">
                     {t('scanning')}
                 </div>
                 

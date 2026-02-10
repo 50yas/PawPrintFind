@@ -78,6 +78,7 @@ describe('Dashboard Refactor Glassmorphism', () => {
         onLinkVet={vi.fn()}
         onSharePet={vi.fn()}
         onHealthCheck={vi.fn()}
+        onViewPet={vi.fn()}
         onTransferOwnership={vi.fn()}
         onApplySearch={vi.fn()}
       />
@@ -108,6 +109,7 @@ describe('Dashboard Refactor Glassmorphism', () => {
         onLinkVet={vi.fn()}
         onSharePet={vi.fn()}
         onHealthCheck={vi.fn()}
+        onViewPet={vi.fn()}
         onTransferOwnership={vi.fn()}
         onApplySearch={vi.fn()}
       />

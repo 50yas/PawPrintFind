@@ -3,6 +3,7 @@ import React from 'react';
 import { PetProfile, Appointment } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { Modal } from './Modal';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface OwnerPetDetailModalProps {
   pet: PetProfile;
@@ -20,7 +21,7 @@ export const OwnerPetDetailModal: React.FC<OwnerPetDetailModalProps> = ({ pet, a
       <div className="space-y-6">
         {/* Header Card */}
         <div className="relative rounded-2xl overflow-hidden shadow-lg h-48 group">
-            <img src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
             <div className="absolute bottom-4 left-4 text-white">
                 <div className="flex items-center gap-2 mb-1">

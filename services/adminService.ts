@@ -4,6 +4,7 @@ import {
     getDocs,
     setDoc,
     doc,
+    getDoc,
     deleteDoc,
     addDoc,
     query,
@@ -15,12 +16,103 @@ import {
     where
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { User, AdminAuditLog, UserRole, UserSchema, AdminAuditLogSchema, AIUsageStats, AIUsageStatsSchema } from '../types';
+import { User, AdminAuditLog, UserRole, UserSchema, AdminAuditLogSchema, AIUsageStats, AIUsageStatsSchema, AISettings, AISettingsSchema, AIProvider } from '../types';
 import { authService } from './authService';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from './firebase';
 
 export const adminService = {
+    async getAISettings(): Promise<AISettings> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to fetch AI settings.");
+            }
+            const docRef = doc(db, 'system_config', 'ai_settings');
+            const snap = await getDoc(docRef);
+            
+            if (snap.exists()) {
+                const data = snap.data();
+                return validationService.validate(AISettingsSchema, data, 'getAISettings');
+            }
+            
+            // Return default settings if none exist
+            return {
+                provider: 'google',
+                apiKeys: {},
+                modelMapping: {
+                    vision: 'gemini-pro-vision',
+                    triage: 'gemini-pro',
+                    chat: 'gemini-pro',
+                    matching: 'gemini-pro'
+                },
+                lastUpdated: Date.now(),
+                updatedBy: 'system'
+            };
+        } catch (error) {
+            logger.error('Error fetching AI settings:', error);
+            throw error;
+        }
+    },
+
+    async saveAISettings(settings: AISettings): Promise<void> {
+        try {
+            if (!auth.currentUser) {
+                throw new Error("Authentication required to save AI settings.");
+            }
+            
+            const validatedSettings = validationService.validate(AISettingsSchema, settings, 'saveAISettings');
+            
+            await setDoc(doc(db, 'system_config', 'ai_settings'), {
+                ...validatedSettings,
+                lastUpdated: Date.now(),
+                updatedBy: auth.currentUser.email || 'unknown'
+            });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'UPDATE_AI_SETTINGS',
+                details: `Updated AI Provider to ${settings.provider}`
+            });
+        } catch (error) {
+            logger.error('Error saving AI settings:', error);
+            throw error;
+        }
+    },
+
+    async testAIConnection(provider: AIProvider, apiKey: string): Promise<{ success: boolean, message: string }> {
+        try {
+            if (provider === 'openrouter') {
+                const fn = httpsCallable(functions, 'callOpenRouter');
+                const result = await fn({
+                    model: 'openai/gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: 'Reply with OK' }],
+                    config: { max_tokens: 5 },
+                    task: 'connection_test',
+                    apiKey
+                });
+                const data = result.data as { success: boolean, text?: string };
+                if (data.success) return { success: true, message: 'OpenRouter connection verified' };
+                return { success: false, message: 'OpenRouter returned an error' };
+            } else {
+                // Google Gemini — test via a lightweight generative call
+                const { GoogleGenAI } = await import('@google/genai');
+                const ai = new GoogleGenAI({ apiKey });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.0-flash',
+                    contents: 'Reply with OK',
+                    config: { maxOutputTokens: 5 }
+                });
+                if (response.text) return { success: true, message: 'Gemini connection verified' };
+                return { success: false, message: 'Gemini returned empty response' };
+            }
+        } catch (error: any) {
+            logger.error('AI connection test failed:', error);
+            return { success: false, message: error.message || 'Connection test failed' };
+        }
+    },
+
     async getUserUsageStats(userId: string): Promise<AIUsageStats[]> {
         try {
             if (!auth.currentUser) {
@@ -104,6 +196,33 @@ export const adminService = {
         }
     },
 
+    async getPublicStats(): Promise<{ activeNodes: number; biometricMatches: number; totalDonations: number }> {
+        try {
+            const petsColl = collection(db, 'pets');
+            const clinicsColl = collection(db, 'vet_clinics');
+            const donationsColl = collection(db, 'donations');
+
+            const [petsSnap, clinicsSnap, donationsAgg] = await Promise.all([
+                getCountFromServer(petsColl),
+                getCountFromServer(clinicsColl),
+                getAggregateFromServer(donationsColl, { totalAmount: sum('numericValue') })
+            ]);
+
+            const petsCount = petsSnap.data().count;
+            const clinicsCount = clinicsSnap.data().count;
+
+            return {
+                // "Active Nodes" = Clinics + (Pets/Users proxy)
+                activeNodes: clinicsCount + petsCount,
+                biometricMatches: petsCount,
+                totalDonations: donationsAgg.data().totalAmount || 0
+            };
+        } catch (error) {
+            console.error('Error fetching public stats:', error);
+            return { activeNodes: 0, biometricMatches: 0, totalDonations: 0 };
+        }
+    },
+
     async getUsers(): Promise<User[]> {
         try {
             if (!auth.currentUser) {
@@ -154,11 +273,11 @@ export const adminService = {
             }
             // Update both the roles array and activeRole for simplicity in this context
             // In a real app, you might want more complex logic
-            await setDoc(doc(db, 'users', uid), { 
-                roles: [newRole], 
-                activeRole: newRole 
+            await setDoc(doc(db, 'users', uid), {
+                roles: [newRole],
+                activeRole: newRole
             }, { merge: true });
-            
+
             await this.logAdminAction({
                 adminEmail: auth.currentUser.email || 'unknown',
                 action: 'UPDATE_ROLE',
@@ -195,7 +314,7 @@ export const adminService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to update user subscription.");
             }
-            
+
             const subscriptionData = isPro ? {
                 status: 'active',
                 planId: 'vet_pro',

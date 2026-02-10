@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
 import { dbService } from './firebase';
 import * as geminiService from './geminiService';
-import * as openRouterService from './openRouterService';
+import { openRouterService } from './openRouterService';
 
 vi.mock('./firebase', () => ({
   dbService: {
@@ -18,10 +18,12 @@ vi.mock('./geminiService', () => ({
 }));
 
 vi.mock('./openRouterService', () => ({
-  analyzeImageForDescription: vi.fn(),
-  performAIHealthCheck: vi.fn(),
-  generateChatSuggestions: vi.fn(),
-  comparePets: vi.fn(),
+  openRouterService: {
+    analyzeImageForDescription: vi.fn(),
+    performAIHealthCheck: vi.fn(),
+    generateChatSuggestions: vi.fn(),
+    comparePets: vi.fn(),
+  }
 }));
 
 describe('aiBridgeService', () => {

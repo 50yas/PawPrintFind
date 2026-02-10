@@ -145,7 +145,7 @@ export const VetProUpgradeModal: React.FC<VetProUpgradeModalProps> = ({ onClose,
                 {/* CTA */}
                 <GlassButton
                     onClick={handleUpgrade}
-                    loading={loading}
+                    isLoading={loading}
                     className="w-full py-4 text-lg"
                 >
                     Upgrade to Pro - €{plan === 'monthly' ? '49/mo' : '490/yr'} 🚀

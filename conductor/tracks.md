@@ -20,3 +20,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: UX Polish & Admin Organization**
 *Link: [./tracks/ux_polish_admin_20260207/](./tracks/ux_polish_admin_20260207/)*
+
+---
+
+- [x] **Track: OpenRouter Integration & Admin AI Dashboard**
+*Link: [./tracks/openrouter_admin_20260210/](./tracks/openrouter_admin_20260210/)*

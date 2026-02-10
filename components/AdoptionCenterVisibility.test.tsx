@@ -59,12 +59,15 @@ describe('AdoptionCenter Visibility', () => {
         <SnackbarProvider>
             <LanguageProvider>
                 <ThemeProvider>
-                    <AdoptionCenter 
-                        petsForAdoption={mockPets} 
-                        onInquire={vi.fn()} 
-                        goBack={vi.fn()} 
-                        currentUser={null} 
-                    />
+                                        <AdoptionCenter
+                                            petsForAdoption={mockPets}
+                                            onInquire={vi.fn()}
+                                            onViewPet={vi.fn()}
+                                            goBack={vi.fn()}
+                                            currentUser={null}
+                                            isLoading={false}
+                                        />
+                    
                 </ThemeProvider>
             </LanguageProvider>
         </SnackbarProvider>

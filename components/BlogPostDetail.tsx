@@ -4,6 +4,7 @@ import { BlogPost } from '../types';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
 import { calculateReadingTime } from '../src/utils/blogUtils';
+import { CinematicImage } from './ui/CinematicImage';
 
 interface BlogPostDetailProps {
     post: BlogPost;
@@ -41,7 +42,7 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
             <header className="mb-10 text-center relative">
                 {displayPost.imageUrl && (
                     <div className="w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-8 shadow-2xl relative">
-                        <img src={displayPost.imageUrl} alt={displayPost.title} className="w-full h-full object-cover" />
+                        <CinematicImage src={displayPost.imageUrl} alt={displayPost.title} className="w-full h-full" />
                         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
                     </div>
                 )}

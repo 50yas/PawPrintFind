@@ -22,6 +22,21 @@ export const petService = {
         }
     },
 
+    async getFilteredPets(filters: Record<string, unknown>): Promise<PetProfile[]> {
+        try {
+            const allPets = await this.getPets();
+            return allPets.filter(pet => {
+                if (filters.status && pet.status !== filters.status) return false;
+                if (filters.breed && !pet.breed.toLowerCase().includes((filters.breed as string).toLowerCase())) return false;
+                if (filters.isLost !== undefined && pet.isLost !== filters.isLost) return false;
+                return true;
+            });
+        } catch (error) {
+            logger.error('Error fetching filtered pets:', error);
+            throw error;
+        }
+    },
+
     async savePet(pet: PetProfile): Promise<void> {
         if (!auth.currentUser) {
             logger.error('Attempted to save pet without authentication.');
@@ -32,24 +47,25 @@ export const petService = {
             validationService.validate(PetProfileSchema, pet, 'savePet');
 
             // Helper to remove undefined fields which Firestore rejects
-            const removeUndefined = (obj: any): any => {
+            const removeUndefined = (obj: unknown): unknown => {
                 if (Array.isArray(obj)) {
                     return obj.map(removeUndefined);
                 } else if (obj !== null && typeof obj === 'object') {
-                    return Object.entries(obj).reduce((acc, [key, value]) => {
+                    return Object.entries(obj as Record<string, unknown>).reduce((acc, [key, value]) => {
                         if (value !== undefined) {
                             acc[key] = removeUndefined(value);
                         }
                         return acc;
-                    }, {} as any);
+                    }, {} as Record<string, unknown>);
                 }
                 return obj;
             };
 
-            const sanitizedPet = removeUndefined(pet);
+            const sanitizedPet = removeUndefined(pet) as PetProfile;
             await setDoc(doc(db, 'pets', pet.id), sanitizedPet, { merge: true });
-        } catch (error) {
-            logger.error('Error saving pet:', error);
+        } catch (error: unknown) {
+            const err = error as Error;
+            logger.error('Error saving pet:', err);
             throw error;
         }
     },

@@ -31,7 +31,10 @@ describe('VetRouter', () => {
         setSelectedPost: vi.fn(),
         handleStartChat: vi.fn().mockResolvedValue(undefined),
         setIsLoginModalOpen: vi.fn(),
-        isLoading: false
+        isLoading: false,
+        selectedPet: null,
+        setSelectedPet: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('renders VetDashboard for default view', async () => {

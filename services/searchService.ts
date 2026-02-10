@@ -22,6 +22,7 @@ export interface SearchFilters {
     tags?: string[];
     keyword?: string;
     location?: string;
+    isLost?: boolean;
 }
 
 class SearchService {

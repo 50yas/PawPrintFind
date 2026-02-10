@@ -1,5 +1,10 @@
 declare global {
   var L: any;
+  namespace L {
+    type Map = any;
+    type Layer = any;
+    type LeafletMouseEvent = any;
+  }
 }
 
 declare module 'virtual:pwa-register' {

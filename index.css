@@ -152,24 +152,23 @@
   /* Enhanced Textbox Styling: Glassmorphism 2.0 */
   .input-base,
   .input-enhanced {
-    @apply w-full border border-white/10 rounded-2xl px-4 py-3 md:px-5 md:py-4 transition-all duration-500 outline-none backdrop-blur-xl;
-    background: rgba(15, 23, 42, 0.4);
+    @apply w-full border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 transition-all duration-300 outline-none backdrop-blur-xl font-mono;
+    background: rgba(2, 6, 23, 0.6);
     color: #F8FAFC;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .input-base:hover,
   .input-enhanced:hover {
     @apply border-white/20;
-    background: rgba(15, 23, 42, 0.5);
+    background: rgba(2, 6, 23, 0.7);
   }
 
   .input-base:focus,
   .input-enhanced:focus {
-    @apply border-[hsl(var(--primary))];
-    box-shadow: 0 0 25px rgba(0, 210, 255, 0.25);
-    background: rgba(15, 23, 42, 0.7);
-    transform: translateY(-1px);
+    @apply border-primary/60;
+    box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: rgba(2, 6, 23, 0.8);
   }
 
   .input-base::placeholder,
@@ -308,6 +307,131 @@
   .hud-status-dot-error {
     @apply bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)];
   }
+
+  /* Cyber Input — futuristic glow input */
+  .cyber-input {
+    @apply w-full border border-white/10 rounded-xl px-4 py-3 transition-all duration-300 outline-none font-mono text-sm text-white;
+    background: rgba(2, 6, 23, 0.7);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .cyber-input:hover {
+    @apply border-white/20;
+    background: rgba(2, 6, 23, 0.8);
+  }
+
+  .cyber-input:focus {
+    @apply border-primary/60;
+    box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3), 0 0 20px rgba(6, 182, 212, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .cyber-input::placeholder {
+    @apply text-slate-600 tracking-wider text-xs;
+  }
+
+  /* Neon border — animated gradient border */
+  .neon-border {
+    position: relative;
+  }
+
+  .neon-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(168, 85, 247, 0.3), rgba(6, 182, 212, 0.5));
+    background-size: 200% 200%;
+    animation: border-flow 3s linear infinite;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+
+  /* Neon glow utilities */
+  .neon-glow-teal {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+  }
+
+  .neon-glow-teal-strong {
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), 0 0 50px rgba(6, 182, 212, 0.15), inset 0 0 20px rgba(6, 182, 212, 0.05);
+  }
+
+  .neon-glow-amber {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);
+  }
+
+  .neon-glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
+  }
+
+  .neon-glow-green {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
+
+  /* HUD grid background pattern */
+  .hud-grid-bg {
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Status pulse indicators */
+  .status-pulse-green {
+    @apply w-2.5 h-2.5 rounded-full bg-green-500;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    animation: glow-breathe 2s ease-in-out infinite;
+  }
+
+  .status-pulse-red {
+    @apply w-2.5 h-2.5 rounded-full bg-red-500;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    animation: glow-breathe 2s ease-in-out infinite;
+  }
+
+  .status-pulse-amber {
+    @apply w-2.5 h-2.5 rounded-full bg-amber-500;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    animation: glow-breathe 1.5s ease-in-out infinite;
+  }
+
+  /* Provider selection card */
+  .provider-card {
+    @apply relative p-6 rounded-2xl border-2 transition-all duration-500 cursor-pointer overflow-hidden;
+  }
+
+  .provider-card-active {
+    @apply border-primary bg-primary/10;
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(6, 182, 212, 0.05);
+  }
+
+  .provider-card-inactive {
+    @apply border-white/10 bg-white/5 opacity-60 hover:opacity-100 hover:border-white/20;
+  }
+
+  /* Scan line hover effect for cards */
+  .scan-hover {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-hover::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 40%, rgba(6, 182, 212, 0.05) 50%, transparent 60%);
+    transition: top 0.6s ease;
+    pointer-events: none;
+  }
+
+  .scan-hover:hover::after {
+    top: 100%;
+  }
 }
 
 @layer utilities {
@@ -326,6 +450,32 @@
         var(--scanline-color));
     background-size: 100% 3px;
     opacity: 0.6;
+  }
+
+  /* Futuristic Keyframes */
+  @keyframes border-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes glow-breathe {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+    50% { opacity: 0.6; box-shadow: 0 0 16px currentColor; }
+  }
+
+  @keyframes scan-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+
+  @keyframes success-check {
+    0% { stroke-dashoffset: 30; }
+    100% { stroke-dashoffset: 0; }
+  }
+
+  .animate-success-check {
+    animation: success-check 0.4s ease-out forwards;
   }
 
   /* Animation Keyframes */
@@ -433,9 +583,23 @@
     }
   }
 
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
   /* Animation Utilities */
   .animate-bounce-subtle {
     animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
   }
 
   .animate-fade-in {

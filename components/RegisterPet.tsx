@@ -33,7 +33,18 @@ const PetLogicToast = ({ message, type = 'warning' }: { message: string, type?: 
     </div>
 );
 
-const FloatingLabelInput = ({ label, id, value, onChange, required = false, type = "text", placeholder = " ", shake = false }: any) => (
+interface FloatingLabelInputProps {
+    label: string;
+    id: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    required?: boolean;
+    type?: string;
+    placeholder?: string;
+    shake?: boolean;
+}
+
+const FloatingLabelInput = ({ label, id, value, onChange, required = false, type = "text", placeholder = " ", shake = false }: FloatingLabelInputProps) => (
     <div className={`relative pt-2 transition-transform ${shake ? 'animate-shake' : ''}`}>
         <input 
             type={type} 
@@ -58,8 +69,8 @@ const PHOTO_STAGE_KEYS = ['photoStageFace', 'photoStageRightSide', 'photoStageLe
 
 const HomeAreaMap: React.FC<{ locations: Geolocation[], onAdd: (loc: Geolocation) => void }> = ({ locations, onAdd }) => {
     const mapRef = useRef<HTMLDivElement>(null);
-    const mapInstance = useRef<any | null>(null);
-    const markersRef = useRef<any[]>([]);
+    const mapInstance = useRef<L.Map | null>(null);
+    const markersRef = useRef<L.Layer[]>([]);
 
     useEffect(() => {
         if (mapRef.current && !mapInstance.current && typeof L !== 'undefined') {
@@ -68,23 +79,23 @@ const HomeAreaMap: React.FC<{ locations: Geolocation[], onAdd: (loc: Geolocation
                 subdomains: 'abcd',
                 maxZoom: 20
             }).addTo(mapInstance.current);
-            mapInstance.current.on('click', (e: any) => {
+            mapInstance.current.on('click', (e: L.LeafletMouseEvent) => {
                 onAdd({ latitude: e.latlng.lat, longitude: e.latlng.lng });
             });
         }
         return () => { if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; } };
-    }, []); 
+    }, [onAdd]); 
 
     useEffect(() => {
         if (mapInstance.current) {
-            markersRef.current.forEach(layer => mapInstance.current.removeLayer(layer));
+            markersRef.current.forEach(layer => mapInstance.current!.removeLayer(layer));
             markersRef.current = [];
             locations.forEach(loc => {
                 const circle = L.circle([loc.latitude, loc.longitude], { 
                     radius: 2500, color: '#0d9488', fillColor: '#2dd4bf', fillOpacity: 0.3, weight: 2
-                }).addTo(mapInstance.current);
+                }).addTo(mapInstance.current!);
                 markersRef.current.push(circle);
-                const marker = L.marker([loc.latitude, loc.longitude]).addTo(mapInstance.current);
+                const marker = L.marker([loc.latitude, loc.longitude]).addTo(mapInstance.current!);
                 markersRef.current.push(marker);
             });
             if (locations.length > 0) {
@@ -254,10 +265,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
               if (details.age) setAge(details.age);
               if (details.size) setWeight(details.size); // Mapping size to weight field roughly or keep separate? Using weight input for now.
               
-              triggerFunnyWarning("✨ AI Auto-fill Complete!", []);
+              triggerFunnyWarning(t('aiAutofillSuccess'), []);
           } catch (error) {
               console.error("Auto-fill failed:", error);
-              triggerFunnyWarning("AI Brain Freeze! Please fill manually.", []);
+              triggerFunnyWarning(t('aiAutofillError'), []);
           } finally {
               setIsAutoFilling(false);
           }
@@ -338,17 +349,18 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             
             console.log(`[Bio-Sync] Uploading visual data to encrypted vault: ${storagePath}`);
             
-            try {
+                try {
                 const finalUrl = await dbService.uploadImage(p.file, storagePath);
                 return {
                     id: p.id || Date.now().toString(),
                     url: finalUrl,
                     marks: p.marks || [],
-                    description: p.description || 'Pet Profile Photo'
+                    description: p.description || t('petProfilePhoto')
                 };
-            } catch (uploadError: any) {
+            } catch (uploadError: unknown) {
+                const err = uploadError as Error;
                 // Fallback for legacy permissions or missing folder structure rules
-                if (uploadError.message?.includes('permission-denied') || uploadError.message?.includes('unauthorized')) {
+                if (err.message?.includes('permission-denied') || err.message?.includes('unauthorized')) {
                     console.warn("[Bio-Sync] Primary vault access denied. Attempting fallback to legacy sector...");
                     const legacyPath = `uploads/${fileName}`;
                     const legacyUrl = await dbService.uploadImage(p.file, legacyPath);
@@ -356,10 +368,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         id: p.id || Date.now().toString(),
                         url: legacyUrl,
                         marks: p.marks || [],
-                        description: p.description || 'Pet Profile Photo'
+                        description: p.description || t('petProfilePhoto')
                     };
                 }
-                throw uploadError;
+                throw err;
             }
         }));
 
@@ -377,12 +389,12 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             status: mode,
             isLost: existingPet?.isLost || false, 
             searchRadius: existingPet?.searchRadius || null,
-            name: name || 'Unnamed Operative', 
-            breed: breed || 'Classified', 
+            name: name || t('unnamedOperative'), 
+            breed: breed || t('classified'), 
             age: age || '', 
             weight: weight || '', 
             behavior: behavior || '', 
-            photos: processedPhotos as any,
+            photos: processedPhotos as PhotoWithMarks[],
             homeLocations: homeLocations.map(l => ({latitude: l.latitude, longitude: l.longitude})), 
             lastSeenLocation: existingPet?.lastSeenLocation || null,
             videoAnalysis: videoAnalysis || '', 
@@ -398,19 +410,20 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
         
         console.log(`[Bio-Sync] Finalizing pet profile: ${newPet.name}`);
         onRegister(newPet);
-    } catch (error: any) {
-        console.error("Critical Profile Sync Error:", error);
+    } catch (error: unknown) {
+        const err = error as any; // Using any temporarily for .code property which is common in Firebase errors but not in standard Error
+        console.error("Critical Profile Sync Error:", err);
         
-        let errorMsg = t('dashboard:register.mainframeResisting', { error: error.message || "Unknown error" });
+        let errorMsg = t('dashboard:register.mainframeResisting', { error: err.message || "Unknown error" });
         
         // Handle specific Firebase Storage errors
-        if (error.message?.includes('permission-denied') || error.message?.includes('storage/unauthorized') || error.code === 'storage/unauthorized') {
+        if (err.message?.includes('permission-denied') || err.message?.includes('storage/unauthorized') || err.code === 'storage/unauthorized') {
             errorMsg = t('dashboard:register.securityDenied');
-        } else if (error.code === 'storage/canceled') {
+        } else if (err.code === 'storage/canceled') {
             errorMsg = t('dashboard:register.uploadCanceled');
-        } else if (error.code === 'storage/unknown') {
+        } else if (err.code === 'storage/unknown') {
             errorMsg = t('dashboard:register.unknownStorageError');
-        } else if (error.code === 'permission-denied') {
+        } else if (err.code === 'permission-denied') {
             errorMsg = t('dashboard:register.permissionDenied');
         }
 
@@ -479,15 +492,15 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground">AI Auto-Fill</h3>
-                                    <p className="text-[10px] text-muted-foreground">Upload a photo to auto-detect breed & details.</p>
+                                    <h3 className="text-sm font-bold text-foreground">{t('aiAutofillTitle')}</h3>
+                                    <p className="text-[10px] text-muted-foreground">{t('aiAutofillDesc')}</p>
                                 </div>
                             </div>
                             <label className="btn btn-sm btn-primary cursor-pointer shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
                                 {isAutoFilling ? <LoadingSpinner /> : (
                                     <>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                        <span>Upload & Fill</span>
+                                        <span>{t('aiAutofillButton')}</span>
                                     </>
                                 )}
                                 <input type="file" accept="image/*" onChange={handleAutoFill} className="hidden" disabled={isAutoFilling} />
@@ -498,7 +511,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             id="name" 
                             label={t('petNameLabel')} 
                             value={name} 
-                            onChange={(e: any) => setName(e.target.value)} 
+                            onChange={(e) => setName(e.target.value)} 
                             required 
                             shake={shakingFields.includes('name')}
                             placeholder={t('maxNamePlaceholder')}
@@ -508,7 +521,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                 id="breed" 
                                 label={t('breedLabel')} 
                                 value={breed} 
-                                onChange={(e: any) => setBreed(e.target.value)} 
+                                onChange={(e) => setBreed(e.target.value)} 
                                 required 
                                 shake={shakingFields.includes('breed')}
                                 placeholder={t('labradorPlaceholder')}
@@ -516,8 +529,8 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             {isIdentifyingBreed && <span className="absolute right-3 top-4 text-xs text-primary animate-pulse font-medium bg-primary/10 px-2 py-1 rounded">{t('identifyingBreed')}</span>}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <FloatingLabelInput id="age" label={t('ageLabel')} value={age} onChange={(e: any) => setAge(e.target.value)} />
-                            <FloatingLabelInput id="weight" label={t('weightLabel')} value={weight} onChange={(e: any) => setWeight(e.target.value)} />
+                            <FloatingLabelInput id="age" label={t('ageLabel')} value={age} onChange={(e) => setAge(e.target.value)} />
+                            <FloatingLabelInput id="weight" label={t('weightLabel')} value={weight} onChange={(e) => setWeight(e.target.value)} />
                         </div>
                     </div>
                     <div className="space-y-2">
@@ -528,7 +541,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             onChange={(e) => setBehavior(e.target.value)} 
                             rows={8} 
                             className="block w-full px-4 py-3 text-foreground bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-sm"
-                            placeholder="e.g. Friendly with people but scared of thunder..."
+                            placeholder={t('behaviorPlaceholder')}
                         ></textarea>
                     </div>
                 </div>
@@ -646,9 +659,9 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             {showMedical && (
                 <div className="space-y-8">
                     <div className="grid md:grid-cols-3 gap-6">
-                        <FloatingLabelInput id="allergies" label={t('allergiesLabel')} value={allergies} onChange={(e: any) => setAllergies(e.target.value)} />
-                        <FloatingLabelInput id="chronic" label={t('chronicConditionsLabel')} value={chronicConditions} onChange={(e: any) => setChronicConditions(e.target.value)} />
-                        <FloatingLabelInput id="meds" label={t('medicationsLabel')} value={medications} onChange={(e: any) => setMedications(e.target.value)} />
+                        <FloatingLabelInput id="allergies" label={t('allergiesLabel')} value={allergies} onChange={(e) => setAllergies(e.target.value)} />
+                        <FloatingLabelInput id="chronic" label={t('chronicConditionsLabel')} value={chronicConditions} onChange={(e) => setChronicConditions(e.target.value)} />
+                        <FloatingLabelInput id="meds" label={t('medicationsLabel')} value={medications} onChange={(e) => setMedications(e.target.value)} />
                     </div>
                     
                     <div className="bg-muted/20 p-6 rounded-2xl border border-border">

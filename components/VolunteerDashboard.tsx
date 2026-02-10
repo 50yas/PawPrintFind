@@ -1,38 +1,18 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User, PetProfile, View } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { calculateDistance } from '../components/FoundPet'; 
+import { PetCard } from './PetCard';
 
 interface VolunteerDashboardProps {
     user: User;
     lostPets: PetProfile[];
     setView: (view: View) => void;
+    onViewPet: (pet: PetProfile) => void;
     onLogout: () => void;
 }
 
-const MissionCard: React.FC<{ pet: PetProfile, distance: string, points: number, onClick: () => void }> = ({ pet, distance, points, onClick }) => (
-    <div onClick={onClick} className="bg-[#0f172a]/60 hover:bg-primary/10 border border-white/5 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] flex items-center gap-5 group relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors">
-            <img src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay"></div>
-        </div>
-        <div className="flex-grow relative z-10">
-            <div className="flex justify-between items-start">
-                <h4 className="font-bold text-white text-xl group-hover:text-primary transition-colors tracking-tight">{pet.name}</h4>
-                <span className="text-[10px] font-mono font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">+{points} XP_BOUNTY</span>
-            </div>
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{pet.breed} • SIGNAL_LOST</p>
-            <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-red-400 bg-red-400/5 w-fit px-2 py-0.5 rounded border border-red-400/20">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 animate-ping" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                GEOTAG: {distance} FROM_YOU
-            </div>
-        </div>
-    </div>
-);
-
-export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lostPets, setView, onLogout }) => {
+export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lostPets, setView, onViewPet, onLogout }) => {
     const { t } = useTranslations();
 
     const [isPatrolling, setIsPatrolling] = useState(false);
@@ -212,11 +192,13 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                     
                     <div className="flex-grow overflow-y-auto space-y-4 custom-scrollbar pr-3">
                         {lostPets.length > 0 ? lostPets.map(pet => (
-                            <MissionCard 
+                            <PetCard 
+                                variant="mission"
                                 key={pet.id} 
                                 pet={pet} 
                                 distance={t('scanning')} 
                                 points={250} 
+                                onViewDetail={onViewPet}
                                 onClick={() => setView('find')}
                             />
                         )) : (
@@ -233,6 +215,13 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({ user, lo
                     </div>
                 </div>
             </div>
+            
+            <style>{`
+                @keyframes shimmer {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
         </div>
     );
 }

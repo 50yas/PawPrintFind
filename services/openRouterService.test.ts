@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as openRouterService from './openRouterService';
+import { openRouterService } from './openRouterService';
 import { httpsCallable } from 'firebase/functions';
 
 // Mock Firebase Functions

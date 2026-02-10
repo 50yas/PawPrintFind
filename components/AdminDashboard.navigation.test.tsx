@@ -56,7 +56,8 @@ describe('AdminDashboard Grouped Navigation', () => {
         donations: [],
         onDeleteUser: vi.fn(),
         onLogout: vi.fn(),
-        onRefresh: vi.fn()
+        onRefresh: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('groups tabs into categories in the sidebar', () => {

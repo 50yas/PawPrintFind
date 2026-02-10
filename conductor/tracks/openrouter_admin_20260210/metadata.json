@@ -1,0 +1,8 @@
+{
+  "track_id": "openrouter_admin_20260210",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-10T15:30:00Z",
+  "updated_at": "2026-02-10T15:30:00Z",
+  "description": "test new ai provider api openrouter with admin configuration"
+}

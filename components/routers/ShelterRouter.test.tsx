@@ -29,7 +29,10 @@ describe('ShelterRouter', () => {
         handleStartChat: vi.fn().mockResolvedValue(undefined),
         onOpenChat: vi.fn(),
         setIsLoginModalOpen: vi.fn(),
-        isLoading: false
+        isLoading: false,
+        selectedPet: null,
+        setSelectedPet: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('renders ShelterDashboard for default view', async () => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, memo, lazy, Suspense } from 'react';
 import { View, User, PetProfile, UserRole, Donation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
@@ -20,6 +19,7 @@ interface HomeProps {
     lostPets: PetProfile[];
     petsForAdoption: PetProfile[];
     onContactOwner?: (pet: PetProfile) => void;
+    onViewPet?: (pet: PetProfile) => void;
 }
 
 const HeroHUD = memo(() => {
@@ -83,7 +83,7 @@ const FALLBACK_PETS = [
 
 type ScanPhase = 'scanning' | 'analyzing' | 'match' | 'transition';
 
-const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
+const HeroScanner = memo(({ lostPets, onViewPet }: { lostPets: PetProfile[], onViewPet?: (pet: PetProfile) => void }) => {
     const { t } = useTranslations();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [phase, setPhase] = useState<ScanPhase>('scanning');
@@ -91,15 +91,11 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
 
     // Filter pets that actually have photos
     const scanPool = lostPets.filter(p => p.photos?.[0]?.url).length > 0 
-        ? lostPets.filter(p => p.photos?.[0]?.url).map(p => ({
-            id: p.id,
-            img: p.photos[0].url,
-            name: p.name,
-            breed: p.breed
-        }))
-        : FALLBACK_PETS;
+        ? lostPets.filter(p => p.photos?.[0]?.url)
+        : lostPets.length > 0 ? lostPets : [];
 
     useEffect(() => {
+        if (scanPool.length === 0) return;
         let isMounted = true;
         const runSequence = async () => {
             const sequence: { phase: ScanPhase, duration: number }[] = [
@@ -125,13 +121,17 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
         return () => { isMounted = false; window.clearTimeout(timerRef.current); };
     }, [currentIndex, scanPool.length]);
 
+    if (scanPool.length === 0) return null;
     const pet = scanPool[currentIndex];
     const isTransitioning = phase === 'transition';
 
     return (
-        <div className="relative w-full max-w-xs md:max-w-sm aspect-square mx-auto lg:mx-0 z-20">
+        <div 
+            className="relative w-full max-w-xs md:max-w-sm aspect-square mx-auto lg:mx-0 z-20 cursor-pointer active:scale-95 transition-transform"
+            onPointerDown={() => onViewPet?.(pet)}
+        >
             <div className={`relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 border-[4px] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                <CinematicImage src={pet.img} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
+                <CinematicImage src={pet.photos[0]?.url || "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80"} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
 
                 <div className="absolute top-4 start-4 z-20">
                     <div className={`px-2 py-1 text-[8px] md:text-[9px] font-mono-tech rounded-md bg-black/70 backdrop-blur-md border border-white/20 text-cyan-400 tracking-[0.2em] shadow-lg ${phase === 'scanning' ? 'animate-pulse' : ''}`}>
@@ -164,7 +164,7 @@ const HeroScanner = memo(({ lostPets }: { lostPets: PetProfile[] }) => {
     );
 });
 
-export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets, petsForAdoption, onContactOwner }) => {
+export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, lostPets, petsForAdoption, onContactOwner, onViewPet }) => {
     const { t } = useTranslations();
     useScrollAnimation();
     const [donations, setDonations] = useState<Donation[]>([]);
@@ -237,7 +237,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
                                 <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
                                     <span className="text-white drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)]">{t('homeTitle1')}</span>
-                                    <span className="hero-gradient-text">
+                                    <span className="hero-gradient-text drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
                                         {t('homeTitle2')}
                                     </span>
                                 </h1>
@@ -261,14 +261,14 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 <button
                                     id="register-btn"
                                     onClick={() => handleNavigate('register')}
-                                    className="btn btn-primary text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl hover:scale-105 transition-all flex items-center justify-center gap-3 group shadow-[0_15px_30px_-10px_rgba(6,182,212,0.4)] uppercase tracking-widest font-black"
+                                    className="btn btn-primary text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl hover:scale-105 transition-all flex items-center justify-center gap-3 group neon-glow-teal-strong uppercase tracking-widest font-black hover:shadow-[0_0_40px_rgba(6,182,212,0.5)]"
                                 >
                                     {t('createImprontaButton')}
                                 </button>
 
                                 <button
-                                    onClick={() => handleNavigate('find')}
-                                    className="btn bg-white/5 hover:bg-white/10 text-foreground border border-white/10 backdrop-blur-xl text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl transition-all hover:scale-105 font-mono-tech flex items-center justify-center gap-4 uppercase tracking-widest font-black"
+                                    onClick={() => handleNavigate('lostPetsCenter')}
+                                    className="btn bg-white/5 hover:bg-white/10 text-foreground border border-white/10 backdrop-blur-xl text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl transition-all hover:scale-105 font-mono-tech flex items-center justify-center gap-4 uppercase tracking-widest font-black hover:border-primary/30 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]"
                                 >
                                     {t('foundPetButton')}
                                 </button>
@@ -276,18 +276,23 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </div>
 
                         <div className="lg:col-span-5 animate-fade-in flex justify-center lg:justify-end mt-8 md:mt-0" style={{ animationDelay: '400ms' }}>
-                            <HeroScanner lostPets={lostPets} />
+                            <HeroScanner lostPets={lostPets} onViewPet={onViewPet} />
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* Section Divider */}
+            <div className="relative z-10 h-px w-full">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+            </div>
 
             {/* Main Content Sections */}
             <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-card/10 backdrop-blur-3xl border-y border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16 md:mb-24">
                         <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('howItWorksTitle')}</h2>
-                        <div className="h-1 w-16 md:w-20 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 md:mb-8 rounded-full"></div>
+                        <div className="h-1 w-16 md:w-24 bg-gradient-to-r from-primary via-secondary to-primary mx-auto mb-6 md:mb-8 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.4)]"></div>
                         <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">{t('ecosystemDesc')}</p>
                     </div>
                     <Suspense fallback={<div className="flex justify-center py-20"><LoadingSpinner /></div>}>
@@ -363,7 +368,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
                     <div className="rounded-[1.75rem] md:rounded-[2.25rem] overflow-hidden relative h-[400px] md:h-[650px] w-full">
                         <Suspense fallback={<MapSidebarSkeleton />}>
-                            <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} onContactOwner={onContactOwner} />
+                            <MissingPetsMap lostPets={lostPets} adoptablePets={petsForAdoption} onContactOwner={onContactOwner} onViewPet={onViewPet} />
                         </Suspense>
                     </div>
                 </div>
@@ -405,7 +410,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </div>
                         <div className="pt-8 md:pt-10">
                             <a 
-                                href="https://github.com/google/aistudio-apps" 
+                                href="https://github.com/50yas" 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="inline-flex items-center space-x-4 px-8 py-4 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-xl text-white bg-slate-800 hover:bg-slate-700 transition-all border border-white/10 shadow-xl hover:-translate-y-1 w-full sm:w-auto justify-center"

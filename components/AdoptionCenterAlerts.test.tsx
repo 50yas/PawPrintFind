@@ -65,6 +65,7 @@ describe('AdoptionCenter Alerts Replacement', () => {
       <AdoptionCenter 
         petsForAdoption={mockPets} 
         onInquire={vi.fn()} 
+        onViewPet={vi.fn()}
         goBack={vi.fn()} 
         currentUser={null} 
         isLoading={false} 

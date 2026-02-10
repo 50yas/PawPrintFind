@@ -3,53 +3,19 @@ import React from 'react';
 import { PetProfile, ChatSession } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { CinematicImage } from './ui/CinematicImage';
+import { PetCard } from './PetCard';
 
 interface ShelterDashboardProps {
   shelterPets: PetProfile[];
   onRegisterNew: () => void;
   onEditPet: (pet: PetProfile) => void;
+  onViewPet: (pet: PetProfile) => void;
   chatSessions: ChatSession[];
   onOpenChat: (sessionId: string) => void;
   onTransferOwnership: (pet: PetProfile) => void;
 }
 
-const PetCard: React.FC<{ pet: PetProfile; onEdit: (pet: PetProfile) => void; onAdopt: (pet: PetProfile) => void; }> = ({ pet, onEdit, onAdopt }) => {
-    const { t } = useTranslations();
-    return (
-        <div className="bg-card rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-border group">
-            <div className="flex flex-col sm:flex-row">
-                <div className="sm:w-48 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
-                    <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
-                        Available
-                    </div>
-                </div>
-                <div className="p-6 flex flex-col justify-between flex-grow">
-                    <div>
-                        <div className="flex justify-between items-start">
-                            <h3 className="text-2xl font-bold text-card-foreground">{pet.name}</h3>
-                            <span className="text-xs bg-muted px-2 py-1 rounded font-mono text-muted-foreground">ID: {pet.id.substring(0, 6)}</span>
-                        </div>
-                        <p className="text-sm font-medium text-primary mt-1">{pet.breed} • {pet.age}</p>
-                        <p className="text-sm text-muted-foreground mt-3 line-clamp-2">{pet.behavior}</p>
-                    </div>
-                    <div className="mt-6 flex flex-wrap gap-3 sm:justify-end">
-                        <button onClick={() => onEdit(pet)} className="btn btn-secondary text-sm !px-4 !py-2 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
-                            {t('editButton')}
-                        </button>
-                        <button onClick={() => onAdopt(pet)} className="btn btn-primary text-sm !px-4 !py-2 shadow-md flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" /></svg>
-                            {t('markAsAdoptedButton')}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-};
-
-export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets, onRegisterNew, onEditPet, chatSessions, onOpenChat, onTransferOwnership }) => {
+export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets, onRegisterNew, onEditPet, onViewPet, chatSessions, onOpenChat, onTransferOwnership }) => {
   const { t } = useTranslations();
 
   return (
@@ -78,7 +44,7 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
             {shelterPets.length > 0 ? (
               <div className="space-y-6">
                 {shelterPets.map(pet => (
-                  <PetCard key={pet.id} pet={pet} onEdit={onEditPet} onAdopt={onTransferOwnership} />
+                  <PetCard variant="shelter" key={pet.id} pet={pet} onEdit={onEditPet} onAdopt={onTransferOwnership} onViewDetail={onViewPet} />
                 ))}
               </div>
             ) : (

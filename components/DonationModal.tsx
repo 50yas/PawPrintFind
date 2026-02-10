@@ -112,7 +112,7 @@ const CRYPTO_WALLETS = [
     }
 ];
 
-const CostBreakdown = ({ t }: { t: any }) => {
+const CostBreakdown = ({ t, totalRaised }: { t: any, totalRaised?: number }) => {
     const monthlyCosts = [
         { key: 'aiInferenceCosts', val: '€120.00', icon: '🤖', color: 'text-cyan-400' },
         { key: 'cloudInfrastructure', val: '€45.00', icon: '☁️', color: 'text-blue-400' },
@@ -137,7 +137,6 @@ const CostBreakdown = ({ t }: { t: any }) => {
                             <span className="text-sm">{c.icon}</span> {t(`dashboard:admin.${c.key}`)}
                         </span>
                         <span className={`text-xs font-mono font-bold ${c.color} bg-white/5 px-2 py-0.5 rounded border border-white/5`}>
-                            {c.val}
                         </span>
                     </div>
                 ))}
@@ -151,13 +150,14 @@ const CostBreakdown = ({ t }: { t: any }) => {
                     {/* Progress Bar */}
                     <div className="space-y-1">
                         <div className="flex justify-between items-center text-[9px]">
-                            <span className="text-slate-500">This month's donations</span>
-                            <span className="text-primary font-bold">€{currentMonthDonations} ({percentageCovered.toFixed(0)}%)</span>
+                            <span className="text-slate-500">Total Raised (All Time)</span>
+                            <span className="text-primary font-bold">€{totalRaised?.toLocaleString() || '0'}</span>
                         </div>
+                        {/* Visual Progress considering 5000 as a milestone for visual sake or just show infinite progress */}
                         <div className="h-2 bg-slate-800 rounded-full overflow-hidden border border-white/10">
                             <div
                                 className="h-full bg-gradient-to-r from-primary via-cyan-400 to-primary transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(20,184,166,0.5)]"
-                                style={{ width: `${percentageCovered}%` }}
+                                style={{ width: `${Math.min(((totalRaised || 0) / 5000) * 100, 100)}%` }}
                             />
                         </div>
                     </div>
@@ -173,6 +173,15 @@ const CostBreakdown = ({ t }: { t: any }) => {
 
 export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, onSuccess }) => {
     const { t } = useTranslations();
+    const [totalRaised, setTotalRaised] = useState(0);
+
+    useEffect(() => {
+        if (isOpen) {
+            dbService.getPublicStats().then(stats => {
+                if (stats.totalDonations) setTotalRaised(stats.totalDonations);
+            }).catch(console.error);
+        }
+    }, [isOpen]);
 
     // Tabs: 'stripe' (Card) or 'crypto'
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'crypto'>('stripe');
@@ -304,8 +313,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     type="button"
                                     onClick={() => handleTierSelect(tier.amount)}
                                     className={`relative p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-start text-center group ${!isCustom && selectedAmount === tier.amount
-                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105 z-10'
-                                            : 'border-border bg-card hover:border-primary/50 hover:shadow-md'
+                                        ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105 z-10'
+                                        : 'border-border bg-card hover:border-primary/50 hover:shadow-md'
                                         }`}
                                 >
                                     <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{tier.emoji}</div>
@@ -368,7 +377,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
                         {errorMsg && <div className="p-3 bg-red-100 text-red-600 rounded-lg text-sm font-bold text-center animate-pulse">{errorMsg}</div>}
 
-                        <CostBreakdown t={t} />
+                        <CostBreakdown t={t} totalRaised={totalRaised} />
 
                         <div className="pt-2">
                             <button type="submit" disabled={isProcessing} className="w-full btn btn-primary py-4 text-lg shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3">

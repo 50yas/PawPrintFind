@@ -58,13 +58,13 @@ describe('FoundPet Component', () => {
   });
 
   it('renders Map mode by default', () => {
-    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} />);
+    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} onViewPet={vi.fn()} />);
     expect(screen.getByTestId('missing-map')).toBeInTheDocument();
     expect(screen.getByText('Buddy')).toBeInTheDocument();
   });
 
   it('switches to Scan mode when button is clicked', () => {
-    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} />);
+    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} onViewPet={vi.fn()} />);
     
     const scanBtn = screen.getByText('aiScannerButton');
     fireEvent.click(scanBtn);
@@ -76,7 +76,7 @@ describe('FoundPet Component', () => {
   it('performs search when photo is uploaded and button is clicked', async () => {
     const { analyzeImageForDescription, comparePets } = await import('../services/geminiService');
     
-    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} />);
+    render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} onViewPet={vi.fn()} />);
     
     // Switch to scan
     fireEvent.click(screen.getByText('aiScannerButton'));

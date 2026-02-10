@@ -39,7 +39,11 @@ import { getAnalytics } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
 import { getRemoteConfig } from "firebase/remote-config";
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-import { PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment, ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema, Sighting, VetVerificationRequest, VetVerificationRequestSchema } from '../types';
+import {
+    PetProfile, User, Donation, VetClinic, BlogPost, UserRole, Appointment,
+    ChatSession, ChatMessage, AdminKey, ContactMessage, ContactMessageSchema,
+    Sighting, VetVerificationRequest, VetVerificationRequestSchema, Geolocation, AISettings
+} from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 import { notificationService } from './notificationService';
@@ -159,193 +163,49 @@ export const dbService = {
         return adminService.saveUser(userData);
     },
 
-    async getFilteredPets(filters: any): Promise<PetProfile[]> {
+    async getFilteredPets(filters: Record<string, unknown>): Promise<PetProfile[]> {
         return petService.getFilteredPets(filters);
+    },
+
+    async getAISettings(): Promise<AISettings> {
+        return adminService.getAISettings();
+    },
+
+    async saveAISettings(settings: AISettings): Promise<void> {
+        return adminService.saveAISettings(settings);
     },
 
     // --- VET VERIFICATION & PRO SUBSCRIPTION ---
     async submitVetVerification(request: Omit<VetVerificationRequest, 'id'>): Promise<string> {
-        try {
-            const fullRequest = { 
-                ...request, 
-                submittedAt: Date.now(),
-                status: 'pending' as const
-            };
-            
-            validationService.validate(VetVerificationRequestSchema, fullRequest, 'submitVetVerification');
-            
-            console.log('[submitVetVerification] Sending request to Firestore:', fullRequest);
-
-            const requestsRef = collection(db, 'vet_verification_requests');
-            const docRef = await addDoc(requestsRef, fullRequest);
-
-            // Update user to mark documents as submitted
-            await setDoc(doc(db, 'users', request.vetUid), {
-                vetDocumentsSubmitted: true,
-                vetLicenseNumber: request.licenseNumber,
-                vetSpecialization: request.specialization
-            }, { merge: true });
-
-            logger.info('Vet verification submitted', { vetUid: request.vetUid, requestId: docRef.id });
-            
-            // Trigger Admin Notification
-            await notificationService.sendNotification('vetVerification', { 
-                email: request.vetEmail, 
-                clinicName: request.clinicName, 
-                licenseNumber: request.licenseNumber 
-            });
-
-            return docRef.id;
-        } catch (error: any) {
-            logger.error('Submit vet verification failed', error);
-            throw new Error('Failed to submit verification request: ' + error.message);
-        }
+        return vetService.submitVetVerification(request);
     },
 
     async uploadVerificationDoc(file: File, vetUid: string): Promise<string> {
-        try {
-            const fileExtension = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
-            const storageRef = ref(storage, `verifications/${vetUid}/${fileName}`);
-
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-
-            logger.info('Verification document uploaded', { vetUid, fileName });
-            return url;
-        } catch (error: any) {
-            logger.error('Upload verification doc failed', error);
-            throw new Error(`Failed to upload document: ${error.message || 'Permission denied'}`);
-        }
+        return vetService.uploadVerificationDoc(file, vetUid);
     },
 
     async getVerificationStatus(vetUid: string): Promise<VetVerificationRequest | null> {
-        try {
-            const requestsRef = collection(db, 'vet_verification_requests');
-            const q = query(requestsRef, where('vetUid', '==', vetUid), orderBy('submittedAt', 'desc'));
-            const snapshot = await getDocs(q);
-
-            if (snapshot.empty) return null;
-
-            const doc = snapshot.docs[0];
-            return { id: doc.id, ...doc.data() } as VetVerificationRequest;
-        } catch (error: any) {
-            logger.error('Get verification status failed', error);
-            return null;
-        }
+        return vetService.getVerificationStatus(vetUid);
     },
 
     async approveVetVerification(requestId: string, grantPro: boolean = false): Promise<void> {
-        try {
-            const requestRef = doc(db, 'vet_verification_requests', requestId);
-            const requestSnap = await getDoc(requestRef);
-
-            if (!requestSnap.exists()) throw new Error('Verification request not found');
-
-            const request = requestSnap.data() as VetVerificationRequest;
-            const currentUser = auth.currentUser;
-
-            // Update verification request
-            await setDoc(requestRef, {
-                status: 'approved',
-                reviewedAt: Date.now(),
-                reviewedBy: currentUser?.email || 'admin',
-                grantedProOnApproval: grantPro
-            }, { merge: true });
-
-            // Update user
-            const userUpdate: Partial<User> = {
-                isVetVerified: true
-            };
-
-            if (grantPro) {
-                userUpdate.vetTier = 'pro';
-                userUpdate.vetProExpiry = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year
-                userUpdate.vetMonthlyPatientsLimit = 999999; // Unlimited
-            } else {
-                userUpdate.vetTier = 'free';
-                userUpdate.vetMonthlyPatientsLimit = 5;
-            }
-
-            await setDoc(doc(db, 'users', request.vetUid), userUpdate, { merge: true });
-
-            logger.info('Vet verification approved', { vetUid: request.vetUid, grantedPro: grantPro });
-        } catch (error: any) {
-            logger.error('Approve vet verification failed', error);
-            throw new Error('Failed to approve verification');
-        }
+        return vetService.approveVetVerification(requestId, grantPro);
     },
 
     async rejectVetVerification(requestId: string, reason: string): Promise<void> {
-        try {
-            const requestRef = doc(db, 'vet_verification_requests', requestId);
-            const currentUser = auth.currentUser;
-
-            await setDoc(requestRef, {
-                status: 'rejected',
-                reviewedAt: Date.now(),
-                reviewedBy: currentUser?.email || 'admin',
-                rejectionReason: reason
-            }, { merge: true });
-
-            logger.info('Vet verification rejected', { requestId, reason });
-        } catch (error: any) {
-            logger.error('Reject vet verification failed', error);
-            throw new Error('Failed to reject verification');
-        }
+        return vetService.rejectVetVerification(requestId, reason);
     },
 
     async checkPatientLimit(vetUid: string): Promise<{ reached: boolean; current: number; limit: number }> {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', vetUid));
-            if (!userDoc.exists()) throw new Error('User not found');
-
-            const user = userDoc.data() as User;
-            const current = user.vetCurrentMonthPatients || 0;
-            const limit = user.vetMonthlyPatientsLimit || 5;
-
-            return {
-                reached: current >= limit,
-                current,
-                limit
-            };
-        } catch (error: any) {
-            logger.error('Check patient limit failed', error);
-            return { reached: false, current: 0, limit: 5 };
-        }
+        return vetService.checkPatientLimit(vetUid);
     },
 
     async createVetProCheckout(vetUid: string, plan: 'monthly' | 'yearly'): Promise<{ url: string }> {
-        try {
-            // This will use Stripe checkout similar to donations
-            // Price: €49/month or €490/year
-            const amount = plan === 'monthly' ? 4900 : 49000; // in cents
-
-            // In production, call Stripe API or Cloud Function
-            // For now, return a placeholder
-            logger.info('Vet Pro checkout created', { vetUid, plan, amount });
-
-            return {
-                url: `https://checkout.stripe.com/pay/vet_pro_${plan}_${vetUid}`
-            };
-        } catch (error: any) {
-            logger.error('Create vet pro checkout failed', error);
-            throw new Error('Failed to create checkout session');
-        }
+        return vetService.createVetProCheckout(vetUid, plan);
     },
 
     async getPendingVerifications(): Promise<VetVerificationRequest[]> {
-        try {
-            const requestsRef = collection(db, 'vet_verification_requests');
-            const q = query(requestsRef, where('status', '==', 'pending'), orderBy('submittedAt', 'desc'));
-            const snapshot = await getDocs(q);
-
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VetVerificationRequest));
-        } catch (error: any) {
-            logger.error('Get pending verifications failed', error);
-            // Return empty array instead of throwing to prevent UI crash
-            return [];
-        }
+        return vetService.getPendingVerifications();
     },
 
     async deleteUser(uid: string): Promise<void> {
@@ -354,6 +214,10 @@ export const dbService = {
 
     async initializeSystem(): Promise<void> {
         return adminService.initializeSystem();
+    },
+
+    async getPublicStats(): Promise<{ activeNodes: number; biometricMatches: number; totalDonations: number }> {
+        return adminService.getPublicStats();
     },
 
     async verifyAdminKey(keyInput: string) {
@@ -402,7 +266,7 @@ export const dbService = {
         return petService.uploadPetPhoto(petId, file);
     },
 
-    async reportMultipleSightings(updates: { id: string, isLost: boolean, lastSeenLocation: any }[]) {
+    async reportMultipleSightings(updates: { id: string, isLost: boolean, lastSeenLocation: Geolocation }[]) {
         return petService.reportMultipleSightings(updates);
     },
 
@@ -447,7 +311,7 @@ export const dbService = {
         }
     },
 
-    subscribeToPets(callback: (pets: PetProfile[]) => void, onError?: (error: any) => void) {
+    subscribeToPets(callback: (pets: PetProfile[]) => void, onError?: (error: Error) => void) {
         return onSnapshot(collection(db, 'pets'),
             (s) => callback(s.docs.map(d => d.data() as PetProfile)),
             (error) => { if (onError) onError(error); else console.error("Pets subscription error:", error); }
@@ -467,11 +331,8 @@ export const dbService = {
         return vetService.getVetClinics();
     },
 
-    subscribeToClinics(callback: (clinics: VetClinic[]) => void, onError?: (error: any) => void) {
-        return onSnapshot(collection(db, 'vet_clinics'),
-            (s) => callback(s.docs.map(d => d.data() as VetClinic)),
-            (error) => { if (onError) onError(error); else console.error("Clinics subscription error:", error); }
-        );
+    subscribeToClinics(callback: (clinics: VetClinic[]) => void, onError?: (error: Error) => void) {
+        return vetService.subscribeToClinics(callback, onError);
     },
 
     // --- SYSTEM MESSAGES ---
@@ -516,7 +377,7 @@ export const dbService = {
         return contentService.confirmDonation(id);
     },
 
-    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: any) => void, all: boolean = false) {
+    subscribeToDonations(callback: (donations: Donation[]) => void, onError?: (error: Error) => void, all: boolean = false) {
         return contentService.subscribeToDonations(callback, onError, all);
     },
 
@@ -526,8 +387,7 @@ export const dbService = {
     },
 
     subscribeToAppointments(email: string, callback: (appts: Appointment[]) => void) {
-        const q = query(collection(db, 'appointments'), or(where('vetEmail', '==', email), where('ownerEmail', '==', email)));
-        return onSnapshot(q, (s) => callback(s.docs.map(d => d.data() as Appointment)));
+        return vetService.subscribeToAppointments(email, callback);
     },
 
     // --- STORAGE (Delegated to petService where appropriate) ---
@@ -544,10 +404,11 @@ export const dbService = {
 
             const snapshot = await uploadBytes(storageRef, file);
             return await getDownloadURL(snapshot.ref);
-        } catch (error: any) {
-            logger.error(`Error uploading image to ${path}:`, error);
+        } catch (error: unknown) {
+            const err = error as Error;
+            logger.error(`Error uploading image to ${path}:`, err);
             // Re-throw with more context
-            throw new Error(`Upload failed: ${error.message}`);
+            throw new Error(`Upload failed: ${err.message}`);
         }
     },
 

@@ -9,7 +9,12 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "predeploy": "npm install && npm run build",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy",
+    "start": "serve -s dist",
+    "gcp-build": "npm run build"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
@@ -31,6 +36,7 @@
     "react-dom": "^18.2.0",
     "react-i18next": "^16.5.1",
     "react-window": "^2.2.6",
+    "serve": "^14.2.5",
     "three": "^0.160.0",
     "zod": "^4.3.5"
   },

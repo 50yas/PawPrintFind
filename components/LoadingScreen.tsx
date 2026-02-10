@@ -60,9 +60,13 @@ export const LoadingScreen: React.FC = () => {
             </div>
 
             {/* Typography */}
-            <h1 className="text-6xl font-extrabold tracking-tighter mb-4 text-white">
-                Paw<span className="logo-print-text bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bc13fe] animate-pulse filter drop-shadow-[0_0_10px_rgba(188,19,254,0.5)]">Print</span>
-            </h1>
+            <div className="flex flex-col items-center mb-8">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white flex flex-col items-center">
+                    <span className="leading-tight opacity-90">PAW PRINT</span>
+                    <span className="logo-print-text bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bc13fe] animate-pulse filter drop-shadow-[0_0_15px_rgba(188,19,254,0.6)] leading-tight">FIND</span>
+                </h1>
+                <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mt-4 animate-pulse"></div>
+            </div>
             
             {/* Loading Bar */}
             <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden mb-6">

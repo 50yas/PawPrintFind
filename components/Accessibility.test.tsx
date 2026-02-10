@@ -150,6 +150,7 @@ describe('Accessibility Audit', () => {
               onLinkVet={vi.fn()}
               onSharePet={vi.fn()}
               onHealthCheck={vi.fn()}
+              onViewPet={vi.fn()}
               onTransferOwnership={vi.fn()}
               onApplySearch={vi.fn()}
             />
@@ -169,8 +170,10 @@ describe('Accessibility Audit', () => {
             <AdoptionCenter 
               petsForAdoption={mockPets} 
               onInquire={vi.fn()} 
+              onViewPet={vi.fn()}
               goBack={vi.fn()} 
               currentUser={null} 
+              isLoading={false}
             />
           </ThemeProvider>
         </LanguageProvider>
@@ -248,6 +251,7 @@ describe('Accessibility Audit', () => {
               onDeleteUser={vi.fn().mockResolvedValue(undefined)}
               onLogout={vi.fn()}
               onRefresh={vi.fn().mockResolvedValue(undefined)}
+              onViewPet={vi.fn()}
             />
           </ThemeProvider>
         </LanguageProvider>

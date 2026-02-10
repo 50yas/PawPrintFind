@@ -4,7 +4,6 @@ import { View, User, PetProfile, VetClinic, Appointment, ChatSession, Geolocatio
 
 // Standard Components
 import { Navbar } from './components/Navbar';
-import { AdminUplink } from './components/AdminUplink';
 import { NotificationToast } from './components/NotificationToast';
 import { LiveAssistantFAB } from './components/LiveAssistantFAB';
 import { AIHealthCheckModal } from './components/AIHealthCheckModal';
@@ -15,19 +14,12 @@ import { Footer } from './components/Footer';
 import { SecureChatModal } from './components/SecureChatModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { OfflineBanner } from './components/OfflineBanner';
+import { AppRouter } from './components/AppRouter';
 
 // Lazy Loaded Components
 const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
 const Auth = lazy(() => import('./components/Auth').then(m => ({ default: m.Auth })));
-const BlogPostDetail = lazy(() => import('./components/BlogPostDetail').then(m => ({ default: m.BlogPostDetail })));
 const TutorialOverlay = lazy(() => import('./components/TutorialOverlay').then(m => ({ default: m.TutorialOverlay })));
-
-// Modular Routers (Lazy)
-const AdminRouter = lazy(() => import('./components/routers/AdminRouter').then(m => ({ default: m.AdminRouter })));
-const VetRouter = lazy(() => import('./components/routers/VetRouter').then(m => ({ default: m.VetRouter })));
-const ShelterRouter = lazy(() => import('./components/routers/ShelterRouter').then(m => ({ default: m.ShelterRouter })));
-const UserRouter = lazy(() => import('./components/routers/UserRouter').then(m => ({ default: m.UserRouter })));
-const PublicRouter = lazy(() => import('./components/routers/PublicRouter').then(m => ({ default: m.PublicRouter })));
 
 import { useAppState } from './hooks/useAppState';
 import { useAuthSync } from './hooks/useAuthSync';
@@ -54,6 +46,7 @@ const DevMarquee = () => {
 
 export default function App() {
     const [currentView, setCurrentView] = useState<View>('home');
+    const [selectedPet, setSelectedPet] = useState<PetProfile | null>(null);
     const [isAssistantOpen, setIsAssistantOpen] = useState(false);
     const [showSplash, setShowSplash] = useState(true);
     const [showAdminInit, setShowAdminInit] = useState(false);
@@ -74,6 +67,10 @@ export default function App() {
         allPets, vetClinics, donations, appointments, chatSessions, allUsers, isLoading,
         handleRefreshAdminData, setAllPets
     } = useAppState(currentUser, currentView);
+
+    useEffect(() => {
+        console.log("[App] State Update - View:", currentView, "SelectedPet:", selectedPet?.id);
+    }, [currentView, selectedPet]);
 
     useEffect(() => {
         // Detect Brave to apply specific rendering fallbacks
@@ -120,6 +117,41 @@ export default function App() {
         }
     }, []);
 
+    // Deep-link handling for pets
+    useEffect(() => {
+        const handleLocationChange = (event?: PopStateEvent) => {
+            const path = window.location.pathname;
+            console.log("[Navigation] URL Change detected:", path);
+
+            // Handle browser back/forward buttons
+            if (event?.state?.view === 'publicPetDetail' && event.state.petId) {
+                const pet = allPets.find(p => p.id === event.state.petId);
+                if (pet) {
+                    setSelectedPet(pet);
+                    setCurrentView('publicPetDetail');
+                    return;
+                }
+            }
+
+            // Direct URL entry or fallback
+            if (path.startsWith('/pet/') && allPets.length > 0) {
+                const petId = path.split('/')[2];
+                const pet = allPets.find(p => p.id === petId);
+                if (pet) {
+                    setSelectedPet(pet);
+                    setCurrentView('publicPetDetail');
+                }
+            } else if (path === '/' || path === '') {
+                // Return to home if at root
+                // setCurrentView('home');
+            }
+        };
+
+        handleLocationChange(); // Initial check
+        window.addEventListener('popstate', handleLocationChange);
+        return () => window.removeEventListener('popstate', handleLocationChange);
+    }, [allPets]);
+
     const handleApplySearch = useCallback((filters: any) => {
         setPredefinedFilters(filters);
         handleSetView('adoptionCenter');
@@ -133,9 +165,6 @@ export default function App() {
     const [healthCheckingPet, setHealthCheckingPet] = useState<PetProfile | null>(null);
 
     const [isAdminBrowsing, setIsAdminBrowsing] = useState(false);
-
-    const lostPets = allPets.filter(p => p.isLost);
-    const petsForAdoption = allPets.filter(p => p.status === 'forAdoption');
 
     // Optimize initial load - shorter splash, faster to interactive
     useEffect(() => {
@@ -210,173 +239,6 @@ export default function App() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    const renderView = () => {
-        if (showAdminInit && currentUser) return <AdminUplink currentUser={currentUser} onClose={() => setShowAdminInit(false)} />;
-
-        if (!currentUser) {
-            return (
-                <PublicRouter
-                    currentView={currentView}
-                    setView={setCurrentView}
-                    lostPets={lostPets}
-                    petsForAdoption={petsForAdoption}
-                    donations={donations}
-                    selectedPost={selectedPost}
-                    setSelectedPost={setSelectedPost}
-                    handleStartChat={handleStartChat}
-                    setIsLoginModalOpen={setIsLoginModalOpen}
-                    isLoading={isLoading}
-                />
-            );
-        }
-
-        if (currentUser.activeRole === 'super_admin' && !isAdminBrowsing) {
-            if (currentView === 'blogPost' && selectedPost) {
-                return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
-            }
-            if (currentView === 'blogDetail' && selectedPost) {
-                return <BlogPostDetail post={selectedPost} onBack={() => setCurrentView('dashboard')} />;
-            }
-
-            return (
-                <AdminRouter
-                    users={allUsers}
-                    currentUser={currentUser}
-                    allPets={allPets}
-                    vetClinics={vetClinics}
-                    donations={donations}
-                    onDeleteUser={async (uid) => {
-                        const targetUser = allUsers.find(u => u.uid === uid);
-                        await dbService.deleteUser(uid);
-                        await dbService.logAdminAction({
-                            adminEmail: currentUser.email,
-                            action: 'DELETE_USER',
-                            targetId: uid,
-                            details: `Deleted user ${targetUser?.email || 'unknown'}`
-                        });
-                        await handleRefreshAdminData();
-                    }}
-                    onLogout={handleLogout}
-                    onRefresh={handleRefreshAdminData}
-                    onViewPost={(post) => {
-                        setSelectedPost(post);
-                        setCurrentView('blogPost');
-                    }}
-                    onBrowseSite={() => setIsAdminBrowsing(true)}
-                />
-            );
-        }
-
-        if (currentUser.activeRole === 'super_admin' && isAdminBrowsing) {
-            return (
-                <UserRouter
-                    currentView={currentView}
-                    setView={setCurrentView}
-                    currentUser={currentUser}
-                    allPets={allPets}
-                    vetClinics={vetClinics}
-                    appointments={appointments}
-                    chatSessions={chatSessions}
-                    lostPets={lostPets}
-                    petsForAdoption={petsForAdoption}
-                    donations={donations}
-                    allUsers={allUsers}
-                    editingPet={editingPet}
-                    setEditingPet={setEditingPet}
-                    petToLink={petToLink}
-                    setPetToLink={setPetToLink}
-                    selectedPost={selectedPost}
-                    setSelectedPost={setSelectedPost}
-                    handleRegisterPet={handleRegisterPet}
-                    handleStartChat={handleStartChat}
-                    handleLogout={handleLogout}
-                    setIsLoginModalOpen={setIsLoginModalOpen}
-                    setHealthCheckingPet={setHealthCheckingPet}
-                    onApplySearch={handleApplySearch}
-                    predefinedFilters={predefinedFilters}
-                    isLoading={isLoading}
-                />
-            );
-        }
-
-        if (currentUser.activeRole === 'vet') {
-            return (
-                <VetRouter
-                    currentView={currentView}
-                    setView={setCurrentView}
-                    currentUser={currentUser}
-                    allPets={allPets}
-                    lostPets={lostPets}
-                    petsForAdoption={petsForAdoption}
-                    vetClinics={vetClinics}
-                    donations={donations}
-                    appointments={appointments}
-                    viewingPatient={viewingPatient}
-                    setViewingPatient={setViewingPatient}
-                    selectedPost={selectedPost}
-                    setSelectedPost={setSelectedPost}
-                    handleStartChat={handleStartChat}
-                    setIsLoginModalOpen={setIsLoginModalOpen}
-                    isLoading={isLoading}
-                />
-            );
-        }
-
-        if (currentUser.activeRole === 'shelter') {
-            return (
-                <ShelterRouter
-                    currentView={currentView}
-                    setView={setCurrentView}
-                    currentUser={currentUser}
-                    allPets={allPets}
-                    lostPets={lostPets}
-                    petsForAdoption={petsForAdoption}
-                    donations={donations}
-                    chatSessions={chatSessions}
-                    editingPet={editingPet}
-                    setEditingPet={setEditingPet}
-                    selectedPost={selectedPost}
-                    setSelectedPost={setSelectedPost}
-                    handleRegisterPet={handleRegisterPet}
-                    handleStartChat={handleStartChat}
-                    onOpenChat={(id) => setActiveChatSession(chatSessions.find(s => s.id === id) || null)}
-                    setIsLoginModalOpen={setIsLoginModalOpen}
-                    isLoading={isLoading}
-                />
-            );
-        }
-
-        return (
-            <UserRouter
-                currentView={currentView}
-                setView={setCurrentView}
-                currentUser={currentUser}
-                allPets={allPets}
-                vetClinics={vetClinics}
-                appointments={appointments}
-                chatSessions={chatSessions}
-                lostPets={lostPets}
-                petsForAdoption={petsForAdoption}
-                donations={donations}
-                allUsers={allUsers}
-                editingPet={editingPet}
-                setEditingPet={setEditingPet}
-                petToLink={petToLink}
-                setPetToLink={setPetToLink}
-                selectedPost={selectedPost}
-                setSelectedPost={setSelectedPost}
-                handleRegisterPet={handleRegisterPet}
-                handleStartChat={handleStartChat}
-                handleLogout={handleLogout}
-                setIsLoginModalOpen={setIsLoginModalOpen}
-                setHealthCheckingPet={setHealthCheckingPet}
-                onApplySearch={handleApplySearch}
-                predefinedFilters={predefinedFilters}
-                isLoading={isLoading}
-            />
-        );
-    };
-
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-hidden pb-safe">
             {/* Fixed Marquee at the very top */}
@@ -423,7 +285,62 @@ export default function App() {
                                 <LoadingSpinner />
                             </div>
                         }>
-                            {renderView()}
+                            <AppRouter
+                                currentView={currentView}
+                                setView={setCurrentView}
+                                currentUser={currentUser}
+                                allUsers={allUsers}
+                                allPets={allPets}
+                                vetClinics={vetClinics}
+                                donations={donations}
+                                appointments={appointments}
+                                chatSessions={chatSessions}
+                                isLoading={isLoading}
+                                showAdminInit={showAdminInit}
+                                setShowAdminInit={setShowAdminInit}
+                                isAdminBrowsing={isAdminBrowsing}
+                                setIsAdminBrowsing={setIsAdminBrowsing}
+                                selectedPost={selectedPost}
+                                setSelectedPost={setSelectedPost}
+                                editingPet={editingPet}
+                                setEditingPet={setEditingPet}
+                                viewingPatient={viewingPatient}
+                                setViewingPatient={setViewingPatient}
+                                selectedPet={selectedPet}
+                                setSelectedPet={setSelectedPet}
+                                petToLink={petToLink}
+                                setPetToLink={setPetToLink}
+                                setHealthCheckingPet={setHealthCheckingPet}
+                                predefinedFilters={predefinedFilters}
+                                handleApplySearch={handleApplySearch}
+                                handleLogout={handleLogout}
+                                handleRegisterPet={handleRegisterPet}
+                                handleStartChat={handleStartChat}
+                                handleRefreshAdminData={handleRefreshAdminData}
+                                setIsLoginModalOpen={setIsLoginModalOpen}
+                                setActiveChatSession={setActiveChatSession}
+                                onDeleteUser={async (uid) => {
+                                    const targetUser = allUsers.find(u => u.uid === uid);
+                                    await dbService.deleteUser(uid);
+                                    await dbService.logAdminAction({
+                                        adminEmail: currentUser!.email,
+                                        action: 'DELETE_USER',
+                                        targetId: uid,
+                                        details: `Deleted user ${targetUser?.email || 'unknown'}`
+                                    });
+                                    await handleRefreshAdminData();
+                                }}
+                                onViewPet={(pet) => {
+                                    console.log("[Navigation] Opening pet detail:", pet.id);
+                                    setSelectedPet(pet);
+                                    setCurrentView('publicPetDetail');
+                                    // Update URL without reloading for sharing compatibility
+                                    window.history.pushState({ view: 'publicPetDetail', petId: pet.id }, '', `/pet/${pet.id}`);
+                                }}
+                                onReportSighting={(pet) => {
+                                    addSnackbar(t('reportSightingFeatureComingSoon'), 'info');
+                                }}
+                            />
                         </Suspense>
                     </main>
 
@@ -441,14 +358,12 @@ export default function App() {
                 onAssistantClick={() => setIsAssistantOpen(true)}
             />
 
-            {isAssistantOpen && (
-                <LiveAssistantFAB
-                    currentUserRole={currentUser?.activeRole}
-                    tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
-                    forceOpen={true}
-                    onClose={() => setIsAssistantOpen(false)}
-                />
-            )}
+            <LiveAssistantFAB
+                currentUserRole={currentUser?.activeRole}
+                tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
+                forceOpen={isAssistantOpen}
+                onClose={() => setIsAssistantOpen(false)}
+            />
 
             {activeChatSession && (
                 <SecureChatModal
@@ -468,12 +383,10 @@ export default function App() {
             )}
 
             {isLoginModalOpen && (
-                <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto" onClick={() => setIsLoginModalOpen(false)}>
-                    <div onClick={e => e.stopPropagation()} className="w-full max-w-md relative my-auto">
-                        <Suspense fallback={<div className="flex justify-center p-4"><LoadingSpinner /></div>}>
-                            <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
-                        </Suspense>
-                    </div>
+                <div className="fixed inset-0 z-[5000] animate-fade-in overflow-hidden bg-background">
+                    <Suspense fallback={<LoadingScreen />}>
+                        <Auth isFullScreen onClose={() => setIsLoginModalOpen(false)} />
+                    </Suspense>
                 </div>
             )}
 

@@ -117,7 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                 </div>
                             </div>
                             <h3 className="text-2xl font-bold text-foreground font-mono-tech tracking-tight">
-                                Paw<span className="text-primary">Print</span>
+                                PAW PRINT <span className="text-primary">FIND</span>
                             </h3>
                         </div>
                         <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">

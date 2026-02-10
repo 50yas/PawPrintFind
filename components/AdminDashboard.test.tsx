@@ -132,7 +132,8 @@ describe('AdminDashboard Cyber HUD', () => {
         donations: mockDonations,
         onDeleteUser: vi.fn(),
         onLogout: vi.fn(),
-        onRefresh: vi.fn()
+        onRefresh: vi.fn(),
+        onViewPet: vi.fn()
     };
 
     it('uses a sidebar layout for navigation on desktop', () => {
