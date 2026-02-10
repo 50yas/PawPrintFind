@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { trackUsage } from "./usage";
 
 const getOpenRouterKey = async () => {
     // Try to get from Firestore system_config
@@ -17,6 +18,7 @@ const getOpenRouterKey = async () => {
 };
 
 export const callOpenRouterAI = async (
+    userId: string,
     model: string,
     messages: any[],
     config: any = {},
@@ -69,6 +71,10 @@ export const callOpenRouterAI = async (
         }
 
         const data = await response.json();
+        
+        // Track usage
+        trackUsage(userId, task || 'openrouter_generic', 'openrouter').catch(console.error);
+
         return {
             success: true,
             text: data.choices?.[0]?.message?.content || "",

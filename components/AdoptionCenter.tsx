@@ -1,4 +1,4 @@
-import React, { useState, useMemo, lazy, Suspense, useEffect } from 'react';
+import React, { useState, useMemo, lazy, Suspense, useEffect, useCallback, memo } from 'react';
 import { PetProfile, User } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -8,24 +8,87 @@ import { SmartSearchBar } from './SmartSearchBar';
 import { analyticsService } from '../services/analyticsService';
 import { searchService, SearchFilters } from '../services/searchService';
 import { optimizationService } from '../services/optimizationService';
-import { generateMatchExplanation } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareButton } from './ShareButton';
 
 const AdoptionMap = lazy(() => import('./AdoptionMap').then(m => ({ default: m.AdoptionMap })));
 
-interface AdoptionCenterProps {
-  petsForAdoption: PetProfile[];
-  onInquire: (pet: PetProfile) => void;
-  goBack: () => void;
-  currentUser: User | null;
-  isLoading?: boolean;
-  predefinedFilters?: any;
-}
-
 type ViewMode = 'grid' | 'list' | 'carousel' | 'map';
 
-export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, goBack, currentUser, isLoading, predefinedFilters }) => {
+export interface AdoptionCenterProps {
+    petsForAdoption: PetProfile[];
+    onInquire: (pet: PetProfile) => void;
+    onViewPet: (pet: PetProfile) => void;
+    goBack: () => void;
+    currentUser: User | null;
+    isLoading: boolean;
+    predefinedFilters?: Partial<SearchFilters>;
+}
+
+const AdoptionCard: React.FC<{ 
+    pet: PetProfile; 
+    mode?: ViewMode; 
+    onView: (pet: PetProfile) => void;
+    onInquire: (pet: PetProfile) => void;
+    explanation?: string;
+}> = memo(({ pet, mode = 'grid', onView, onInquire, explanation }) => {
+    const { t } = useTranslations();
+    
+    const handleCardClick = (e: React.MouseEvent | React.PointerEvent) => {
+        if ((e.target as HTMLElement).closest('button')) return;
+        onView(pet);
+    };
+
+    return (
+        <GlassCard 
+            variant="interactive" 
+            className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl relative cursor-pointer active:scale-95 transition-transform`}
+            onPointerDown={handleCardClick}
+        >
+            <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
+                <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                   <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
+                </div>
+                {/* Action Overlays */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                    <FavoriteButton petId={pet.id} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
+                    <ShareButton pet={pet} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
+                </div>
+            </div>
+            <div className="p-6 flex flex-col flex-grow">
+                <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md truncate">{pet.name}</h2>
+                        <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm truncate">{pet.breed}</p>
+                    </div>                    
+                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md flex-shrink-0 ml-2">{pet.age}</span>
+                </div>
+                
+                {explanation && (
+                    <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20 animate-pulse-slow">
+                        <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1">{t('aiMatchReason')}</p>
+                        <p className="text-xs text-slate-100 italic">"{explanation}"</p>
+                    </div>
+                )}
+
+                <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
+                
+                <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                     <div className="flex gap-2">
+                        {pet.weight && <span className="bg-white/10 text-slate-300 px-2 py-1 rounded text-[10px] uppercase font-bold border border-white/5">{pet.weight}</span>}
+                     </div>
+                     <GlassButton onClick={() => onInquire(pet)} className="text-[10px] uppercase tracking-[0.2em] font-black shadow-lg" variant="primary">
+                        {t('inquireToAdoptButton')}
+                     </GlassButton>
+                </div>
+            </div>
+        </GlassCard>
+    );
+});
+
+export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption, onInquire, onViewPet, goBack, currentUser, isLoading, predefinedFilters }) => {
   const { t } = useTranslations();
   const { addSnackbar } = useSnackbar();
   
@@ -64,7 +127,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             const topPet = results[0];
             if (!explanations[topPet.id]) {
                 try {
-                    const explanation = await generateMatchExplanation(topPet, filters);
+                    const explanation = await aiBridgeService.generateMatchExplanation(topPet, filters);
                     setExplanations(prev => ({ ...prev, [topPet.id]: explanation }));
                 } catch (e) {
                     console.error("Failed to generate match explanation:", e);
@@ -75,11 +138,11 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
     updateRanking();
   }, [petsForAdoption, filterBreed, filterAge, filterSize, filterLocation, sortBy, aiFilters]);
 
-  const uniqueBreeds = useMemo(() => [...new Set(petsForAdoption.map(p => p.breed))], [petsForAdoption]);
-  const uniqueAges = useMemo(() => [...new Set(petsForAdoption.map(p => p.age))], [petsForAdoption]);
-  const uniqueSizes = useMemo(() => [...new Set(petsForAdoption.map(p => p.size).filter(Boolean))], [petsForAdoption]);
+  const uniqueBreeds = useMemo(() => [...new Set(petsForAdoption.map((p: PetProfile) => p.breed))], [petsForAdoption]);
+  const uniqueAges = useMemo(() => [...new Set(petsForAdoption.map((p: PetProfile) => p.age))], [petsForAdoption]);
+  const uniqueSizes = useMemo(() => [...new Set(petsForAdoption.map((p: PetProfile) => p.size).filter(Boolean))], [petsForAdoption]);
 
-  const handleInquire = (pet: PetProfile) => {
+  const handleInquire = useCallback((pet: PetProfile) => {
     if (!currentUser) {
         addSnackbar(t('loginToAdoptWarning'), 'error');
         return;
@@ -87,65 +150,26 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
     analyticsService.trackAdoptionInquiry(pet.id, pet.name);
     optimizationService.recordSearchInteraction(pet.id, 'inquiry');
     onInquire(pet);
-  }
+  }, [currentUser, addSnackbar, t, onInquire]);
 
-  const handlePetView = (pet: PetProfile) => {
+  const handlePetView = useCallback((pet: PetProfile) => {
+    console.log("[AdoptionCenter] View Pet triggered:", pet.id);
     analyticsService.trackPetView(pet.id, pet.name, pet.status);
     optimizationService.recordSearchInteraction(pet.id, 'view');
-  };
+    onViewPet(pet);
+  }, [onViewPet]);
 
-  const nextSlide = () => setCarouselIndex(prev => (prev + 1) % rankedPets.length);
-  const prevSlide = () => setCarouselIndex(prev => (prev - 1 + rankedPets.length) % rankedPets.length);
+      const nextSlide = useCallback(() => setCarouselIndex(prev => (prev + 1) % rankedPets.length), [rankedPets.length]);
 
-  const AdoptionCard: React.FC<{ pet: PetProfile; mode?: ViewMode }> = ({ pet, mode = 'grid' }) => (
-        <GlassCard 
-            variant="interactive" 
-            className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl relative`}
-            onClick={() => handlePetView(pet)}
-        >
-            <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
-                <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                   <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
-                </div>
-                {/* Action Overlays */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                    <FavoriteButton petId={pet.id} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
-                    <ShareButton pet={pet} className="p-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-white" />
-                </div>
-            </div>
-                    <div className="p-6 flex flex-col flex-grow">
-                        <div className="flex justify-between items-start">
-                            <div className="flex-1 min-w-0">
-                                <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md truncate">{pet.name}</h2>
-                                <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm truncate">{pet.breed}</p>
-                            </div>                    <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md flex-shrink-0 ml-2">{pet.age}</span>
-                </div>
-                
-                {/* Match Explanation */}
-                {explanations[pet.id] && (
-                    <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20 animate-pulse-slow">
-                        <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1">{t('aiMatchReason')}</p>
-                        <p className="text-xs text-slate-100 italic">"{explanations[pet.id]}"</p>
-                    </div>
-                )}
+      const prevSlide = useCallback(() => setCarouselIndex(prev => (prev - 1 + rankedPets.length) % rankedPets.length), [rankedPets.length]);
 
-                <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
-                
-                <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-                     <div className="flex gap-2">
-                        {pet.weight && <span className="bg-white/10 text-slate-300 px-2 py-1 rounded text-[10px] uppercase font-bold border border-white/5">{pet.weight}</span>}
-                     </div>
-                     <GlassButton onClick={() => handleInquire(pet)} className="text-[10px] uppercase tracking-[0.2em] font-black shadow-lg" variant="primary">
-                        {t('inquireToAdoptButton')}
-                     </GlassButton>
-                </div>
-            </div>
-        </GlassCard>
-    );
-    
+  
+
       return (
-        <div className="min-h-screen bg-transparent pb-20 pt-24 px-6 relative">
+
+          <div className="min-h-screen bg-transparent pb-20 pt-24 px-6 relative">
+
+  
           <div className="max-w-7xl mx-auto space-y-8 relative z-10">
             
                     {/* Header & Controls */}
@@ -162,7 +186,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                             </button>
             
-                            <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-xl">{t('adoptionCenterTitle')}</h1>
+                            <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-xl">{t('adoptionLink')}</h1>
             
                             <p className="text-lg text-slate-200 mt-2 max-w-2xl drop-shadow-md font-medium">{t('adoptionCenterDescPublic')}</p>
             
@@ -373,7 +397,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                 {viewMode === 'grid' && (
                     <div data-testid="pets-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
                         {rankedPets.map(pet => (
-                            <AdoptionCard key={pet.id} pet={pet} />
+                            <AdoptionCard key={pet.id} pet={pet} onView={handlePetView} onInquire={handleInquire} explanation={explanations[pet.id]} />
                         ))}
                     </div>
                 )}
@@ -381,7 +405,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                 {viewMode === 'list' && (
                     <div className="space-y-4 animate-fade-in">
                         {rankedPets.map(pet => (
-                            <AdoptionCard key={pet.id} pet={pet} mode="list" />
+                            <AdoptionCard key={pet.id} pet={pet} mode="list" onView={handlePetView} onInquire={handleInquire} explanation={explanations[pet.id]} />
                         ))}
                     </div>
                 )}
@@ -393,7 +417,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                         </button>
                         
                         <div className="w-full max-w-4xl h-full">
-                            <AdoptionCard pet={rankedPets[carouselIndex]} mode="grid" />
+                            <AdoptionCard pet={rankedPets[carouselIndex]} mode="grid" onView={handlePetView} onInquire={handleInquire} explanation={explanations[rankedPets[carouselIndex].id]} />
                         </div>
 
                         <button onClick={nextSlide} className="absolute right-4 z-20 p-4 rounded-full bg-black/50 hover:bg-primary text-white transition-all backdrop-blur-md border border-white/10">

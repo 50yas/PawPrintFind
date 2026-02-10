@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { PetProfile, MatchResult, VetClinic, Geolocation } from '../types';
-import { analyzeImageForDescription, comparePets, findNearbyVets, textToSpeech } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
+import { findNearbyVets, textToSpeech } from '../services/geminiService';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -17,6 +17,7 @@ interface FoundPetProps {
   lostPets: PetProfile[];
   partnerVets: VetClinic[];
   onContactOwner: (pet: PetProfile) => void;
+  onViewPet: (pet: PetProfile) => void;
   isLoading?: boolean;
 }
 
@@ -38,13 +39,13 @@ const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
 }
 
-const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) => void, onContactOwner: (pet: PetProfile) => void }> = ({ result, onSpeak, onContactOwner }) => {
+const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) => void, onContactOwner: (pet: PetProfile) => void, onViewPet: (pet: PetProfile) => void }> = ({ result, onSpeak, onContactOwner, onViewPet }) => {
     const { t } = useTranslations();
     const scoreColor = result.score > 75 ? 'bg-green-500' : result.score > 50 ? 'bg-yellow-500' : 'bg-red-500';
     
     return (
         <div className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-border">
-            <div className="md:flex">
+            <div className="md:flex cursor-pointer active:scale-95 transition-transform" onPointerDown={() => onViewPet(result.pet)}>
                 <div className="md:flex-shrink-0 relative w-full md:w-48 min-h-[200px]">
                     <CinematicImage src={result.pet.photos[0]?.url} alt={result.pet.name} className="w-full h-full object-cover" />
                     <div className="absolute top-0 left-0 bg-black/50 p-2">
@@ -93,19 +94,19 @@ const MatchResultCard: React.FC<{ result: MatchResult, onSpeak: (text:string) =>
                 </div>
             </div>
              <div className="bg-muted px-6 py-3 flex justify-between items-center border-t border-border">
-                 <button onClick={() => onSpeak(t('audioReport', { petName: result.pet.name, score: result.score, reasoning: result.reasoning }))}
+                 <button onClick={(e) => { e.stopPropagation(); onSpeak(t('audioReport', { petName: result.pet.name, score: result.score, reasoning: result.reasoning })); }}
                   className="text-xs md:text-sm text-primary hover:brightness-125 font-semibold flex items-center space-x-1 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a4 4 0 118 0v1.393a.75.75 0 01-1.5 0V10a2.5 2.5 0 10-5 0v.5a.75.75 0 01-1.5 0V10z" /><path fillRule="evenodd" d="M3.75 8a.75.75 0 01.75.75v1.5a2 2 0 104 0v-1.5A.75.75 0 0110 8a.75.75 0 01.75.75v1.5a3.5 3.5 0 11-7 0v-1.5A.75.75 0 013.75 8z" clipRule="evenodd" /></svg>
                   <span>{t('readReportAloudButton')}</span>
                 </button>
-                 <button onClick={() => onContactOwner(result.pet)} className="btn btn-primary !py-1.5 !px-4 text-sm shadow-md">{t('contactOwnerButton')}</button>
+                 <button onClick={(e) => { e.stopPropagation(); onContactOwner(result.pet); }} className="btn btn-primary !py-1.5 !px-4 text-sm shadow-md">{t('contactOwnerButton')}</button>
             </div>
         </div>
     );
 };
 
 
-export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onContactOwner, isLoading }) => {
+export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onContactOwner, onViewPet, isLoading }) => {
   const { t } = useTranslations();
   const { addSnackbar } = useSnackbar();
   const [mode, setMode] = useState<'map' | 'scan'>('map');
@@ -197,14 +198,14 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
 
     try {
       setStatus(t('statusAnalyzingPhoto'));
-      const foundPetDesc = await analyzeImageForDescription(photo);
+      const foundPetDesc = await aiBridgeService.analyzeImageForDescription(photo);
       setStatus(t('statusFindingVets'));
       const vets = await findNearbyVets(location);
       setNearbyVetsInfo(vets);
       setStatus(t('statusComparing', { count: filteredLostPets.length }));
       
       const comparisonPromises = filteredLostPets.map(lostPet => 
-        comparePets(foundPetDesc, lostPet).then(res => ({ 
+        aiBridgeService.comparePets(foundPetDesc, lostPet).then(res => ({ 
             pet: lostPet, 
             score: res.score, 
             reasoning: res.reasoning,
@@ -253,7 +254,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[500px] lg:h-[600px]">
                   <div className="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
-                      <MissingPetsMap lostPets={lostPets} onContactOwner={onContactOwner} />
+                      <MissingPetsMap lostPets={lostPets} onContactOwner={onContactOwner} onViewPet={onViewPet} />
                       
                       {/* Floating Action Button for Scan */}
                       <div className="absolute bottom-6 right-6 z-[1000]">
@@ -276,7 +277,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
                           ) : lostPets.length > 0 ? (
                               <div className="p-2 space-y-2">
                                   {lostPets.map(pet => (
-                                      <div key={pet.id} className="flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 group">
+                                      <div key={pet.id} onPointerDown={() => onViewPet(pet)} className="flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 group">
                                           <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
                                               <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                           </div>
@@ -392,7 +393,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
             <button onClick={handleSearch} disabled={isSearching || !photo || geoLoading} className="mt-6 w-full btn btn-primary !bg-green-600 hover:!bg-green-700 text-lg flex items-center justify-center shadow-green-500/20 shadow-lg transition-transform active:scale-95">{isSearching ? <LoadingSpinner /> : (<><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>{t('applyFiltersButton')}</>)}</button>
             {isSearching && <p className="mt-4 text-primary animate-pulse text-sm font-medium text-center">{status}</p>}
         </div>
-        {results.length > 0 && (<div className="space-y-6 fade-in-down"><h3 className="text-2xl font-bold text-center text-foreground">{t('potentialMatchesTitle')}</h3>{results.map((result) => <MatchResultCard key={result.pet.id} result={result} onSpeak={handleSpeak} onContactOwner={onContactOwner} />)}</div>)}
+        {results.length > 0 && (<div className="space-y-6 fade-in-down"><h3 className="text-2xl font-bold text-center text-foreground">{t('potentialMatchesTitle')}</h3>{results.map((result) => <MatchResultCard key={result.pet.id} result={result} onSpeak={handleSpeak} onContactOwner={onContactOwner} onViewPet={onViewPet} />)}</div>)}
         {(nearbyVetsInfo || partnerVets.length > 0) && (<div className="bg-card p-6 sm:p-8 rounded-xl shadow-md"><h3 className="text-2xl font-bold mb-4 text-card-foreground">{t('nearbyHelpTitle')}</h3><div className="border-b border-border"><nav className="-mb-px flex space-x-6" aria-label="Tabs"><button onClick={() => setActiveTab('partners')} aria-selected={activeTab === 'partners'} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'partners' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>{t('partnerVetsTab')}</button><button onClick={() => setActiveTab('google')} aria-selected={activeTab === 'google'} className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${activeTab === 'google' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}`}>{t('googleMapsTab')}</button></nav></div><div className="pt-6">{activeTab === 'partners' && (<div>{partnerVets.length > 0 ? (<ul className='list-disc pl-5 mt-2 space-y-2'>{partnerVets.map((vet, i) => (<li key={i} className="text-muted-foreground"><strong className="text-card-foreground">{vet.name}</strong> <br/> {vet.address} ({vet.phone})</li>))}</ul>) : <p className="text-muted-foreground">{t('noPartnerVets')}</p>}</div>)}{activeTab === 'google' && (<div>{nearbyVetsInfo ? (<div className="prose prose-teal dark:prose-invert max-w-none mt-2 text-card-foreground"><p>{nearbyVetsInfo.text}</p>{nearbyVetsInfo.places.length > 0 && (<ul className="text-muted-foreground">{nearbyVetsInfo.places.map((place, index) => (place.maps && <li key={index}><a href={place.maps.uri} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{place.maps.title}</a></li>))}</ul>)}</div>) : <p className="text-muted-foreground">{t('noGoogleMapsVets')}</p>}</div>)}</div></div>)}
       </div>
       )}

@@ -13,7 +13,7 @@ admin.initializeApp();
 export const callOpenRouter = functions.https.onCall(async (data, context) => {
     if (!context.auth) throw new functions.https.HttpsError("unauthenticated", "Auth required.");
     const { model, messages, config, task } = data;
-    return callOpenRouterAI(model, messages, config, task);
+    return callOpenRouterAI(context.auth.uid, model, messages, config, task);
 });
 
 export const fetchOpenRouterModels = functions.https.onCall(async (data, context) => {
@@ -57,7 +57,7 @@ async function callGeminiAI(
         const text = response.text();
 
         // Track usage asynchronously
-        trackUsage(userId, featureName).catch(err => 
+        trackUsage(userId, featureName, 'google').catch(err => 
             console.error(`Failed to track usage for ${featureName}:`, err)
         );
 

@@ -51,4 +51,14 @@ export const aiBridgeService = {
         }
         return geminiService.comparePets(foundPetDesc, lostPet);
     },
+
+    async generateMatchExplanation(pet: PetProfile, filters: any): Promise<string> {
+        const settings = await this.getSettings();
+
+        if (settings?.provider === 'openrouter') {
+            // @ts-ignore
+            return openRouterService.generateMatchExplanation?.(pet, filters) || geminiService.generateMatchExplanation(pet, filters);
+        }
+        return geminiService.generateMatchExplanation(pet, filters);
+    },
 };

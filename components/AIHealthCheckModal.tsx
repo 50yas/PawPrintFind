@@ -4,7 +4,7 @@ import { PetProfile, HealthCheck } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { Modal } from './Modal';
-import { performAIHealthCheck } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface AIHealthCheckModalProps {
@@ -27,7 +27,7 @@ export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onC
     setIsLoading(true);
     setAnalysis('');
     try {
-      const result = await performAIHealthCheck(pet, symptoms, locale);
+      const result = await aiBridgeService.performAIHealthCheck(pet, symptoms, locale);
       setAnalysis(result);
       const newHealthCheck: HealthCheck = {
         timestamp: Date.now(),

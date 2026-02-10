@@ -5,7 +5,9 @@ import { decode, encode, decodeAudioData } from '../services/audioService';
 import { useTranslations } from '../hooks/useTranslations';
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { UserRole } from '../types';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { configService } from '../services/configService';
+import { CinematicImage } from './ui/CinematicImage';
 
 type ChatEntry = {
     speaker: 'user' | 'model';
@@ -177,6 +179,14 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
 
         setStatus(t('statusConnecting'));
         setIsError(false);
+
+        const settings = await aiBridgeService.getSettings();
+        if (settings?.provider === 'openrouter') {
+            setStatus('Active Protocol: OpenRouter (Text-Only)');
+            // For now, we don't initialize a live session for OpenRouter
+            // We handle text inputs directly in sendText
+            return;
+        }
 
         const systemInstruction = currentUserRole
             ? t('aiSystemPromptUser', { role: currentUserRole })
@@ -351,12 +361,41 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
         startSession();
     };
 
-    const sendText = (text: string) => {
+    const sendText = async (text: string) => {
         if (!text.trim()) return;
-        if (!sessionPromiseRef.current) startSession();
+        
+        const settings = await aiBridgeService.getSettings();
+        const isOpenRouter = settings?.provider === 'openrouter';
+
+        if (!sessionPromiseRef.current && !isOpenRouter) await startSession();
+        
         setChatLog(prev => [...prev, { speaker: 'user', text }]);
-        sessionPromiseRef.current?.then(session => session.sendRealtimeInput({ text: text.trim() }));
         setTextInput('');
+
+        if (isOpenRouter) {
+            try {
+                setStatus('Transmitting...');
+                // We'll use a temporary chat session object for OpenRouter compatibility
+                const mockSession: any = {
+                    messages: chatLog.map(e => ({
+                        senderEmail: e.speaker === 'user' ? 'user' : 'model',
+                        text: e.text || '',
+                        timestamp: Date.now()
+                    })).concat([{ senderEmail: 'user', text, timestamp: Date.now() }])
+                };
+                
+                const response = await aiBridgeService.generateChatSuggestions(mockSession, 'user');
+                const modelText = response[0] || "I'm processing your request.";
+                
+                setChatLog(prev => [...prev, { speaker: 'model', text: modelText }]);
+                setStatus('Active Protocol: OpenRouter');
+            } catch (error) {
+                console.error("OpenRouter chat failed:", error);
+                setStatus('Transmission Failure');
+            }
+        } else {
+            sessionPromiseRef.current?.then(session => session.sendRealtimeInput({ text: text.trim() }));
+        }
     };
 
     const sendImage = async (blob: Blob) => {
@@ -421,10 +460,10 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                 {chatLog.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center text-center opacity-90 p-4">
                         <div className="w-40 h-40 mb-4 relative rounded-full overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center border-4 border-white/20 shadow-inner">
-                            <img
+                            <CinematicImage
                                 src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
                                 alt="AI Assistant"
-                                className="w-28 h-28 object-cover animate-pulse-glow"
+                                className="w-28 h-28 animate-pulse-glow"
                             />
                         </div>
                         <h4 className="text-xl font-bold text-foreground">{t('liveAssistantWelcomeTitle')}</h4>
@@ -443,7 +482,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                             : 'bg-card/90 backdrop-blur-md border border-white/20 text-foreground rounded-bl-none shadow-sm'
                             }`}>
                             {entry.text && <p className="leading-relaxed">{entry.text}</p>}
-                            {entry.imageUrl && <img src={entry.imageUrl} alt="User upload" className="rounded-lg max-w-full h-auto mt-2 border border-white/20" />}
+                            {entry.imageUrl && <CinematicImage src={entry.imageUrl} alt="User upload" className="rounded-lg max-w-full h-auto mt-2 border border-white/20" />}
                         </div>
                     </div>
                 ))}

@@ -5,9 +5,9 @@ export type UserRole = 'owner' | 'vet' | 'shelter' | 'volunteer' | 'super_admin'
 export type View = 'home' | 'register' | 'find' | 'dashboard' | 'editPet' |
   'vetDashboard' | 'myClinic' | 'myPatients' | 'patientDetail' |
   'smartCalendar' | 'findVet' | 'linkVet' | 'community' |
-  'shelterDashboard' | 'adoptionCenter' | 'registerForAdoption' |
+  'shelterDashboard' | 'adoptionCenter' | 'lostPetsCenter' | 'registerForAdoption' |
   'donors' | 'adminDashboard' | 'pressKit' | 'volunteerDashboard' |
-  'blog' | 'blogPost' | 'blogDetail' | 'paymentSuccess';
+  'blog' | 'blogPost' | 'blogDetail' | 'paymentSuccess' | 'publicPetDetail';
 
 export interface LogEntry {
   id: string;
@@ -659,6 +659,7 @@ export interface AIUsageStats {
   blogGeneration?: number;
   totalAIRequests: number;
   lastUsed: number;
+  lastProvider?: string;
 }
 
 export const AIUsageStatsSchema = z.object({
@@ -669,7 +670,8 @@ export const AIUsageStatsSchema = z.object({
   healthAssessment: z.number().optional(),
   blogGeneration: z.number().optional(),
   totalAIRequests: z.number(),
-  lastUsed: z.number()
+  lastUsed: z.number(),
+  lastProvider: z.string().optional()
 });
 
 export interface NotificationChannelConfig {
@@ -708,4 +710,34 @@ export const NotificationConfigSchema = z.object({
     newUser: z.boolean(),
     vetVerification: z.boolean()
   })
+});
+
+export type AIProvider = 'google' | 'openrouter';
+export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching';
+
+export interface AISettings {
+  provider: AIProvider;
+  apiKeys: {
+    google?: string;
+    openrouter?: string;
+  };
+  modelMapping: Record<AIModelTask, string>;
+  lastUpdated: number;
+  updatedBy: string;
+}
+
+export const AISettingsSchema = z.object({
+  provider: z.enum(['google', 'openrouter']),
+  apiKeys: z.object({
+    google: z.string().optional(),
+    openrouter: z.string().optional()
+  }),
+  modelMapping: z.object({
+    vision: z.string(),
+    triage: z.string(),
+    chat: z.string(),
+    matching: z.string()
+  }),
+  lastUpdated: z.number(),
+  updatedBy: z.string().email()
 });

@@ -170,6 +170,8 @@ export const AIUsageTable: React.FC = () => {
 
                                                 <th className="py-3 px-2">{t('dashboard:admin.usageBlog')}</th>
 
+                                                <th className="py-3 px-2">Provider</th>
+
                                                 <th className="py-3 px-2">{t('dashboard:admin.usageTotal')}</th>
 
                                             </tr>
@@ -191,6 +193,8 @@ export const AIUsageTable: React.FC = () => {
                                                     <td className="py-4 px-2">{stat.healthAssessment || 0}</td>
 
                                                     <td className="py-4 px-2">{stat.blogGeneration || 0}</td>
+
+                                                    <td className="py-4 px-2 uppercase text-[8px]">{stat.lastProvider || 'google'}</td>
 
                                                     <td className="py-4 px-2 text-white font-black">{stat.totalAIRequests}</td>
 
