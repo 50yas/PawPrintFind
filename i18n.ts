@@ -19,7 +19,7 @@ i18n
     interpolation: {
       escapeValue: false, // React already escapes values
     },
-    ns: ['common'],
+    ns: ['common', 'auth', 'dashboard'],
     defaultNS: 'common',
     detection: {
       order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
