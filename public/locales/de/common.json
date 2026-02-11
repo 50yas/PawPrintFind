@@ -142,5 +142,104 @@
   "congratulations": "Herzlichen Glückwunsch!",
   "youUnlocked": "Sie haben eine Belohnung freigeschaltet!",
   "loadingUsers": "Benutzer werden geladen...",
-  "searchUsers": "Benutzer suchen..."
+  "searchUsers": "Benutzer suchen...",
+  "profileSettings": "Profileinstellungen",
+  "notifications": "Benachrichtigungen",
+  "myAchievements": "Meine Erfolge",
+  "finder": "Finder",
+  "owner": "Besitzer",
+  "protectedPets": "{{count}} Geschützte Haustiere",
+  "aiAutofillTitle": "KI Auto-Ausfüllen",
+  "aiAutofillDesc": "Laden Sie ein Foto hoch, um Rasse und Details zu erkennen.",
+  "aiAutofillButton": "Hochladen & Ausfüllen",
+  "aiAutofillSuccess": "✨ KI Auto-Ausfüllen erfolgreich!",
+  "aiAutofillError": "KI-Fehler! Bitte manuell ausfüllen.",
+  "unnamedOperative": "Tier ohne Namen",
+  "classified": "Klassifiziert",
+  "petProfilePhoto": "Profilfoto",
+  "behaviorPlaceholder": "z.B. Freundlich zu Menschen aber Angst vor Gewitter...",
+  "beta": {
+    "badge": "BETA",
+    "title": "Treten Sie dem Beta-Programm bei",
+    "subtitle": "Helfen Sie uns, die Zukunft der Haustiersicherheit zu gestalten",
+    "description": "Gehören Sie zu den Ersten, die KI-gestützte Haustiersicherheit erleben. Ihr Feedback formt die Plattform.",
+    "timeline": "Start Q2 2026",
+    "joinButton": "Beta Beitreten",
+    "learnMore": "Mehr Erfahren",
+    "testingPhase": "Beta-Testphase",
+    "earlyAccess": "Früher Zugang",
+    "limitedSpots": "Begrenzte Plätze verfügbar"
+  },
+  "features": {
+    "title": "Revolutionäre Haustiersicherheit",
+    "subtitle": "Modernste Technologie zum Schutz dessen, was am wichtigsten ist",
+    "aiMatching": {
+      "title": "KI-Matching",
+      "description": "Fortschrittliche biometrische Erkennung findet Ihr Haustier schneller als je zuvor"
+    },
+    "realtime": {
+      "title": "Echtzeit-Warnungen",
+      "description": "Sofortige Benachrichtigungen, wenn Ihr Haustier in der Nähe gesichtet wird"
+    },
+    "community": {
+      "title": "Community-Netzwerk",
+      "description": "Tausende Freiwillige helfen, Haustiere mit Familien zu vereinen"
+    },
+    "vetNetwork": {
+      "title": "Tierarzt-Integration",
+      "description": "Verbunden mit Tierkliniken im ganzen Land"
+    },
+    "blockchain": {
+      "title": "Sichere Digitale ID",
+      "description": "Unveränderliche Profile mit biometrischer Verifizierung"
+    },
+    "geoFencing": {
+      "title": "Intelligentes Geofencing",
+      "description": "Automatische Warnungen, wenn Ihr Haustier sichere Zonen verlässt"
+    }
+  },
+  "stats": {
+    "title": "Plattform-Wirkung",
+    "petsProtected": "Geschützte Haustiere",
+    "successfulMatches": "Erfolgreiche Matches",
+    "communityMembers": "Community-Mitglieder",
+    "vetPartners": "Tierarzt-Partner",
+    "responseTime": "Durchschn. Reaktionszeit",
+    "minutes": "Minuten",
+    "activeCities": "Aktive Städte"
+  },
+  "testimonials": {
+    "title": "Beta-Tester Geschichten",
+    "subtitle": "Echte Erfahrungen unserer Early Adopters",
+    "comingSoon": "Demnächst",
+    "placeholder": "Beta-Tester Erfahrungsberichte werden hier erscheinen, während wir Feedback während der Beta-Phase sammeln."
+  },
+  "faq": {
+    "title": "Beta-Programm FAQ",
+    "subtitle": "Alles, was Sie wissen müssen",
+    "q1": {
+      "question": "Was ist das Beta-Programm?",
+      "answer": "Unser Beta-Programm bietet frühen Zugang zur KI-gestützten Haustiersicherheitsplattform von PawPrintFind. Helfen Sie uns, Funktionen zu testen, Feedback zu geben und das Endprodukt zu formen."
+    },
+    "q2": {
+      "question": "Ist das Beta kostenlos?",
+      "answer": "Ja! Der Beta-Zugang ist völlig kostenlos. Sie erhalten alle Premium-Funktionen während des Testzeitraums ohne Kosten."
+    },
+    "q3": {
+      "question": "Wie lange dauert das Beta?",
+      "answer": "Das Beta läuft bis Q2 2026. Beta-Tester erhalten besondere Vorteile beim offiziellen Start."
+    },
+    "q4": {
+      "question": "Was passiert mit meinen Daten?",
+      "answer": "Alle Daten sind verschlüsselt und sicher. Beta-Konten gehen nahtlos zur vollständigen Plattform beim Start über."
+    },
+    "q5": {
+      "question": "Kann ich andere einladen?",
+      "answer": "Ja! Beta-Tester erhalten Empfehlungscodes, um Freunde und Familie einzuladen."
+    },
+    "q6": {
+      "question": "Was ist, wenn ich einen Fehler finde?",
+      "answer": "Melden Sie Fehler über den KI-Assistenten oder das Admin-Dashboard. Wir belohnen aktive Tester mit exklusiven Abzeichen und vorrangigem Support."
+    }
+  }
 }

@@ -142,5 +142,104 @@
   "congratulations": "Felicitări!",
   "youUnlocked": "Ai deblocat o recompensă!",
   "loadingUsers": "Se încarcă utilizatorii...",
-  "searchUsers": "Caută utilizatori..."
+  "searchUsers": "Caută utilizatori...",
+  "profileSettings": "Setări Profil",
+  "notifications": "Notificări",
+  "myAchievements": "Realizările Mele",
+  "finder": "Găsitor",
+  "owner": "Proprietar",
+  "protectedPets": "{{count}} Animale Protejate",
+  "aiAutofillTitle": "Completare Automată AI",
+  "aiAutofillDesc": "Încarcă o fotografie pentru a detecta rasa și detaliile.",
+  "aiAutofillButton": "Încarcă și Completează",
+  "aiAutofillSuccess": "✨ Completare Automată AI reușită!",
+  "aiAutofillError": "Eroare AI! Te rog completează manual.",
+  "unnamedOperative": "Animal fără nume",
+  "classified": "Clasificat",
+  "petProfilePhoto": "Fotografie Profil",
+  "behaviorPlaceholder": "ex. Prietenos cu oamenii dar se teme de tunet...",
+  "beta": {
+    "badge": "BETA",
+    "title": "Alătură-te Programului Beta",
+    "subtitle": "Ajută-ne să construim viitorul siguranței animalelor",
+    "description": "Fii printre primii care experimentează protecția animalelor cu AI. Feedback-ul tău modelează platforma.",
+    "timeline": "Lansare T2 2026",
+    "joinButton": "Alătură-te Beta",
+    "learnMore": "Află Mai Multe",
+    "testingPhase": "Faza de Testare Beta",
+    "earlyAccess": "Acces Anticipat",
+    "limitedSpots": "Locuri limitate disponibile"
+  },
+  "features": {
+    "title": "Siguranță Revoluționară pentru Animale",
+    "subtitle": "Tehnologie de vârf pentru a proteja ce contează cel mai mult",
+    "aiMatching": {
+      "title": "Potrivire cu AI",
+      "description": "Recunoaștere biometrică avansată găsește animalul tău mai repede ca niciodată"
+    },
+    "realtime": {
+      "title": "Alerte în Timp Real",
+      "description": "Notificări instantanee când animalul tău este văzut în apropiere"
+    },
+    "community": {
+      "title": "Rețea Comunitară",
+      "description": "Mii de voluntari ajută la reunirea animalelor cu familiile"
+    },
+    "vetNetwork": {
+      "title": "Integrare Veterinară",
+      "description": "Conectat cu clinici veterinare la nivel național"
+    },
+    "blockchain": {
+      "title": "ID Digital Securizat",
+      "description": "Profile imuabile cu verificare biometrică"
+    },
+    "geoFencing": {
+      "title": "Geocercetare Inteligentă",
+      "description": "Alerte automate când animalul tău părăsește zonele sigure"
+    }
+  },
+  "stats": {
+    "title": "Impact Platformă",
+    "petsProtected": "Animale Protejate",
+    "successfulMatches": "Potriviri Reușite",
+    "communityMembers": "Membri Comunitate",
+    "vetPartners": "Parteneri Veterinari",
+    "responseTime": "Timp Mediu de Răspuns",
+    "minutes": "minute",
+    "activeCities": "Orașe Active"
+  },
+  "testimonials": {
+    "title": "Povești Beta Testeri",
+    "subtitle": "Experiențe reale de la primii adoptatori",
+    "comingSoon": "În Curând",
+    "placeholder": "Mărturiile beta testerilor vor apărea aici pe măsură ce colectăm feedback în timpul fazei beta."
+  },
+  "faq": {
+    "title": "Întrebări Frecvente Program Beta",
+    "subtitle": "Tot ce trebuie să știi",
+    "q1": {
+      "question": "Ce este programul beta?",
+      "answer": "Programul nostru beta oferă acces anticipat la platforma de siguranță pentru animale cu AI a PawPrintFind. Ajută-ne să testăm funcționalități, să oferim feedback și să modelăm produsul final."
+    },
+    "q2": {
+      "question": "Este beta-ul gratuit?",
+      "answer": "Da! Accesul beta este complet gratuit. Vei primi toate funcționalitățile premium fără cost în timpul perioadei de testare."
+    },
+    "q3": {
+      "question": "Cât durează beta-ul?",
+      "answer": "Beta-ul rulează până în T2 2026. Beta testerii vor primi beneficii speciale când vom lansa oficial."
+    },
+    "q4": {
+      "question": "Ce se întâmplă cu datele mele?",
+      "answer": "Toate datele sunt criptate și securizate. Conturile beta fac tranziția fără probleme către platforma completă la lansare."
+    },
+    "q5": {
+      "question": "Pot invita și alții?",
+      "answer": "Da! Beta testerii vor primi coduri de recomandare pentru a invita prieteni și familie."
+    },
+    "q6": {
+      "question": "Ce se întâmplă dacă găsesc un bug?",
+      "answer": "Raportează bug-uri prin Asistentul AI sau panoul de administrare. Recompensăm testerii activi cu insigne exclusive și suport prioritar."
+    }
+  }
 }

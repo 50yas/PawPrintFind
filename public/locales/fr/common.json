@@ -142,5 +142,104 @@
   "congratulations": "Félicitations!",
   "youUnlocked": "Vous avez débloqué une récompense!",
   "loadingUsers": "Chargement des utilisateurs...",
-  "searchUsers": "Rechercher des utilisateurs..."
+  "searchUsers": "Rechercher des utilisateurs...",
+  "profileSettings": "Paramètres du Profil",
+  "notifications": "Notifications",
+  "myAchievements": "Mes Réalisations",
+  "finder": "Trouveur",
+  "owner": "Propriétaire",
+  "protectedPets": "{{count}} Animaux Protégés",
+  "aiAutofillTitle": "Remplissage Auto IA",
+  "aiAutofillDesc": "Chargez une photo pour détecter la race et les détails.",
+  "aiAutofillButton": "Charger et Remplir",
+  "aiAutofillSuccess": "✨ Remplissage Auto IA réussi!",
+  "aiAutofillError": "Erreur IA! Veuillez remplir manuellement.",
+  "unnamedOperative": "Animal sans nom",
+  "classified": "Classifié",
+  "petProfilePhoto": "Photo de Profil",
+  "behaviorPlaceholder": "ex. Amical avec les gens mais peur du tonnerre...",
+  "beta": {
+    "badge": "BETA",
+    "title": "Rejoignez le Programme Beta",
+    "subtitle": "Aidez-nous à construire l'avenir de la sécurité des animaux",
+    "description": "Soyez parmi les premiers à découvrir la protection des animaux par IA. Vos commentaires façonnent la plateforme.",
+    "timeline": "Lancement Q2 2026",
+    "joinButton": "Rejoindre le Beta",
+    "learnMore": "En Savoir Plus",
+    "testingPhase": "Phase de Test Beta",
+    "earlyAccess": "Accès Anticipé",
+    "limitedSpots": "Places limitées disponibles"
+  },
+  "features": {
+    "title": "Sécurité Révolutionnaire pour Animaux",
+    "subtitle": "Technologie de pointe pour protéger ce qui compte le plus",
+    "aiMatching": {
+      "title": "Correspondance IA",
+      "description": "Reconnaissance biométrique avancée trouve votre animal plus rapidement que jamais"
+    },
+    "realtime": {
+      "title": "Alertes en Temps Réel",
+      "description": "Notifications instantanées lorsque votre animal est aperçu à proximité"
+    },
+    "community": {
+      "title": "Réseau Communautaire",
+      "description": "Des milliers de bénévoles aidant à réunir animaux et familles"
+    },
+    "vetNetwork": {
+      "title": "Intégration Vétérinaire",
+      "description": "Connecté avec des cliniques vétérinaires dans tout le pays"
+    },
+    "blockchain": {
+      "title": "ID Numérique Sécurisé",
+      "description": "Profils immuables avec vérification biométrique"
+    },
+    "geoFencing": {
+      "title": "Géo-clôture Intelligente",
+      "description": "Alertes automatiques lorsque votre animal quitte les zones sûres"
+    }
+  },
+  "stats": {
+    "title": "Impact de la Plateforme",
+    "petsProtected": "Animaux Protégés",
+    "successfulMatches": "Correspondances Réussies",
+    "communityMembers": "Membres de la Communauté",
+    "vetPartners": "Partenaires Vétérinaires",
+    "responseTime": "Temps de Réponse Moyen",
+    "minutes": "minutes",
+    "activeCities": "Villes Actives"
+  },
+  "testimonials": {
+    "title": "Histoires des Beta Testeurs",
+    "subtitle": "Expériences réelles de nos premiers utilisateurs",
+    "comingSoon": "Bientôt Disponible",
+    "placeholder": "Les témoignages des beta testeurs apparaîtront ici pendant que nous recueillons des commentaires durant la phase beta."
+  },
+  "faq": {
+    "title": "FAQ du Programme Beta",
+    "subtitle": "Tout ce que vous devez savoir",
+    "q1": {
+      "question": "Qu'est-ce que le programme beta?",
+      "answer": "Notre programme beta offre un accès anticipé à la plateforme de sécurité pour animaux basée sur l'IA de PawPrintFind. Aidez-nous à tester les fonctionnalités, fournir des commentaires et façonner le produit final."
+    },
+    "q2": {
+      "question": "Le beta est-il gratuit?",
+      "answer": "Oui! L'accès beta est entièrement gratuit. Vous obtiendrez toutes les fonctionnalités premium sans frais pendant la période de test."
+    },
+    "q3": {
+      "question": "Combien de temps dure le beta?",
+      "answer": "Le beta se poursuit jusqu'au Q2 2026. Les beta testeurs recevront des avantages spéciaux lors du lancement officiel."
+    },
+    "q4": {
+      "question": "Qu'advient-il de mes données?",
+      "answer": "Toutes les données sont cryptées et sécurisées. Les comptes beta passent de manière transparente à la plateforme complète lors du lancement."
+    },
+    "q5": {
+      "question": "Puis-je inviter d'autres personnes?",
+      "answer": "Oui! Les beta testeurs recevront des codes de parrainage pour inviter amis et famille."
+    },
+    "q6": {
+      "question": "Que faire si je trouve un bug?",
+      "answer": "Signalez les bugs via l'Assistant IA ou le tableau de bord admin. Nous récompensons les testeurs actifs avec des badges exclusifs et un support prioritaire."
+    }
+  }
 }

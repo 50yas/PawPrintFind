@@ -157,5 +157,104 @@
   "congratulations": "Congratulazioni!",
   "youUnlocked": "Hai sbloccato un premio!",
   "loadingUsers": "Caricamento utenti...",
-  "searchUsers": "Cerca utenti..."
+  "searchUsers": "Cerca utenti...",
+  "profileSettings": "Impostazioni Profilo",
+  "notifications": "Notifiche",
+  "myAchievements": "I Miei Traguardi",
+  "finder": "Soccorritore",
+  "owner": "Proprietario",
+  "protectedPets": "{{count}} Animali Protetti",
+  "aiAutofillTitle": "Auto-completamento AI",
+  "aiAutofillDesc": "Carica una foto per rilevare razza e dettagli.",
+  "aiAutofillButton": "Carica e Compila",
+  "aiAutofillSuccess": "✨ Auto-completamento AI riuscito!",
+  "aiAutofillError": "Errore AI! Compila manualmente.",
+  "unnamedOperative": "Animale senza nome",
+  "classified": "Riservato",
+  "petProfilePhoto": "Foto Profilo",
+  "behaviorPlaceholder": "es. Amichevole con le persone ma ha paura dei tuoni...",
+  "beta": {
+    "badge": "BETA",
+    "title": "Unisciti al Programma Beta",
+    "subtitle": "Aiutaci a costruire il futuro della sicurezza degli animali",
+    "description": "Sii tra i primi a sperimentare la protezione degli animali basata su AI. Il tuo feedback plasma la piattaforma.",
+    "timeline": "Lancio Q2 2026",
+    "joinButton": "Unisciti al Beta",
+    "learnMore": "Scopri di Più",
+    "testingPhase": "Fase di Test Beta",
+    "earlyAccess": "Accesso Anticipato",
+    "limitedSpots": "Posti limitati disponibili"
+  },
+  "features": {
+    "title": "Sicurezza Rivoluzionaria per Animali",
+    "subtitle": "Tecnologia all'avanguardia per proteggere ciò che conta di più",
+    "aiMatching": {
+      "title": "Matching AI",
+      "description": "Riconoscimento biometrico avanzato trova il tuo animale più velocemente che mai"
+    },
+    "realtime": {
+      "title": "Avvisi in Tempo Reale",
+      "description": "Notifiche istantanee quando il tuo animale viene avvistato nelle vicinanze"
+    },
+    "community": {
+      "title": "Rete Comunitaria",
+      "description": "Migliaia di volontari aiutano a riunire animali e famiglie"
+    },
+    "vetNetwork": {
+      "title": "Integrazione Veterinaria",
+      "description": "Connessi con cliniche veterinarie in tutta la nazione"
+    },
+    "blockchain": {
+      "title": "ID Digitale Sicuro",
+      "description": "Profili immutabili con verifica biometrica"
+    },
+    "geoFencing": {
+      "title": "Geofencing Intelligente",
+      "description": "Avvisi automatici quando il tuo animale lascia le zone sicure"
+    }
+  },
+  "stats": {
+    "title": "Impatto della Piattaforma",
+    "petsProtected": "Animali Protetti",
+    "successfulMatches": "Match Riusciti",
+    "communityMembers": "Membri della Community",
+    "vetPartners": "Partner Veterinari",
+    "responseTime": "Tempo di Risposta Medio",
+    "minutes": "minuti",
+    "activeCities": "Città Attive"
+  },
+  "testimonials": {
+    "title": "Storie dei Beta Tester",
+    "subtitle": "Esperienze reali dei nostri early adopter",
+    "comingSoon": "Prossimamente",
+    "placeholder": "Le testimonianze dei beta tester appariranno qui mentre raccogliamo feedback durante la fase beta."
+  },
+  "faq": {
+    "title": "FAQ Programma Beta",
+    "subtitle": "Tutto quello che devi sapere",
+    "q1": {
+      "question": "Cos'è il programma beta?",
+      "answer": "Il nostro programma beta offre accesso anticipato alla piattaforma di sicurezza per animali basata su AI di PawPrintFind. Aiutaci a testare le funzionalità, fornire feedback e plasmare il prodotto finale."
+    },
+    "q2": {
+      "question": "Il beta è gratuito?",
+      "answer": "Sì! L'accesso beta è completamente gratuito. Avrai tutte le funzionalità premium senza costi durante il periodo di test."
+    },
+    "q3": {
+      "question": "Quanto dura il beta?",
+      "answer": "Il beta dura fino al Q2 2026. I beta tester riceveranno vantaggi speciali quando lanceremo ufficialmente."
+    },
+    "q4": {
+      "question": "Cosa succede ai miei dati?",
+      "answer": "Tutti i dati sono criptati e sicuri. Gli account beta passano senza problemi alla piattaforma completa al lancio."
+    },
+    "q5": {
+      "question": "Posso invitare altri?",
+      "answer": "Sì! I beta tester riceveranno codici di invito per amici e familiari."
+    },
+    "q6": {
+      "question": "Cosa succede se trovo un bug?",
+      "answer": "Segnala i bug tramite l'Assistente AI o la dashboard admin. Premiamo i tester attivi con badge esclusivi e supporto prioritario."
+    }
+  }
 }

@@ -6,6 +6,7 @@ import { View, UserRole, User } from '../types';
 import { Modal } from './Modal';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
+import { useVersion } from './VersionDisplay';
 
 interface FooterProps {
     setView?: (view: View) => void;
@@ -28,6 +29,7 @@ const SocialLink: React.FC<{ href: string; icon: React.ReactNode; label: string;
 export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
+    const version = useVersion();
     
     // Admin Modal State
     const [showAdminModal, setShowAdminModal] = useState(false);
@@ -164,8 +166,12 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                 </div>
 
                 <div className="mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400/60">
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-4 items-center flex-wrap justify-center md:justify-start">
                         <p>&copy; {new Date().getFullYear()} Paw Print Open Source.</p>
+                        <span className="hidden md:inline text-slate-600">•</span>
+                        <p className="font-mono text-[10px] text-slate-500 hover:text-primary transition-colors cursor-default">
+                            {version.version} <span className="text-slate-600">Build #{version.buildNumber}</span>
+                        </p>
                         <button 
                             onClick={() => {
                                 if (currentUser?.activeRole === 'super_admin' && setView) {

@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 15,
-  "buildTimestamp": "2026-02-11T20:00:00.000Z",
-  "commitHash": "fdfc2bd",
-  "commitMessage": "feat: Phase 1 - Social Media Management Foundation",
+  "buildNumber": 16,
+  "buildTimestamp": "2026-02-11T21:00:00.000Z",
+  "commitHash": "a78808f",
+  "commitMessage": "fix: Complete translations and add version to footer",
   "commitDate": "2026-02-11",
   "isProduction": false,
   "environment": "development"
