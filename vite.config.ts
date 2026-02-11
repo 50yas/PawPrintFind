@@ -186,13 +186,13 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
               return 'i18n-vendor';
             }
-            // Split Three.js and related 3D libraries
+            // Split Three.js and related 3D libraries (heavy, lazy-loaded)
             if (id.includes('node_modules/three') ||
                 id.includes('node_modules/@react-three') ||
                 id.includes('node_modules/maath')) {
               return 'three-vendor';
             }
-            // Split Leaflet maps
+            // Split Leaflet maps (lazy-loaded)
             if (id.includes('node_modules/leaflet')) {
               return 'leaflet-vendor';
             }
@@ -219,8 +219,15 @@ export default defineConfig(({ mode }) => {
       minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: true,
+          drop_console: mode === 'production',
           drop_debugger: true,
+          pure_funcs: mode === 'production' ? ['console.log', 'console.debug'] : [],
+        },
+        mangle: {
+          safari10: true,
+        },
+        format: {
+          comments: false,
         },
       },
     },

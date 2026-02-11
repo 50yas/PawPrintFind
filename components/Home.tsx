@@ -7,6 +7,7 @@ import { dbService } from '../services/firebase';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { LoadingSpinner } from './LoadingSpinner';
 import { MapSidebarSkeleton, CardSkeleton } from './ui/SkeletonLoader';
+import { optimizeUnsplashUrl, generateSrcSet, generateSizes } from '../src/utils/imageOptimizer';
 
 const MissingPetsMap = lazy(() => import('./MissingPetsMap').then(m => ({ default: m.MissingPetsMap })));
 const DonorTicker = lazy(() => import('./DonorTicker').then(m => ({ default: m.DonorTicker })));
@@ -146,13 +147,28 @@ const HeroScanner = memo(({ lostPets, onViewPet }: { lostPets: PetProfile[], onV
     const pet = scanPool[currentIndex];
     const isTransitioning = phase === 'transition';
 
+    // Optimize image URLs
+    const fallbackUrl = "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80";
+    const imageUrl = pet.photos[0]?.url || fallbackUrl;
+    const optimizedUrl = optimizeUnsplashUrl(imageUrl, { width: 600, quality: 80 });
+    const srcSet = generateSrcSet(imageUrl, [300, 600, 900]);
+    const sizes = generateSizes('600px');
+
     return (
-        <div 
+        <div
             className="relative w-full max-w-xs md:max-w-sm aspect-square mx-auto lg:mx-0 z-20 cursor-pointer active:scale-95 transition-transform"
             onPointerDown={() => onViewPet?.(pet)}
         >
             <div className={`relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-900 border-[4px] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-700 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-                <CinematicImage src={pet.photos[0]?.url || "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80"} alt={pet.name} className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]" />
+                <CinematicImage
+                    src={optimizedUrl}
+                    srcset={srcSet}
+                    sizes={sizes}
+                    alt={pet.name}
+                    className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]"
+                    priority={currentIndex === 0}
+                    fetchPriority={currentIndex === 0 ? "high" : "low"}
+                />
 
                 <div className="absolute top-4 start-4 z-20">
                     <div className={`px-2 py-1 text-[8px] md:text-[9px] font-mono-tech rounded-md bg-black/70 backdrop-blur-md border border-white/20 text-cyan-400 tracking-[0.2em] shadow-lg ${phase === 'scanning' ? 'animate-pulse' : ''}`}>
@@ -189,10 +205,41 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
     const { t } = useTranslations();
     useScrollAnimation();
     const [donations, setDonations] = useState<Donation[]>([]);
+    const [shouldLoadHeavyContent, setShouldLoadHeavyContent] = useState(false);
+    const featuresRef = useRef<HTMLElement>(null);
 
+    // Defer donations subscription until needed
     useEffect(() => {
+        if (!shouldLoadHeavyContent) return;
         const unsub = dbService.subscribeToDonations(setDonations);
         return () => unsub();
+    }, [shouldLoadHeavyContent]);
+
+    // Use Intersection Observer to defer below-the-fold content
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setShouldLoadHeavyContent(true);
+                        observer.disconnect();
+                    }
+                });
+            },
+            { rootMargin: '400px' } // Start loading 400px before visible
+        );
+
+        if (featuresRef.current) {
+            observer.observe(featuresRef.current);
+        }
+
+        // Fallback: Load after 2 seconds if user doesn't scroll
+        const fallbackTimer = setTimeout(() => setShouldLoadHeavyContent(true), 2000);
+
+        return () => {
+            observer.disconnect();
+            clearTimeout(fallbackTimer);
+        };
     }, []);
 
     const handleNavigate = (view: View) => {
@@ -391,7 +438,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             </section>
 
             {/* Features Showcase */}
-            <section id="features" className="scroll-animation relative z-10 py-16 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
+            <section ref={featuresRef} id="features" className="scroll-animation relative z-10 py-16 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16 md:mb-20">
                         <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">
@@ -528,7 +575,8 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                 </div>
             </section>
 
-            {/* Italian Explainer Video - Ecosystem */}
+            {/* Italian Explainer Video - Ecosystem - Only load if heavy content is ready */}
+            {shouldLoadHeavyContent && (
             <section className="scroll-animation relative z-10 py-10 md:py-20 container mx-auto px-6">
                 <div className="glass-panel p-4 rounded-[2rem] border border-cyan-500/30 bg-black/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
                     <div className="text-center mb-8">
@@ -543,10 +591,10 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                             ref={videoRef}
                             className="w-full h-full object-cover"
                             muted={isMuted}
-                            autoPlay
                             playsInline
                             loop
-                            preload="auto"
+                            preload="none"
+                            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23000000' width='1920' height='1080'/%3E%3C/svg%3E"
                             onClick={() => setIsMuted(!isMuted)} // Allow clicking video to toggle sound
                         >
                             <source src="/IT.mp4" type="video/mp4" />
@@ -586,7 +634,10 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                     </div>
                 </div>
             </section>
+            )}
 
+            {/* Missing Pets Map - Defer until heavy content is ready */}
+            {shouldLoadHeavyContent && (
             <section id="missing-pets-map" className="scroll-animation container mx-auto px-6 relative z-10 py-12 md:py-32">
                 <div className="text-center mb-12 md:mb-16">
                     <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">{t('missingPetsMapTitle')}</h2>
@@ -600,7 +651,10 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                     </div>
                 </div>
             </section>
+            )}
 
+            {/* Vet Section - Defer until heavy content is ready */}
+            {shouldLoadHeavyContent && (
             <section className="scroll-animation container mx-auto px-6 py-12 md:py-32 z-10">
                 <div className="glass-panel rounded-[2rem] md:rounded-[3rem] p-8 md:p-16 relative overflow-hidden border border-emerald-500/20 bg-emerald-950/20 backdrop-blur-3xl shadow-2xl">
                     <div className="absolute top-0 end-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-emerald-500/10 rounded-full blur-[80px] md:blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -617,16 +671,26 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         </div>
                         <div className="hidden md:block">
                             <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-2xl">
-                                <CinematicImage src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80" alt="Veterinarian" className="w-full h-full object-cover grayscale-[0.2] brightness-90 hover:grayscale-0 transition-all duration-1000" />
+                                <CinematicImage
+                                    src={optimizeUnsplashUrl("https://images.unsplash.com/photo-1576091160550-2173dba999ef", { width: 800, quality: 75 })}
+                                    srcset={generateSrcSet("https://images.unsplash.com/photo-1576091160550-2173dba999ef", [400, 800])}
+                                    sizes="(max-width: 768px) 0px, 400px"
+                                    alt="Veterinarian"
+                                    className="w-full h-full object-cover grayscale-[0.2] brightness-90 hover:grayscale-0 transition-all duration-1000"
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+            )}
 
+            {/* Donor Ticker - Defer until heavy content is ready */}
+            {shouldLoadHeavyContent && (
             <Suspense fallback={<div className="h-20 bg-white/5 animate-pulse" />}>
                 <DonorTicker onViewAll={() => setView('donors')} donations={donations} />
             </Suspense>
+            )}
 
             {/* FAQ Section */}
             <section className="scroll-animation relative z-10 py-16 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">

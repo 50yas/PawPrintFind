@@ -179,10 +179,12 @@ export default function App() {
 
     const [isAdminBrowsing, setIsAdminBrowsing] = useState(false);
 
-    // Optimize initial load - shorter splash, faster to interactive
+    // Optimize initial load - minimal splash for faster LCP
     useEffect(() => {
-        setTimeout(() => setShowSplash(false), 1500);
-    }, []);
+        // Only show splash if data is actually loading, hide as soon as possible
+        const timer = setTimeout(() => setShowSplash(false), isLoading ? 1000 : 500);
+        return () => clearTimeout(timer);
+    }, [isLoading]);
 
     useEffect(() => {
         const handler = () => setIsLoginModalOpen(true);
@@ -285,11 +287,16 @@ export default function App() {
             </Suspense>
 
             <ErrorBoundary>
-                <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}>
-                    <Suspense fallback={<div className="w-full h-full bg-background" />}>
-                        <BiometricBackground />
-                    </Suspense>
-                </div>
+                {/* Only load Three.js background on home view for performance */}
+                {currentView === 'home' ? (
+                    <div className="fixed inset-0 z-0 transition-all duration-1000 opacity-100">
+                        <Suspense fallback={<div className="w-full h-full bg-background bg-gradient-radial from-cyan-950/20 via-background to-background" />}>
+                            <BiometricBackground />
+                        </Suspense>
+                    </div>
+                ) : (
+                    <div className="fixed inset-0 z-0 bg-gradient-radial from-cyan-950/20 via-background to-background opacity-40 blur-sm" />
+                )}
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
