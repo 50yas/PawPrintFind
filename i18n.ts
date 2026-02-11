@@ -9,7 +9,20 @@ import enAuth from './public/locales/en/auth.json';
 import enDashboard from './public/locales/en/dashboard.json';
 import enCommon from './public/locales/en/common.json';
 
-// Only load English by default for initial bundle size optimization
+// Detect language BEFORE initialization
+const detector = new LanguageDetector();
+detector.init({
+  order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+  caches: ['localStorage', 'cookie'],
+});
+const detectedLanguage = detector.detect()?.[0]?.split('-')[0] || 'en';
+
+// Preload detected language resources synchronously
+const preloadLanguages = ['en'];
+if (detectedLanguage !== 'en' && ['it', 'es', 'fr', 'de', 'zh', 'ar', 'ro'].includes(detectedLanguage)) {
+  preloadLanguages.push(detectedLanguage);
+}
+
 i18n
   .use(HttpBackend)
   .use(LanguageDetector)
@@ -40,7 +53,7 @@ i18n
     },
     // Load languages on demand
     load: 'languageOnly',
-    preload: ['en'], // Only preload English
+    preload: preloadLanguages,
   });
 
 // Lazy load language when switching
@@ -94,5 +107,14 @@ export const loadLanguage = async (lng: string) => {
 i18n.on('languageChanged', (lng) => {
   loadLanguage(lng);
 });
+
+// Initialize detected language on startup (before app renders)
+export const initializeLanguage = async () => {
+  const currentLang = i18n.language?.split('-')[0] || 'en';
+  if (currentLang !== 'en') {
+    await loadLanguage(currentLang);
+  }
+  return i18n;
+};
 
 export default i18n;

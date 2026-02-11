@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 13,
-  "buildTimestamp": "2026-02-11T18:30:00.000Z",
-  "commitHash": "9ada502",
-  "commitMessage": "perf: Comprehensive Web Vitals optimization (LCP <2500ms target)",
+  "buildNumber": 14,
+  "buildTimestamp": "2026-02-11T19:00:00.000Z",
+  "commitHash": "da2011e",
+  "commitMessage": "fix: Resolve i18n loading and app restart issues",
   "commitDate": "2026-02-11",
   "isProduction": false,
   "environment": "development"

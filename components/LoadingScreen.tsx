@@ -40,7 +40,7 @@ export const LoadingScreen: React.FC = () => {
           clearInterval(pulseInterval);
           clearTimeout(logoTimer);
       };
-  }, []);
+  }, [bootSequence]);
 
   const progress = Math.round((bootLine / (bootSequence.length - 1)) * 100);
 

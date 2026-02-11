@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import './i18n';
+import i18n, { initializeLanguage } from './i18n';
 import * as Sentry from "@sentry/react";
 import App from './App';
 import './index.css';
@@ -50,14 +50,39 @@ console.error = (...args) => {
 };
 // -----------------------
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+// I18n Loader Component - waits for i18n initialization before rendering app
+const I18nLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [i18nReady, setI18nReady] = useState(false);
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
+  useEffect(() => {
+    // Initialize i18n and load detected language before rendering
+    initializeLanguage().then(() => {
+      setI18nReady(true);
+    }).catch((error) => {
+      console.error('Failed to initialize i18n:', error);
+      // Even if it fails, render the app with fallback language
+      setI18nReady(true);
+    });
+  }, []);
+
+  // Show minimal loading state while i18n initializes
+  if (!i18nReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-background-secondary">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
+// Conditionally wrap in StrictMode (dev only)
+const AppContent = (
+  <I18nLoader>
     <LanguageProvider>
       <ThemeProvider>
         <SnackbarProvider>
@@ -67,5 +92,19 @@ root.render(
         </SnackbarProvider>
       </ThemeProvider>
     </LanguageProvider>
-  </React.StrictMode>
+  </I18nLoader>
+);
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  import.meta.env.DEV ? (
+    <React.StrictMode>{AppContent}</React.StrictMode>
+  ) : (
+    AppContent
+  )
 );
