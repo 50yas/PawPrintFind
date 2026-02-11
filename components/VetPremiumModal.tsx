@@ -36,13 +36,13 @@ export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClos
                 <div className="text-center">
                     <div className="text-5xl mb-4">🦁</div>
                     <h3 className="text-2xl font-black text-primary">Unlock Professional Tools</h3>
-                    <p className="text-muted-foreground mt-2">Manage your clinic efficiently with AI-powered insights.</p>
+                    <p className="text-slate-400 mt-2">Manage your clinic efficiently with AI-powered insights.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl border border-border bg-muted/20 opacity-70">
+                    <div className="p-4 rounded-xl border border-white/10 bg-white/5 opacity-70">
                         <h4 className="font-bold text-lg mb-2">Free Plan</h4>
-                        <ul className="text-sm space-y-2 text-muted-foreground">
+                        <ul className="text-sm space-y-2 text-slate-400">
                             <li>✓ Basic Patient Records (Max 5)</li>
                             <li>✓ Manual Appointments</li>
                             <li>✓ Community Visibility</li>
@@ -57,7 +57,7 @@ export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClos
                             <li>✓ Smart Calendar & Reminders</li>
                             <li>✓ Priority Support</li>
                         </ul>
-                        <div className="mt-4 text-xl font-black">€18.00 <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
+                        <div className="mt-4 text-xl font-black">€18.00 <span className="text-sm font-normal text-slate-400">/ month</span></div>
                     </div>
                 </div>
 
@@ -69,7 +69,7 @@ export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClos
                     >
                         {isLoading ? <LoadingSpinner /> : 'Upgrade Now'}
                     </button>
-                    <p className="text-[10px] text-center text-muted-foreground mt-3">Secured by Stripe SSL. Cancel anytime.</p>
+                    <p className="text-[10px] text-center text-slate-400 mt-3">Secured by Stripe SSL. Cancel anytime.</p>
                 </div>
             </div>
         </Modal>

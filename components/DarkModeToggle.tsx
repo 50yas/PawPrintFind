@@ -16,7 +16,7 @@ const DarkModeToggle: React.FC = () => {
   return (
     <button
       onClick={handleToggle}
-      className="relative p-2.5 rounded-xl bg-card/50 hover:bg-card border border-border text-foreground transition-all duration-300 active:scale-95 group overflow-hidden shadow-sm"
+      className="relative p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all duration-300 active:scale-95 group overflow-hidden shadow-sm"
       aria-label={t('theme')}
       title={`${t('theme')}: ${theme}`}
     >

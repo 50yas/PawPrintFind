@@ -42,25 +42,27 @@ const QRCodeModal: React.FC<{ pet: PetProfile; onClose: () => void }> = ({ pet, 
     return (
         <Modal isOpen={true} onClose={onClose} title={t('petTagTitle')}>
             <div className="flex flex-col items-center">
-                <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 text-center mb-4 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-primary"></div>
-                    <div className="w-16 h-16 bg-muted rounded-full mx-auto mb-2 overflow-hidden border-2 border-primary">
+                <div className="bg-slate-900/80 backdrop-blur-xl p-6 rounded-2xl border border-white/10 text-center mb-4 relative overflow-hidden neon-border">
+                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                    <div className="w-16 h-16 bg-slate-800 rounded-full mx-auto mb-3 overflow-hidden border-2 border-primary/50 neon-glow-teal">
                         <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover"/>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800">{pet.name}</h3>
-                    <p className="text-xs text-gray-500 mb-4">{t('scanToViewProfile')}</p>
-                    <img src={qrImageUrl} alt="QR Code" className="w-40 h-40 mx-auto" loading="lazy" decoding="async" />
-                    <p className="text-[10px] text-gray-400 mt-2 font-mono">ID: {pet.aiIdentityCode || pet.id.substring(0, 8)}</p>
+                    <h3 className="text-xl font-bold text-white">{pet.name}</h3>
+                    <p className="text-xs text-slate-400 mb-4 font-mono uppercase tracking-wider">{t('scanToViewProfile')}</p>
+                    <div className="bg-white p-3 rounded-xl mx-auto w-fit">
+                        <img src={qrImageUrl} alt="QR Code" className="w-40 h-40" loading="lazy" decoding="async" />
+                    </div>
+                    <p className="text-[10px] text-primary/60 mt-3 font-mono tracking-widest">ID: {pet.aiIdentityCode || pet.id.substring(0, 8)}</p>
                 </div>
-                <div className="flex gap-2 w-full">
-                    <button onClick={onClose} className="flex-1 btn btn-secondary">{t('closeButton')}</button>
-                    <button className="flex-1 btn btn-primary" onClick={() => window.print()}>{t('printButton')}</button>
+                <div className="flex gap-3 w-full">
+                    <button onClick={onClose} className="flex-1 glass-btn text-sm">{t('closeButton')}</button>
+                    <button className="flex-1 btn btn-primary rounded-xl" onClick={() => window.print()}>{t('printButton')}</button>
                 </div>
-                <button 
+                <button
                     onClick={() => window.open('https://pawprint.ai/shop/nfc-tags', '_blank')}
-                    className="mt-3 w-full text-xs font-bold text-primary hover:underline flex items-center justify-center gap-1"
+                    className="mt-4 w-full text-xs font-bold text-primary hover:text-white transition-colors flex items-center justify-center gap-2 py-3 rounded-xl border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg>
                     {t('orderSafePawTag')}
                 </button>
             </div>
@@ -211,11 +213,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
         </div>
       </GlassCard>
 
+      {/* Cyber Divider */}
+      <div className="cyber-divider"></div>
+
       {/* My Achievements */}
       <div className="animate-fade-in">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 bg-yellow-400 rounded-full shadow-[0_0_8px_#fbbf24]"></span>
-            {t('myAchievements')}
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+            <span className="status-pulse-amber"></span>
+            <span className="tracking-tight">{t('myAchievements')}</span>
+            <span className="flex-1 h-px bg-gradient-to-r from-amber-500/20 to-transparent"></span>
           </h2>
           <BadgeDisplay badges={user.badges} />
       </div>
@@ -229,9 +235,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
 
       {myChats.length > 0 && (
           <div className="animate-fade-in">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_var(--md-sys-color-primary)]"></span>
-                  {t('messagesTitle')}
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="status-pulse-green"></span>
+                  <span className="tracking-tight">{t('messagesTitle')}</span>
+                  <span className="flex-1 h-px bg-gradient-to-r from-green-500/20 to-transparent"></span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {myChats.map(chat => (
@@ -256,9 +263,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
 
       {/* My Pets Grid */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-white drop-shadow-md flex items-center gap-2">
-            {t('dashboardTitle')}
-            <span className="text-sm font-normal text-slate-300 bg-white/10 px-2 py-1 rounded-full border border-white/10">{userPets.length}</span>
+        <h2 className="text-2xl font-bold text-white drop-shadow-md flex items-center gap-3">
+            <span className="status-pulse-green"></span>
+            <span className="tracking-tight">{t('dashboardTitle')}</span>
+            <span className="text-sm font-normal text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 font-mono">{userPets.length}</span>
+            <span className="flex-1 h-px bg-gradient-to-r from-primary/20 to-transparent"></span>
         </h2>
         
         {userPets.length > 0 ? (
@@ -296,15 +305,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                </GlassCard>
           </div>
         ) : (
-          <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border flex flex-col items-center justify-center">
-              <div className="w-24 h-24 bg-card rounded-full flex items-center justify-center mb-6 shadow-md">
-                  <span className="text-4xl">🐾</span>
+          <div className="text-center py-20 bg-white/5 backdrop-blur-xl rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center hud-grid-bg relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+              <div className="relative z-10 flex flex-col items-center">
+                  <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-white/10 neon-glow-teal">
+                      <span className="text-4xl">🐾</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">{t('noImpronte')}</h3>
+                  <p className="text-slate-400 mt-2 mb-8 max-w-md">{t('noImpronteDesc')}</p>
+                  <button onClick={onRegisterNew} className="btn btn-primary px-8 py-3 text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform rounded-xl neon-glow-teal-strong">
+                      {t('addNewImprontaButton')}
+                  </button>
               </div>
-              <h3 className="text-2xl font-bold text-foreground">{t('noImpronte')}</h3>
-              <p className="text-muted-foreground mt-2 mb-8 max-w-md">{t('noImpronteDesc')}</p>
-              <button onClick={onRegisterNew} className="btn btn-primary px-8 py-3 text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-                  {t('addNewImprontaButton')}
-              </button>
           </div>
         )}
       </div>

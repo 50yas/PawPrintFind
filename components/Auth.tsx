@@ -299,27 +299,29 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 <label className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] block text-left">{t('labels.securityProtocol')}</label>
                                 <span className="text-[7px] sm:text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">{t('labels.verified')}</span>
                             </div>
-                            <div className="grid grid-cols-4 sm:grid-cols-2 gap-2 sm:gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3" role="radiogroup" aria-label={t('labels.securityProtocol')}>
                                 {roles.map(role => (
                                     <button
                                         key={role.id}
                                         type="button"
+                                        role="radio"
+                                        aria-checked={selectedRole === role.id}
                                         onClick={() => setSelectedRole(role.id)}
-                                        className={`group relative flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-4 p-2 sm:p-4 rounded-lg sm:rounded-2xl transition-all duration-300 border overflow-hidden ${selectedRole === role.id
-                                            ? 'bg-primary/20 border-primary shadow-[0_0_15px_rgba(34,211,238,0.2)]'
+                                        className={`group relative flex flex-row items-center justify-start gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all duration-300 border overflow-hidden scan-hover ${selectedRole === role.id
+                                            ? 'bg-primary/20 border-primary shadow-[0_0_15px_rgba(34,211,238,0.2)] neon-glow-teal'
                                             : 'bg-white/5 border-white/10 hover:border-white/30 grayscale hover:grayscale-0'
                                             }`}
                                     >
-                                        <div className={`w-6 h-6 sm:w-10 sm:h-10 rounded-md sm:rounded-xl flex items-center justify-center text-sm sm:text-xl transition-all duration-300 ${selectedRole === role.id ? 'bg-primary text-white shadow-lg' : 'bg-white/10 text-slate-400 group-hover:bg-white/20 group-hover:text-white'}`}>
+                                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-base sm:text-xl transition-all duration-300 flex-shrink-0 ${selectedRole === role.id ? 'bg-primary text-white shadow-lg' : 'bg-white/10 text-slate-400 group-hover:bg-white/20 group-hover:text-white'}`}>
                                             {role.icon}
                                         </div>
-                                        <div className="text-center sm:text-left overflow-hidden w-full sm:w-auto">
-                                            <span className={`block text-[7px] sm:text-[10px] font-black uppercase tracking-widest leading-none truncate ${selectedRole === role.id ? 'text-white' : 'text-slate-400'}`}>{role.label}</span>
-                                            <span className="hidden sm:block text-[7px] sm:text-[8px] font-medium text-slate-500 mt-1 leading-tight truncate">{role.desc}</span>
+                                        <div className="text-left overflow-hidden">
+                                            <span className={`block text-[9px] sm:text-[10px] font-black uppercase tracking-wider leading-none truncate ${selectedRole === role.id ? 'text-white' : 'text-slate-400'}`}>{role.label}</span>
+                                            <span className="block text-[7px] sm:text-[8px] font-medium text-slate-500 mt-1 leading-tight truncate">{role.desc}</span>
                                         </div>
                                         {selectedRole === role.id && (
-                                            <div className="absolute top-0 right-0 sm:-right-2 sm:-top-2 w-3 h-3 sm:w-8 sm:h-8 bg-primary rounded-bl-lg sm:rounded-full flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2 sm:h-4 sm:w-4 text-slate-900" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                                            <div className="absolute top-1 right-1 sm:-right-2 sm:-top-2 w-4 h-4 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-slate-900" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                                             </div>
                                         )}
                                     </button>
@@ -422,6 +424,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                                     className="absolute inset-y-0 right-3 sm:right-4 flex items-center text-slate-500 hover:text-white transition-colors"
                                 >
                                     {showConfirmPassword ? (
@@ -545,32 +548,32 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                             transition={{ delay: 0.5, duration: 0.8 }}
                         >
                             <h1 className="text-7xl xl:text-8xl font-black text-white mb-6 leading-[0.9] tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                                PAWPRINT<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-300">FIND</span>
+                                PAWPRINT<br /><span className="hero-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-300 to-primary drop-shadow-[0_0_40px_rgba(34,211,238,0.4)]">FIND</span>
                             </h1>
-                            <div className="h-1.5 w-24 bg-primary rounded-full mb-8 shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
+                            <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mb-8 shadow-[0_0_20px_rgba(6,182,212,0.5)] neon-glow-teal"></div>
                             <p className="text-xl xl:text-2xl text-slate-300 font-light leading-relaxed max-w-lg mb-12">
                                 {t('subtitle.login')}
                             </p>
 
                             <div className="grid grid-cols-2 gap-8 border-t border-white/10 pt-8 max-w-md">
-                                <div>
+                                <div className="group/stat">
                                     <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                        <span className="status-pulse-green"></span>
                                         Active Nodes
                                     </p>
-                                    <div className="relative group/stat">
+                                    <div className="relative">
                                         <p className="text-3xl font-mono font-bold text-white tabular-nums relative z-10">
                                             <CountUp end={publicStats ? publicStats.activeNodes : 0} duration={2000} />
                                         </p>
                                         <div className="absolute -inset-2 bg-primary/5 blur-lg rounded-lg opacity-0 group-hover/stat:opacity-100 transition-opacity"></div>
                                     </div>
                                 </div>
-                                <div>
+                                <div className="group/stat">
                                     <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em] mb-1 flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse delay-100"></span>
+                                        <span className="status-pulse-green"></span>
                                         Biometric Matches
                                     </p>
-                                    <div className="relative group/stat">
+                                    <div className="relative">
                                         <p className="text-3xl font-mono font-bold text-emerald-400 tabular-nums relative z-10">
                                             <CountUp end={publicStats ? publicStats.biometricMatches : 0} duration={2500} />
                                         </p>

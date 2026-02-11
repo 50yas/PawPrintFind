@@ -61,23 +61,23 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                         placeholder={t('searchArticles')} 
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="input-base pl-10 rounded-full bg-card/80 backdrop-blur-sm border-white/10 shadow-sm"
+                        className="input-base pl-10 rounded-full bg-white/5 backdrop-blur-xl border-white/10 shadow-sm"
                     />
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 </div>
             </div>
 
             <div className="text-center mb-12">
-                <h1 className="text-5xl md:text-7xl font-extrabold text-foreground mb-4 tracking-tighter">
+                <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 tracking-tighter">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Paw Print</span> Blog
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Insights, stories, and updates from the future of pet safety.</p>
+                <p className="text-lg text-slate-400 max-w-2xl mx-auto">Insights, stories, and updates from the future of pet safety.</p>
             </div>
 
             {isLoading ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {[1, 2, 3, 4, 5].map(i => (
-                        <div key={i} className="h-64 rounded-3xl bg-muted/30 animate-pulse"></div>
+                        <div key={i} className="h-64 rounded-3xl bg-white/5 animate-pulse"></div>
                     ))}
                 </div>
             ) : filteredPosts.length > 0 ? (
@@ -115,7 +115,7 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                             <div 
                                 key={post.id} 
                                 onClick={() => onSelectPost(post)}
-                                className="bg-card rounded-3xl border border-white/10 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group flex flex-col h-full"
+                                className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group flex flex-col h-full scan-hover"
                             >
                                 <div className="h-56 relative overflow-hidden">
                                     <CinematicImage src={post.imageUrl || `https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80`} alt="" className="w-full h-full" />
@@ -124,9 +124,9 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                                     </div>
                                 </div>
                                 <div className="p-6 flex flex-col flex-grow">
-                                    <h3 className="text-xl font-bold mb-3 text-foreground leading-snug group-hover:text-primary transition-colors">{post.title}</h3>
-                                    <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-grow">{post.summary}</p>
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border mt-auto font-mono">
+                                    <h3 className="text-xl font-bold mb-3 text-white leading-snug group-hover:text-primary transition-colors">{post.title}</h3>
+                                    <p className="text-slate-400 text-sm line-clamp-3 mb-4 flex-grow">{post.summary}</p>
+                                    <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/10 mt-auto font-mono">
                                         <div className="flex items-center gap-2">
                                             <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
                                         </div>
@@ -141,10 +141,10 @@ export const Blog: React.FC<BlogProps> = ({ setView, onSelectPost }) => {
                     </div>
                 </div>
             ) : (
-                <div className="text-center py-20 bg-muted/20 rounded-3xl border border-dashed border-border">
-                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🔭</div>
-                    <h3 className="text-xl font-bold text-foreground">No posts found</h3>
-                    <p className="text-muted-foreground mt-2">Try adjusting your search terms.</p>
+                <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 hud-grid-bg">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">🔭</div>
+                    <h3 className="text-xl font-bold text-white">No posts found</h3>
+                    <p className="text-slate-400 mt-2">Try adjusting your search terms.</p>
                 </div>
             )}
         </div>

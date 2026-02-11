@@ -127,7 +127,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
                         <img src="${pet.photos[0]?.url || ''}" class="w-full h-full object-cover" />
                     </div>
                     <p class="font-black text-slate-800 text-sm mb-0.5 uppercase tracking-wide">${pet.name}</p>
-                    <p class="text-[10px] text-muted-foreground mb-2 font-mono">${pet.breed}</p>
+                    <p class="text-[10px] text-slate-400 mb-2 font-mono">${pet.breed}</p>
                     
                     <div class="flex items-center justify-center gap-1 mb-3">
                         <span class="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -204,7 +204,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
                         <img src="${pet.photos[0]?.url || ''}" class="w-full h-full object-cover" />
                     </div>
                     <p class="font-black text-slate-800 text-sm mb-0.5 uppercase tracking-wide">${pet.name}</p>
-                    <p class="text-[10px] text-muted-foreground mb-1 font-mono">${pet.breed}</p>
+                    <p class="text-[10px] text-slate-400 mb-1 font-mono">${pet.breed}</p>
                     <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase mb-3 border border-slate-200">${pet.age} • ${pet.size || 'N/A'}</span>
 
                     ${onViewPet ? `
@@ -263,7 +263,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
                 .bindPopup(`
                     <div class="p-2 text-center min-w-[140px]">
                         <h4 class="font-bold text-slate-800">${clinic.name}</h4>
-                        <p class="text-[10px] text-muted-foreground mb-2">${clinic.address}</p>
+                        <p class="text-[10px] text-slate-400 mb-2">${clinic.address}</p>
                         ${clinic.isVerified ? `<span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-[9px] font-bold uppercase">${t('verifiedVetBadge')}</span>` : ''}
                         <div class="mt-2 pt-2 border-t border-slate-100">
                             <a href="tel:${clinic.phone}" class="text-xs font-bold text-primary">${t('callClinicButton')}</a>

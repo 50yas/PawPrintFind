@@ -58,14 +58,14 @@ export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, o
 
   return (
     <Modal isOpen={true} onClose={onClose} title={t('reportSightingTitle', { petName: pet.name })}>
-      <p className="text-muted-foreground mb-4">{t('reportSightingDesc')}</p>
+      <p className="text-slate-400 mb-4">{t('reportSightingDesc')}</p>
       <div className="space-y-4">
         <div>
-            <label className="block text-sm font-medium text-muted-foreground">{t('sightingLocationLabel')}</label>
+            <label className="block text-sm font-medium text-slate-400">{t('sightingLocationLabel')}</label>
             <div ref={mapRef} style={{ height: '250px', borderRadius: 'var(--radius)', zIndex: 0, cursor: 'crosshair', marginTop: '4px' }} />
         </div>
         <div>
-            <label htmlFor="sighting-notes" className="block text-sm font-medium text-muted-foreground">{t('sightingNotesLabel')}</label>
+            <label htmlFor="sighting-notes" className="block text-sm font-medium text-slate-400">{t('sightingNotesLabel')}</label>
             <textarea
                 id="sighting-notes"
                 value={notes}
@@ -77,7 +77,7 @@ export const ReportSightingModal: React.FC<ReportSightingModalProps> = ({ pet, o
         </div>
       </div>
       <div className="mt-6 flex justify-end space-x-3">
-        <button onClick={onClose} className="btn btn-secondary">{t('cancelButton')}</button>
+        <button onClick={onClose} className="glass-btn">{t('cancelButton')}</button>
         <EmojiSwitcher 
           onClick={handleConfirm} 
           disabled={!selectedLocation} 

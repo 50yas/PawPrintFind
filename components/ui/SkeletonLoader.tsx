@@ -213,3 +213,181 @@ export const EmptyStateSkeleton = () => (
     <Skeleton className="h-12 w-40 rounded-xl" variant="button" />
   </div>
 );
+
+/**
+ * List Item Skeleton - for list views
+ */
+export const ListItemSkeleton: React.FC = () => (
+  <div className="flex items-center gap-3 p-3 md:p-4 glass-panel rounded-xl border border-white/5">
+    <Skeleton className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0" />
+    <div className="flex-grow space-y-2 min-w-0">
+      <Skeleton className="h-4 w-3/4 rounded" />
+      <Skeleton className="h-3 w-1/2 rounded" />
+    </div>
+    <Skeleton className="w-6 h-6 rounded flex-shrink-0" />
+  </div>
+);
+
+/**
+ * Detail View Skeleton - for pet/patient detail pages
+ */
+export const DetailViewSkeleton: React.FC = () => (
+  <div className="space-y-6 md:space-y-8 animate-fade-in">
+    {/* Hero Image */}
+    <Skeleton className="w-full h-64 md:h-96 rounded-3xl" />
+
+    {/* Title Section */}
+    <div className="space-y-3 px-4">
+      <Skeleton className="h-8 md:h-10 w-1/2 rounded-lg" />
+      <Skeleton className="h-4 w-1/3 rounded" />
+      <div className="flex gap-2 pt-2">
+        <Skeleton className="h-8 w-24 rounded-full" />
+        <Skeleton className="h-8 w-24 rounded-full" />
+        <Skeleton className="h-8 w-24 rounded-full" />
+      </div>
+    </div>
+
+    {/* Info Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
+      <div className="glass-panel p-4 rounded-2xl space-y-3 border border-white/10">
+        <Skeleton className="h-5 w-1/3 rounded" />
+        <Skeleton className="h-4 w-full rounded" />
+        <Skeleton className="h-4 w-5/6 rounded" />
+      </div>
+      <div className="glass-panel p-4 rounded-2xl space-y-3 border border-white/10">
+        <Skeleton className="h-5 w-1/3 rounded" />
+        <Skeleton className="h-4 w-full rounded" />
+        <Skeleton className="h-4 w-5/6 rounded" />
+      </div>
+    </div>
+
+    {/* Action Buttons */}
+    <div className="flex gap-3 px-4">
+      <Skeleton className="h-12 flex-1 rounded-xl" variant="button" />
+      <Skeleton className="h-12 flex-1 rounded-xl" variant="button" />
+    </div>
+  </div>
+);
+
+/**
+ * Modal Skeleton - for loading modal content
+ */
+export const ModalSkeleton: React.FC = () => (
+  <div className="space-y-4 p-6 animate-fade-in">
+    {/* Header */}
+    <div className="space-y-2 border-b border-white/10 pb-4">
+      <Skeleton className="h-6 w-1/2 rounded-lg" />
+      <Skeleton className="h-3 w-3/4 rounded" />
+    </div>
+
+    {/* Content */}
+    <div className="space-y-3 py-4">
+      <FormInputSkeleton />
+      <FormInputSkeleton />
+      <FormInputSkeleton />
+    </div>
+
+    {/* Footer */}
+    <div className="flex gap-3 pt-4 border-t border-white/10">
+      <Skeleton className="h-12 flex-1 rounded-xl" variant="button" />
+      <Skeleton className="h-12 flex-1 rounded-xl" variant="button" />
+    </div>
+  </div>
+);
+
+/**
+ * Navigation Skeleton - for loading nav items
+ */
+export const NavigationSkeleton: React.FC<{ count?: number }> = ({ count = 5 }) => (
+  <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+    {[...Array(count)].map((_, i) => (
+      <Skeleton key={i} className="h-10 w-full md:w-24 rounded-xl" />
+    ))}
+  </div>
+);
+
+/**
+ * Appointment Card Skeleton - for appointment lists
+ */
+export const AppointmentCardSkeleton: React.FC = () => (
+  <div className="glass-panel p-4 rounded-2xl border border-white/10 space-y-3">
+    <div className="flex items-start justify-between">
+      <div className="space-y-2 flex-grow">
+        <Skeleton className="h-5 w-2/3 rounded-lg" />
+        <Skeleton className="h-3 w-1/2 rounded" />
+      </div>
+      <Skeleton className="h-8 w-8 rounded-lg flex-shrink-0" />
+    </div>
+    <div className="flex items-center gap-2">
+      <Skeleton className="h-4 w-4 rounded" />
+      <Skeleton className="h-3 w-32 rounded" />
+    </div>
+    <div className="flex gap-2 pt-2">
+      <Skeleton className="h-8 flex-1 rounded-lg" variant="button" />
+      <Skeleton className="h-8 flex-1 rounded-lg" variant="button" />
+    </div>
+  </div>
+);
+
+/**
+ * Blog Post Card Skeleton - for blog listings
+ */
+export const BlogPostCardSkeleton: React.FC = () => (
+  <div className="glass-card-enhanced rounded-2xl overflow-hidden border border-white/10">
+    <Skeleton className="w-full h-48 md:h-56 rounded-none" />
+    <div className="p-4 md:p-6 space-y-3">
+      <div className="flex gap-2">
+        <Skeleton className="h-5 w-16 rounded-full" />
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </div>
+      <Skeleton className="h-6 w-full rounded-lg" />
+      <Skeleton className="h-4 w-full rounded" />
+      <Skeleton className="h-4 w-5/6 rounded" />
+      <div className="flex items-center justify-between pt-3">
+        <Skeleton className="h-3 w-24 rounded" />
+        <Skeleton className="h-8 w-24 rounded-lg" variant="button" />
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * Vet Clinic Card Skeleton - for vet listings
+ */
+export const VetClinicCardSkeleton: React.FC = () => (
+  <div className="glass-panel p-4 md:p-6 rounded-2xl border border-white/10 space-y-4">
+    <div className="flex items-start gap-4">
+      <Skeleton className="w-16 h-16 rounded-xl flex-shrink-0" />
+      <div className="flex-grow space-y-2 min-w-0">
+        <Skeleton className="h-5 w-3/4 rounded-lg" />
+        <Skeleton className="h-3 w-1/2 rounded" />
+        <Skeleton className="h-3 w-2/3 rounded" />
+      </div>
+    </div>
+    <div className="flex gap-2">
+      <Skeleton className="h-6 w-20 rounded-full" />
+      <Skeleton className="h-6 w-20 rounded-full" />
+    </div>
+    <Skeleton className="h-10 w-full rounded-xl" variant="button" />
+  </div>
+);
+
+/**
+ * Community Alert Skeleton - for alerts/notifications
+ */
+export const CommunityAlertSkeleton: React.FC = () => (
+  <div className="glass-panel p-4 rounded-xl border border-white/10 space-y-3">
+    <div className="flex items-start gap-3">
+      <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" variant="circular" />
+      <div className="flex-grow space-y-2">
+        <Skeleton className="h-4 w-3/4 rounded-lg" />
+        <Skeleton className="h-3 w-full rounded" />
+        <Skeleton className="h-3 w-2/3 rounded" />
+      </div>
+    </div>
+    <div className="flex gap-2 pt-2">
+      <Skeleton className="h-7 w-20 rounded-lg" variant="button" />
+      <Skeleton className="h-7 w-20 rounded-lg" variant="button" />
+    </div>
+  </div>
+);

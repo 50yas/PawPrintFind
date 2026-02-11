@@ -19,7 +19,7 @@ const SocialLink: React.FC<{ href: string; icon: React.ReactNode; label: string;
         target="_blank" 
         rel="noopener noreferrer"
         aria-label={label}
-        className={`p-3 rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:bg-white/10 ${colorClass} group`}
+        className={`p-3 rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:bg-white/10 ${colorClass} group scan-hover`}
     >
         {icon}
     </a>
@@ -97,7 +97,8 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
     };
     
     return (
-        <footer className="relative z-10 border-t border-white/10 bg-black/40 backdrop-blur-xl mt-20">
+        <footer className="relative z-10 border-t border-white/5 bg-black/40 backdrop-blur-xl mt-20 hud-grid-bg">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
             <div className="container mx-auto px-6 py-12">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="text-center md:text-left">
@@ -116,13 +117,22 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     </svg>
                                 </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-foreground font-mono-tech tracking-tight">
+                            <h3 className="text-2xl font-bold text-white font-mono-tech tracking-tight">
                                 PAW PRINT <span className="text-primary">FIND</span>
                             </h3>
                         </div>
-                        <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                        <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
                             {t('footerText').replace('Paw Print - ', '')}
                         </p>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mt-4">
+                            {setView && (
+                                <>
+                                    <button onClick={() => setView('blog')} className="text-xs text-slate-400 hover:text-primary transition-colors font-bold uppercase tracking-wider">{t('blogButton')}</button>
+                                    <button onClick={() => setView('community')} className="text-xs text-slate-400 hover:text-primary transition-colors font-bold uppercase tracking-wider">{t('communityHubButton')}</button>
+                                    <button onClick={() => setView('adoptionCenter')} className="text-xs text-slate-400 hover:text-primary transition-colors font-bold uppercase tracking-wider">{t('adoptionLink')}</button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex gap-4">
@@ -153,7 +163,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                     </div>
                 </div>
 
-                <div className="mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground/60">
+                <div className="mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400/60">
                     <div className="flex gap-4 items-center">
                         <p>&copy; {new Date().getFullYear()} Paw Print Open Source.</p>
                         <button 
@@ -179,7 +189,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                     <p className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest">
                         {t('poweredByGemini')} 
                         <span className="w-1 h-1 rounded-full bg-blue-500 mx-1"></span>
-                        React // THREE.JS
+                        React • Firebase • AI
                     </p>
                 </div>
             </div>
@@ -190,7 +200,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                         <p className={`${authMode === 'setup' ? 'text-primary' : 'text-red-500'} text-xs font-bold uppercase tracking-widest`}>
                             {authMode === 'setup' ? t('initializingSystem') : t('restrictedAccess')}
                         </p>
-                        <p className="text-muted-foreground text-[10px] mt-1 uppercase">
+                        <p className="text-slate-400 text-[10px] mt-1 uppercase">
                             {authMode === 'setup' ? t('establishingRoot') : t('authorizedPersonnelOnly')}
                         </p>
                     </div>
@@ -199,7 +209,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                         <div className="space-y-6 animate-fade-in">
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('emailLabel')}</label>
+                                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t('emailLabel')}</label>
                                     <input 
                                         type="email" 
                                         value={email}
@@ -210,7 +220,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('passwordLabel')}</label>
+                                    <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t('passwordLabel')}</label>
                                     <input 
                                         type="password" 
                                         value={password}
@@ -238,7 +248,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                             </form>
                             
                             <div className="pt-4 border-t border-white/5 flex flex-col items-center">
-                                <p className="text-[10px] text-muted-foreground mb-2 font-mono uppercase tracking-widest">{t('criticalRecovery')}</p>
+                                <p className="text-[10px] text-slate-400 mb-2 font-mono uppercase tracking-widest">{t('criticalRecovery')}</p>
                                 <button 
                                     onClick={() => setAuthMode('setup')}
                                     className="text-primary text-xs font-bold hover:underline uppercase tracking-tighter"
@@ -251,11 +261,11 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                         <div className="space-y-6 animate-slide-in-right">
                             {setupStep === 'key' ? (
                                 <form onSubmit={handleSecretKeySubmit} className="space-y-4">
-                                    <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                                    <p className="text-xs text-slate-400 text-center leading-relaxed">
                                         Enter the Private Security Key to unlock the system root initialization flow.
                                     </p>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('securityKey')}</label>
+                                        <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t('securityKey')}</label>
                                         <input 
                                             type="password" 
                                             value={secretKey}
@@ -268,13 +278,13 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                     </div>
                                     {error && <p className="text-xs text-red-500 font-bold text-center">{error}</p>}
                                     <button type="submit" className="w-full btn btn-primary py-3 font-bold">{t('validateKey')}</button>
-                                    <button type="button" onClick={() => setAuthMode('login')} className="w-full text-[10px] text-muted-foreground hover:text-foreground underline font-mono tracking-widest">{t('backToLogin')}</button>
+                                    <button type="button" onClick={() => setAuthMode('login')} className="w-full text-[10px] text-slate-400 hover:text-white underline font-mono tracking-widest">{t('backToLogin')}</button>
                                 </form>
                             ) : (
                                 <form onSubmit={handleInitializeAdmin} className="space-y-4">
                                     <p className="text-xs text-primary text-center font-bold font-mono tracking-widest">{t('keyValidatedCreateRoot')}</p>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('newAdminEmail')}</label>
+                                        <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t('newAdminEmail')}</label>
                                         <input 
                                             type="email" 
                                             value={email}
@@ -285,7 +295,7 @@ export const Footer: React.FC<FooterProps> = ({ setView, currentUser }) => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold uppercase text-muted-foreground mb-1">{t('newAdminPassword')}</label>
+                                        <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">{t('newAdminPassword')}</label>
                                         <input 
                                             type="password" 
                                             value={password}

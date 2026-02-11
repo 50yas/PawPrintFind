@@ -14,12 +14,12 @@ export const SupportCard: React.FC = () => {
     return (
         <>
             <DonationModal isOpen={isDonationModalOpen} onClose={() => setIsDonationModalOpen(false)} />
-            <div className="glass-panel rounded-2xl p-8 flex flex-col items-center h-full relative overflow-hidden hover-lift border border-white/10 group">
+            <div className="glass-panel rounded-2xl p-8 flex flex-col items-center h-full relative overflow-hidden hover-lift border border-white/10 group scan-hover hud-grid-bg">
                 {/* Ambient Background Effect */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-primary/10 transition-colors duration-500"></div>
 
                 <div className="relative z-10 flex flex-col items-center w-full h-full">
-                    <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-primary to-secondary mb-6 shadow-lg shadow-primary/20">
+                    <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-primary to-secondary mb-6 shadow-lg shadow-primary/20 neon-glow-teal">
                         <CinematicImage
                             src="https://firebasestorage.googleapis.com/v0/b/pawprint-50.firebasestorage.app/o/uploads%2Fassets%2F50.jpg?alt=media"
                             alt={t('supportImageAlt')}
@@ -33,7 +33,7 @@ export const SupportCard: React.FC = () => {
                     </p>
 
                     {/* Server Goal Widget */}
-                    <div className="w-full bg-muted/50 rounded-xl p-4 mb-6 border border-white/5">
+                    <div className="w-full bg-black/30 backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/10">
                         <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
                             <span className="text-muted-foreground">{t('monthlyServerGoal')}</span>
                             <span className="text-primary">{progress}%</span>

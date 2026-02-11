@@ -52,22 +52,16 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
     return (
         <div 
             className="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe"
-            style={{ 
-                position: 'fixed', 
-                bottom: 0, 
-                left: 0, 
-                right: 0, 
-                zIndex: 9999,
-                WebkitTransform: 'translate3d(0,0,0)',
-                transform: 'translate3d(0,0,0)',
-                height: 'auto'
-            }}
+            style={{ WebkitTransform: 'translate3d(0,0,0)' }}
         >
+            {/* Gradient top border accent */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+
             {/* Vertical Language Selector Overlay */}
             {showLangMenu && (
                 <>
                     <div className="fixed inset-0 bg-black/60 z-[-1]" onClick={() => setShowLangMenu(false)} aria-hidden="true"></div>
-                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    <div className="absolute bottom-[85px] right-4 w-48 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 animate-slide-up-mobile shadow-2xl flex flex-col gap-1 max-h-[60vh] overflow-y-auto custom-scrollbar neon-border">
                         <div className="px-3 py-2 border-b border-white/10 mb-1">
                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{t('selectLanguage')}</span>
                         </div>
@@ -100,7 +94,8 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">{t('homeButton')}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter">{t('homeButton')}</span>
+                    {currentView === 'home' && <div className="w-[3px] h-[3px] bg-primary rounded-full"></div>}
                 </button>
 
                 {/* 2. More / Grid */}
@@ -111,14 +106,15 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">{t('moreButton')}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter">{t('moreButton')}</span>
+                    {isMenuOpen && <div className="w-[3px] h-[3px] bg-primary rounded-full"></div>}
                 </button>
 
                 {/* 3. CENTER FAB - AI Assistant */}
                 <div className="flex justify-center -mt-8 relative z-10">
                     <button 
                         onClick={onAssistantClick}
-                        className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(45,212,191,0.5)] relative overflow-hidden active:scale-90 transition-all group"
+                        className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center shadow-[0_0_25px_rgba(45,212,191,0.5)] relative overflow-hidden active:scale-90 transition-all group neon-glow-teal"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-20 group-hover:opacity-40 animate-pulse"></div>
                         <div className="relative z-10 p-3">
@@ -141,7 +137,8 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span className="text-[8px] font-black uppercase tracking-tighter">{userRole ? t('tabOverviewShort') : t('loginButton')}</span>
+                    <span className="text-[9px] font-black uppercase tracking-tighter">{userRole ? t('tabOverviewShort') : t('loginButton')}</span>
+                    {userRole && currentView === dashboardView && <div className="w-[3px] h-[3px] bg-primary rounded-full"></div>}
                 </button>
 
                 {/* 5. Language / Theme */}

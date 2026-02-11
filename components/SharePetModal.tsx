@@ -58,16 +58,16 @@ export const SharePetModal: React.FC<SharePetModalProps> = ({ pet, friends, onCl
     <Modal isOpen={true} onClose={onClose} title={t('sharePetTitle', { petName: pet.name })}>
         
         {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
+        <div className="flex border-b border-white/10 mb-6">
             <button 
                 onClick={() => setActiveTab('social')}
-                className={`flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'social' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                className={`flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'social' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'}`}
             >
                 Instagram / TikTok
             </button>
             <button 
                 onClick={() => setActiveTab('friends')}
-                className={`flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'friends' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                className={`flex-1 pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'friends' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'}`}
             >
                 {t('shareWithFriendsButton')}
             </button>
@@ -75,23 +75,23 @@ export const SharePetModal: React.FC<SharePetModalProps> = ({ pet, friends, onCl
 
         {activeTab === 'friends' ? (
             <>
-                <p className="text-muted-foreground mb-4">{t('sharePetDesc')}</p>
+                <p className="text-slate-400 mb-4">{t('sharePetDesc')}</p>
                 {friends.length > 0 ? (
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                         {friends.map(friendEmail => (
-                            <label key={friendEmail} className="flex items-center space-x-3 p-2 bg-muted rounded-md cursor-pointer hover:bg-border">
+                            <label key={friendEmail} className="flex items-center space-x-3 p-2 bg-white/5 rounded-md cursor-pointer hover:bg-white/10">
                                 <input
                                     type="checkbox"
                                     checked={selectedFriends.includes(friendEmail)}
                                     onChange={() => handleToggleFriend(friendEmail)}
                                     className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                 />
-                                <span className="text-sm font-medium text-card-foreground">{friendEmail}</span>
+                                <span className="text-sm font-medium text-white">{friendEmail}</span>
                             </label>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-muted-foreground text-center py-4">{t('noFriendsToShare')}</p>
+                    <p className="text-slate-400 text-center py-4">{t('noFriendsToShare')}</p>
                 )}
                 <div className="mt-6 flex justify-end">
                     <button
@@ -106,8 +106,8 @@ export const SharePetModal: React.FC<SharePetModalProps> = ({ pet, friends, onCl
         ) : (
             <div className="flex flex-col items-center space-y-6">
                 <div className="text-center space-y-1">
-                    <h3 className="text-sm font-medium text-foreground">AI Biometric Card</h3>
-                    <p className="text-xs text-muted-foreground">Perfect for Instagram Stories or TikTok.</p>
+                    <h3 className="text-sm font-medium text-white">AI Biometric Card</h3>
+                    <p className="text-xs text-slate-400">Perfect for Instagram Stories or TikTok.</p>
                 </div>
 
                 {/* Capture Area */}
@@ -120,7 +120,7 @@ export const SharePetModal: React.FC<SharePetModalProps> = ({ pet, friends, onCl
                 <button
                     onClick={handleDownloadStory}
                     disabled={isCapturing}
-                    className="btn btn-secondary w-full flex items-center justify-center gap-2"
+                    className="glass-btn w-full flex items-center justify-center gap-2"
                 >
                     {isCapturing ? (
                         <>Processing...</>

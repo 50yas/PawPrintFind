@@ -287,16 +287,16 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
             <div className="flex flex-col h-full animate-fade-in">
 
                 {/* Payment Method Tabs */}
-                <div className="flex p-1 bg-muted/50 rounded-xl mb-6 border border-border">
+                <div className="flex p-1 bg-white/5 rounded-xl mb-6 border border-white/10">
                     <button
                         onClick={() => setPaymentMethod('stripe')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'stripe' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'stripe' ? 'bg-slate-900 shadow text-primary' : 'text-slate-400 hover:text-white'}`}
                     >
                         {t('paymentMethodCard')}
                     </button>
                     <button
                         onClick={() => setPaymentMethod('crypto')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'crypto' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'crypto' ? 'bg-slate-900 shadow text-primary' : 'text-slate-400 hover:text-white'}`}
                     >
                         {t('paymentMethodCrypto')}
                     </button>
@@ -314,15 +314,15 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     onClick={() => handleTierSelect(tier.amount)}
                                     className={`relative p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-start text-center group ${!isCustom && selectedAmount === tier.amount
                                         ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105 z-10'
-                                        : 'border-border bg-card hover:border-primary/50 hover:shadow-md'
+                                        : 'border-white/10 bg-white/5 hover:border-primary/50 hover:shadow-md'
                                         }`}
                                 >
                                     <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{tier.emoji}</div>
-                                    <div className="font-bold text-xl text-foreground mb-1">€{tier.amount}</div>
-                                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold mb-2">{tier.label}</div>
+                                    <div className="font-bold text-xl text-white mb-1">€{tier.amount}</div>
+                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">{tier.label}</div>
 
                                     {/* Perks - shown on hover or when selected */}
-                                    <div className={`text-[9px] text-left space-y-0.5 mt-2 pt-2 border-t border-border/50 transition-opacity w-full ${!isCustom && selectedAmount === tier.amount ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                                    <div className={`text-[9px] text-left space-y-0.5 mt-2 pt-2 border-t border-white/5 transition-opacity w-full ${!isCustom && selectedAmount === tier.amount ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                                         }`}>
                                         {tier.perks?.map((perk, i) => (
                                             <div key={i} className="text-slate-400 flex items-start gap-1">
@@ -337,9 +337,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
                         {/* Custom Amount */}
                         <div className={`relative transition-all ${isCustom ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}>
-                            <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('customAmount')}</label>
+                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('customAmount')}</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">€</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-400">€</span>
                                 <input
                                     type="number"
                                     min="1"
@@ -348,34 +348,34 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     onFocus={handleCustomFocus}
                                     onChange={(e) => setCustomAmount(e.target.value)}
                                     placeholder={t('donationAmountPlaceholder')}
-                                    className={`w-full pl-10 pr-4 py-4 rounded-xl border-2 font-bold text-lg bg-background transition-colors outline-none ${isCustom ? 'border-primary ring-2 ring-primary/20' : 'border-border focus:border-primary'
+                                    className={`w-full pl-10 pr-4 py-4 rounded-xl border-2 font-bold text-lg bg-slate-900 text-white transition-colors outline-none ${isCustom ? 'border-primary ring-2 ring-primary/20' : 'border-white/10 focus:border-primary'
                                         }`}
                                 />
                             </div>
                         </div>
 
                         {/* Basic Info */}
-                        <div className="space-y-4 pt-4 border-t border-border">
+                        <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourNameLabel')} {t('optionalSuffix')}</label>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('yourNameLabel')} {t('optionalSuffix')}</label>
                                     <input type="text" value={donorName} onChange={e => setDonorName(e.target.value)} className="input-base" placeholder={t('donorNamePlaceholder')} />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('emailLabel')} {t('receiptsSuffix')}</label>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('emailLabel')} {t('receiptsSuffix')}</label>
                                     <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} className="input-base" placeholder={t('donorEmailPlaceholder')} />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-muted-foreground uppercase mb-1">{t('yourMessageLabel')}</label>
+                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('yourMessageLabel')}</label>
                                 <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} className="input-base resize-none" placeholder={t('donationMessagePlaceholder')} />
-                            </div>                        <label className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl cursor-pointer">
+                            </div>                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer">
                                 <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary" />
-                                <span className="text-xs text-muted-foreground">{t('publiclyVisible')}</span>
+                                <span className="text-xs text-slate-400">{t('publiclyVisible')}</span>
                             </label>
                         </div>
 
-                        {errorMsg && <div className="p-3 bg-red-100 text-red-600 rounded-lg text-sm font-bold text-center animate-pulse">{errorMsg}</div>}
+                        {errorMsg && <div className="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm font-bold text-center animate-pulse">{errorMsg}</div>}
 
                         <CostBreakdown t={t} totalRaised={totalRaised} />
 
@@ -383,7 +383,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                             <button type="submit" disabled={isProcessing} className="w-full btn btn-primary py-4 text-lg shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3">
                                 {isProcessing ? <LoadingSpinner /> : <><span className="text-xl">💳</span><span>{t('payWithStripe')} {selectedAmount > 0 ? `€${selectedAmount.toFixed(2)}` : ''}</span></>}
                             </button>
-                            <p className="text-[10px] text-center text-muted-foreground mt-3 opacity-70">{t('securedByStripe')}</p>
+                            <p className="text-[10px] text-center text-slate-400 mt-3 opacity-70">{t('securedByStripe')}</p>
                         </div>
                     </form>
                 )}
@@ -400,13 +400,13 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     onClick={() => { setSelectedCrypto(wallet); setCryptoCopied(false); }}
                                     className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all group ${selectedCrypto.symbol === wallet.symbol
                                         ? `border-primary bg-primary/5 shadow-inner`
-                                        : 'border-transparent hover:bg-muted'
+                                        : 'border-transparent hover:bg-white/10'
                                         }`}
                                 >
                                     <div className="mb-2 transform group-hover:scale-110 transition-transform">
                                         <CryptoIcon symbol={wallet.symbol} />
                                     </div>
-                                    <span className="text-[10px] font-bold text-foreground">{wallet.name}</span>
+                                    <span className="text-[10px] font-bold text-white">{wallet.name}</span>
                                 </button>
                             ))}
                         </div>
@@ -421,16 +421,16 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{t('cryptoAddressLabel')} ({selectedCrypto.symbol})</p>
+                                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('cryptoAddressLabel')} ({selectedCrypto.symbol})</p>
 
-                                <div className="flex items-center gap-0 w-full max-w-sm mx-auto bg-muted rounded-xl border border-border overflow-hidden">
+                                <div className="flex items-center gap-0 w-full max-w-sm mx-auto bg-white/5 rounded-xl border border-white/10 overflow-hidden">
                                     <div className="flex-grow py-3 px-4 overflow-hidden relative group">
-                                        <p className="text-xs font-mono text-foreground truncate">{selectedCrypto.address}</p>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-muted/90"></div>
+                                        <p className="text-xs font-mono text-white truncate">{selectedCrypto.address}</p>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-slate-900/90"></div>
                                     </div>
                                     <button
                                         onClick={handleCopyCrypto}
-                                        className="p-3 bg-card border-l border-border text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center w-12 flex-shrink-0"
+                                        className="p-3 bg-white/5 border-l border-white/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center w-12 flex-shrink-0"
                                         title={t('copyButton')}
                                     >
                                         {cryptoCopied ? (
@@ -444,7 +444,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                 {cryptoCopied && <p className="text-xs text-green-500 font-bold animate-pulse">{t('copiedButton')}</p>}
                             </div>
 
-                            <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                            <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                                 {t('supportViaBlockchain')}
                             </p>
                         </div>

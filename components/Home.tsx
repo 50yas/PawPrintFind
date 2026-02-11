@@ -216,7 +216,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             {/* Hero Section */}
             <section className="relative min-h-screen flex items-center justify-center pt-24 pb-20 overflow-hidden">
-                <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-background/20 to-background pointer-events-none"></div>
+                <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-slate-900/20 to-slate-900 pointer-events-none"></div>
 
                 <HeroHUD />
 
@@ -235,7 +235,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 {t('coreSystemActive')}: {t('aiPoweredProtection')}
                             </div>
 
-                                <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-foreground leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
+                                <h1 className="text-4xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold text-white leading-[0.95] tracking-tighter mb-4 flex flex-col pb-2">
                                     <span className="text-white drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)]">{t('homeTitle1')}</span>
                                     <span className="hero-gradient-text drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
                                         {t('homeTitle2')}
@@ -243,7 +243,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                 </h1>
 
                             <div className="space-y-6 mb-10 max-w-lg md:max-w-xl mx-auto lg:mx-0">
-                                <p className="text-base md:text-xl text-muted-foreground/90 font-medium leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
+                                <p className="text-base md:text-xl text-slate-400/90 font-medium leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
                                     {t('homeSubtitle')}
                                 </p>
 
@@ -268,7 +268,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
                                 <button
                                     onClick={() => handleNavigate('lostPetsCenter')}
-                                    className="btn bg-white/5 hover:bg-white/10 text-foreground border border-white/10 backdrop-blur-xl text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl transition-all hover:scale-105 font-mono-tech flex items-center justify-center gap-4 uppercase tracking-widest font-black hover:border-primary/30 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]"
+                                    className="btn bg-white/5 hover:bg-white/10 text-white border border-white/10 backdrop-blur-xl text-xs md:text-sm !px-6 md:!px-8 !py-3 md:!py-4 rounded-xl transition-all hover:scale-105 font-mono-tech flex items-center justify-center gap-4 uppercase tracking-widest font-black hover:border-primary/30 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)]"
                                 >
                                     {t('foundPetButton')}
                                 </button>
@@ -288,12 +288,12 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             </div>
 
             {/* Main Content Sections */}
-            <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-card/10 backdrop-blur-3xl border-y border-white/5">
+            <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16 md:mb-24">
-                        <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('howItWorksTitle')}</h2>
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">{t('howItWorksTitle')}</h2>
                         <div className="h-1 w-16 md:w-24 bg-gradient-to-r from-primary via-secondary to-primary mx-auto mb-6 md:mb-8 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.4)]"></div>
-                        <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">{t('ecosystemDesc')}</p>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">{t('ecosystemDesc')}</p>
                     </div>
                     <Suspense fallback={<div className="flex justify-center py-20"><LoadingSpinner /></div>}>
                         <RoleExplorer />
@@ -362,8 +362,8 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
 
             <section id="missing-pets-map" className="scroll-animation container mx-auto px-6 relative z-10 py-12 md:py-32">
                 <div className="text-center mb-12 md:mb-16">
-                    <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-foreground uppercase tracking-tighter">{t('missingPetsMapTitle')}</h2>
-                    <p className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground font-medium">{t('missingPetsMapDesc')}</p>
+                    <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">{t('missingPetsMapTitle')}</h2>
+                    <p className="max-w-xl mx-auto text-base md:text-lg text-slate-400 font-medium">{t('missingPetsMapDesc')}</p>
                 </div>
                 <div className="glass-panel rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 p-1 bg-black/20">
                     <div className="rounded-[1.75rem] md:rounded-[2.25rem] overflow-hidden relative h-[400px] md:h-[650px] w-full">

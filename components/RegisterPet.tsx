@@ -52,13 +52,13 @@ const FloatingLabelInput = ({ label, id, value, onChange, required = false, type
             value={value} 
             onChange={onChange} 
             required={required}
-            className={`peer block w-full px-4 py-3 text-foreground bg-background border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm ${shake ? 'border-red-500 ring-4 ring-red-500/10' : 'border-input focus:border-primary'}`}
+            className={`peer block w-full px-4 py-3 text-white bg-white/5 border rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm ${shake ? 'border-red-500 ring-4 ring-red-500/10' : 'border-white/10 focus:border-primary'}`}
             placeholder={placeholder}
             aria-label={label}
         />
         <label 
             htmlFor={id} 
-            className={`absolute text-sm duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-background px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-[55%] peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 pointer-events-none ${shake ? 'text-red-500 font-bold' : 'text-muted-foreground peer-focus:text-primary'}`}
+            className={`absolute text-sm duration-200 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-slate-900 px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-[55%] peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-3 pointer-events-none ${shake ? 'text-red-500 font-bold' : 'text-slate-400 peer-focus:text-primary'}`}
         >
             {label} {required && <span className="text-red-500">*</span>}
         </label>
@@ -105,7 +105,7 @@ const HomeAreaMap: React.FC<{ locations: Geolocation[], onAdd: (loc: Geolocation
         }
     }, [locations]);
 
-    return <div ref={mapRef} className="h-72 w-full rounded-2xl border-2 border-border z-0 cursor-crosshair shadow-inner bg-muted/20" />;
+    return <div ref={mapRef} className="h-72 w-full rounded-2xl border-2 border-white/10 z-0 cursor-crosshair shadow-inner bg-white/5" />;
 };
 
 export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashboard, currentUser, existingPet, mode }) => {
@@ -447,28 +447,28 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
   const validPhotosCount = photos.filter(p => p !== undefined).length;
 
   return (
-    <div className="max-w-5xl mx-auto bg-card rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[80vh] border border-border relative">
+    <div className="max-w-5xl mx-auto bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[80vh] border border-white/10 relative">
       
       {funnyError && <PetLogicToast message={funnyError} />}
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary/10 via-background to-background p-8 border-b border-border relative">
+      <div className="bg-gradient-to-r from-primary/10 via-slate-900/50 to-transparent p-8 border-b border-white/10 relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                  <h2 className="text-3xl font-extrabold text-foreground tracking-tight">{getTitle()}</h2>
-                  <p className="text-muted-foreground mt-2 font-medium">{t('createImprontaDescription')}</p>
+                  <h2 className="text-3xl font-extrabold text-white tracking-tight">{getTitle()}</h2>
+                  <p className="text-slate-400 mt-2 font-medium">{t('createImprontaDescription')}</p>
               </div>
               
-              <div className="flex flex-col items-end gap-1 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border shadow-sm">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t('dashboard:register.profileStrength')}</span>
+              <div className="flex flex-col items-end gap-1 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/10 shadow-sm">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t('dashboard:register.profileStrength')}</span>
                   <div className="flex items-center gap-3">
-                      <div className="w-32 h-2.5 bg-muted rounded-full overflow-hidden">
+                      <div className="w-32 h-2.5 bg-white/10 rounded-full overflow-hidden">
                           <div 
                             className={`h-full transition-all duration-700 ease-out rounded-full ${currentCompleteness < 50 ? 'bg-red-500' : currentCompleteness < 80 ? 'bg-amber-500' : 'bg-green-500'}`} 
                             style={{ width: `${currentCompleteness}%` }}
                           ></div>
                       </div>
-                      <span className="text-sm font-bold text-foreground font-mono">{currentCompleteness}%</span>
+                      <span className="text-sm font-bold text-white font-mono">{currentCompleteness}%</span>
                   </div>
               </div>
           </div>
@@ -492,8 +492,8 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground">{t('aiAutofillTitle')}</h3>
-                                    <p className="text-[10px] text-muted-foreground">{t('aiAutofillDesc')}</p>
+                                    <h3 className="text-sm font-bold text-white">{t('aiAutofillTitle')}</h3>
+                                    <p className="text-[10px] text-slate-400">{t('aiAutofillDesc')}</p>
                                 </div>
                             </div>
                             <label className="btn btn-sm btn-primary cursor-pointer shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
@@ -534,13 +534,13 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label htmlFor="behavior" className="block text-sm font-medium text-muted-foreground pl-1 uppercase tracking-wide">{t('behaviorLabel')}</label>
+                        <label htmlFor="behavior" className="block text-sm font-medium text-slate-400 pl-1 uppercase tracking-wide">{t('behaviorLabel')}</label>
                         <textarea 
                             id="behavior" 
                             value={behavior} 
                             onChange={(e) => setBehavior(e.target.value)} 
                             rows={8} 
-                            className="block w-full px-4 py-3 text-foreground bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-sm"
+                            className="block w-full px-4 py-3 text-white bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-sm"
                             placeholder={t('behaviorPlaceholder')}
                         ></textarea>
                     </div>
@@ -554,7 +554,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         {PHOTO_STAGE_KEYS.map((stageKey, index) => {
                             const hasPhoto = photos[index] !== undefined;
                             return (
-                                <div key={stageKey} className={`relative group aspect-square rounded-2xl border-2 border-dashed ${hasPhoto ? 'border-primary bg-primary/5' : 'border-border bg-muted/20'} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center cursor-pointer hover:shadow-md`}>
+                                <div key={stageKey} className={`relative group aspect-square rounded-2xl border-2 border-dashed ${hasPhoto ? 'border-primary bg-primary/5' : 'border-white/10 bg-white/5'} hover:border-primary transition-all overflow-hidden flex flex-col items-center justify-center cursor-pointer hover:shadow-md`}>
                                     <input id={`photo-upload-${index}`} type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e, index)} className="hidden" />
                                     <label htmlFor={`photo-upload-${index}`} className="absolute inset-0 cursor-pointer z-10"></label>
                                     
@@ -567,10 +567,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                         </>
                                     ) : (
                                         <>
-                                            <div className="p-3 bg-background rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            <div className="p-3 bg-slate-800 rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                             </div>
-                                            <span className="text-[10px] text-center font-bold text-muted-foreground uppercase tracking-wide">{t(stageKey)}</span>
+                                            <span className="text-[10px] text-center font-bold text-slate-400 uppercase tracking-wide">{t(stageKey)}</span>
                                         </>
                                     )}
                                 </div>
@@ -579,23 +579,23 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                     </div>
 
                     {validPhotosCount > 0 && (
-                        <div className="grid md:grid-cols-2 gap-8 pt-6 border-t border-border">
-                            <div className="bg-gradient-to-br from-card to-muted/30 border border-border p-6 rounded-2xl shadow-sm">
-                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+                        <div className="grid md:grid-cols-2 gap-8 pt-6 border-t border-white/10">
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-2xl shadow-sm">
+                                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
                                     <span className="p-1.5 bg-primary/10 rounded-lg text-primary"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg></span>
                                     {t('aiBiometricIdentity')}
                                 </h3>
                                 {!aiIdentityCode ? (
-                                    <button type="button" onClick={handleGenerateIdentikit} disabled={isGeneratingIdentity} className="btn btn-secondary w-full py-4 text-sm font-bold border-2 hover:border-primary transition-all">
+                                    <button type="button" onClick={handleGenerateIdentikit} disabled={isGeneratingIdentity} className="glass-btn w-full py-4 text-sm font-bold border-2 hover:border-primary transition-all">
                                         {isGeneratingIdentity ? <LoadingSpinner /> : t('generateVisualHash')}
                                     </button>
                                 ) : (
                                     <div className="space-y-4 animate-fade-in">
-                                        <div className="p-4 bg-background rounded-xl border border-border shadow-inner">
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{t('dashboard:register.uniqueVisualHash')}</p>
+                                        <div className="p-4 bg-black/30 rounded-xl border border-white/10 shadow-inner">
+                                            <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">{t('dashboard:register.uniqueVisualHash')}</p>
                                             <p className="font-mono text-primary font-bold text-lg tracking-widest">{aiIdentityCode}</p>
                                         </div>
-                                        <p className="text-sm text-muted-foreground italic bg-muted/50 p-3 rounded-lg border-l-4 border-primary">"{aiPhysicalDescription}"</p>
+                                        <p className="text-sm text-slate-400 italic bg-white/5 p-3 rounded-lg border-l-4 border-primary">"{aiPhysicalDescription}"</p>
                                         <button type="button" onClick={handleGenerateIdentikit} className="text-xs font-bold text-primary hover:underline uppercase tracking-wide">{t('dashboard:register.regenerateAnalysis')}</button>
                                     </div>
                                 )}
@@ -603,10 +603,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
 
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-bold text-foreground">{t('tagUniqueMarks')}</h3>
-                                    <span className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-1 rounded-md font-bold uppercase tracking-wider">{t('dashboard:register.recommended')}</span>
+                                    <h3 className="text-lg font-bold text-white">{t('tagUniqueMarks')}</h3>
+                                    <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-1 rounded-md font-bold uppercase tracking-wider">{t('dashboard:register.recommended')}</span>
                                 </div>
-                                <p className="text-sm text-muted-foreground leading-relaxed">{t('tagUniqueMarksDesc')}</p>
+                                <p className="text-sm text-slate-400 leading-relaxed">{t('tagUniqueMarksDesc')}</p>
                                 <div className="max-h-[350px] overflow-y-auto pr-2 grid grid-cols-2 gap-4 custom-scrollbar">
                                     {photos.map((photo) => photo ? <ImageTagger key={photo.id} photo={photo} onAddMark={addMarkToPhoto} /> : null)}
                                 </div>
@@ -619,10 +619,10 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
             {/* STEP 3: ADVANCED AI */}
             {showAI && (
                 <div className="grid md:grid-cols-2 gap-8">
-                    <div className="border border-border rounded-2xl p-6 hover:border-primary/50 transition-colors bg-card shadow-sm">
-                        <h3 className="font-bold text-lg mb-4 text-foreground">{t('videoUploadLabel')}</h3>
+                    <div className="border border-white/10 rounded-2xl p-6 hover:border-primary/50 transition-colors bg-white/5 backdrop-blur-xl shadow-sm">
+                        <h3 className="font-bold text-lg mb-4 text-white">{t('videoUploadLabel')}</h3>
                         <div className="flex items-center gap-4">
-                            <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
+                            <label className="glass-btn cursor-pointer transition-colors">
                                 {videoFile ? t('changePhotoButton') : t('selectVideo')}
                                 <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files ? e.target.files[0] : null)} className="hidden" />
                             </label>
@@ -633,13 +633,13 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             )}
                         </div>
                         {isProcessing && <div className="mt-4"><ProgressBar progress={videoUploadProgress} /></div>}
-                        {videoAnalysis && <div className="mt-4 p-4 bg-muted/50 rounded-xl text-sm border-l-4 border-primary shadow-inner">{videoAnalysis}</div>}
+                        {videoAnalysis && <div className="mt-4 p-4 bg-white/5 rounded-xl text-sm border-l-4 border-primary shadow-inner">{videoAnalysis}</div>}
                     </div>
 
-                    <div className="border border-border rounded-2xl p-6 hover:border-primary/50 transition-colors bg-card shadow-sm">
-                        <h3 className="font-bold text-lg mb-4 text-foreground">{t('audioUploadLabel')}</h3>
+                    <div className="border border-white/10 rounded-2xl p-6 hover:border-primary/50 transition-colors bg-white/5 backdrop-blur-xl shadow-sm">
+                        <h3 className="font-bold text-lg mb-4 text-white">{t('audioUploadLabel')}</h3>
                         <div className="flex items-center gap-4">
-                            <label className="btn btn-secondary cursor-pointer hover:bg-muted transition-colors">
+                            <label className="glass-btn cursor-pointer transition-colors">
                                 {audioFile ? t('changePhotoButton') : t('selectAudio')}
                                 <input type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files ? e.target.files[0] : null)} className="hidden" />
                             </label>
@@ -650,7 +650,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             )}
                         </div>
                         {isProcessing && <div className="mt-4"><ProgressBar progress={audioUploadProgress} /></div>}
-                        {audioNotes && <div className="mt-4 p-4 bg-muted/50 rounded-xl text-sm border-l-4 border-primary shadow-inner">{audioNotes}</div>}
+                        {audioNotes && <div className="mt-4 p-4 bg-white/5 rounded-xl text-sm border-l-4 border-primary shadow-inner">{audioNotes}</div>}
                     </div>
                 </div>
             )}
@@ -664,20 +664,20 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                         <FloatingLabelInput id="meds" label={t('medicationsLabel')} value={medications} onChange={(e) => setMedications(e.target.value)} />
                     </div>
                     
-                    <div className="bg-muted/20 p-6 rounded-2xl border border-border">
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-bold text-lg text-foreground">{t('vaccinationsTitle')}</h3>
+                            <h3 className="font-bold text-lg text-white">{t('vaccinationsTitle')}</h3>
                             <button type="button" onClick={addVaccination} className="text-sm font-bold text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-primary/20">{t('dashboard:register.addRecord')}</button>
                         </div>
                         {vaccinations.length === 0 ? (
-                            <p className="text-sm text-muted-foreground italic text-center py-4 bg-background rounded-xl border border-dashed border-border">{t('dashboard:register.noVaccinationRecords')}</p>
+                            <p className="text-sm text-slate-400 italic text-center py-4 bg-white/5 rounded-xl border border-dashed border-white/10">{t('dashboard:register.noVaccinationRecords')}</p>
                         ) : (
                             <div className="space-y-3">
                                 {vaccinations.map((vac, index) => (
                                     <div key={index} className="flex gap-4 items-center animate-fade-in">
-                                        <input type="text" value={vac.name} onChange={e => handleVaccinationChange(index, 'name', e.target.value)} placeholder={t('vaccinationNamePlaceholder')} className="flex-grow p-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-                                        <input type="date" value={vac.date} onChange={e => handleVaccinationChange(index, 'date', e.target.value)} className="w-40 p-3 rounded-xl border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
-                                        <button type="button" onClick={() => removeVaccination(index)} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-3 rounded-xl transition-colors border border-transparent hover:border-red-200">
+                                        <input type="text" value={vac.name} onChange={e => handleVaccinationChange(index, 'name', e.target.value)} placeholder={t('vaccinationNamePlaceholder')} className="flex-grow p-3 rounded-xl border border-white/10 bg-white/5 text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
+                                        <input type="date" value={vac.date} onChange={e => handleVaccinationChange(index, 'date', e.target.value)} className="w-40 p-3 rounded-xl border border-white/10 bg-white/5 text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
+                                        <button type="button" onClick={() => removeVaccination(index)} className="text-red-500 hover:bg-red-500/10 p-3 rounded-xl transition-colors border border-transparent hover:border-red-200">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
                                         </button>
                                     </div>
@@ -696,8 +696,8 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
                         <div>
-                            <h3 className="font-bold text-foreground text-lg">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('foundLocationTitle') : t('homeAreasTitle')}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('finalStepForAdoption') : t('step4DescOwner')}</p>
+                            <h3 className="font-bold text-white text-lg">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('foundLocationTitle') : t('homeAreasTitle')}</h3>
+                            <p className="text-sm text-slate-400 mt-1">{mode === 'stray' ? t('step4DescStray') : mode === 'forAdoption' ? t('finalStepForAdoption') : t('step4DescOwner')}</p>
                         </div>
                     </div>
 
@@ -710,17 +710,17 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
                                 setHomeLocations([...homeLocations, newLoc]);
                             });
                         }
-                    }} className="btn btn-secondary w-full py-4 flex items-center justify-center gap-2 font-bold text-sm hover:border-primary/50 transition-all">
+                    }} className="glass-btn w-full py-4 flex items-center justify-center gap-2 font-bold text-sm hover:border-primary/50 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
                         {t('addHomeAreaButton')}
                     </button>
 
                     {homeLocations.length > 0 && (
-                        <div className="bg-muted/30 p-4 rounded-xl border border-border">
-                            <h5 className="text-xs font-bold uppercase text-muted-foreground mb-3 tracking-wide">{t('dashboard:register.savedLocations')}</h5>
+                        <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                            <h5 className="text-xs font-bold uppercase text-slate-400 mb-3 tracking-wide">{t('dashboard:register.savedLocations')}</h5>
                             <div className="space-y-2">
                                 {homeLocations.map((loc, i) => (
-                                    <div key={i} className="flex justify-between items-center bg-background p-3 rounded-lg border border-border shadow-sm">
+                                    <div key={i} className="flex justify-between items-center bg-black/20 p-3 rounded-lg border border-white/10 shadow-sm">
                                         <span className="font-mono text-sm font-medium">{loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}</span>
                                         <button type="button" onClick={() => setHomeLocations(homeLocations.filter((_, idx) => idx !== i))} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>

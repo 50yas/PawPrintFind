@@ -43,7 +43,7 @@ export const ImageTagger: React.FC<ImageTaggerProps> = ({ photo, onAddMark }) =>
   return (
     <>
       <div className="relative cursor-pointer group">
-        <p className="text-center text-sm font-medium text-muted-foreground mb-1">{photo.description}</p>
+        <p className="text-center text-sm font-medium text-slate-400 mb-1">{photo.description}</p>
         <img
           ref={imageRef}
           src={photo.url}

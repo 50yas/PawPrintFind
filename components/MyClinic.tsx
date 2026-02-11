@@ -94,9 +94,9 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={t('searchClinicPlaceholder')}
-                        className="flex-grow px-6 py-4 bg-transparent border-none focus:ring-0 text-foreground"
+                        className="flex-grow px-6 py-4 bg-transparent border-none focus:ring-0 text-white"
                       />
-                      <button type="submit" disabled={isSearching} className="px-8 bg-card hover:bg-muted text-primary font-bold border-l border-border">
+                      <button type="submit" disabled={isSearching} className="px-8 bg-white/5 hover:bg-white/10 text-primary font-bold border-l border-white/10">
                           {isSearching ? <LoadingSpinner /> : t('searchButtonGoogle')}
                       </button>
                   </div>
@@ -108,18 +108,18 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
           <div className="glass-panel p-8 rounded-3xl border border-white/20 h-fit">
               <form onSubmit={handleSave} className="space-y-6">
                   <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-1">{t('clinicNameLabel')}</label>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">{t('clinicNameLabel')}</label>
                       <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="input-base text-lg font-semibold" required />
                   </div>
                   <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-1">{t('addressLabel')}</label>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">{t('addressLabel')}</label>
                       <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className="input-base resize-none" required />
                   </div>
                   <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-1">{t('phoneLabel')}</label>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">{t('phoneLabel')}</label>
                       <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="input-base" required />
                   </div>
-                  <div className="pt-4 border-t border-border">
+                  <div className="pt-4 border-t border-white/10">
                       <button type="submit" className="w-full btn btn-primary py-3 text-lg shadow-lg">
                           {t('saveClinicButton')}
                       </button>
@@ -136,16 +136,16 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
                           <div className="absolute bottom-4 left-6 text-white"><h3 className="text-2xl font-bold">{searchResult.title}</h3></div>
                       </div>
                       <div className="p-6 space-y-6 flex-grow">
-                          <p className="text-foreground">{searchResult.address}</p>
-                          <button onClick={handleSyncData} className="w-full btn btn-secondary hover:text-green-600 transition-all group">
+                          <p className="text-white">{searchResult.address}</p>
+                          <button onClick={handleSyncData} className="w-full glass-btn hover:text-green-600 transition-all group">
                               {t('syncAllDataButton')}
                           </button>
                       </div>
                   </div>
               ) : (
-                  <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-3xl bg-muted/20 text-center">
-                      <h3 className="text-xl font-bold text-foreground">{t('searchToSyncTitle')}</h3>
-                      <p className="text-muted-foreground mt-2 max-w-xs">{t('searchToSyncDesc')}</p>
+                  <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-white/10 rounded-3xl bg-white/5 text-center">
+                      <h3 className="text-xl font-bold text-white">{t('searchToSyncTitle')}</h3>
+                      <p className="text-slate-400 mt-2 max-w-xs">{t('searchToSyncDesc')}</p>
                   </div>
               )}
           </div>

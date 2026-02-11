@@ -56,16 +56,16 @@ export const SecureChatModal: React.FC<SecureChatModalProps> = ({ session: initi
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in" onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg flex flex-col h-[70vh] border border-white/10" onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-lg flex flex-col h-[70vh] border border-white/10" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
           <div className="flex items-center space-x-3">
             <img src={session.petPhotoUrl} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-primary"/>
             <div>
-                <h3 className="font-bold text-foreground">{session.petName} Chat</h3>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Secure Encryption Active</p>
+                <h3 className="font-bold text-white">{session.petName} Chat</h3>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Secure Encryption Active</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
@@ -76,7 +76,7 @@ export const SecureChatModal: React.FC<SecureChatModalProps> = ({ session: initi
               <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
                   msg.senderEmail === currentUser.email 
                   ? 'bg-primary text-white rounded-br-none shadow-md' 
-                  : 'bg-muted text-foreground rounded-bl-none border border-border'
+                  : 'bg-white/5 text-white rounded-bl-none border border-white/10'
               }`}>
                 {msg.text}
                 <p className={`text-[8px] mt-1 opacity-60 ${msg.senderEmail === currentUser.email ? 'text-right' : 'text-left'}`}>
@@ -88,7 +88,7 @@ export const SecureChatModal: React.FC<SecureChatModalProps> = ({ session: initi
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 bg-muted/20 border-t border-border">
+        <div className="p-4 bg-white/5 border-t border-white/10">
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <input 
                 type="text" 

@@ -32,8 +32,8 @@ export const PrioritySupportModal: React.FC<PrioritySupportModalProps> = ({ isOp
             <div className="space-y-6">
                 <div className="text-center">
                     <div className="text-5xl mb-4">🚀</div>
-                    <h3 className="text-xl font-bold text-foreground">{t('prioritySupportDesc')}</h3>
-                    <p className="text-muted-foreground text-sm mt-2">{t('prioritySupportSubtext')}</p>
+                    <h3 className="text-xl font-bold text-white">{t('prioritySupportDesc')}</h3>
+                    <p className="text-slate-400 text-sm mt-2">{t('prioritySupportSubtext')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
@@ -54,15 +54,15 @@ export const PrioritySupportModal: React.FC<PrioritySupportModalProps> = ({ isOp
 
                     <button 
                         onClick={handleEmailSupport} 
-                        className="btn bg-card border border-border w-full py-4 flex items-center justify-center gap-3 hover:bg-muted"
+                        className="btn bg-white/5 backdrop-blur-xl border border-white/10 w-full py-4 flex items-center justify-center gap-3 hover:bg-white/10"
                     >
                         <span className="text-xl">✉️</span>
-                        <span className="font-bold text-foreground">{t('sendEmailButton')}</span>
+                        <span className="font-bold text-white">{t('sendEmailButton')}</span>
                     </button>
                 </div>
 
                 <div className="text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
                         {t('avgResponseTime')}: &lt; 5 min
                     </p>
                 </div>

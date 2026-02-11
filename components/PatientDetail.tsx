@@ -15,13 +15,13 @@ interface PatientDetailProps {
 }
 
 const TimelineItem: React.FC<{ date: string; title: string; description?: string; icon: React.ReactNode }> = ({ date, title, description, icon }) => (
-    <div className="relative pl-8 pb-8 last:pb-0 border-l-2 border-border">
-        <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-card border-2 border-primary"></div>
+    <div className="relative pl-8 pb-8 last:pb-0 border-l-2 border-white/10">
+        <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-slate-900 border-2 border-primary neon-glow-teal"></div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1">
-             <h4 className="font-bold text-foreground text-lg">{title}</h4>
-             <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1 rounded-full">{date}</span>
+             <h4 className="font-bold text-white text-lg">{title}</h4>
+             <span className="text-xs font-mono font-bold text-primary/60 bg-primary/10 px-2 py-1 rounded-full border border-primary/20">{date}</span>
         </div>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        {description && <p className="text-sm text-slate-400">{description}</p>}
     </div>
 );
 
@@ -71,61 +71,62 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
     setMessageTopic('');
   };
   
-  const labelStyles = "block text-sm font-medium text-muted-foreground";
+  const labelStyles = "block text-sm font-medium text-slate-400";
 
   return (
     <>
       <div className="max-w-5xl mx-auto pb-12">
         <div className="flex items-center justify-between mb-6">
-             <button onClick={goBack} className="flex items-center text-muted-foreground hover:text-primary transition-colors font-semibold">
+             <button onClick={goBack} className="flex items-center text-slate-400 hover:text-primary transition-colors font-bold">
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
                  {t('backButton')}
              </button>
              <div className="flex space-x-3 no-print">
-                <button onClick={handlePrint} className="btn btn-secondary shadow-sm">
+                <button onClick={handlePrint} className="glass-btn !py-2 !px-4 text-sm flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" /></svg>
                     {t('printSummaryButton')}
                 </button>
-                <button onClick={() => setShowContactModal(true)} className="btn btn-primary shadow-sm">
+                <button onClick={() => setShowContactModal(true)} className="btn btn-primary rounded-xl flex items-center neon-glow-teal">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg>
                     {t('contactOwnerButton')}
                 </button>
             </div>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-lg overflow-hidden border border-border">
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/10 relative">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
             {/* Header */}
             <div className="bg-gradient-to-r from-primary/10 to-transparent p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0">
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-primary/50 shadow-lg flex-shrink-0 neon-glow-teal">
                     <CinematicImage priority src={patient.photos[0]?.url} alt={patient.name} />
                  </div>
                  <div>
-                     <h1 className="text-4xl font-bold text-foreground mb-2">{patient.name}</h1>
+                     <h1 className="text-4xl font-bold text-white mb-2">{patient.name}</h1>
                      <div className="flex flex-wrap gap-3 items-center">
-                         <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-sm font-semibold shadow-sm text-foreground border border-border">{patient.breed}</span>
-                         <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-sm font-semibold shadow-sm text-foreground border border-border">{patient.age}</span>
-                         <span className={`px-3 py-1 rounded-full text-sm font-bold shadow-sm ${patient.isLost ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>{patient.isLost ? t('statusLost') : t('statusSafe')}</span>
+                         <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-bold text-white border border-white/10">{patient.breed}</span>
+                         <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-bold text-white border border-white/10">{patient.age}</span>
+                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${patient.isLost ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>{patient.isLost ? t('statusLost') : t('statusSafe')}</span>
                      </div>
                  </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-border px-8">
-                <button 
-                    onClick={() => setActiveTab('overview')} 
-                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            <div className="flex border-b border-white/10 px-8">
+                <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`py-4 px-6 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'}`}
                 >
                     {t('tabOverview')}
                 </button>
-                <button 
-                    onClick={() => setActiveTab('medical')} 
-                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'medical' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                <button
+                    onClick={() => setActiveTab('medical')}
+                    className={`py-4 px-6 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${activeTab === 'medical' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'}`}
                 >
                     {t('tabMedical')}
                 </button>
-                 <button 
-                    onClick={() => setActiveTab('media')} 
-                    className={`py-4 px-6 font-semibold border-b-2 transition-colors ${activeTab === 'media' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                 <button
+                    onClick={() => setActiveTab('media')}
+                    className={`py-4 px-6 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${activeTab === 'media' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'}`}
                 >
                     {t('tabMedia')}
                 </button>
@@ -136,32 +137,32 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                 {activeTab === 'overview' && (
                     <div className="grid md:grid-cols-2 gap-12">
                          <div>
-                            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">{t('keyInfoTitle')}</h3>
+                            <h3 className="text-lg font-bold text-white mb-4 border-b border-white/10 pb-2">{t('keyInfoTitle')}</h3>
                             <dl className="space-y-4">
                                 <div className="flex justify-between">
-                                    <dt className="text-muted-foreground font-medium">{t('ownerEmailLabel')}</dt>
-                                    <dd className="text-foreground font-semibold">{patient.ownerEmail}</dd>
+                                    <dt className="text-slate-400 font-medium">{t('ownerEmailLabel')}</dt>
+                                    <dd className="text-white font-bold font-mono text-sm">{patient.ownerEmail}</dd>
                                 </div>
                                 <div className="flex justify-between">
-                                    <dt className="text-muted-foreground font-medium">{t('weightLabel')}</dt>
-                                    <dd className="text-foreground font-semibold">{patient.weight}</dd>
+                                    <dt className="text-slate-400 font-medium">{t('weightLabel')}</dt>
+                                    <dd className="text-white font-bold">{patient.weight}</dd>
                                 </div>
                                  <div>
-                                    <dt className="text-muted-foreground font-medium mb-1">{t('behaviorLabel')}</dt>
-                                    <dd className="text-foreground bg-muted p-3 rounded-lg text-sm">{patient.behavior || 'N/A'}</dd>
+                                    <dt className="text-slate-400 font-medium mb-1">{t('behaviorLabel')}</dt>
+                                    <dd className="text-slate-300 bg-white/5 p-3 rounded-xl text-sm border border-white/5">{patient.behavior || 'N/A'}</dd>
                                 </div>
                             </dl>
                         </div>
                          <div>
-                            <h3 className="text-lg font-bold text-foreground mb-4 border-b border-border pb-2">{t('quickMedicalView')}</h3>
+                            <h3 className="text-lg font-bold text-white mb-4 border-b border-white/10 pb-2">{t('quickMedicalView')}</h3>
                              <div className="space-y-3">
-                                <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/30">
-                                    <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide block mb-1">{t('allergiesLabel')}</span>
-                                    <p className="text-foreground font-medium">{patient.medicalRecord?.allergies || t('noneReported')}</p>
+                                <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+                                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider block mb-1">{t('allergiesLabel')}</span>
+                                    <p className="text-white font-medium">{patient.medicalRecord?.allergies || t('noneReported')}</p>
                                 </div>
-                                 <div className="p-3 bg-amber-50 dark:bg-amber-900/10 rounded-lg border border-amber-100 dark:border-amber-900/30">
-                                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide block mb-1">{t('chronicConditionsLabel')}</span>
-                                    <p className="text-foreground font-medium">{patient.medicalRecord?.chronicConditions || t('noneReported')}</p>
+                                 <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">{t('chronicConditionsLabel')}</span>
+                                    <p className="text-white font-medium">{patient.medicalRecord?.chronicConditions || t('noneReported')}</p>
                                 </div>
                              </div>
                         </div>
@@ -169,16 +170,17 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                 )}
 
                 {activeTab === 'overview' && (
-                    <div className="mt-12 border-t border-border pt-8">
+                    <div className="mt-12 border-t border-white/10 pt-8">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                <span className="status-pulse-green" />
                                 {t('aiProactiveInsights')}
+                                <span className="flex-1 h-px bg-gradient-to-r from-primary/20 to-transparent"></span>
                             </h3>
-                            <button 
-                                onClick={handleCheckHealth} 
+                            <button
+                                onClick={handleCheckHealth}
                                 disabled={isAnalyzing}
-                                className="btn btn-secondary !py-1.5 !px-4 text-xs font-bold shadow-md flex items-center gap-2"
+                                className="glass-btn !py-1.5 !px-4 text-xs font-bold flex items-center gap-2"
                             >
                                 {isAnalyzing ? <LoadingSpinner size="sm" /> : (
                                     <>
@@ -198,8 +200,8 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-muted/30 rounded-2xl p-8 text-center border border-dashed border-border">
-                                <p className="text-sm text-muted-foreground">{t('noInsightsYet') || "No AI insights generated yet. Click the button above to analyze patient data."}</p>
+                            <div className="bg-white/5 rounded-2xl p-8 text-center border border-dashed border-white/10 hud-grid-bg">
+                                <p className="text-sm text-slate-400">{t('noInsightsYet') || "No AI insights generated yet. Click the button above to analyze patient data."}</p>
                             </div>
                         )}
                     </div>
@@ -207,7 +209,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
 
                 {activeTab === 'medical' && (
                     <div className="max-w-3xl">
-                         <h3 className="text-lg font-bold text-foreground mb-6">{t('medicalRecordTitle')} & Timeline</h3>
+                         <h3 className="text-lg font-bold text-white mb-6">{t('medicalRecordTitle')} & Timeline</h3>
                          <div className="mt-4">
                             {/* Mock initial registration */}
                             <TimelineItem 
@@ -234,8 +236,8 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
                                 />
                             ))}
                              <div className="relative pl-8 pt-2">
-                                <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-border"></div>
-                                <p className="text-xs text-muted-foreground uppercase tracking-widest">{t('startOfRecords')}</p>
+                                <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-white/20"></div>
+                                <p className="text-xs text-slate-500 uppercase tracking-widest font-mono">{t('startOfRecords')}</p>
                             </div>
                          </div>
                     </div>
@@ -262,17 +264,17 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
       </div>
       
       {showContactModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
-            <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-lg">
-                <h3 className="text-xl font-bold text-card-foreground">{t('contactOwnerButton')}</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 no-print">
+            <div className="bg-slate-900/95 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-2xl p-6 w-full max-w-lg neon-border">
+                <h3 className="text-xl font-bold text-white">{t('contactOwnerButton')}</h3>
                 <div className="mt-4 space-y-4">
                     <div><label htmlFor="topic" className={labelStyles}>{t('messageTopicLabel')}</label><input type="text" id="topic" value={messageTopic} onChange={e => setMessageTopic(e.target.value)} className="input-base mt-1" placeholder={t('aiAssistantPlaceholder')} /></div>
-                    <button onClick={handleDraftMessage} disabled={isDrafting || !messageTopic} className="btn btn-primary w-full flex justify-center items-center">{isDrafting ? <LoadingSpinner/> : t('draftMessageButton')}</button>
+                    <button onClick={handleDraftMessage} disabled={isDrafting || !messageTopic} className="btn btn-primary w-full flex justify-center items-center rounded-xl">{isDrafting ? <LoadingSpinner/> : t('draftMessageButton')}</button>
                     {generatedMessage && (<div><label className={labelStyles}>{t('generatedMessageLabel')}</label><textarea value={generatedMessage} onChange={e => setGeneratedMessage(e.target.value)} rows={6} className="input-base mt-1 text-sm p-3"></textarea></div>)}
                 </div>
                 <div className="mt-6 flex justify-end space-x-3">
-                    <button onClick={() => setShowContactModal(false)} className="btn btn-secondary">{t('cancelButton')}</button>
-                    <button onClick={sendMessage} disabled={!generatedMessage} className="btn btn-primary !bg-green-600 hover:!bg-green-700">{t('sendMessageToOwner')}</button>
+                    <button onClick={() => setShowContactModal(false)} className="glass-btn !py-2 !px-4 text-sm">{t('cancelButton')}</button>
+                    <button onClick={sendMessage} disabled={!generatedMessage} className="btn btn-primary !bg-green-600 hover:!bg-green-500 rounded-xl neon-glow-green">{t('sendMessageToOwner')}</button>
                 </div>
             </div>
         </div>

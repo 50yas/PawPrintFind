@@ -132,7 +132,7 @@ export const fetchAvailableModels = async (): Promise<{ id: string, name: string
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     // Placeholder - can be implemented similarly to other methods if needed
     // For now, it will use the prompt-based approach via callOpenRouterAI
-    const { userPrompt } = Prompts.getMatchExplanationPrompt(pet, filters);
+    const userPrompt = Prompts.getMatchExplanationPrompt(pet, filters);
     const messages = [{ role: "user", content: userPrompt }];
     
     try {

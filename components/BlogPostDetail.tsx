@@ -34,7 +34,7 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
 
     return (
         <article className="max-w-4xl mx-auto px-4 py-12 animate-fade-in pb-24">
-            <button onClick={onBack} className="text-foreground hover:text-primary font-bold mb-8 flex items-center gap-2 sticky top-24 bg-card/80 backdrop-blur-md rounded-full px-5 py-2.5 w-fit z-50 border border-border shadow-lg transition-all hover:scale-105">
+            <button onClick={onBack} className="text-white hover:text-primary font-bold mb-8 flex items-center gap-2 sticky top-24 bg-white/5 backdrop-blur-md rounded-full px-5 py-2.5 w-fit z-50 border border-white/10 shadow-lg transition-all hover:scale-105">
                 &larr; Back
             </button>
 
@@ -53,9 +53,9 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
                             <span key={tag} className="bg-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm border border-primary/30">{tag}</span>
                         ))}
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6 leading-tight drop-shadow-sm">{displayPost.title}</h1>
-                    <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground font-mono">
-                        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full">
+                    <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-sm">{displayPost.title}</h1>
+                    <div className="flex items-center justify-center gap-6 text-sm text-slate-400 font-mono">
+                        <div className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-[10px]">
                                 {displayPost.author.charAt(0)}
                             </div>
@@ -71,17 +71,17 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
             </header>
 
             {/* Content Area */}
-            <div className="prose prose-lg dark:prose-invert prose-teal mx-auto prose-img:rounded-2xl prose-img:shadow-xl prose-headings:font-extrabold">
-                <p className="lead text-xl text-muted-foreground font-medium mb-8 border-l-4 border-primary pl-4">{displayPost.summary}</p>
+            <div className="prose prose-lg prose-invert prose-teal mx-auto prose-img:rounded-2xl prose-img:shadow-xl prose-headings:font-extrabold">
+                <p className="lead text-xl text-slate-400 font-medium mb-8 border-l-4 border-primary pl-4">{displayPost.summary}</p>
                 <div dangerouslySetInnerHTML={{ __html: displayPost.content }} />
             </div>
 
             {/* Footer */}
-            <div className="mt-20 pt-10 border-t border-border text-center">
-                <p className="text-muted-foreground text-sm italic mb-6">Found this helpful? Share it with your community.</p>
+            <div className="mt-20 pt-10 border-t border-white/10 text-center">
+                <p className="text-slate-400 text-sm italic mb-6">Found this helpful? Share it with your community.</p>
                 <div className="flex justify-center gap-4">
-                    <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayPost.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank')} className="btn btn-secondary text-xs px-6">Twitter</button>
-                    <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')} className="btn btn-secondary text-xs px-6">Facebook</button>
+                    <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayPost.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank')} className="glass-btn text-xs px-6">Twitter</button>
+                    <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')} className="glass-btn text-xs px-6">Facebook</button>
                 </div>
             </div>
         </article>

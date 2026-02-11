@@ -44,7 +44,7 @@ export const RedeemCodeModal: React.FC<RedeemCodeModalProps> = ({ isOpen, onClos
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="text-center mb-6">
                             <div className="text-4xl mb-2">🎁</div>
-                            <p className="text-muted-foreground text-sm">{t('redeemCodeDesc')}</p>
+                            <p className="text-slate-400 text-sm">{t('redeemCodeDesc')}</p>
                         </div>
                         <div>
                             <input
@@ -69,12 +69,12 @@ export const RedeemCodeModal: React.FC<RedeemCodeModalProps> = ({ isOpen, onClos
                         <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
                             🎉
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-2">{t('congratulations')}</h3>
-                        <p className="text-muted-foreground">{t('youUnlocked')}</p>
+                        <h3 className="text-2xl font-bold text-white mb-2">{t('congratulations')}</h3>
+                        <p className="text-slate-400">{t('youUnlocked')}</p>
                         <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-xl">
                             <span className="font-black text-xl text-primary">{result.reward}</span>
                         </div>
-                        <button onClick={onClose} className="mt-8 btn btn-secondary w-full">
+                        <button onClick={onClose} className="mt-8 glass-btn w-full">
                             {t('closeButton')}
                         </button>
                     </div>

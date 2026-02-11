@@ -33,7 +33,7 @@ export const RoleExplorer: React.FC = () => {
                         onClick={() => setActiveRole(role)}
                         className={`flex-1 py-3 px-4 rounded-full text-sm font-bold transition-all duration-300 ${
                             activeRole === role 
-                            ? 'bg-card text-primary shadow-md scale-105 border border-primary/20' 
+                            ? 'bg-white/5 backdrop-blur-xl text-primary shadow-md scale-105 border border-primary/20' 
                             : 'text-gray-400 hover:text-white'
                         }`}
                     >
@@ -47,11 +47,11 @@ export const RoleExplorer: React.FC = () => {
                 <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent -z-10"></div>
 
                 {content[activeRole].map((step, idx) => (
-                    <div key={`${activeRole}-${idx}`} className="animate-fade-in text-center p-8 bg-card/90 rounded-2xl border border-white/10 backdrop-blur-xl hover:bg-card hover:border-primary/30 transition-all duration-300 shadow-xl group hover:-translate-y-1">
+                    <div key={`${activeRole}-${idx}`} className="animate-fade-in text-center p-8 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-primary/30 transition-all duration-300 shadow-xl group hover:-translate-y-1">
                         <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-3xl shadow-lg mb-6 transform rotate-3 group-hover:rotate-0 transition-transform">
                             {step.icon}
                         </div>
-                        <h4 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">{step.title}</h4>
+                        <h4 className="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">{step.title}</h4>
                         <p className="text-sm text-gray-300 font-medium leading-relaxed">{step.desc}</p>
                     </div>
                 ))}

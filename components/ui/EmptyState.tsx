@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { GlassButton } from './GlassButton';
 
 interface EmptyStateProps {
@@ -83,13 +84,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             )}
 
             {/* Title */}
-            <h3 className={`font-bold text-foreground ${sizes.title} relative z-10`}>
+            <h3 className={`font-bold text-white ${sizes.title} relative z-10`}>
                 {title}
             </h3>
 
             {/* Description */}
             {description && (
-                <p className={`text-muted-foreground ${sizes.description} mx-auto relative z-10`}>
+                <p className={`text-slate-400 ${sizes.description} mx-auto relative z-10`}>
                     {description}
                 </p>
             )}
@@ -112,76 +113,98 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
 /**
  * Preset empty states for common scenarios
+ * Now fully internationalized (i18n)
  */
 export const EmptyStates = {
-    NoPets: ({ onAction }: { onAction?: () => void }) => (
-        <EmptyState
-            icon="🐾"
-            title="No Pets Yet"
-            description="Start by registering your first pet to unlock all features and keep them safe."
-            actionLabel="Register Pet"
-            onAction={onAction}
-        />
-    ),
+    NoPets: ({ onAction }: { onAction?: () => void }) => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="🐾"
+                title={t('emptyState.noPets.title')}
+                description={t('emptyState.noPets.description')}
+                actionLabel={t('emptyState.noPets.action')}
+                onAction={onAction}
+            />
+        );
+    },
 
-    NoResults: ({ query, onClear }: { query?: string; onClear?: () => void }) => (
-        <EmptyState
-            icon="🔍"
-            title="No Results Found"
-            description={query ? `No matches found for "${query}". Try adjusting your search.` : "Try adjusting your filters or search terms."}
-            actionLabel={onClear ? "Clear Filters" : undefined}
-            onAction={onClear}
-            actionVariant="secondary"
-        />
-    ),
+    NoResults: ({ query, onClear }: { query?: string; onClear?: () => void }) => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="🔍"
+                title={t('emptyState.noResults.title')}
+                description={query ? t('emptyState.noResults.descriptionWithQuery', { query }) : t('emptyState.noResults.description')}
+                actionLabel={onClear ? t('emptyState.noResults.action') : undefined}
+                onAction={onClear}
+                actionVariant="secondary"
+            />
+        );
+    },
 
-    NoMessages: () => (
-        <EmptyState
-            icon="💬"
-            title="No Messages"
-            description="When you receive messages or notifications, they'll appear here."
-            size="sm"
-        />
-    ),
+    NoMessages: () => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="💬"
+                title={t('emptyState.noMessages.title')}
+                description={t('emptyState.noMessages.description')}
+                size="sm"
+            />
+        );
+    },
 
-    NoSightings: () => (
-        <EmptyState
-            icon="👀"
-            title="No Sightings Yet"
-            description="Sightings from the community will appear here when someone spots your pet."
-            size="sm"
-        />
-    ),
+    NoSightings: () => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="👀"
+                title={t('emptyState.noSightings.title')}
+                description={t('emptyState.noSightings.description')}
+                size="sm"
+            />
+        );
+    },
 
-    NoAppointments: ({ onAction }: { onAction?: () => void }) => (
-        <EmptyState
-            icon="📅"
-            title="No Upcoming Appointments"
-            description="Schedule a vet visit to keep your pet healthy and happy."
-            actionLabel="Book Appointment"
-            onAction={onAction}
-        />
-    ),
+    NoAppointments: ({ onAction }: { onAction?: () => void }) => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="📅"
+                title={t('emptyState.noAppointments.title')}
+                description={t('emptyState.noAppointments.description')}
+                actionLabel={t('emptyState.noAppointments.action')}
+                onAction={onAction}
+            />
+        );
+    },
 
-    Error: ({ onRetry }: { onRetry?: () => void }) => (
-        <EmptyState
-            icon="⚠️"
-            title="Something Went Wrong"
-            description="We couldn't load this content. Please try again."
-            actionLabel="Retry"
-            onAction={onRetry}
-            actionVariant="secondary"
-        />
-    ),
+    Error: ({ onRetry }: { onRetry?: () => void }) => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="⚠️"
+                title={t('emptyState.error.title')}
+                description={t('emptyState.error.description')}
+                actionLabel={t('emptyState.error.action')}
+                onAction={onRetry}
+                actionVariant="secondary"
+            />
+        );
+    },
 
-    Offline: () => (
-        <EmptyState
-            icon="📡"
-            title="You're Offline"
-            description="Please check your internet connection and try again."
-            size="sm"
-        />
-    ),
+    Offline: () => {
+        const { t } = useTranslation();
+        return (
+            <EmptyState
+                icon="📡"
+                title={t('emptyState.offline.title')}
+                description={t('emptyState.offline.description')}
+                size="sm"
+            />
+        );
+    },
 };
 
 export default EmptyState;

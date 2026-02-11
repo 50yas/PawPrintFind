@@ -36,9 +36,9 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
       <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content: Animals List */}
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 {t('dashboard:shelter.animalsForAdoptionTitle')}
-                <span className="bg-muted text-muted-foreground text-sm px-2 py-1 rounded-full font-normal">{shelterPets.length}</span>
+                <span className="bg-primary/10 text-primary text-sm px-3 py-1 rounded-full font-mono font-bold border border-primary/20">{shelterPets.length}</span>
             </h2>
             
             {shelterPets.length > 0 ? (
@@ -48,46 +48,49 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
                 ))}
               </div>
             ) : (
-              <div className="bg-muted/30 p-12 rounded-3xl text-center border-2 border-dashed border-border flex flex-col items-center">
-                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+              <div className="bg-white/5 backdrop-blur-xl p-12 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center hud-grid-bg relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+                <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-white/10 neon-glow-teal">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-white">{t('dashboard:shelter.noAnimalsRegistered')}</h3>
+                    <p className="text-slate-400 mt-2 mb-6 max-w-md">{t('dashboard:shelter.noAnimalsRegisteredDesc')}</p>
+                    <button onClick={onRegisterNew} className="btn btn-primary rounded-xl neon-glow-teal">{t('dashboard:shelter.registerFirstAnimalButton')}</button>
                 </div>
-                <h3 className="text-xl font-bold text-foreground">{t('dashboard:shelter.noAnimalsRegistered')}</h3>
-                <p className="text-muted-foreground mt-2 mb-6 max-w-md">{t('dashboard:shelter.noAnimalsRegisteredDesc')}</p>
-                <button onClick={onRegisterNew} className="btn btn-primary">{t('dashboard:shelter.registerFirstAnimalButton')}</button>
               </div>
             )}
           </div>
 
           {/* Sidebar: Messages */}
           <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                   {t('adoptionInquiriesTitle')}
-                  {chatSessions.length > 0 && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
+                  {chatSessions.length > 0 && <span className="status-pulse-red"></span>}
               </h2>
-              
-              <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden h-[400px] overflow-y-auto">
+
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden h-[400px] overflow-y-auto custom-scrollbar">
                   {chatSessions.length > 0 ? (
-                      <div className="divide-y divide-border">
+                      <div className="divide-y divide-white/5">
                           {chatSessions.map(chat => (
-                              <div key={chat.id} onClick={() => onOpenChat(chat.id)} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors flex items-start gap-3 group">
-                                  <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                    <CinematicImage src={chat.petPhotoUrl} alt={chat.petName} className="w-full h-full object-cover bg-gray-200" />
-                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 border-2 border-white rounded-full"></div>
+                              <div key={chat.id} onClick={() => onOpenChat(chat.id)} className="p-4 hover:bg-primary/5 cursor-pointer transition-colors flex items-start gap-3 group">
+                                  <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                                    <CinematicImage src={chat.petPhotoUrl} alt={chat.petName} className="w-full h-full object-cover" />
+                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 border-2 border-slate-900 rounded-full"></div>
                                   </div>
                                   <div className="flex-grow min-w-0">
                                       <div className="flex justify-between items-start mb-1">
-                                          <p className="font-bold text-sm text-foreground truncate">{chat.petName}</p>
-                                          <span className="text-[10px] text-muted-foreground">{t('dashboard:shelter.now')}</span>
+                                          <p className="font-bold text-sm text-white truncate">{chat.petName}</p>
+                                          <span className="text-[10px] text-slate-500 font-mono">{t('dashboard:shelter.now')}</span>
                                       </div>
-                                      <p className="text-xs text-muted-foreground truncate">{chat.finderEmail}</p>
-                                      <p className="text-xs text-primary mt-2 font-medium group-hover:underline">{t('dashboard:shelter.viewConversation')} &rarr;</p>
+                                      <p className="text-xs text-slate-400 truncate">{chat.finderEmail}</p>
+                                      <p className="text-xs text-primary mt-2 font-bold group-hover:underline">{t('dashboard:shelter.viewConversation')} &rarr;</p>
                                   </div>
                               </div>
                           ))}
                       </div>
                   ) : (
-                      <div className="h-full flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
+                      <div className="h-full flex flex-col items-center justify-center p-6 text-center text-slate-400">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
                           <p>{t('dashboard:shelter.noInquiries')}</p>
                       </div>
@@ -97,12 +100,12 @@ export const ShelterDashboard: React.FC<ShelterDashboardProps> = ({ shelterPets,
               {/* Shelter Kit Section */}
               <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 p-6 rounded-2xl border border-indigo-500/20">
                   <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center text-2xl">
+                      <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-2xl border border-indigo-500/20">
                           📦
                       </div>
                       <div>
-                          <h3 className="font-bold text-foreground">{t('dashboard:shelter.shelterKitTitle')}</h3>
-                          <p className="text-xs text-muted-foreground">{t('dashboard:shelter.shelterKitDesc')}</p>
+                          <h3 className="font-bold text-white">{t('dashboard:shelter.shelterKitTitle')}</h3>
+                          <p className="text-xs text-slate-400">{t('dashboard:shelter.shelterKitDesc')}</p>
                       </div>
                   </div>
                   <button className="w-full btn bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2">

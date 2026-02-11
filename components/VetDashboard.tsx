@@ -32,18 +32,18 @@ const StatWidget: React.FC<{ title: string; value: number; icon: React.ReactNode
 );
 
 const ActionCard: React.FC<{ title: string; description: string; onClick: () => void; icon: React.ReactNode; isPro?: boolean }> = ({ title, description, onClick, icon, isPro }) => (
-    <div onClick={onClick} className={`bg-card p-5 rounded-2xl border border-border cursor-pointer hover:bg-muted/50 transition-colors flex items-center gap-4 group ${isPro ? 'border-amber-500/30 bg-amber-500/5' : ''}`}>
-        <div className={`p-3 rounded-xl ${isPro ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'} group-hover:bg-primary group-hover:text-white transition-colors`}>
+    <div onClick={onClick} className={`bg-white/5 backdrop-blur-xl p-5 rounded-2xl border cursor-pointer hover:bg-primary/10 transition-all flex items-center gap-4 group scan-hover ${isPro ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10'}`}>
+        <div className={`p-3 rounded-xl ${isPro ? 'bg-amber-500/10 text-amber-500' : 'bg-primary/10 text-primary'} group-hover:bg-primary group-hover:text-white transition-colors`}>
             {icon}
         </div>
         <div>
             <div className="flex items-center gap-2">
-                <h4 className="font-bold text-foreground text-sm">{title}</h4>
-                {isPro && <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">PRO</span>}
+                <h4 className="font-bold text-white text-sm">{title}</h4>
+                {isPro && <span className="text-[10px] font-black bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded uppercase border border-amber-500/20">PRO</span>}
             </div>
-            <p className="text-xs text-muted-foreground">{description}</p>
+            <p className="text-xs text-slate-400">{description}</p>
         </div>
-        <div className="ml-auto text-muted-foreground group-hover:text-primary transition-colors">
+        <div className="ml-auto text-slate-500 group-hover:text-primary transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
         </div>
     </div>
@@ -193,21 +193,21 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                     title={t('pendingRequests')}
                     value={pendingPatientCount}
                     onClick={() => setView('myPatients')}
-                    colorClass="bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+                    colorClass="bg-orange-500/20 text-orange-400"
                     icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>}
                 />
                 <StatWidget
                     title={t('pendingAppointmentsStat')}
                     value={pendingAppointmentCount}
                     onClick={() => setView('smartCalendar')}
-                    colorClass="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                    colorClass="bg-blue-500/20 text-blue-400"
                     icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
                 />
                 <StatWidget
                     title={t('confirmedPatients')}
                     value={confirmedPatientCount}
                     onClick={() => setView('myPatients')}
-                    colorClass="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    colorClass="bg-emerald-500/20 text-emerald-400"
                     icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}
                 />
             </div>
@@ -215,23 +215,24 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
             <div className="grid lg:grid-cols-3 gap-8">
                 {/* Today's Schedule */}
                 <div className="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/20">
-                    <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-2 h-6 bg-primary rounded-full"></span>
                         {t('todaysScheduleTitle')}
+                        <span className="flex-1 h-px bg-gradient-to-r from-primary/20 to-transparent"></span>
                     </h3>
                     {todaysAppointments.length > 0 ? (
                         <div className="space-y-3">
                             {todaysAppointments.sort((a, b) => a.time.localeCompare(b.time)).map(app => (
-                                <div key={app.id} className="flex items-center gap-4 p-4 bg-card/50 rounded-xl border border-border/50 hover:border-primary/30 transition-all hover:bg-card">
-                                    <div className="flex-shrink-0 w-20 text-center bg-primary/5 rounded-lg py-2 border border-primary/10">
-                                        <p className="font-bold text-lg text-primary">{app.time}</p>
+                                <div key={app.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-primary/30 transition-all hover:bg-primary/5">
+                                    <div className="flex-shrink-0 w-20 text-center bg-primary/10 rounded-xl py-2 border border-primary/20">
+                                        <p className="font-mono font-bold text-lg text-primary">{app.time}</p>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-foreground text-lg">{app.petName}</h4>
-                                        <p className="text-sm text-muted-foreground">{app.notes || t('generalCheckup')}</p>
+                                        <h4 className="font-bold text-white text-lg">{app.petName}</h4>
+                                        <p className="text-sm text-slate-400">{app.notes || t('generalCheckup')}</p>
                                     </div>
                                     <div className="ml-auto">
-                                        <span className="px-3 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full uppercase tracking-wide flex items-center gap-1">
+                                        <span className="px-3 py-1 text-xs font-bold bg-green-500/20 text-green-400 rounded-full uppercase tracking-wide flex items-center gap-1 border border-green-500/20">
                                             <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                             {t('confirmedStatus')}
                                         </span>
@@ -240,19 +241,19 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border flex flex-col items-center justify-center">
-                            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <div className="text-center py-16 bg-white/5 rounded-xl border border-dashed border-white/10 flex flex-col items-center justify-center hud-grid-bg">
+                            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                            <p className="text-muted-foreground font-medium">{t('noAppointmentsToday')}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard:vet.freeTime')}</p>
+                            <p className="text-slate-300 font-medium">{t('noAppointmentsToday')}</p>
+                            <p className="text-xs text-slate-500 mt-1">{t('dashboard:vet.freeTime')}</p>
                         </div>
                     )}
                 </div>
 
                 {/* Quick Actions */}
                 <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-foreground mb-4 px-2">{t('quickActionsTitle')}</h3>
+                    <h3 className="text-xl font-bold text-white mb-4 px-2">{t('quickActionsTitle')}</h3>
                     <ActionCard
                         title={t('manageClinicNav')}
                         description={t('dashboard:vet.actionManageClinicDesc')}

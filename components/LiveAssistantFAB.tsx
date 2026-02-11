@@ -86,9 +86,9 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
             {/* Desktop FAB Button (Hidden on mobile if not forcing open, relying on bottom nav) */}
             {!isOpen && !isMobile && (
                 <div className="fixed bottom-8 right-8 z-[9999] group no-print">
-                    <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-foreground px-3 py-1.5 rounded-xl shadow-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none transform translate-x-2 group-hover:translate-x-0 transition-transform border border-border hidden md:block">
+                    <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-slate-800 text-white px-3 py-1.5 rounded-xl shadow-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none transform translate-x-2 group-hover:translate-x-0 transition-transform border border-white/10 hidden md:block">
                         {t('askAiButtonLabel')}
-                        <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-white dark:bg-gray-800 border-t border-r border-border transform rotate-45"></div>
+                        <div className="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-2 bg-slate-800 border-t border-r border-white/10 transform rotate-45"></div>
                     </div>
 
                     <button
@@ -100,7 +100,7 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-sm animate-pulse"></div>
                         <div className="pulse-ring"></div>
                         
-                        <div className="absolute inset-2 bg-gradient-to-br from-primary to-secondary rounded-full shadow-2xl border-2 border-white/20 backdrop-blur-md overflow-hidden flex items-center justify-center bg-card">
+                        <div className="absolute inset-2 bg-gradient-to-br from-primary to-secondary rounded-full shadow-2xl border-2 border-white/20 backdrop-blur-md overflow-hidden flex items-center justify-center bg-white/5">
                              <div className="absolute inset-0 flex items-center justify-center text-primary/50 p-2">
                                 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="w-full h-full fill-current">
                                     <g transform="translate(0, 20) scale(0.9) translate(28, 0)">
@@ -131,7 +131,7 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
             {isOpen && (
                  <div
                     ref={chatWindowRef}
-                    className={`fixed bg-background dark:bg-gray-900 shadow-2xl flex flex-col z-[9999] no-print border border-border overflow-hidden
+                    className={`fixed bg-slate-900 shadow-2xl flex flex-col z-[9999] no-print border border-white/10 overflow-hidden
                         ${isMobile 
                             ? 'inset-0 w-full h-[100dvh] rounded-none animate-slide-up-mobile' // Fullscreen on mobile
                             : 'rounded-3xl w-[450px] h-[600px] animate-fade-in'
@@ -145,11 +145,11 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
                 >
                     <div
                         onMouseDown={!isMobile ? handleMouseDown : undefined}
-                        className={`p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border flex items-center justify-between select-none ${!isMobile ? 'cursor-move' : ''} pt-safe-top`}
+                        className={`p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-white/10 flex items-center justify-between select-none ${!isMobile ? 'cursor-move' : ''} pt-safe-top`}
                     >
                         <div className="flex items-center space-x-3 pointer-events-none">
                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary p-0.5 shadow-md">
-                                <div className="w-full h-full bg-card rounded-full overflow-hidden flex items-center justify-center">
+                                <div className="w-full h-full bg-slate-800 rounded-full overflow-hidden flex items-center justify-center">
                                     <img 
                                         src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png" 
                                         alt="AI" 
@@ -158,7 +158,7 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
                                 </div>
                            </div>
                            <div>
-                               <h3 className="font-bold text-foreground text-sm md:text-base">{t('liveAssistantTitle')}</h3>
+                               <h3 className="font-bold text-white text-sm md:text-base">{t('liveAssistantTitle')}</h3>
                                <p className="text-[10px] text-primary font-semibold uppercase tracking-wider flex items-center gap-1">
                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online
                                </p>
@@ -166,7 +166,7 @@ export const LiveAssistantFAB: React.FC<LiveAssistantFABProps> = ({ currentUserR
                         </div>
                         <button
                             onClick={handleClose}
-                            className="w-10 h-10 flex items-center justify-center rounded-full bg-muted hover:bg-red-500 hover:text-white transition-colors"
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-red-500 hover:text-white transition-colors"
                             aria-label="Close"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -52,8 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
   return (
     <nav
-      className={`fixed top-0 inset-x-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top ${navContainerClass} ${className}`}
-      style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
+      className={`fixed top-0 inset-x-0 w-full z-[1000] transition-all duration-500 border-b pt-safe-top will-change-transform ${navContainerClass} ${className}`}
     >
       <RedeemCodeModal isOpen={showRedeemModal} onClose={() => setShowRedeemModal(false)} />
 
@@ -78,17 +77,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-black tracking-tighter text-white">PAW PRINT <span className="logo-print-text">FIND</span></span>
-            <span className="text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">{t('visualBiometrics')}</span>
+            <span className="text-lg sm:text-2xl font-black tracking-tighter text-white">PAW PRINT <span className="logo-print-text">FIND</span></span>
+            <span className="hidden sm:block text-[8px] font-mono-tech text-primary/60 tracking-[0.3em] uppercase">{t('visualBiometrics')}</span>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center bg-white/5 border border-white/10 px-8 py-2 rounded-full backdrop-blur-md">
+        <div className="hidden lg:flex items-center bg-white/5 border border-white/10 px-8 py-2 rounded-full backdrop-blur-md neon-border">
           <div className="flex items-center gap-10">
             <button
               id="home-nav"
               onClick={() => handleNavClick('home')}
+              aria-label={t('homeButton')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('homeButton')}
@@ -103,6 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                   else if (role === 'super_admin') handleNavClick('adminDashboard');
                   else handleNavClick('dashboard');
                 }}
+                aria-label={t('dashboardButton')}
                 className="text-[11px] font-black uppercase tracking-widest transition-all text-primary hover:text-white hover:scale-105"
               >
                 {t('dashboardButton')}
@@ -111,18 +112,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
 
             <button
               onClick={() => handleNavClick('blog')}
+              aria-label={t('blogButton')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('blogButton')}
             </button>
             <button
               onClick={() => handleNavClick('lostPetsCenter')}
+              aria-label={t('showLostPets')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('showLostPets')}
             </button>
             <button
               onClick={() => handleNavClick('adoptionCenter')}
+              aria-label={t('adoptionLink')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('adoptionLink')}
@@ -130,12 +134,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
             <button
               id="community-nav"
               onClick={() => handleNavClick('home', 'how-it-works')}
+              aria-label={t('ecosystemButton')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('ecosystemButton')}
             </button>
             <button
               onClick={() => handleNavClick('home', 'support-us')}
+              aria-label={t('supportButton')}
               className="text-[11px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-white hover:scale-105"
             >
               {t('supportButton')}
@@ -192,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
                 {showProfileMenu && (
                   <>
                     <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
-                    <div className="absolute top-14 end-0 w-72 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-up-mobile">
+                    <div className="absolute top-14 end-0 w-72 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-up-mobile neon-border">
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-4 pb-4 border-b border-white/10">
                           <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-xl font-black text-primary border border-primary/20">
@@ -251,6 +257,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
           )}
         </div>
       </div>
+
+      {scrolled && (
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      )}
 
       <NavigationBottomSheet
         isOpen={showMobileMenu}

@@ -153,11 +153,11 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
         <button onClick={goBack} className="text-primary hover:brightness-125 font-semibold">&larr; {t('backButton')}</button>
 
         <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground">{t('findVetTitle')}</h2>
-            <p className="text-muted-foreground mt-2">{t('findVetDesc')}</p>
+            <h2 className="text-3xl font-bold text-white">{t('findVetTitle')}</h2>
+            <p className="text-slate-400 mt-2">{t('findVetDesc')}</p>
         </div>
         
-        <div className="bg-card p-6 rounded-lg shadow-md">
+        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl shadow-md border border-white/10 relative">
           <form onSubmit={(e) => { e.preventDefault(); handleSearch(searchQuery); }} className="flex flex-col sm:flex-row gap-2">
             <input 
               type="text"
@@ -168,7 +168,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
             />
             <div className="flex gap-2">
               <button type="submit" className="btn btn-primary flex-grow justify-center" disabled={isLoading}>{isLoading ? <LoadingSpinner /> : t('searchButton')}</button>
-              <button type="button" onClick={handleSearchNearMe} className="btn btn-secondary p-3" disabled={geoLoading || isLoading} title={t('searchNearMeButton')}>
+              <button type="button" onClick={handleSearchNearMe} className="glass-btn p-3" disabled={geoLoading || isLoading} title={t('searchNearMeButton')}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
               </button>
             </div>
@@ -182,13 +182,13 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
             </div>
         )}
 
-        {hasSearched && !isLoading && !geoLoading && !allVetsFound && <p className="text-center text-muted-foreground">{t('noVetsFound')}</p>}
+        {hasSearched && !isLoading && !geoLoading && !allVetsFound && <p className="text-center text-slate-400">{t('noVetsFound')}</p>}
 
         {(hasSearched || mode === 'linking') && (
             <div className="space-y-6">
                 {partnerVets.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="text-xl font-bold text-foreground border-b border-border pb-2">{t('partnerVetsSectionTitle')}</h3>
+                        <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2 flex items-center gap-3">{t('partnerVetsSectionTitle')}<span className="flex-1 h-px bg-gradient-to-r from-primary/20 to-transparent"></span></h3>
                         {partnerVets.map(vet => (
                             <VetCard 
                                 key={vet.vetEmail}
@@ -203,7 +203,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
 
                 {googleVets.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="text-xl font-bold text-foreground border-b border-border pb-2">{t('googleMapsSectionTitle')}</h3>
+                        <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2 flex items-center gap-3">{t('googleMapsSectionTitle')}<span className="flex-1 h-px bg-gradient-to-r from-primary/20 to-transparent"></span></h3>
                          {googleVets.filter(v => v.maps).map((vet, index) => (
                             <VetCard 
                                 key={index}

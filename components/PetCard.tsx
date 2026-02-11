@@ -82,11 +82,17 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
     
     // 3D Tilt State
     const cardRef = useRef<HTMLDivElement>(null);
+    const lastUpdateRef = useRef(0);
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
+    const [showActions, setShowActions] = useState(false);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const now = Date.now();
+        if (now - lastUpdateRef.current < 50) return;
+        lastUpdateRef.current = now;
+
         if (!cardRef.current) return;
-        
+
         const card = cardRef.current;
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -106,10 +112,11 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
     };
     
     return (
-        <div 
+        <div
             className="group relative w-full h-[480px] perspective-1000"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
+            onClick={() => setShowActions(prev => !prev)}
         >
             <GlassCard 
                 ref={cardRef}
@@ -178,15 +185,15 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
                 </div>
 
                 {/* 5. Action Panel (Slide Up on Hover) */}
-                <GlassCard className="absolute bottom-0 left-0 w-full rounded-none border-t border-white/10 p-5 transform translate-y-[65%] group-hover:translate-y-0 transition-transform duration-500 ease-out z-30 translate-z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] bg-slate-900/90 backdrop-blur-2xl">
+                <GlassCard className={`absolute bottom-0 left-0 w-full rounded-none border-t border-white/10 p-5 transform ${showActions ? 'translate-y-0' : 'translate-y-[65%]'} group-hover:translate-y-0 transition-transform duration-500 ease-out z-30 translate-z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] bg-slate-900/90 backdrop-blur-2xl`}>
                     
                     {/* Visible Strip (Buttons Preview) */}
                     <div className="flex justify-between items-center mb-6">
                         <div className="flex gap-4">
-                            <button onClick={(e) => { e.stopPropagation(); onEdit(pet); }} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-white/10 rounded-full" title={t('editButton')}>
+                            <button onClick={(e) => { e.stopPropagation(); onEdit(pet); }} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-white/10 rounded-full" title={t('editButton')} aria-label={t('editButton')}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); onHealthCheck(pet); }} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full" title={t('aiHealthCheckButton')}>
+                            <button onClick={(e) => { e.stopPropagation(); onHealthCheck(pet); }} className="text-slate-400 hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full" title={t('aiHealthCheckButton')} aria-label={t('aiHealthCheckButton')}>
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                             </button>
                         </div>
@@ -232,36 +239,36 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
 
 const CommunityPetCard: React.FC<CommunityPetCardProps> = ({ pet, onShare, onViewDetail, isGuardian, onEdit }) => {
     const { t } = useTranslations();
-    const statusColor = pet.isLost 
-        ? 'text-red-600 bg-red-100 dark:text-red-300 dark:bg-red-900/30' 
-        : 'text-green-600 bg-green-100 dark:text-green-300 dark:bg-green-900/30';
+    const statusColor = pet.isLost
+        ? 'text-red-300 bg-red-500/10'
+        : 'text-green-300 bg-green-500/10';
     
     return (
         <div 
-            className="bg-card rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-border cursor-pointer active:scale-95 transition-transform" 
+            className="bg-white/5 backdrop-blur-xl rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-white/10 cursor-pointer active:scale-95 transition-transform" 
             onPointerDown={(e) => {
                 if ((e.target as HTMLElement).closest('button')) return;
                 onViewDetail(pet);
             }}
         >
             <div className="md:flex">
-                <div className="md:flex-shrink-0 w-full md:w-48 h-48 relative">
+                <div className="md:flex-shrink-0 w-full md:w-48 h-40 md:h-48 relative">
                     <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-6 flex flex-col justify-between flex-grow">
                     <div>
                         <div className="flex justify-between items-start">
-                            <h3 className="text-2xl font-bold text-card-foreground">{pet.name}</h3>
+                            <h3 className="text-2xl font-bold text-white">{pet.name}</h3>
                             <span className={`px-3 py-1 text-sm font-semibold rounded-full ${statusColor}`}>{pet.isLost ? t('statusLost') : t('statusSafe')}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">{pet.breed}</p>
-                        <p className="text-xs text-muted-foreground mt-2">{t('guardians')}: {pet.guardianEmails.length}</p>
+                        <p className="text-sm text-slate-400 mt-1">{pet.breed}</p>
+                        <p className="text-xs text-slate-400 mt-2 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>{t('guardians')}: {pet.guardianEmails.length}</p>
                     </div>
                     <div className="mt-4 flex flex-row items-center justify-end gap-3">
                         {isGuardian && onEdit && (
                             <button onClick={(e) => { e.stopPropagation(); onEdit(pet); }} className="btn btn-ghost !py-1 !px-2 text-sm">{t('editButton')}</button>
                         )}
-                        <button onClick={(e) => { e.stopPropagation(); onShare(pet); }} className="btn btn-secondary !py-2 !px-4 text-sm">{t('shareButton')}</button>
+                        <button onClick={(e) => { e.stopPropagation(); onShare(pet); }} className="glass-btn !py-2 !px-4 text-sm">{t('shareButton')}</button>
                     </div>
                 </div>
             </div>
@@ -269,39 +276,42 @@ const CommunityPetCard: React.FC<CommunityPetCardProps> = ({ pet, onShare, onVie
     );
 };
 
-const MissionPetCard: React.FC<MissionPetCardProps> = ({ pet, distance, points, onClick, onViewDetail }) => (
-    <div 
-        onPointerDown={(e) => {
-            if ((e.target as HTMLElement).closest('button')) return;
-            if (onViewDetail) onViewDetail(pet);
-            else if (onClick) onClick();
-        }} 
-        className="bg-[#0f172a]/60 hover:bg-primary/10 border border-white/5 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] flex items-center gap-5 group relative overflow-hidden active:scale-95"
-    >
-        <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors">
-            <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay"></div>
-        </div>
-        <div className="flex-grow relative z-10">
-            <div className="flex justify-between items-start">
-                <h4 className="font-bold text-white text-xl group-hover:text-primary transition-colors tracking-tight">{pet.name}</h4>
-                <span className="text-[10px] font-mono font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">+{points} XP_BOUNTY</span>
+const MissionPetCard: React.FC<MissionPetCardProps> = ({ pet, distance, points, onClick, onViewDetail }) => {
+    const { t } = useTranslations();
+    return (
+        <div
+            onPointerDown={(e) => {
+                if ((e.target as HTMLElement).closest('button')) return;
+                if (onViewDetail) onViewDetail(pet);
+                else if (onClick) onClick();
+            }}
+            className="bg-[#0f172a]/60 hover:bg-primary/10 border border-white/5 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] flex items-center gap-5 group relative overflow-hidden active:scale-95"
+        >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
+            <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-colors">
+                <CinematicImage src={pet.photos[0]?.url} alt={pet.name} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-red-500/20 mix-blend-overlay"></div>
             </div>
-            <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{pet.breed} • SIGNAL_LOST</p>
-            <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-red-400 bg-red-400/5 w-fit px-2 py-0.5 rounded border border-red-400/20">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 animate-ping" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                GEOTAG: {distance} FROM_YOU
+            <div className="flex-grow relative z-10">
+                <div className="flex justify-between items-start">
+                    <h4 className="font-bold text-white text-xl group-hover:text-primary transition-colors tracking-tight">{pet.name}</h4>
+                    <span className="text-[10px] font-mono font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">+{points} pts</span>
+                </div>
+                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">{pet.breed} • {t('statusLost')}</p>
+                <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-red-400 bg-red-400/5 w-fit px-2 py-0.5 rounded border border-red-400/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    {distance}
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ShelterPetCard: React.FC<ShelterPetCardProps> = ({ pet, onEdit, onAdopt, onViewDetail }) => {
     const { t } = useTranslations();
     return (
         <div 
-            className="bg-card rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-border group cursor-pointer active:scale-95" 
+            className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-white/10 group cursor-pointer active:scale-95" 
             onPointerDown={(e) => {
                 if ((e.target as HTMLElement).closest('button')) return;
                 onViewDetail(pet);
@@ -317,14 +327,14 @@ const ShelterPetCard: React.FC<ShelterPetCardProps> = ({ pet, onEdit, onAdopt, o
                 <div className="p-6 flex flex-col justify-between flex-grow">
                     <div>
                         <div className="flex justify-between items-start">
-                            <h3 className="text-2xl font-bold text-card-foreground">{pet.name}</h3>
-                            <span className="text-xs bg-muted px-2 py-1 rounded font-mono text-muted-foreground">ID: {pet.id.substring(0, 6)}</span>
+                            <h3 className="text-2xl font-bold text-white">{pet.name}</h3>
+                            <span className="text-xs bg-white/5 px-2 py-1 rounded font-mono text-slate-400">ID: {pet.id.substring(0, 6)}</span>
                         </div>
                         <p className="text-sm font-medium text-primary mt-1">{pet.breed} • {pet.age}</p>
-                        <p className="text-sm text-muted-foreground mt-3 line-clamp-2">{pet.behavior}</p>
+                        <p className="text-sm text-slate-400 mt-3 line-clamp-2">{pet.behavior}</p>
                     </div>
                     <div className="mt-6 flex flex-wrap gap-3 sm:justify-end">
-                        <button onClick={(e) => { e.stopPropagation(); onEdit(pet); }} className="btn btn-secondary text-sm !px-4 !py-2 flex items-center gap-2">
+                        <button onClick={(e) => { e.stopPropagation(); onEdit(pet); }} className="glass-btn text-sm !px-4 !py-2 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
                             {t('editButton')}
                         </button>

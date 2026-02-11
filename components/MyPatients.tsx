@@ -83,23 +83,23 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
 
         {/* Pending Requests Banner */}
         {pendingRequests.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 fade-in-down">
-            <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-4 flex items-center gap-2">
+          <div className="bg-amber-900/20 border border-amber-800 rounded-xl p-6 fade-in-down">
+            <h3 className="text-xl font-bold text-amber-200 mb-4 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 {t('pendingRequests')} ({pendingRequests.length})
             </h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {pendingRequests.map(pet => (
-                <div key={pet.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm flex items-center gap-4 border border-border">
+                <div key={pet.id} className="bg-white/5 backdrop-blur-xl p-4 rounded-xl shadow-sm flex items-center gap-4 border border-white/10 scan-hover">
                   <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
                     <CinematicImage src={pet.photos[0]?.url} alt={pet.name} />
                   </div>
                   <div className="flex-grow min-w-0">
-                      <p className="font-bold text-foreground truncate">{pet.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{pet.ownerEmail}</p>
+                      <p className="font-bold text-white truncate">{pet.name}</p>
+                      <p className="text-xs text-slate-400 truncate">{pet.ownerEmail}</p>
                       <div className="flex mt-2 gap-2">
                         <button onClick={() => handleAcceptClick(pet.id)} className="flex-1 btn btn-primary !bg-green-600 !text-xs !py-1">{t('acceptButton')}</button>
-                        <button onClick={() => onDecline(pet.id)} className="flex-1 btn btn-secondary !text-xs !py-1">{t('declineButton')}</button>
+                        <button onClick={() => onDecline(pet.id)} className="flex-1 glass-btn !text-xs !py-1">{t('declineButton')}</button>
                       </div>
                   </div>
                 </div>
@@ -109,15 +109,16 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
         )}
 
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-4 rounded-2xl border border-border shadow-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/5 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-sm relative">
             <div>
-                <h2 className="text-2xl font-bold text-foreground">{t('myPatientsTitle')}</h2>
-                <p className="text-sm text-muted-foreground">{t('confirmedPatients', { count: vetPatients.length })}</p>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                <h2 className="text-2xl font-bold text-white">{t('myPatientsTitle')}</h2>
+                <p className="text-sm text-slate-400">{t('confirmedPatients', { count: vetPatients.length })}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <div className="relative flex-grow sm:flex-grow-0 sm:w-64">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
+                        <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
                     </div>
                     <input 
                         type="text" 
@@ -148,16 +149,16 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                     </div>
                     <div className="p-5">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-semibold px-2 py-1 rounded-md bg-muted text-foreground flex items-center gap-1">
+                            <span className="text-xs font-semibold px-2 py-1 rounded-md bg-white/5 text-white flex items-center gap-1">
                                 <span className={`w-2 h-2 rounded-full ${pet.isLost ? 'bg-red-500' : 'bg-green-500'}`}></span>
                                 {pet.isLost ? t('statusLost') : t('statusSafe')}
                             </span>
                             {pet.medicalRecord?.vaccinations?.length ? (
-                                <span className="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-1 rounded-full font-bold">{t('vaccinatedBadge')}</span>
+                                <span className="text-[10px] bg-blue-500/10 text-blue-300 px-2 py-1 rounded-full font-bold">{t('vaccinatedBadge')}</span>
                             ) : null}
                         </div>
                         
-                        <div className="space-y-2 text-sm text-muted-foreground">
+                        <div className="space-y-2 text-sm text-slate-400">
                             <div className="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                 <span className="truncate">{pet.ownerEmail}</span>
@@ -170,18 +171,18 @@ export const MyPatients: React.FC<MyPatientsProps> = ({ vetPatients, pendingRequ
                             )}
                         </div>
 
-                        <button className="mt-4 w-full btn btn-secondary group-hover:bg-primary group-hover:text-white transition-colors">{t('viewRecordButton')}</button>
+                        <button className="mt-4 w-full glass-btn group-hover:bg-primary group-hover:text-white transition-colors">{t('viewRecordButton')}</button>
                     </div>
                 </div>
                 ))}
             </div>
         ) : (
-            <div className="text-center py-20 glass-panel rounded-2xl">
-                <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center mb-6">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            <div className="text-center py-20 glass-panel rounded-2xl hud-grid-bg">
+                <div className="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-6">
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-foreground">{t('noPatientsYet')}</h3>
-                <p className="text-muted-foreground mt-2 mb-6 max-w-md mx-auto">{t('noPatientsYetDesc')}</p>
+                <h3 className="text-xl font-bold text-white">{t('noPatientsYet')}</h3>
+                <p className="text-slate-400 mt-2 mb-6 max-w-md mx-auto">{t('noPatientsYetDesc')}</p>
                 <button onClick={() => setIsAddingPatient(true)} className="btn btn-primary shadow-lg shadow-primary/30">
                     + {t('addPatientButton')}
                 </button>

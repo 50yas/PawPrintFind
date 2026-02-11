@@ -15,7 +15,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ notificati
       {notifications.map(notification => (
         <div 
           key={notification.id} 
-          className="bg-primary text-primary-fg p-3 rounded-lg shadow-2xl flex items-center space-x-3 max-w-sm border border-border animate-slide-in-right"
+          className="bg-primary text-primary-fg p-3 rounded-lg shadow-2xl flex items-center space-x-3 max-w-sm border border-white/10 animate-slide-in-right"
           style={{ animationFillMode: 'forwards', animationDuration: '0.5s' }}
         >
           <span className="font-bold">🎉</span>

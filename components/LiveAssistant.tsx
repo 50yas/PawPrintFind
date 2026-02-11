@@ -426,9 +426,9 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
     }, [startSession]);
 
     return (
-        <div className="h-full flex flex-col bg-background/50">
+        <div className="h-full flex flex-col bg-slate-950/50">
             {/* Header */}
-            <div className="flex-shrink-0 p-4 border-b border-white/10 flex items-center justify-between bg-card/50 backdrop-blur-md">
+            <div className="flex-shrink-0 p-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-xl">
                 <div className="flex-1 flex items-center gap-3">
                     <div className="relative">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-lg border border-white/20">
@@ -452,7 +452,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
             <div className={`flex-shrink-0 border-b border-white/5 bg-black/5 p-1 flex items-center justify-center relative overflow-hidden transition-all duration-300 ${isMicActive ? 'h-14' : 'h-8'}`}>
                 <AudioVisualizer stream={mediaStreamRef.current} isActive={isMicActive} />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-card/10 pointer-events-none"></div>
-                {!isMicActive && <p className="text-[10px] text-muted-foreground absolute font-medium tracking-wide opacity-70">{t('tapMicToSpeak')}</p>}
+                {!isMicActive && <p className="text-[10px] text-slate-500 absolute font-medium tracking-wide opacity-70">{t('tapMicToSpeak')}</p>}
             </div>
 
             {/* Chat Messages */}
@@ -466,8 +466,8 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                                 className="w-28 h-28 animate-pulse-glow"
                             />
                         </div>
-                        <h4 className="text-xl font-bold text-foreground">{t('liveAssistantWelcomeTitle')}</h4>
-                        <p className="text-muted-foreground mt-2 text-base leading-relaxed max-w-xs">{t('liveAssistantWelcomeDesc')}</p>
+                        <h4 className="text-xl font-bold text-white">{t('liveAssistantWelcomeTitle')}</h4>
+                        <p className="text-slate-400 mt-2 text-base leading-relaxed max-w-xs">{t('liveAssistantWelcomeDesc')}</p>
                     </div>
                 )}
                 {chatLog.map((entry, index) => (
@@ -479,7 +479,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                         )}
                         <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-base ${entry.speaker === 'user'
                             ? 'bg-primary text-white rounded-br-none shadow-md'
-                            : 'bg-card/90 backdrop-blur-md border border-white/20 text-foreground rounded-bl-none shadow-sm'
+                            : 'bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-bl-none shadow-sm'
                             }`}>
                             {entry.text && <p className="leading-relaxed">{entry.text}</p>}
                             {entry.imageUrl && <CinematicImage src={entry.imageUrl} alt="User upload" className="rounded-lg max-w-full h-auto mt-2 border border-white/20" />}
@@ -489,15 +489,15 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
             </div>
 
             {/* Input Area */}
-            <div className="absolute bottom-0 left-0 w-full p-3 md:p-4 bg-card/90 backdrop-blur-xl border-t border-white/10 pb-safe">
+            <div className="absolute bottom-0 left-0 w-full p-3 md:p-4 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 pb-safe">
                 <form onSubmit={(e) => { e.preventDefault(); sendText(textInput); }} className="flex items-center gap-2">
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
 
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-muted-foreground hover:text-primary transition-colors bg-muted/50 rounded-full">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-slate-400 hover:text-primary transition-colors bg-white/5 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </button>
 
-                    <button type="button" onClick={() => setIsCameraOpen(true)} className="p-3 text-muted-foreground hover:text-primary transition-colors bg-muted/50 rounded-full">
+                    <button type="button" onClick={() => setIsCameraOpen(true)} className="p-3 text-slate-400 hover:text-primary transition-colors bg-white/5 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </button>
 
@@ -506,7 +506,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                         value={textInput}
                         onChange={e => setTextInput(e.target.value)}
                         placeholder={t('typeMessagePlaceholder')}
-                        className="flex-grow bg-muted/50 border border-transparent focus:border-primary/50 rounded-full px-4 py-3 text-base focus:ring-0 transition-all placeholder:text-muted-foreground/60"
+                        className="flex-grow bg-white/5 border border-white/10 focus:border-primary/50 rounded-full px-4 py-3 text-base text-white focus:ring-0 transition-all placeholder:text-slate-500"
                     />
 
                     {textInput.trim() ? (
@@ -531,7 +531,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                             <button onClick={retryConnection} className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded hover:bg-red-200 font-bold">{t('retryButton')}</button>
                         </div>
                     ) : (
-                        <p className="text-[10px] text-muted-foreground/60">{status}</p>
+                        <p className="text-[10px] text-slate-500">{status}</p>
                     )}
                 </div>
             </div>

@@ -294,7 +294,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                     analyticsService.logEvent('smart_search_performed', { breed: e.target.value, filter_type: 'standard' });
                                 }}
             
-                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none backdrop-blur-sm"
             
                             >
             
@@ -323,7 +323,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                     analyticsService.logEvent('smart_search_performed', { age: e.target.value, filter_type: 'standard' });
                                 }}
             
-                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none backdrop-blur-sm"
             
                             >
             
@@ -344,7 +344,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                     setFilterSize(e.target.value);
                                     analyticsService.logEvent('smart_search_performed', { size: e.target.value, filter_type: 'standard' });
                                 }}
-                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none backdrop-blur-sm"
                             >
                                 <option value="">{t('dashboard:adoption.allSizes')}</option>
                                 {uniqueSizes.map(s => <option key={s} value={s}>{s}</option>)}
@@ -359,7 +359,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                 placeholder={t('filterByLocationPlaceholder')}
                                 value={filterLocation}
                                 onChange={(e) => setFilterLocation(e.target.value)}
-                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none backdrop-blur-sm"
                              />
                         </div>
 
@@ -369,7 +369,7 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                                 id="sort-by"
                                 value={sortBy} 
                                 onChange={(e) => setSortBy(e.target.value as any)}
-                                className="bg-card border border-border text-foreground rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                className="bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none backdrop-blur-sm"
                             >
                                 <option value="relevance">{t('dashboard:adoption.sortRelevance')}</option>
                                 <option value="newest">{t('dashboard:adoption.sortNewest')}</option>
@@ -379,8 +379,8 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
             
                         
             
-                        <div className="ml-auto text-sm text-muted-foreground font-mono">
-            
+                        <div className="ml-auto text-sm text-slate-400 font-mono">
+
                             {t('dashboard:adoption.matchesFound', { count: rankedPets.length })}
             
                         </div>
@@ -445,11 +445,14 @@ export const AdoptionCenter: React.FC<AdoptionCenterProps> = ({ petsForAdoption,
                 )}
             </>
         ) : (
-            <div className="text-center py-20 bg-muted/20 rounded-3xl border border-white/5 flex flex-col items-center justify-center">
-                <span className="text-6xl mb-4">🐾</span>
-                <p className="text-xl font-bold text-foreground">{t('dashboard:adoption.noMatchingPets')}</p>
-                <p className="text-muted-foreground mt-2">{t('dashboard:adoption.adjustFiltersSuggestion')}</p>
-                <button onClick={() => { setFilterBreed(''); setFilterAge(''); }} className="mt-6 text-primary hover:underline">{t('dashboard:adoption.clearFiltersButton')}</button>
+            <div className="text-center py-20 bg-white/5 backdrop-blur-xl rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center hud-grid-bg relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+                <div className="relative z-10">
+                    <span className="text-6xl mb-4 block">🐾</span>
+                    <p className="text-xl font-bold text-white">{t('dashboard:adoption.noMatchingPets')}</p>
+                    <p className="text-slate-400 mt-2">{t('dashboard:adoption.adjustFiltersSuggestion')}</p>
+                    <button onClick={() => { setFilterBreed(''); setFilterAge(''); }} className="mt-6 text-primary hover:text-white font-bold transition-colors">{t('dashboard:adoption.clearFiltersButton')}</button>
+                </div>
             </div>
         )}
       </div>

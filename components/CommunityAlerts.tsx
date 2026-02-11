@@ -22,15 +22,15 @@ export const CommunityAlerts: React.FC<CommunityAlertsProps> = ({ alerts, curren
   return (
     <div className="fixed bottom-4 left-4 z-[90] space-y-2">
       {relevantAlerts.map(pet => (
-        <div key={pet.id} className="community-alert-toast bg-card p-3 rounded-lg shadow-2xl flex items-center space-x-3 max-w-sm border border-border">
+        <div key={pet.id} className="community-alert-toast bg-white/5 backdrop-blur-xl p-3 rounded-lg shadow-2xl flex items-center space-x-3 max-w-sm border border-white/10">
           <img src={pet.photos[0]?.url} alt={pet.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
           <div className="flex-grow">
             <p className="text-sm font-bold text-red-500">{t('lostNearby')}</p>
-            <p className="text-card-foreground font-semibold">{pet.name}</p>
+            <p className="text-white font-semibold">{pet.name}</p>
           </div>
           <EmojiSwitcher 
             onClick={() => onReportSighting(pet)} 
-            className="btn btn-secondary !py-1 !px-2 text-xs flex-shrink-0 !w-auto !h-auto !rounded-lg"
+            className="glass-btn !py-1 !px-2 text-xs flex-shrink-0 !w-auto !h-auto !rounded-lg"
           >
             {t('reportSightingButton')}
           </EmojiSwitcher>
