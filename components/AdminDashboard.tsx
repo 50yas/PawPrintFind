@@ -16,6 +16,8 @@ import { AIUsageTable } from './AIUsageTable';
 import { AdminVetVerificationHUD } from './AdminVetVerificationHUD';
 import { AdminNotificationSettings } from './AdminNotificationSettings';
 import { AdminAISettings } from './AdminAISettings';
+import { MetricCard } from './analytics/MetricCard';
+import { ResponsiveLineChart } from './analytics/ResponsiveLineChart';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -34,25 +36,22 @@ const RegistrationChart: React.FC<{ users: User[] }> = ({ users }) => {
             const created = new Date(u.createdAt || 0);
             return created.toDateString() === d.toDateString();
         }).length;
-        return { label: days[d.getDay()], count };
+        return {
+            day: days[d.getDay()],
+            registrations: count,
+            date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        };
     });
 
-    const max = Math.max(...data.map(d => d.count), 1);
-
     return (
-        <div className="space-y-4">
-            <h3 className="text-[10px] font-black text-primary uppercase tracking-widest">Identity Registration Registry</h3>
-            <div className="flex gap-2 h-24 items-end">
-                {data.map((d, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                        <div className="w-full bg-primary/10 border border-primary/20 rounded-t-md relative overflow-hidden h-full flex flex-col justify-end">
-                            <div className="bg-primary/40 group-hover:bg-primary transition-all duration-500" style={{ height: `${(d.count / max) * 100}%` }}></div>
-                        </div>
-                        <span className="text-[8px] text-slate-500 font-mono">{d.label}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
+        <ResponsiveLineChart
+            data={data}
+            lines={[{ dataKey: 'registrations', stroke: '#14B8A6', name: 'Registrations', strokeWidth: 2 }]}
+            xAxisKey="day"
+            title="User Registrations (Last 7 Days)"
+            height={250}
+            showArea={true}
+        />
     );
 };
 
@@ -352,7 +351,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     );
 
     return (
-        <div data-testid="admin-layout" className="min-h-screen bg-slate-950 text-foreground transition-colors duration-500 relative flex flex-col md:flex-row overflow-hidden">
+        <div data-testid="admin-layout" className="min-h-screen bg-slate-950 text-white transition-colors duration-500 relative flex flex-col md:flex-row overflow-hidden">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-primary/10">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(20,184,166,0.05),transparent_70%)]"></div>
@@ -508,20 +507,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
-                            {/* Quick Stats Grid */}
+                            {/* Enhanced Stats Grid with Analytics */}
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                {[
-                                    { label: t('dashboard:admin.statTotalUsers'), value: users.length, icon: '👥', glow: 'neon-glow-teal' },
-                                    { label: t('dashboard:admin.statTotalPets'), value: allPets.length, icon: '🐾', glow: '' },
-                                    { label: t('dashboard:admin.statTotalDonations'), value: `€${allDonations.reduce((a, d) => a + (d.numericValue || 0), 0).toFixed(0)}`, icon: '💰', glow: 'neon-glow-amber' },
-                                    { label: t('dashboard:admin.statActiveAlerts'), value: pendingVerifications.length, icon: pendingVerifications.length > 0 ? '🔴' : '✅', glow: pendingVerifications.length > 0 ? 'neon-glow-red' : 'neon-glow-green' },
-                                ].map((stat, i) => (
-                                    <div key={i} className={`p-5 rounded-2xl bg-white/5 border border-white/10 text-center transition-all duration-300 hover:bg-white/10 hover:-translate-y-1 scan-hover ${stat.glow}`}>
-                                        <span className="text-2xl">{stat.icon}</span>
-                                        <p className="text-2xl font-black text-white mt-2 font-mono">{stat.value}</p>
-                                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.15em] mt-1">{stat.label}</p>
-                                    </div>
-                                ))}
+                                <MetricCard
+                                    title={t('dashboard:admin.statTotalUsers')}
+                                    value={users.length}
+                                    previousValue={users.length - users.filter(u => new Date(u.createdAt || 0) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+                                    icon="👥"
+                                    trend="up"
+                                    colorClass="bg-cyan-500/10 text-cyan-400"
+                                />
+                                <MetricCard
+                                    title={t('dashboard:admin.statTotalPets')}
+                                    value={allPets.length}
+                                    icon="🐾"
+                                    trend={allPets.filter(p => p.isLost).length > 0 ? 'neutral' : 'up'}
+                                    colorClass="bg-blue-500/10 text-blue-400"
+                                />
+                                <MetricCard
+                                    title={t('dashboard:admin.statTotalDonations')}
+                                    value={allDonations.reduce((a, d) => a + (d.numericValue || 0), 0)}
+                                    prefix="€"
+                                    decimals={0}
+                                    icon="💰"
+                                    trend="up"
+                                    colorClass="bg-amber-500/10 text-amber-400"
+                                />
+                                <MetricCard
+                                    title={t('dashboard:admin.statActiveAlerts')}
+                                    value={pendingVerifications.length}
+                                    icon={pendingVerifications.length > 0 ? '🔴' : '✅'}
+                                    trend={pendingVerifications.length > 0 ? 'neutral' : 'up'}
+                                    colorClass={pendingVerifications.length > 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}
+                                />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
