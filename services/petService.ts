@@ -7,6 +7,7 @@ import { db, storage, auth } from './firebase';
 import { PetProfile, Geolocation, PetProfileSchema, Sighting } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
+import { sanitizationPipeline } from './sanitizationPipeline';
 
 export const petService = {
     async getPets(): Promise<PetProfile[]> {
@@ -43,8 +44,12 @@ export const petService = {
             throw new Error('Authentication required to save a pet.');
         }
         try {
-            // Validate before saving
-            validationService.validate(PetProfileSchema, pet, 'savePet');
+            // SECURITY: Sanitize → Validate → Store pipeline
+            // Step 1: Sanitize to prevent XSS and injection attacks
+            const sanitized = sanitizationPipeline.petProfile(pet);
+
+            // Step 2: Validate schema compliance
+            validationService.validate(PetProfileSchema, sanitized, 'savePet');
 
             // Helper to remove undefined fields which Firestore rejects
             const removeUndefined = (obj: unknown): unknown => {
@@ -61,8 +66,9 @@ export const petService = {
                 return obj;
             };
 
-            const sanitizedPet = removeUndefined(pet) as PetProfile;
-            await setDoc(doc(db, 'pets', pet.id), sanitizedPet, { merge: true });
+            // Step 3: Store to Firestore
+            const cleanPet = removeUndefined(sanitized) as PetProfile;
+            await setDoc(doc(db, 'pets', pet.id), cleanPet, { merge: true });
         } catch (error: unknown) {
             const err = error as Error;
             logger.error('Error saving pet:', err);
@@ -106,8 +112,10 @@ export const petService = {
         try {
             const batch = writeBatch(db);
             updates.forEach(({ id, isLost, lastSeenLocation }) => {
+                // SECURITY: Sanitize location data
+                const sanitizedLocation = sanitizationPipeline.geolocation(lastSeenLocation);
                 const petRef = doc(db, 'pets', id);
-                batch.update(petRef, { isLost, lastSeenLocation });
+                batch.update(petRef, { isLost, lastSeenLocation: sanitizedLocation });
             });
             await batch.commit();
         } catch (error) {
@@ -120,24 +128,26 @@ export const petService = {
         if (!auth.currentUser) {
             throw new Error("Authentication required to report sighting.");
         }
-        
+
         try {
+            // SECURITY: Sanitize sighting data before storage
             const sightingId = Date.now().toString();
             const fullSighting = { ...sighting, id: sightingId };
-            
+            const sanitizedSighting = sanitizationPipeline.sighting(fullSighting);
+
             const batch = writeBatch(db);
             const petRef = doc(db, 'pets', petId);
-            
+
             batch.update(petRef, {
-                sightings: arrayUnion(fullSighting),
-                lastSeenLocation: sighting.location
+                sightings: arrayUnion(sanitizedSighting),
+                lastSeenLocation: sanitizedSighting.location
             });
-            
+
             const userRef = doc(db, 'users', auth.currentUser.uid);
             batch.update(userRef, {
                 'stats.sightingsReported': increment(1)
             });
-            
+
             await batch.commit();
         } catch (error) {
             logger.error('Error reporting sighting:', error);

@@ -46,6 +46,11 @@ service cloud.firestore {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin(); // Strictly admin-only listing. Community leaderboard requires Admin SDK or Cloud Function in production.
       allow write: if isOwner(userId) || isAdmin();
+
+      // User subcollections (usageStats, etc.)
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
     }
     
     // 2. PETS
@@ -172,7 +177,9 @@ service cloud.firestore {
 
     // 15. SAVED SEARCHES
     match /saved_searches/{searchId} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     // 16. VET VERIFICATION REQUESTS
@@ -190,6 +197,42 @@ service cloud.firestore {
     // 18. SYSTEM CONFIGURATION (AI, API Keys)
     match /system_config/{configId} {
       allow read, write: if isAdmin();
+    }
+
+    // 19. FAVORITES
+    match /favorites/{favoriteId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // 20. ADMIN KEYS (setup codes)
+    match /admin_keys/{keyId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 21. PROMO CODES
+    match /promo_codes/{codeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 22. PROMO USAGE LOGS
+    match /promo_usage_logs/{logId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+    }
+
+    // 23. SCRAPER JOBS
+    match /scraper_jobs/{jobId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 24. SCRAPED SIGHTINGS
+    match /scraped_sightings/{sightingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     // --- STRIPE EXTENSION RULES ---

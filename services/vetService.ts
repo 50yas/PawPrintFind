@@ -4,13 +4,14 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, auth, storage } from './firebase';
-import { 
-    VetClinic, Appointment, VetClinicSchema, AppointmentSchema, 
-    VetVerificationRequest, VetVerificationRequestSchema, User 
+import {
+    VetClinic, Appointment, VetClinicSchema, AppointmentSchema,
+    VetVerificationRequest, VetVerificationRequestSchema, User
 } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
 import { notificationService } from './notificationService';
+import { sanitizationPipeline } from './sanitizationPipeline';
 
 export const vetService = {
     async getVetClinics(): Promise<VetClinic[]> {
@@ -33,8 +34,11 @@ export const vetService = {
             }
             const id = clinic.id || `clinic_${Date.now()}`;
             const clinicWithId = { ...clinic, id };
-            validationService.validate(VetClinicSchema, clinicWithId, 'saveClinic');
-            await setDoc(doc(db, 'vet_clinics', id), clinicWithId, { merge: true });
+
+            // SECURITY: Sanitize → Validate → Store pipeline
+            const sanitized = sanitizationPipeline.vetClinic(clinicWithId);
+            validationService.validate(VetClinicSchema, sanitized, 'saveClinic');
+            await setDoc(doc(db, 'vet_clinics', id), sanitized, { merge: true });
         } catch (error) {
             logger.error('Error saving vet clinic:', error);
             throw error;

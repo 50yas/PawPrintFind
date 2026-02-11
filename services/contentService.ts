@@ -8,6 +8,7 @@ import { translateContent } from './geminiService';
 import { ChatSession, ChatMessage, Donation, BlogPost, ChatSessionSchema, ChatMessageSchema, DonationSchema, BlogPostSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
+import { sanitizationPipeline } from './sanitizationPipeline';
 
 export const contentService = {
     // --- CHAT ---
@@ -16,8 +17,10 @@ export const contentService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to save chat session.");
             }
-            validationService.validate(ChatSessionSchema, session, 'saveChatSession');
-            await setDoc(doc(db, 'chats', session.id), session, { merge: true });
+            // SECURITY: Sanitize chat session data (CRITICAL for XSS prevention)
+            const sanitized = sanitizationPipeline.chatSession(session);
+            validationService.validate(ChatSessionSchema, sanitized, 'saveChatSession');
+            await setDoc(doc(db, 'chats', session.id), sanitized, { merge: true });
         } catch (error) {
             logger.error('Error saving chat session:', error);
             throw error;
@@ -29,8 +32,10 @@ export const contentService = {
             if (!auth.currentUser) {
                 throw new Error("Authentication required to send chat message.");
             }
-            validationService.validate(ChatMessageSchema, message, 'sendChatMessage');
-            await updateDoc(doc(db, 'chats', sessionId), { messages: arrayUnion(message) });
+            // SECURITY: Sanitize chat message (CRITICAL - high-risk XSS vector)
+            const sanitized = sanitizationPipeline.chatMessage(message);
+            validationService.validate(ChatMessageSchema, sanitized, 'sendChatMessage');
+            await updateDoc(doc(db, 'chats', sessionId), { messages: arrayUnion(sanitized) });
         } catch (error) {
             logger.error('Error sending chat message:', error);
             throw error;

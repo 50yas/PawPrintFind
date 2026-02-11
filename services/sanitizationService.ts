@@ -1,6 +1,9 @@
 /**
  * Sanitization Service
  * Provides input sanitization utilities to prevent XSS and ensure data integrity
+ *
+ * SECURITY CRITICAL: This service is the first line of defense against XSS attacks.
+ * All user-generated content MUST be sanitized before storage in Firestore.
  */
 
 import DOMPurify from 'dompurify';
@@ -114,13 +117,45 @@ const sanitizeBreed = (breed: string): string => {
 };
 
 /**
- * Sanitizes location coordinates
+ * Sanitizes latitude coordinate (-90 to +90)
+ * SECURITY FIX: Separated from longitude to enforce correct ranges
  */
-const sanitizeCoordinates = (value: number): number => {
+const sanitizeLatitude = (value: number): number => {
     const num = Number(value);
-    if (isNaN(num) || !isFinite(num)) return 0;
-    // Clamp to valid lat/lng range
+    if (isNaN(num) || !isFinite(num)) {
+        throw new Error('Invalid latitude value');
+    }
+    // Clamp to valid latitude range (-90 to +90)
+    return Math.max(-90, Math.min(90, num));
+};
+
+/**
+ * Sanitizes longitude coordinate (-180 to +180)
+ * SECURITY FIX: Separated from latitude to enforce correct ranges
+ */
+const sanitizeLongitude = (value: number): number => {
+    const num = Number(value);
+    if (isNaN(num) || !isFinite(num)) {
+        throw new Error('Invalid longitude value');
+    }
+    // Clamp to valid longitude range (-180 to +180)
     return Math.max(-180, Math.min(180, num));
+};
+
+/**
+ * Sanitizes a complete geolocation object
+ * SECURITY FIX: Validates both lat/lng with proper ranges
+ */
+const sanitizeGeolocation = (geo: any): { latitude: number; longitude: number; address?: string } => {
+    if (!geo || typeof geo !== 'object') {
+        throw new Error('Invalid geolocation object');
+    }
+
+    return {
+        latitude: sanitizeLatitude(geo.latitude || geo.lat || 0),
+        longitude: sanitizeLongitude(geo.longitude || geo.lng || 0),
+        address: geo.address ? sanitizeAddress(geo.address) : undefined
+    };
 };
 
 /**
@@ -159,7 +194,9 @@ export const sanitizationService = {
     sanitizeUrl,
     sanitizeSearchQuery,
     sanitizeBreed,
-    sanitizeCoordinates,
+    sanitizeLatitude,
+    sanitizeLongitude,
+    sanitizeGeolocation,
     sanitizeAddress,
     sanitizeHtml
 };
