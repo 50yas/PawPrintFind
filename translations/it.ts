@@ -440,5 +440,65 @@ export const it = {
     "filteredResultsCount": "{{count}} record",
     "noPetsLostWarning": "Nessun animale qui",
     "resetFiltersButton": "Reset",
-    "orbitalUnknown": "No GPS"
+    "orbitalUnknown": "No GPS",
+
+    // Empty States
+    "emptyState": {
+        "noPets": {
+            "title": "Nessun Animale",
+            "description": "Inizia registrando il tuo primo animale per sbloccare tutte le funzionalità e tenerlo al sicuro.",
+            "action": "Registra Animale"
+        },
+        "noResults": {
+            "title": "Nessun Risultato",
+            "description": "Prova a modificare i filtri o i termini di ricerca.",
+            "descriptionWithQuery": "Nessuna corrispondenza per \"{{query}}\". Prova a modificare la ricerca.",
+            "action": "Cancella Filtri"
+        },
+        "noMessages": {
+            "title": "Nessun Messaggio",
+            "description": "Quando riceverai messaggi o notifiche, appariranno qui."
+        },
+        "noSightings": {
+            "title": "Nessun Avvistamento",
+            "description": "Gli avvistamenti della community appariranno qui quando qualcuno vedrà il tuo animale."
+        },
+        "noAppointments": {
+            "title": "Nessun Appuntamento",
+            "description": "Prenota una visita dal veterinario per mantenere il tuo animale sano e felice.",
+            "action": "Prenota Visita"
+        },
+        "error": {
+            "title": "Qualcosa è Andato Storto",
+            "description": "Non siamo riusciti a caricare questo contenuto. Riprova.",
+            "action": "Riprova"
+        },
+        "offline": {
+            "title": "Sei Offline",
+            "description": "Controlla la tua connessione internet e riprova."
+        }
+    },
+
+    // Error Boundary
+    "systemAnomalyDetected": "Anomalia di Sistema Rilevata",
+    "systemAnomalyDescription": "La nostra rete neurale ha riscontrato un problema inaspettato. La missione di soccorso è stata sospesa.",
+    "rebootSystem": "Riavvia Sistema",
+
+    // ARIA Labels
+    "aria": {
+        "openMenu": "Apri menu",
+        "closeMenu": "Chiudi menu",
+        "closeModal": "Chiudi finestra",
+        "closeNotification": "Chiudi notifica",
+        "userMenu": "Apri menu utente",
+        "editPet": "Modifica profilo di {{petName}}",
+        "deletePet": "Elimina profilo di {{petName}}",
+        "sharePet": "Condividi profilo di {{petName}}",
+        "reportLost": "Segnala {{petName}} come smarrito",
+        "qrCode": "Genera codice QR per {{petName}}",
+        "previousImage": "Foto precedente",
+        "nextImage": "Foto successiva",
+        "loadingContent": "Caricamento in corso, attendere",
+        "savingChanges": "Salvataggio modifiche"
+    }
 };

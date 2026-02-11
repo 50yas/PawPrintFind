@@ -129,19 +129,24 @@ export const en = {
         email: `Enter Email`,
         password: `Enter Password`,
         confirmPassword: `Confirm Password`,
-        phoneNumber: `Mobile Number`,
+        phoneNumber: `Phone Number (+1...)`,
+        verificationCode: `6-digit code`,
     },
     title: {
         login: `System Access`,
         register: `New Operative`,
         recovery: `Access Recovery`,
         magicLink: `Fast Access`,
+        phoneLogin: `Phone Login`,
+        verifyPhone: `Verify Code`,
     },
     subtitle: {
         login: `Enter credentials to access the Network`,
         register: `Join the community to protect your pets`,
         recovery: `Reset your access key via email`,
         magicLink: `We will send a fast access link to your email`,
+        phoneLogin: `Sign in with your phone number`,
+        verifyPhone: `Enter the 6-digit code sent to your phone`,
     },
     buttons: {
         decryptDashboard: `Open Dashboard`,
@@ -150,6 +155,8 @@ export const en = {
         sendMagicLink: `Send Link`,
         alreadyRegistered: `Already a member?`,
         signInProtocol: `Sign In`,
+        signingIn: `Signing In...`,
+        registering: `Creating Account...`,
         newOperative: `Join now?`,
         initializeProfile: `Start Profile`,
         lostCredentials: `Forgot password?`,
@@ -157,6 +164,9 @@ export const en = {
         syncGoogle: `Sign in with Google`,
         useMagicLink: `Use Email Link`,
         usePassword: `Use Password`,
+        usePhoneAuth: `Phone Login`,
+        useEmail: `Email Login`,
+        resendCode: `Resend Code`,
     },
     errors: {
         emailInUse: `Email already registered`,
@@ -169,12 +179,15 @@ export const en = {
         passwordMismatch: `Passwords do not match`,
         requiredFields: `Missing data`,
         missingEmail: `Email required`,
+        missingPhoneNumber: `Please enter a valid phone number`,
+        missingCode: `Please enter the verification code`,
         default: `System error`,
     },
     success: {
         recoverySent: `Instructions sent`,
         accountCreated: `Welcome to the network!`,
         magicLinkSent: `Check your inbox`,
+        otpSent: `Verification code sent to your phone`,
     },
 
     // Admin Professional Mgmt
@@ -460,5 +473,103 @@ export const en = {
     filteredResultsCount: `{{count}} records`,
     noPetsLostWarning: `No lost pets here`,
     resetFiltersButton: `Reset`,
-    orbitalUnknown: `No GPS`
+    orbitalUnknown: `No GPS`,
+
+    // Empty States - User-facing empty content messages
+    emptyState: {
+        noPets: {
+            title: `No Pets Yet`,
+            description: `Start by registering your first pet to unlock all features and keep them safe.`,
+            action: `Register Pet`
+        },
+        noResults: {
+            title: `No Results Found`,
+            description: `Try adjusting your filters or search terms.`,
+            descriptionWithQuery: `No matches found for "{{query}}". Try adjusting your search.`,
+            action: `Clear Filters`
+        },
+        noMessages: {
+            title: `No Messages`,
+            description: `When you receive messages or notifications, they'll appear here.`
+        },
+        noSightings: {
+            title: `No Sightings Yet`,
+            description: `Sightings from the community will appear here when someone spots your pet.`
+        },
+        noAppointments: {
+            title: `No Upcoming Appointments`,
+            description: `Schedule a vet visit to keep your pet healthy and happy.`,
+            action: `Book Appointment`
+        },
+        error: {
+            title: `Something Went Wrong`,
+            description: `We couldn't load this content. Please try again.`,
+            action: `Retry`
+        },
+        offline: {
+            title: `You're Offline`,
+            description: `Please check your internet connection and try again.`
+        }
+    },
+
+    // Error Boundary
+    systemAnomalyDetected: `System Anomaly Detected`,
+    systemAnomalyDescription: `Our neural network encountered an unexpected glitch. The rescue mission has been paused.`,
+    rebootSystem: `Reboot System`,
+
+    // Critical ARIA Labels for Accessibility
+    aria: {
+        openMenu: `Open menu`,
+        closeMenu: `Close menu`,
+        closeModal: `Close dialog`,
+        closeNotification: `Dismiss notification`,
+        userMenu: `Open user account menu`,
+        editPet: `Edit profile for {{petName}}`,
+        deletePet: `Delete {{petName}}'s profile`,
+        sharePet: `Share {{petName}}'s profile`,
+        reportLost: `Report {{petName}} as lost`,
+        qrCode: `Generate QR code for {{petName}}`,
+        previousImage: `Previous photo`,
+        nextImage: `Next photo`,
+        loadingContent: `Loading content, please wait`,
+        savingChanges: `Saving your changes`
+    },
+
+    // Press Kit
+    pressKit: `Press Kit`,
+    pressKitTitle: `Press Kit & Brand Assets`,
+    pressKitDesc: `Download official logos, icons, and brand guidelines.`,
+    assetLogoIcon: `Icon Only`,
+    assetLogoText: `Wordmark`,
+    assetLogoLockup: `Full Lockup`,
+    downloadAsset: `Download Asset`,
+    formatLabel: `Format`,
+    bgLabel: `Background`,
+    transparentBg: `Transparent`,
+    coloredBg: `Colored`,
+    downloadButton: `Download`,
+
+    // Image Tagger & Marks
+    addMarkCta: `Click to add a unique mark`,
+    describeMarkPrompt: `Describe this unique mark`,
+    describeMarkPlaceholder: `e.g. Small scar on left ear...`,
+    saveMarkButton: `Save Mark`,
+
+    // Filters & Sorting
+    sortByLabel: `Sort By`,
+    filterBySizeLabel: `Filter by Size`,
+
+    // Redeem Code
+    codeRedeemedSuccess: `Code redeemed successfully!`,
+    codeRedeemFailed: `Failed to redeem code. Please try again.`,
+    redeemCodeTitle: `Redeem Code`,
+    redeemCodeDesc: `Enter your promo code below to unlock rewards.`,
+    enterCodePlaceholder: `ENTER-CODE`,
+    redeemButton: `Redeem`,
+    congratulations: `Congratulations!`,
+    youUnlocked: `You unlocked a reward!`,
+
+    // User Management
+    loadingUsers: `Loading users...`,
+    searchUsers: `Search users...`
 };
