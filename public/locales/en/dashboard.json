@@ -244,6 +244,57 @@
       "email": "Email Templates",
       "audit": "Audit Logs"
     },
+    "social": {
+      "title": "Social Media Management",
+      "subtitle": "Manage posts across all platforms",
+      "newPost": "New Post",
+      "schedulePost": "Schedule Post",
+      "publishNow": "Publish Now",
+      "generateCaption": "Generate Caption",
+      "generateImages": "Generate Images",
+      "delete": "Delete",
+      "close": "Close",
+      "createPost": "Create Social Post",
+      "scheduledPosts": "Scheduled Posts",
+      "loading": "Loading posts...",
+      "noPosts": "No posts yet",
+      "createFirst": "Create your first social media post to get started",
+      "noCaption": "No caption",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "error": "Error",
+      "confirmDelete": "Are you sure you want to delete this post?",
+      "confirmPublish": "Publish this post now to all selected platforms?",
+      "modalComingSoon": "Post creation modal coming soon! For now, use the API directly.",
+      "filterPlatform": "Filter by Platform",
+      "filterStatus": "Filter by Status",
+      "allPlatforms": "All",
+      "allStatuses": "All Statuses",
+      "platforms": {
+        "facebook": "Facebook",
+        "twitter": "Twitter",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn"
+      },
+      "status": {
+        "draft": "Draft",
+        "scheduled": "Scheduled",
+        "published": "Published",
+        "failed": "Failed"
+      },
+      "stats": {
+        "total": "Total Posts",
+        "publishedToday": "Published Today",
+        "scheduled": "Scheduled",
+        "failed": "Failed"
+      },
+      "analytics": {
+        "impressions": "Impressions",
+        "clicks": "Clicks",
+        "shares": "Shares",
+        "reach": "Reach"
+      }
+    },
     "quickAction": {
       "addBlogPost": "New Blog Post",
       "addUser": "New User",

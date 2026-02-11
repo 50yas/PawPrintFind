@@ -2,10 +2,12 @@
 
 ## Project Structure
 
-- **Translation Files Location**: `/public/locales/{lang}/common.json`
+- **Translation Files Location**: `/public/locales/{lang}/`
 - **Supported Languages**: 8 total - en, it, es, fr, de, zh, ar, ro
 - **Primary Source**: English (en) is the source of truth
-- **File Format**: Single `common.json` file per language (no namespace splitting yet)
+- **Translation Namespaces**:
+  - `common.json` - General app translations (~244-260 lines)
+  - `dashboard.json` - Admin dashboard and role-specific dashboards (~368-369 lines)
 
 ## Key Translation Sections
 
@@ -71,22 +73,29 @@ When new features are added to the homepage, these sections are commonly missed:
 4. **Punctuation**: Chinese uses ！？ instead of !?, watch for this in error messages
 5. **Character Encoding**: Arabic and Chinese require proper UTF-8 encoding
 
-## Completed Work (2026-02-12)
+## Completed Work
 
-### Major Translation Gap Fixed
+### 2026-02-12 Session 1: Common.json Translation Gap Fixed
 - Added 41+ missing translation keys to all 7 non-English languages
 - Completed homepage beta, features, stats, testimonials, and faq sections
 - Added missing profile and AI autofill keys
-- All languages now have complete parity with English source
+- All languages now have complete parity with English source in common.json
 
-### Files Updated
-- `/public/locales/it/common.json` - Italian (260 lines)
-- `/public/locales/es/common.json` - Spanish (244 lines)
-- `/public/locales/fr/common.json` - French (245 lines)
-- `/public/locales/de/common.json` - German (245 lines)
-- `/public/locales/zh/common.json` - Chinese (244 lines)
-- `/public/locales/ar/common.json` - Arabic (244 lines)
-- `/public/locales/ro/common.json` - Romanian (245 lines)
+### 2026-02-12 Session 2: Dashboard.json Social Media Management
+- Added complete "social" section to all 8 languages (50+ new keys under `admin.social`)
+- Created missing dashboard.json files for es, fr, de, zh, ar, ro (were completely absent)
+- Rebuilt Italian dashboard.json to match complete English structure (was incomplete)
+- All languages now have identical key structure across dashboard.json
+- **Social Media Section**: title, subtitle, newPost, schedulePost, publishNow, generateCaption, generateImages, platforms (facebook/twitter/instagram/linkedin), status states, stats, analytics
+- Dashboard file status (all complete):
+  - `/public/locales/en/dashboard.json` - 369 lines (source)
+  - `/public/locales/it/dashboard.json` - 368 lines
+  - `/public/locales/es/dashboard.json` - 368 lines
+  - `/public/locales/fr/dashboard.json` - 368 lines
+  - `/public/locales/de/dashboard.json` - 368 lines
+  - `/public/locales/zh/dashboard.json` - 368 lines
+  - `/public/locales/ar/dashboard.json` - 368 lines
+  - `/public/locales/ro/dashboard.json` - 368 lines
 
 ## Testing Checklist
 
@@ -99,9 +108,25 @@ When verifying translations:
 - [ ] Nested objects maintain structure across languages
 - [ ] Cultural appropriateness of translations
 
+## Dashboard.json Structure
+
+The dashboard.json file contains 7 major sections with ~368-369 keys total:
+
+1. **admin** (296+ keys) - Admin dashboard with nested objects:
+   - `social` - Social media management (50+ keys) - platforms, status, stats, analytics
+   - `tabs`, `overview`, `version`, `users`, `content`, `ai`, `settings`, `quickAction`
+2. **shelter** (9 keys) - Shelter dashboard
+3. **vet** (6 keys) - Veterinarian dashboard
+4. **volunteer** (6 keys) - Volunteer dashboard
+5. **register** (10 keys) - Pet registration
+6. **adoption** (9 keys) - Adoption listings
+7. **common** (6 keys) - Common dashboard elements
+
+Platform names (Facebook, Twitter, Instagram, LinkedIn) remain in English across all languages.
+
 ## Future Considerations
 
-- Consider splitting common.json into namespaces (homepage, profile, admin, etc.)
-- Add automated tests to detect missing translation keys
+- Monitor for new dashboard features that require translation (social media may expand)
+- Add automated tests to detect missing translation keys across both common.json and dashboard.json
 - Implement translation key usage tracking to identify unused keys
 - Consider using a translation management platform for larger scale

@@ -17,6 +17,7 @@ import { AdminNotificationSettings } from './AdminNotificationSettings';
 
 // Import new tab components
 import { OverviewTab, UsersTab, ContentTab, AISystemsTab, SettingsTab } from './admin';
+import { SocialMediaTab } from './admin/SocialMediaTab';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
@@ -1045,6 +1046,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 }}
                                 onViewPost={onViewPost}
                             />
+                        )}
+
+                        {/* New Tab: Social Media Management */}
+                        {activeTab === 'social' && (
+                            <SocialMediaTab />
                         )}
 
                         {/* New Tab: AI Systems (combines ai, usage) */}
