@@ -254,5 +254,29 @@ service cloud.firestore {
         allow read: if request.auth.uid == uid;
       }
     }
+
+    // --- SOCIAL MEDIA MANAGEMENT RULES ---
+
+    // Social scheduled posts - Admin only
+    match /social_scheduled_posts/{postId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isSignedIn();
+      allow update: if isAdmin() && isSignedIn();
+      allow delete: if isAdmin() && isSignedIn();
+    }
+
+    // Social platform credentials - Admin only, encrypted
+    match /social_platform_credentials/{credId} {
+      allow read: if isAdmin() && isSignedIn();
+      allow create: if isAdmin() && isSignedIn();
+      allow update: if isAdmin() && isSignedIn();
+      allow delete: if isAdmin() && isSignedIn();
+    }
+
+    // Social analytics - Read-only for admins, write-only for Cloud Functions
+    match /social_analytics/{analyticsId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write via Admin SDK
+    }
   }
 }

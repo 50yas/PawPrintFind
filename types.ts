@@ -864,3 +864,116 @@ export const AISettingsSchema = z.object({
   lastUpdated: z.number(),
   updatedBy: z.string().email()
 });
+
+// =============================================================================
+// SOCIAL MEDIA MANAGEMENT TYPES
+// =============================================================================
+
+export type SocialPlatform = 'facebook' | 'twitter' | 'instagram' | 'linkedin';
+
+export interface SocialImage {
+  url: string;
+  dimensions: { width: number; height: number };
+  storageRef?: string; // Firebase Storage reference
+}
+
+export interface SocialAnalytics {
+  impressions: number;
+  clicks: number;
+  shares: number;
+  reach?: number;
+  engagement?: number;
+  lastUpdated?: Date;
+}
+
+export interface SocialScheduledPost {
+  id: string;
+  blogPostId: string; // Reference to blog post that triggered this
+  platforms: SocialPlatform[];
+  scheduledTime: Date;
+  status: 'draft' | 'scheduled' | 'published' | 'failed';
+  captions: Partial<Record<SocialPlatform, string>>;
+  images: Partial<Record<SocialPlatform, SocialImage>>;
+  analytics?: Partial<Record<SocialPlatform, SocialAnalytics>>;
+  createdBy: string; // userId
+  createdAt: Date;
+  updatedAt?: Date;
+  publishedAt?: Date;
+  errorMessage?: string; // If status is 'failed'
+}
+
+export interface SocialPlatformCredential {
+  id: string;
+  platform: SocialPlatform;
+  accountId: string;
+  accountName: string;
+  accessToken: string; // Will be encrypted in Firestore
+  refreshToken?: string;
+  expiresAt: Date;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  lastUsed?: Date;
+}
+
+export interface SocialPostTemplate {
+  id: string;
+  name: string;
+  type: 'quote' | 'announcement' | 'statistic' | 'story' | 'custom';
+  description: string;
+  captionTemplate: string; // Template with {{variables}}
+  imageTemplate?: string; // Reference to Remotion composition
+  platforms: SocialPlatform[];
+  isDefault: boolean;
+  createdBy: string;
+  createdAt: Date;
+}
+
+// Zod Schemas for validation
+export const SocialImageSchema = z.object({
+  url: z.string().url(),
+  dimensions: z.object({
+    width: z.number().positive(),
+    height: z.number().positive()
+  }),
+  storageRef: z.string().optional()
+});
+
+export const SocialAnalyticsSchema = z.object({
+  impressions: z.number().nonnegative(),
+  clicks: z.number().nonnegative(),
+  shares: z.number().nonnegative(),
+  reach: z.number().nonnegative().optional(),
+  engagement: z.number().nonnegative().optional(),
+  lastUpdated: z.date().optional()
+});
+
+export const SocialScheduledPostSchema = z.object({
+  id: z.string(),
+  blogPostId: z.string(),
+  platforms: z.array(z.enum(['facebook', 'twitter', 'instagram', 'linkedin'])),
+  scheduledTime: z.date(),
+  status: z.enum(['draft', 'scheduled', 'published', 'failed']),
+  captions: z.record(z.enum(['facebook', 'twitter', 'instagram', 'linkedin']), z.string()).optional(),
+  images: z.record(z.enum(['facebook', 'twitter', 'instagram', 'linkedin']), SocialImageSchema).optional(),
+  analytics: z.record(z.enum(['facebook', 'twitter', 'instagram', 'linkedin']), SocialAnalyticsSchema).optional(),
+  createdBy: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date().optional(),
+  publishedAt: z.date().optional(),
+  errorMessage: z.string().optional()
+});
+
+export const SocialPlatformCredentialSchema = z.object({
+  id: z.string(),
+  platform: z.enum(['facebook', 'twitter', 'instagram', 'linkedin']),
+  accountId: z.string(),
+  accountName: z.string(),
+  accessToken: z.string(),
+  refreshToken: z.string().optional(),
+  expiresAt: z.date(),
+  isActive: z.boolean(),
+  createdBy: z.string(),
+  createdAt: z.date(),
+  lastUsed: z.date().optional()
+});
