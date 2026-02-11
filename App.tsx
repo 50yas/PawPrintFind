@@ -2,30 +2,36 @@ import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { View, User, PetProfile, VetClinic, Appointment, ChatSession, Geolocation, UserRole, Donation, BlogPost } from './types';
 
-// Standard Components
-import { Navbar } from './components/Navbar';
-import { NotificationToast } from './components/NotificationToast';
-import { LiveAssistantFAB } from './components/LiveAssistantFAB';
-import { AIHealthCheckModal } from './components/AIHealthCheckModal';
-import { MobileNavigation } from './components/MobileNavigation';
+// Core Services
 import { dbService } from './services/firebase';
+
+// Small, critical components (loaded immediately)
 import { LoadingScreen } from './components/LoadingScreen';
-import { Footer } from './components/Footer';
-import { SecureChatModal } from './components/SecureChatModal';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { OfflineBanner } from './components/OfflineBanner';
-import { AppRouter } from './components/AppRouter';
+import { NotificationToast } from './components/NotificationToast';
 
-// Lazy Loaded Components
+// Lazy Loaded Components (reduce initial bundle)
+const Navbar = lazy(() => import('./components/Navbar').then(m => ({ default: m.Navbar })));
+const Footer = lazy(() => import('./components/Footer').then(m => ({ default: m.Footer })));
+const MobileNavigation = lazy(() => import('./components/MobileNavigation').then(m => ({ default: m.MobileNavigation })));
+const LiveAssistantFAB = lazy(() => import('./components/LiveAssistantFAB').then(m => ({ default: m.LiveAssistantFAB })));
+const AIHealthCheckModal = lazy(() => import('./components/AIHealthCheckModal').then(m => ({ default: m.AIHealthCheckModal })));
+const SecureChatModal = lazy(() => import('./components/SecureChatModal').then(m => ({ default: m.SecureChatModal })));
 const BiometricBackground = lazy(() => import('./components/BiometricBackground').then(m => ({ default: m.BiometricBackground })));
 const Auth = lazy(() => import('./components/Auth').then(m => ({ default: m.Auth })));
 const TutorialOverlay = lazy(() => import('./components/TutorialOverlay').then(m => ({ default: m.TutorialOverlay })));
+const AppRouter = lazy(() => import('./components/AppRouter').then(m => ({ default: m.AppRouter })));
+
+// UI Components
+import { PageTransition } from './components/ui/PageTransition';
 
 import { useAppState } from './hooks/useAppState';
 import { useAuthSync } from './hooks/useAuthSync';
 import { useSnackbar } from './contexts/SnackbarContext';
 import { useTranslations } from './hooks/useTranslations';
 import { generateAdoptionInquiry } from './src/utils/templateUtils';
+import { useWebVitals } from './hooks/useWebVitals';
 
 const DevMarquee = () => {
     const { t } = useTranslations();
@@ -56,6 +62,13 @@ export default function App() {
 
     const { addSnackbar } = useSnackbar();
     const { t } = useTranslations();
+
+    // Monitor Core Web Vitals (10% sampling in production)
+    useWebVitals({
+        sampleRate: import.meta.env.PROD ? 0.1 : 1.0,
+        enableLogging: true,
+        enableAnalytics: import.meta.env.PROD
+    });
 
 
     const handleTutorialClose = () => {
@@ -260,14 +273,16 @@ export default function App() {
                 </div>
             )}
 
-            <Navbar
-                currentUser={currentUser}
-                setCurrentUser={setCurrentUser}
-                onLoginClick={() => setIsLoginModalOpen(true)}
-                onLogoutClick={handleLogout}
-                setView={handleSetView}
-                className={isAdminBrowsing ? "!top-20" : "!top-8"}
-            />
+            <Suspense fallback={<div className="h-16 bg-background/80 backdrop-blur-sm" />}>
+                <Navbar
+                    currentUser={currentUser}
+                    setCurrentUser={setCurrentUser}
+                    onLoginClick={() => setIsLoginModalOpen(true)}
+                    onLogoutClick={handleLogout}
+                    setView={handleSetView}
+                    className={isAdminBrowsing ? "!top-20" : "!top-8"}
+                />
+            </Suspense>
 
             <ErrorBoundary>
                 <div className={`fixed inset-0 z-0 transition-all duration-1000 ${currentView !== 'home' ? 'opacity-40 blur-sm' : 'opacity-100'}`}>
@@ -285,9 +300,10 @@ export default function App() {
                                 <LoadingSpinner />
                             </div>
                         }>
-                            <AppRouter
-                                currentView={currentView}
-                                setView={setCurrentView}
+                            <PageTransition transitionKey={currentView} type="fade-scale" duration={300}>
+                                <AppRouter
+                                    currentView={currentView}
+                                    setView={setCurrentView}
                                 currentUser={currentUser}
                                 allUsers={allUsers}
                                 allPets={allPets}
@@ -341,45 +357,56 @@ export default function App() {
                                     addSnackbar(t('reportSightingFeatureComingSoon'), 'info');
                                 }}
                             />
+                            </PageTransition>
                         </Suspense>
                     </main>
 
                     <div className="pb-32 md:pb-0">
-                        <Footer setView={handleSetView} currentUser={currentUser} />
+                        <Suspense fallback={<div className="h-32 bg-background" />}>
+                            <Footer setView={handleSetView} currentUser={currentUser} />
+                        </Suspense>
                     </div>
                 </div>
             </ErrorBoundary>
 
             {/* Global UI Elements - Moved outside main wrapper for better z-index management and fixed positioning */}
-            <MobileNavigation
-                currentView={currentView}
-                setView={handleSetView}
-                userRole={currentUser?.activeRole}
-                onAssistantClick={() => setIsAssistantOpen(true)}
-            />
+            <Suspense fallback={null}>
+                <MobileNavigation
+                    currentView={currentView}
+                    setView={handleSetView}
+                    userRole={currentUser?.activeRole}
+                    onAssistantClick={() => setIsAssistantOpen(true)}
+                />
+            </Suspense>
 
-            <LiveAssistantFAB
-                currentUserRole={currentUser?.activeRole}
-                tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
-                forceOpen={isAssistantOpen}
-                onClose={() => setIsAssistantOpen(false)}
-            />
+            <Suspense fallback={null}>
+                <LiveAssistantFAB
+                    currentUserRole={currentUser?.activeRole}
+                    tools={{ navigateToView: (v) => { setCurrentView(v as View); setIsAssistantOpen(false); } }}
+                    forceOpen={isAssistantOpen}
+                    onClose={() => setIsAssistantOpen(false)}
+                />
+            </Suspense>
 
             {activeChatSession && (
-                <SecureChatModal
-                    session={activeChatSession}
-                    currentUser={currentUser!}
-                    onClose={() => setActiveChatSession(null)}
-                />
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><LoadingSpinner /></div>}>
+                    <SecureChatModal
+                        session={activeChatSession}
+                        currentUser={currentUser!}
+                        onClose={() => setActiveChatSession(null)}
+                    />
+                </Suspense>
             )}
 
             {healthCheckingPet && (
-                <AIHealthCheckModal
-                    pet={healthCheckingPet}
-                    onClose={() => setHealthCheckingPet(null)}
-                    onComplete={(id, check) => dbService.savePet({ ...allPets.find(p => p.id === id)!, healthChecks: [...(allPets.find(p => p.id === id)!.healthChecks || []), check] })}
-                    onBookAppointment={() => { setHealthCheckingPet(null); }}
-                />
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><LoadingSpinner /></div>}>
+                    <AIHealthCheckModal
+                        pet={healthCheckingPet}
+                        onClose={() => setHealthCheckingPet(null)}
+                        onComplete={(id, check) => dbService.savePet({ ...allPets.find(p => p.id === id)!, healthChecks: [...(allPets.find(p => p.id === id)!.healthChecks || []), check] })}
+                        onBookAppointment={() => { setHealthCheckingPet(null); }}
+                    />
+                </Suspense>
             )}
 
             {isLoginModalOpen && (
