@@ -4,15 +4,24 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpBackend from 'i18next-http-backend';
 import { translations } from './translations';
 
+// Import critical JSON namespaces for synchronous loading
+import enAuth from './public/locales/en/auth.json';
+import enDashboard from './public/locales/en/dashboard.json';
+import enCommon from './public/locales/en/common.json';
+
 // Only load English by default for initial bundle size optimization
 i18n
   .use(HttpBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    // Only preload English to reduce initial bundle
+    // Preload critical namespaces synchronously to prevent raw keys from showing
     resources: {
-      en: { common: translations.en }
+      en: {
+        common: enCommon,
+        auth: enAuth,
+        dashboard: enDashboard
+      }
     },
     fallbackLng: 'en',
     debug: false,
@@ -36,40 +45,46 @@ i18n
 
 // Lazy load language when switching
 export const loadLanguage = async (lng: string) => {
-  if (i18n.hasResourceBundle(lng, 'common')) {
+  if (i18n.hasResourceBundle(lng, 'common') && i18n.hasResourceBundle(lng, 'auth')) {
     return; // Already loaded
   }
 
-  // Dynamically import the translation
+  // Dynamically import all namespaces for the language
   try {
-    let translation;
+    // Load common namespace from TypeScript translations (legacy)
+    let commonTranslation;
     switch (lng) {
       case 'it':
-        translation = translations.it;
+        commonTranslation = translations.it;
         break;
       case 'es':
-        translation = translations.es;
+        commonTranslation = translations.es;
         break;
       case 'fr':
-        translation = translations.fr;
+        commonTranslation = translations.fr;
         break;
       case 'de':
-        translation = translations.de;
+        commonTranslation = translations.de;
         break;
       case 'zh':
-        translation = translations.zh;
+        commonTranslation = translations.zh;
         break;
       case 'ar':
-        translation = translations.ar;
+        commonTranslation = translations.ar;
         break;
       case 'ro':
-        translation = translations.ro;
+        commonTranslation = translations.ro;
         break;
       default:
-        translation = translations.en;
+        commonTranslation = translations.en;
     }
 
-    i18n.addResourceBundle(lng, 'common', translation);
+    // Load auth and dashboard namespaces from JSON files using HttpBackend
+    // HttpBackend will handle these asynchronously
+    i18n.addResourceBundle(lng, 'common', commonTranslation);
+
+    // Preload auth and dashboard for the new language
+    await i18n.loadNamespaces(['auth', 'dashboard']);
   } catch (error) {
     console.error(`Failed to load language ${lng}:`, error);
   }
