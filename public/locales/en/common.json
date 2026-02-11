@@ -158,6 +158,89 @@
     "congratulations": "Congratulations!",
     "youUnlocked": "You unlocked a reward!",
     "loadingUsers": "Loading users...",
-    "searchUsers": "Search users..."
+    "searchUsers": "Search users...",
+    "beta": {
+      "badge": "BETA",
+      "title": "Join the Beta Program",
+      "subtitle": "Help us build the future of pet safety",
+      "description": "Be among the first to experience AI-powered pet protection. Your feedback shapes the platform.",
+      "timeline": "Launch Q2 2026",
+      "joinButton": "Join Beta Program",
+      "learnMore": "Learn More",
+      "testingPhase": "Beta Testing Phase",
+      "earlyAccess": "Early Access",
+      "limitedSpots": "Limited spots available"
+    },
+    "features": {
+      "title": "Revolutionary Pet Safety",
+      "subtitle": "Cutting-edge technology to protect what matters most",
+      "aiMatching": {
+        "title": "AI-Powered Matching",
+        "description": "Advanced biometric recognition finds your pet faster than ever"
+      },
+      "realtime": {
+        "title": "Real-Time Alerts",
+        "description": "Instant notifications when your pet is sighted nearby"
+      },
+      "community": {
+        "title": "Community Network",
+        "description": "Thousands of volunteers helping reunite pets with families"
+      },
+      "vetNetwork": {
+        "title": "Vet Integration",
+        "description": "Connected with veterinary clinics nationwide"
+      },
+      "blockchain": {
+        "title": "Secure Digital ID",
+        "description": "Immutable pet profiles with biometric verification"
+      },
+      "geoFencing": {
+        "title": "Smart Geofencing",
+        "description": "Automatic alerts when your pet leaves safe zones"
+      }
+    },
+    "stats": {
+      "title": "Platform Impact",
+      "petsProtected": "Pets Protected",
+      "successfulMatches": "Successful Matches",
+      "communityMembers": "Community Members",
+      "vetPartners": "Vet Partners",
+      "responseTime": "Avg Response Time",
+      "minutes": "minutes",
+      "activeCities": "Active Cities"
+    },
+    "testimonials": {
+      "title": "Beta Tester Stories",
+      "subtitle": "Real experiences from our early adopters",
+      "comingSoon": "Coming Soon",
+      "placeholder": "Beta tester testimonials will appear here as we collect feedback during the beta phase."
+    },
+    "faq": {
+      "title": "Beta Program FAQ",
+      "subtitle": "Everything you need to know",
+      "q1": {
+        "question": "What is the beta program?",
+        "answer": "Our beta program gives early access to PawPrintFind's AI-powered pet safety platform. Help us test features, provide feedback, and shape the final product."
+      },
+      "q2": {
+        "question": "Is the beta free?",
+        "answer": "Yes! Beta access is completely free. You'll get all premium features at no cost during the testing period."
+      },
+      "q3": {
+        "question": "How long is the beta?",
+        "answer": "The beta runs until Q2 2026. Beta testers will receive special perks when we officially launch."
+      },
+      "q4": {
+        "question": "What happens to my data?",
+        "answer": "All data is encrypted and secure. Beta accounts transition seamlessly to the full platform at launch."
+      },
+      "q5": {
+        "question": "Can I invite others?",
+        "answer": "Yes! Beta testers will receive referral codes to invite friends and family."
+      },
+      "q6": {
+        "question": "What if I find a bug?",
+        "answer": "Report bugs through the AI Assistant or admin dashboard. We reward active testers with exclusive badges and priority support."
+      }
+    }
   }
-  

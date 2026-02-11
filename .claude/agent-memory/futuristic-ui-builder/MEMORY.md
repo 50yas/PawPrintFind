@@ -160,6 +160,37 @@
 - Added will-change hints for performance
 - FadeSlideTransition now uses MD3 timing
 
+### Homepage Beta Launch Enhancement (2026-02-11)
+- **Beta Badge**: Purple-pink gradient badge with pulsing animation in hero
+- **Beta Launch Section**: Full-width section with gradient background, timeline badge, dual CTAs
+- **Features Showcase**: 6-card grid (AI Matching, Real-Time Alerts, Community, Vet Network, Digital ID, Geofencing)
+  - Glass-card-enhanced with color-coded hover effects (cyan, amber, purple, emerald, blue, pink)
+  - Emoji icons with scale-110 hover animation
+  - Individual border color transitions on hover
+- **Platform Stats Section**: Animated counters with `useCountUp` hook
+  - StatCard component: reusable with color prop, staggered delays (0-500ms)
+  - formatNumber utility: auto K/M suffixes (1200 → "1.2K")
+  - Respects prefers-reduced-motion (instant display)
+  - Stats: 1.2K pets, 847 matches, 5.6K members, 342 vets, 12min response, 23 cities
+- **FAQ Section**: 6 accordion-style Q&A cards with color-coded emojis
+  - Topics: beta program, pricing, timeline, data security, referrals, bug reporting
+  - Glass-card-enhanced with hover border transitions
+  - CTA button at bottom to join beta
+
+### CountUp Animation Hook (`/hooks/useCountUp.ts`)
+- **Implementation**: requestAnimationFrame-based with ease-out cubic easing
+- **Features**: Configurable duration (default 2000ms), delay, respects prefers-reduced-motion
+- **Usage**: `const count = useCountUp(1234, 2000, 500)`
+- **Format Helper**: formatNumber(1234) => "1.2K"
+- **Performance**: Cleanup on unmount, GPU-friendly
+
+## Translation System Patterns
+- **Location**: `public/locales/{lang}/common.json` for shared strings
+- **Namespaces**: common, dashboard, auth for organization
+- **Beta Keys**: Nested under `beta`, `features`, `stats`, `faq` objects
+- **Usage**: `const { t } = useTranslations(); t('beta.title')`
+- **Interpolation**: `{{count}}`, `{{query}}` for dynamic values
+
 ## Known Issues to Address
 1. No skeleton loaders for all async operations (see [loading-states.md])
 2. Some components missing dark mode color adjustments

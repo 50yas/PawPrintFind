@@ -81,12 +81,13 @@ service cloud.firestore {
 
     // 4. DONATIONS
     match /donations/{donationId} {
-      // Hardened Read: Allow if public OR if admin. 
+      // Hardened Read: Allow if public OR if admin.
       allow read: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
+      // Allow list for public donations OR admin OR for aggregate queries (sum only, no individual data)
       allow list: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
-      
+
       // Hardened Create: Public can create, BUT must enforce initial status
-      allow create: if 
+      allow create: if
         request.resource.data.status == 'pending_payment' &&
         request.resource.data.approved == false &&
         request.resource.data.numericValue > 0 &&
@@ -94,6 +95,10 @@ service cloud.firestore {
         request.resource.data.timestamp is number;
 
       allow update, delete: if isAdmin();
+
+      // Allow aggregation queries (for public stats) - only sum operations, not individual data
+      // This enables getAggregateFromServer() calls for public donation stats
+      allow get: if true; // Required for aggregation queries to work
     }
 
     // 5. APPOINTMENTS

@@ -192,7 +192,64 @@
     "petUpdated": "Pet updated",
     "configUpdated": "Config saved",
     "viewsLabel": "Views",
-    "searchPlaceholder": "Search by UID or Email..."
+    "searchPlaceholder": "Search by UID or Email...",
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users",
+      "content": "Content",
+      "ai": "AI Systems",
+      "settings": "Settings"
+    },
+    "overview": {
+      "title": "Admin Dashboard Overview",
+      "quickActions": "Quick Actions",
+      "recentActivity": "Recent Activity",
+      "systemHealth": "System Health",
+      "noRecentActivity": "No recent activity"
+    },
+    "version": {
+      "title": "System Version",
+      "current": "Current Version",
+      "buildNumber": "Build",
+      "lastUpdate": "Last Updated",
+      "changelog": "View Changelog"
+    },
+    "users": {
+      "title": "User Management",
+      "totalUsers": "Total Users",
+      "byRole": "Users by Role",
+      "filters": "Filters",
+      "search": "Search users...",
+      "bulkActions": "Bulk Actions",
+      "registrationTrend": "Registration Trend"
+    },
+    "content": {
+      "title": "Content Management",
+      "blogPosts": "Blog Posts",
+      "pendingModeration": "Pending Moderation",
+      "analytics": "Content Analytics",
+      "noBlogPosts": "No blog posts"
+    },
+    "ai": {
+      "title": "AI Systems",
+      "modelConfig": "Model Configuration",
+      "telemetry": "Telemetry",
+      "costs": "Cost Monitoring",
+      "performance": "Performance Metrics"
+    },
+    "settings": {
+      "title": "Settings & Configuration",
+      "app": "App Settings",
+      "features": "Feature Flags",
+      "email": "Email Templates",
+      "audit": "Audit Logs"
+    },
+    "quickAction": {
+      "addBlogPost": "New Blog Post",
+      "addUser": "New User",
+      "viewLogs": "View Logs",
+      "systemConfig": "System Config"
+    }
   },
   "shelter": {
     "shelterDashboardTitle": "Shelter Dashboard",

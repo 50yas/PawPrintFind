@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, memo, lazy, Suspense } from 'react'
 import { View, User, PetProfile, UserRole, Donation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { useCountUp, formatNumber } from '../hooks/useCountUp';
 import { dbService } from '../services/firebase';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -21,6 +22,26 @@ interface HomeProps {
     onContactOwner?: (pet: PetProfile) => void;
     onViewPet?: (pet: PetProfile) => void;
 }
+
+const StatCard = memo(({ value, label, color, delay = 0 }: { value: number; label: string; color: string; delay?: number; }) => {
+    const count = useCountUp(value, 2000, delay);
+    const formattedValue = value >= 1000 ? formatNumber(value) : count.toString();
+
+    const displayValue = value >= 1000
+        ? formattedValue
+        : count === value ? value.toString() : count.toString();
+
+    return (
+        <div className={`glass-panel p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl text-center hover:border-${color}-500/30 transition-all hover:scale-105`}>
+            <div className={`text-4xl md:text-5xl font-black text-${color}-400 mb-2 font-mono-tech`}>
+                {displayValue}
+            </div>
+            <div className="text-slate-400 text-sm md:text-base font-medium">
+                {label}
+            </div>
+        </div>
+    );
+});
 
 const HeroHUD = memo(() => {
     const { t } = useTranslations();
@@ -226,6 +247,15 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                         {/* Hero Text Content */}
                         <div className="lg:col-span-7 text-center lg:text-start relative">
 
+                            {/* Beta Badge - Top Left Desktop */}
+                            <div className="hidden lg:inline-flex absolute start-0 -top-20 items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600/90 to-pink-600/90 backdrop-blur-xl border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] animate-fade-in shadow-[0_0_25px_rgba(168,85,247,0.4)]">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                </span>
+                                {t('beta.badge')} - {t('beta.earlyAccess')}
+                            </div>
+
                             {/* Desktop Status Badge - High Right */}
                             <div className="hidden lg:inline-flex absolute end-0 -top-20 items-center px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.15em] animate-fade-in shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                                 <span className="relative flex h-2 w-2 me-3">
@@ -247,7 +277,16 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                                     {t('homeSubtitle')}
                                 </p>
 
-                                {/* Mobile Status Badge - Under Subtitle */}
+                                {/* Mobile Beta Badge - Under Subtitle */}
+                                <div className="lg:hidden inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600/90 to-pink-600/90 backdrop-blur-xl border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.2em] animate-fade-in shadow-[0_0_25px_rgba(168,85,247,0.4)] mb-3">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                    </span>
+                                    {t('beta.badge')} - {t('beta.earlyAccess')}
+                                </div>
+
+                                {/* Mobile Status Badge */}
                                 <div className="lg:hidden inline-flex items-center px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.15em] animate-fade-in shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                                     <span className="relative flex h-2 w-2 me-3">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -286,6 +325,194 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             <div className="relative z-10 h-px w-full">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
             </div>
+
+            {/* Beta Launch Banner */}
+            <section className="scroll-animation relative z-10 py-16 md:py-24 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-pink-900/10 to-transparent pointer-events-none"></div>
+                <div className="absolute top-10 start-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                <div className="absolute bottom-10 end-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div className="container mx-auto px-6 relative z-10">
+                    <div className="max-w-4xl mx-auto text-center">
+                        {/* Beta Badge */}
+                        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-xl border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-[0.2em] mb-6 animate-fade-in shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-400"></span>
+                            </span>
+                            {t('beta.testingPhase')}
+                        </div>
+
+                        {/* Title */}
+                        <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 animate-fade-in tracking-tighter" style={{ animationDelay: '100ms' }}>
+                            {t('beta.title')}
+                        </h2>
+
+                        {/* Subtitle */}
+                        <p className="text-xl md:text-2xl text-purple-200 mb-4 font-medium animate-fade-in" style={{ animationDelay: '200ms' }}>
+                            {t('beta.subtitle')}
+                        </p>
+
+                        {/* Description */}
+                        <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed animate-fade-in" style={{ animationDelay: '300ms' }}>
+                            {t('beta.description')}
+                        </p>
+
+                        {/* Timeline Badge */}
+                        <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-900/60 backdrop-blur-xl border border-white/10 text-white mb-10 animate-fade-in shadow-xl" style={{ animationDelay: '400ms' }}>
+                            <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span className="font-mono-tech text-sm font-bold tracking-wider">{t('beta.timeline')}</span>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '500ms' }}>
+                            <button
+                                onClick={() => handleNavigate('register')}
+                                className="btn bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white !px-8 !py-4 text-sm rounded-xl font-black uppercase tracking-widest shadow-[0_0_40px_rgba(168,85,247,0.4)] hover:shadow-[0_0_50px_rgba(168,85,247,0.6)] hover:scale-105 transition-all border border-white/20"
+                            >
+                                {t('beta.joinButton')}
+                            </button>
+                            <button
+                                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="btn bg-white/5 hover:bg-white/10 text-white border border-white/10 backdrop-blur-xl !px-8 !py-4 text-sm rounded-xl font-black uppercase tracking-widest hover:scale-105 transition-all"
+                            >
+                                {t('beta.learnMore')}
+                            </button>
+                        </div>
+
+                        {/* Limited Spots Notice */}
+                        <p className="text-sm text-slate-500 mt-6 font-mono-tech animate-fade-in" style={{ animationDelay: '600ms' }}>
+                            {t('beta.limitedSpots')}
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Showcase */}
+            <section id="features" className="scroll-animation relative z-10 py-16 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-16 md:mb-20">
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">
+                            {t('features.title')}
+                        </h2>
+                        <div className="h-1 w-16 md:w-24 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 mx-auto mb-6 md:mb-8 rounded-full shadow-[0_0_20px_rgba(6,182,212,0.5)]"></div>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">
+                            {t('features.subtitle')}
+                        </p>
+                    </div>
+
+                    {/* Features Grid */}
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        {/* Feature 1: AI Matching */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-cyan-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-cyan-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(6,182,212,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">🤖</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-cyan-400 transition-colors">
+                                {t('features.aiMatching.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.aiMatching.description')}
+                            </p>
+                        </div>
+
+                        {/* Feature 2: Real-Time Alerts */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-amber-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-amber-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(251,146,60,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">⚡</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-amber-400 transition-colors">
+                                {t('features.realtime.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.realtime.description')}
+                            </p>
+                        </div>
+
+                        {/* Feature 3: Community Network */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-purple-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-purple-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(168,85,247,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">🤝</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-purple-400 transition-colors">
+                                {t('features.community.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.community.description')}
+                            </p>
+                        </div>
+
+                        {/* Feature 4: Vet Network */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-emerald-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(16,185,129,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">🏥</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-emerald-400 transition-colors">
+                                {t('features.vetNetwork.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.vetNetwork.description')}
+                            </p>
+                        </div>
+
+                        {/* Feature 5: Secure Digital ID */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-blue-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-blue-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(59,130,246,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">🔐</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-blue-400 transition-colors">
+                                {t('features.blockchain.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.blockchain.description')}
+                            </p>
+                        </div>
+
+                        {/* Feature 6: Geofencing */}
+                        <div className="glass-card-enhanced group p-6 md:p-8 rounded-2xl border border-pink-500/20 bg-slate-900/40 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(236,72,153,0.3)]">
+                            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-500">📍</div>
+                            <h3 className="text-xl md:text-2xl font-black text-white mb-3 group-hover:text-pink-400 transition-colors">
+                                {t('features.geoFencing.title')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed">
+                                {t('features.geoFencing.description')}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Platform Stats */}
+            <section className="scroll-animation relative z-10 py-16 md:py-24 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-900/10 to-transparent pointer-events-none"></div>
+                <div className="container mx-auto px-6 relative z-10">
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 font-mono-tech text-white uppercase tracking-tighter">
+                            {t('stats.title')}
+                        </h2>
+                        <div className="h-1 w-16 md:w-24 bg-gradient-to-r from-primary via-secondary to-primary mx-auto rounded-full shadow-[0_0_15px_rgba(6,182,212,0.4)]"></div>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                        <StatCard value={1200} label={t('stats.petsProtected')} color="cyan" delay={0} />
+                        <StatCard value={847} label={t('stats.successfulMatches')} color="amber" delay={100} />
+                        <StatCard value={5600} label={t('stats.communityMembers')} color="purple" delay={200} />
+                        <StatCard value={342} label={t('stats.vetPartners')} color="emerald" delay={300} />
+                    </div>
+
+                    {/* Additional Stats Row */}
+                    <div className="grid md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-8 max-w-2xl mx-auto">
+                        <div className="glass-panel p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl text-center hover:border-pink-500/30 transition-all hover:scale-105">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                <div className="text-3xl md:text-4xl font-black text-pink-400 font-mono-tech">
+                                    <span className="text-5xl">{useCountUp(12, 1500, 400)}</span>
+                                </div>
+                                <div className="text-lg text-slate-500 font-medium">
+                                    {t('stats.minutes')}
+                                </div>
+                            </div>
+                            <div className="text-slate-400 text-sm md:text-base font-medium">
+                                {t('stats.responseTime')}
+                            </div>
+                        </div>
+
+                        <StatCard value={23} label={t('stats.activeCities')} color="blue" delay={500} />
+                    </div>
+                </div>
+            </section>
 
             {/* Main Content Sections */}
             <section id="how-it-works" className="scroll-animation relative z-10 py-12 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
@@ -400,6 +627,100 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
             <Suspense fallback={<div className="h-20 bg-white/5 animate-pulse" />}>
                 <DonorTicker onViewAll={() => setView('donors')} donations={donations} />
             </Suspense>
+
+            {/* FAQ Section */}
+            <section className="scroll-animation relative z-10 py-16 md:py-32 bg-white/5 backdrop-blur-3xl border-y border-white/5">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 font-mono-tech text-white uppercase tracking-tighter">
+                            {t('faq.title')}
+                        </h2>
+                        <div className="h-1 w-16 md:w-24 bg-gradient-to-r from-primary via-secondary to-primary mx-auto mb-6 md:mb-8 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.4)]"></div>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-medium">
+                            {t('faq.subtitle')}
+                        </p>
+                    </div>
+
+                    {/* FAQ Grid */}
+                    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
+                        {/* Q1 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-cyan-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-cyan-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">❓</span>
+                                {t('faq.q1.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q1.answer')}
+                            </p>
+                        </div>
+
+                        {/* Q2 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-emerald-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-emerald-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">💰</span>
+                                {t('faq.q2.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q2.answer')}
+                            </p>
+                        </div>
+
+                        {/* Q3 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-purple-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-purple-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">⏰</span>
+                                {t('faq.q3.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q3.answer')}
+                            </p>
+                        </div>
+
+                        {/* Q4 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-amber-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-amber-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">🔒</span>
+                                {t('faq.q4.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q4.answer')}
+                            </p>
+                        </div>
+
+                        {/* Q5 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-pink-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-pink-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">👥</span>
+                                {t('faq.q5.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q5.answer')}
+                            </p>
+                        </div>
+
+                        {/* Q6 */}
+                        <div className="glass-card-enhanced p-6 md:p-8 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-xl hover:border-red-500/30 transition-all">
+                            <h3 className="text-lg md:text-xl font-black text-red-400 mb-3 flex items-start gap-3">
+                                <span className="text-2xl">🐛</span>
+                                {t('faq.q6.question')}
+                            </h3>
+                            <p className="text-slate-400 leading-relaxed ps-10">
+                                {t('faq.q6.answer')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* CTA at bottom of FAQ */}
+                    <div className="text-center mt-12 md:mt-16">
+                        <button
+                            onClick={() => handleNavigate('register')}
+                            className="btn bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white !px-8 !py-4 text-sm rounded-xl font-black uppercase tracking-widest shadow-[0_0_40px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all border border-white/20"
+                        >
+                            {t('beta.joinButton')}
+                        </button>
+                    </div>
+                </div>
+            </section>
 
             <section id="support-us" className="scroll-animation container mx-auto px-6 py-12 md:py-32 relative z-10">
                 <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-stretch">

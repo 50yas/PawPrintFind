@@ -7,7 +7,6 @@ import { logger } from '../services/loggerService';
 import { dbService } from '../services/firebase';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard, GlassButton } from './ui';
-import { UserManagementTable } from './UserManagementTable';
 import { SearchOptimizationDashboard } from './SearchOptimizationDashboard';
 import { TranslationHealthDashboard } from './TranslationHealthDashboard';
 import { SocialDiscoveryDashboard } from './SocialDiscoveryDashboard';
@@ -15,45 +14,15 @@ import { AdminPetEditorModal } from './AdminPetEditorModal';
 import { AIUsageTable } from './AIUsageTable';
 import { AdminVetVerificationHUD } from './AdminVetVerificationHUD';
 import { AdminNotificationSettings } from './AdminNotificationSettings';
-import { AdminAISettings } from './AdminAISettings';
-import { MetricCard } from './analytics/MetricCard';
-import { ResponsiveLineChart } from './analytics/ResponsiveLineChart';
+
+// Import new tab components
+import { OverviewTab, UsersTab, ContentTab, AISystemsTab, SettingsTab } from './admin';
 
 // Lazy load complex sub-components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
-const SystemHealth = React.lazy(() => import('./SystemHealth').then(m => ({ default: m.SystemHealth })));
 const AddPatientModal = React.lazy(() => import('./AddPatientModal').then(m => ({ default: m.AddPatientModal })));
 const AddClinicModal = React.lazy(() => import('./AddClinicModal').then(m => ({ default: m.AddClinicModal })));
 const AddVetModal = React.lazy(() => import('./AddVetModal').then(m => ({ default: m.AddVetModal })));
-
-const RegistrationChart: React.FC<{ users: User[] }> = ({ users }) => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const now = new Date();
-    const data = Array.from({ length: 7 }).map((_, i) => {
-        const d = new Date();
-        d.setDate(now.getDate() - (6 - i));
-        const count = (users || []).filter(u => {
-            const created = new Date(u.createdAt || 0);
-            return created.toDateString() === d.toDateString();
-        }).length;
-        return {
-            day: days[d.getDay()],
-            registrations: count,
-            date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        };
-    });
-
-    return (
-        <ResponsiveLineChart
-            data={data}
-            lines={[{ dataKey: 'registrations', stroke: '#14B8A6', name: 'Registrations', strokeWidth: 2 }]}
-            xAxisKey="day"
-            title="User Registrations (Last 7 Days)"
-            height={250}
-            showArea={true}
-        />
-    );
-};
 
 interface AdminDashboardProps {
     users: User[];
@@ -72,7 +41,12 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUser, allPets, vetClinics, donations, onDeleteUser, onLogout, onRefresh, onViewPost, onBrowseSite, onViewPet }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'clinics' | 'pets' | 'blog' | 'donations' | 'verification' | 'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications' | 'ai'>('overview');
+
+    // Simplified tab system: 5 main tabs + legacy tabs for backward compatibility
+    type AdminTab = 'overview' | 'users' | 'content' | 'ai' | 'settings' |
+                    'clinics' | 'pets' | 'blog' | 'donations' | 'verification' |
+                    'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications';
+    const [activeTab, setActiveTab] = useState<AdminTab>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
     const [allDonations, setAllDonations] = useState<Donation[]>(donations);
@@ -167,6 +141,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         return users.filter(u => ((u.roles || []).includes('vet') || (u.roles || []).includes('shelter')) && !u.isVerified && u.verificationData);
     }, [users]);
 
+    // Main 5-tab navigation (new structure)
+    const mainTabs = useMemo(() => [
+        { id: 'overview', label: t('dashboard:admin.tabs.overview'), icon: '📊' },
+        { id: 'users', label: t('dashboard:admin.tabs.users'), icon: '👥' },
+        { id: 'content', label: t('dashboard:admin.tabs.content'), icon: '📰' },
+        { id: 'ai', label: t('dashboard:admin.tabs.ai'), icon: '🧠' },
+        { id: 'settings', label: t('dashboard:admin.tabs.settings'), icon: '⚙️' }
+    ], [t]);
+
+    // Legacy groups for backward compatibility (collapsible sections)
     const groups = useMemo(() => [
         {
             id: 'operations',
@@ -183,7 +167,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             id: 'community',
             label: t('dashboard:admin.categoryCommunity'),
             tabs: [
-                { id: 'users', label: t('dashboard:admin.tabUsersShort'), fullLabel: t('dashboard:admin.adminTabUsers'), icon: '👥' },
                 { id: 'gamification', label: t('dashboard:admin.tabGamificationShort'), fullLabel: t('dashboard:admin.adminTabGamification'), icon: '🏆' },
                 { id: 'social', label: t('dashboard:admin.tabSocialShort'), fullLabel: t('dashboard:admin.adminTabSocial'), icon: '📡' }
             ]
@@ -194,9 +177,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             tabs: [
                 { id: 'blog', label: t('dashboard:admin.tabBlogShort'), fullLabel: t('dashboard:admin.adminTabBlog'), icon: '📰' },
                 { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
-                { id: 'ai', label: 'AI SYSTEM', fullLabel: 'AI Configuration', icon: '🧠' },
                 { id: 'notifications', label: 'NOTIFY', fullLabel: 'Notification Center', icon: '🔔' },
-                { id: 'usage', label: t('dashboard:admin.tabUsageShort'), fullLabel: t('dashboard:admin.adminTabUsage'), icon: '🧠' },
+                { id: 'usage', label: t('dashboard:admin.tabUsageShort'), fullLabel: t('dashboard:admin.adminTabUsage'), icon: '📊' },
                 { id: 'optimization', label: t('dashboard:admin.tabOptimizeShort'), fullLabel: t('dashboard:admin.optimizeTab'), icon: '🎯' },
                 { id: 'config', label: t('dashboard:admin.tabConfigShort'), fullLabel: t('dashboard:admin.adminTabConfig'), icon: '⚙️' },
                 { id: 'logs', label: t('dashboard:admin.tabLogsShort'), fullLabel: t('dashboard:admin.adminTabLogs'), icon: '📟' }
@@ -378,9 +360,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                 </div>
 
                 <nav className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar">
-                    {/* Overview as Top Level */}
-                    <SidebarItem tab={{ id: 'overview', label: t('dashboard:admin.tabOverviewShort'), fullLabel: t('dashboard:admin.adminTabOverview'), icon: '📊' }} />
+                    {/* Main 5 Tabs */}
+                    <div className="space-y-2 mb-8">
+                        {!sidebarCollapsed && (
+                            <div className="px-2 mb-3">
+                                <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.25em]">Main Navigation</span>
+                            </div>
+                        )}
+                        {mainTabs.map(tab => (
+                            <SidebarItem key={tab.id} tab={{ ...tab, fullLabel: tab.label }} />
+                        ))}
+                    </div>
 
+                    {/* Legacy Groups (Collapsible) */}
+                    {!sidebarCollapsed && (
+                        <div className="px-2 mb-3 pt-4 border-t border-white/5">
+                            <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.25em]">Advanced</span>
+                        </div>
+                    )}
                     {groups.map(group => (
                         <div key={group.id} className="space-y-2">
                             {!sidebarCollapsed && (
@@ -482,19 +479,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {/* Mobile Horizontal Tabs */}
                     <div className="md:hidden flex gap-3 pb-4 overflow-x-auto scrollbar-hide mb-4">
-                        <button
-                            onClick={() => setActiveTab('overview')}
-                            className={`px-4 py-2 text-[9px] font-black uppercase tracking-wider whitespace-nowrap rounded-lg border ${activeTab === 'overview'
-                                ? 'bg-primary/10 text-white border-primary'
-                                : 'bg-white/5 border-white/10 text-slate-500'
-                                }`}
-                        >
-                            📊 {t('dashboard:admin.tabOverviewShort')}
-                        </button>
+                        {mainTabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as AdminTab)}
+                                className={`px-4 py-2 text-[9px] font-black uppercase tracking-wider whitespace-nowrap rounded-lg border ${activeTab === tab.id
+                                    ? 'bg-primary/10 text-white border-primary'
+                                    : 'bg-white/5 border-white/10 text-slate-500'
+                                    }`}
+                            >
+                                {tab.icon} {tab.label}
+                            </button>
+                        ))}
+                        {/* Divider */}
+                        <div className="w-px bg-white/10 mx-2"></div>
+                        {/* Legacy tabs */}
                         {groups.flatMap(g => g.tabs).map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as AdminTab)}
                                 className={`px-4 py-2 text-[9px] font-black uppercase tracking-wider whitespace-nowrap rounded-lg border ${activeTab === tab.id
                                     ? 'bg-primary/10 text-white border-primary'
                                     : 'bg-white/5 border-white/10 text-slate-500'
@@ -506,123 +509,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     </div>
 
                     {activeTab === 'overview' && (
-                        <div className="space-y-8 animate-fade-in max-w-6xl mx-auto">
-                            {/* Enhanced Stats Grid with Analytics */}
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                <MetricCard
-                                    title={t('dashboard:admin.statTotalUsers')}
-                                    value={users.length}
-                                    previousValue={users.length - users.filter(u => new Date(u.createdAt || 0) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
-                                    icon="👥"
-                                    trend="up"
-                                    colorClass="bg-cyan-500/10 text-cyan-400"
-                                />
-                                <MetricCard
-                                    title={t('dashboard:admin.statTotalPets')}
-                                    value={allPets.length}
-                                    icon="🐾"
-                                    trend={allPets.filter(p => p.isLost).length > 0 ? 'neutral' : 'up'}
-                                    colorClass="bg-blue-500/10 text-blue-400"
-                                />
-                                <MetricCard
-                                    title={t('dashboard:admin.statTotalDonations')}
-                                    value={allDonations.reduce((a, d) => a + (d.numericValue || 0), 0)}
-                                    prefix="€"
-                                    decimals={0}
-                                    icon="💰"
-                                    trend="up"
-                                    colorClass="bg-amber-500/10 text-amber-400"
-                                />
-                                <MetricCard
-                                    title={t('dashboard:admin.statActiveAlerts')}
-                                    value={pendingVerifications.length}
-                                    icon={pendingVerifications.length > 0 ? '🔴' : '✅'}
-                                    trend={pendingVerifications.length > 0 ? 'neutral' : 'up'}
-                                    colorClass={pendingVerifications.length > 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <GlassCard className="p-6 border-white/10 bg-black/40 glass-card-enhanced">
-                                    <RegistrationChart users={users} />
-                                </GlassCard>
-                                <GlassCard className="p-6 border-white/10 bg-black/40 flex flex-col justify-center items-center text-center space-y-4 glass-card-enhanced relative overflow-hidden group">
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity animate-scan"></div>
-                                    <div className="relative">
-                                        <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
-                                        <div className="flex flex-col items-center">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="flex h-2 w-2 relative">
-                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                                                </span>
-                                                <span className="text-[8px] font-mono text-primary font-black tracking-[0.2em] uppercase">{t('dashboard:admin.systemStatusOnline')}</span>
-                                            </div>
-                                            <motion.span
-                                                initial={{ scale: 0.9, opacity: 0.7 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                className="text-6xl font-black text-white relative z-10 font-mono tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                                            >
-                                                {users.length}
-                                            </motion.span>
-                                        </div>
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-1">{t('dashboard:admin.totalPopulation')}</p>
-                                        <p className="text-[8px] text-slate-500 uppercase font-mono leading-none">
-                                            {users.filter(u => new Date(u.createdAt || 0).toDateString() === new Date().toDateString()).length} {t('dashboard:admin.newSignalsToday')}
-                                        </p>
-                                    </div>
-                                </GlassCard>
-                            </div>
-
-                            <React.Suspense fallback={<LoadingSpinner />}>
-                                <SystemHealth />
-                            </React.Suspense>
-
-                            {/* Trending Blog Intelligence */}
-                            <GlassCard className="p-8 border-primary/20 bg-black/40 relative overflow-hidden">
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                                    <h3 className="text-lg font-black text-white uppercase tracking-tight flex items-center gap-3">
-                                        <span className="text-xl">📈</span>
-                                        {t('dashboard:admin.contentIntelligence')}
-                                    </h3>
-                                    <div className="flex gap-4 items-center">
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-[8px] text-slate-500 uppercase font-black">{t('dashboard:admin.totalEngagement')}</span>
-                                            <span className="text-xs font-mono text-primary font-bold">{blogPosts.reduce((acc, p) => acc + (p.views || 0), 0)} {t('dashboard:admin.viewsLabel')}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {blogPosts.sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3).map((post, i) => (
-                                        <div key={post.id} className="relative group p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer">
-                                            <div className="absolute top-0 right-0 p-3 text-[20px] opacity-10 font-black italic">0{i + 1}</div>
-                                            <h5 className="text-sm font-bold text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">{post.title}</h5>
-                                            <p className="text-[10px] text-slate-500 mb-4 uppercase tracking-widest">{post.author}</p>
-                                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                                <span className="text-[10px] font-black text-primary">{post.views || 0} {t('dashboard:admin.viewsLabel')}</span>
-                                                <span className="text-[8px] font-mono text-slate-600 uppercase">
-                                                    {i === 0 ? t('dashboard:admin.rankAlpha') : i === 1 ? t('dashboard:admin.rankBeta') : t('dashboard:admin.rankGamma')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {blogPosts.length === 0 && (
-                                        <div className="col-span-3 text-center py-10 text-slate-600 font-mono text-xs uppercase tracking-[0.3em]">{t('dashboard:admin.noEngagementData')}</div>
-                                    )}
-                                </div>
-                            </GlassCard>
-                        </div>
+                        <OverviewTab
+                            users={users}
+                            allPets={allPets}
+                            donations={allDonations}
+                            blogPosts={blogPosts}
+                            pendingVerifications={pendingVerifications}
+                            onNavigateToTab={(tab) => setActiveTab(tab as AdminTab)}
+                            onNavigateToBlog={() => { setEditingPost(null); setShowEditor(true); }}
+                        />
                     )}
 
                     {/* Data Tables Wrapper */}
                     <div className="animate-fade-in max-w-6xl mx-auto">
                         {activeTab === 'users' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <UserManagementTable />
-                            </div>
+                            <UsersTab users={users} />
                         )}
 
                         {activeTab === 'clinics' && (
@@ -1126,12 +1027,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                             </div>
                         )}
 
-                        {activeTab === 'ai' && (
-                            <div className="animate-fade-in max-w-6xl mx-auto">
-                                <AdminAISettings />
-                            </div>
+                        {/* New Tab: Content Management */}
+                        {activeTab === 'content' && (
+                            <ContentTab
+                                blogPosts={blogPosts}
+                                currentUser={currentUser}
+                                onEditPost={(post) => { setEditingPost(post); setShowEditor(true); }}
+                                onDeletePost={async (postId) => {
+                                    await dbService.deleteBlogPost(postId);
+                                    await dbService.logAdminAction({
+                                        adminEmail: currentUser.email,
+                                        action: 'DELETE_BLOG_POST',
+                                        targetId: postId,
+                                        details: `Purged blog post: ${postId}`
+                                    });
+                                    await handleRefresh();
+                                }}
+                                onViewPost={onViewPost}
+                            />
                         )}
 
+                        {/* New Tab: AI Systems (combines ai, usage) */}
+                        {activeTab === 'ai' && (
+                            <AISystemsTab />
+                        )}
+
+                        {/* New Tab: Settings (combines config, logs) */}
+                        {activeTab === 'settings' && (
+                            <SettingsTab
+                                logs={logs}
+                                systemConfig={systemConfig}
+                                onUpdateConfig={handleUpdateConfig}
+                            />
+                        )}
+
+                        {/* Legacy AI tabs (for backward compatibility) */}
                         {activeTab === 'usage' && (
                             <div className="animate-fade-in max-w-6xl mx-auto">
                                 <AIUsageTable />
