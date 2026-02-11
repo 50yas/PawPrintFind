@@ -6,6 +6,7 @@ export const LoadingScreen: React.FC = () => {
   const { t } = useTranslations();
   const [showLogo, setShowLogo] = useState(false);
   const [bootLine, setBootLine] = useState(0);
+  const [pulseIntensity, setPulseIntensity] = useState(1);
 
   const bootSequence = [
       t('bootInitializing'),
@@ -17,9 +18,10 @@ export const LoadingScreen: React.FC = () => {
   ];
 
   useEffect(() => {
-      setTimeout(() => setShowLogo(true), 100);
-      
-      // Run boot text sequence
+      // Staggered entrance animation
+      const logoTimer = setTimeout(() => setShowLogo(true), 100);
+
+      // Run boot text sequence with smooth progression
       const interval = setInterval(() => {
           setBootLine(prev => {
               if (prev < bootSequence.length - 1) return prev + 1;
@@ -28,11 +30,22 @@ export const LoadingScreen: React.FC = () => {
           });
       }, 350); // Speed of text updates
 
-      return () => clearInterval(interval);
+      // Subtle pulsing intensity variation for the core logo
+      const pulseInterval = setInterval(() => {
+          setPulseIntensity(prev => (prev === 1 ? 1.15 : 1));
+      }, 2000);
+
+      return () => {
+          clearInterval(interval);
+          clearInterval(pulseInterval);
+          clearTimeout(logoTimer);
+      };
   }, []);
-  
+
+  const progress = Math.round((bootLine / (bootSequence.length - 1)) * 100);
+
   return (
-    <div className="fixed inset-0 z-[200] overflow-hidden bg-black flex flex-col items-center justify-center font-mono-tech">
+    <div className="fixed inset-0 z-[200] overflow-hidden bg-black flex flex-col items-center justify-center font-mono-tech hud-grid-bg">
         {/* Cinematic Vignette & Grid Background */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black opacity-80 pointer-events-none"></div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none"></div>
@@ -40,13 +53,37 @@ export const LoadingScreen: React.FC = () => {
         <div className={`relative z-10 flex flex-col items-center justify-center transition-all duration-1000 ease-out transform ${showLogo ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}>
             {/* Animated Logo Container */}
             <div className="relative w-40 h-40 mb-10">
-                {/* Outer Rotating Rings */}
-                <div className="absolute inset-0 border border-cyan-500/20 rounded-full animate-[spin_10s_linear_infinite]"></div>
-                <div className="absolute inset-2 border border-purple-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]"></div>
-                <div className="absolute inset-0 rounded-full shadow-[0_0_100px_rgba(6,182,212,0.15)] animate-pulse"></div>
-                
-                {/* Core Logo with Glow */}
-                <div className="absolute inset-6 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0,243,255,0.4)] backdrop-blur-md border border-white/20 z-10">
+                {/* Enhanced Outer Rotating Rings with Smooth GPU-Accelerated Animation */}
+                <div
+                    className="absolute -inset-2 border border-primary/10 rounded-full neon-glow-teal motion-reduce:animate-none will-change-transform"
+                    style={{ animation: 'spin 20s linear infinite' }}
+                ></div>
+                <div
+                    className="absolute inset-0 border border-cyan-500/20 rounded-full motion-reduce:animate-none will-change-transform"
+                    style={{ animation: 'spin 10s linear infinite' }}
+                ></div>
+                <div
+                    className="absolute inset-2 border border-purple-500/20 rounded-full motion-reduce:animate-none will-change-transform"
+                    style={{ animation: 'spin 15s linear infinite reverse' }}
+                ></div>
+
+                {/* Enhanced Pulsing Glow with Dynamic Intensity */}
+                <div
+                    className="absolute inset-0 rounded-full animate-pulse-soft motion-reduce:animate-none pointer-events-none"
+                    style={{
+                        boxShadow: `0 0 ${100 * pulseIntensity}px rgba(6,182,212,${0.15 * pulseIntensity})`,
+                        transition: 'box-shadow 2s cubic-bezier(0.05, 0.7, 0.1, 1)'
+                    }}
+                ></div>
+
+                {/* Core Logo with Enhanced Glow and Smooth Transitions */}
+                <div
+                    className="absolute inset-6 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 z-10 will-change-transform motion-reduce:shadow-[0_0_30px_rgba(0,243,255,0.4)]"
+                    style={{
+                        boxShadow: `0 0 ${50 * pulseIntensity}px rgba(0,243,255,${0.4 * pulseIntensity})`,
+                        transition: 'box-shadow 2s cubic-bezier(0.05, 0.7, 0.1, 1)'
+                    }}
+                >
                     <svg className="h-16 w-16 text-white fill-current drop-shadow-md" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                         <g transform="translate(0, 20) scale(0.9) translate(28, 0)">
                             <path d="M490.39,182.75c-5.55-13.19-14.77-22.7-26.67-27.49l-.16-.06a46.46,46.46,0,0,0-17-3.2h-.64c-27.24.41-55.05,23.56-69.19,57.61-10.37,24.9-11.56,51.68-3.18,71.64,5.54,13.2,14.78,22.71,26.73,27.5l.13.05a46.53,46.53,0,0,0,17,3.2c27.5,0,55.6-23.15,70-57.65C497.65,229.48,498.78,202.72,490.39,182.75Z"/>
@@ -59,34 +96,90 @@ export const LoadingScreen: React.FC = () => {
                 </div>
             </div>
 
-            {/* Typography */}
+            {/* Typography with Enhanced Gradient Animation */}
             <div className="flex flex-col items-center mb-8">
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white flex flex-col items-center">
                     <span className="leading-tight opacity-90">PAW PRINT</span>
-                    <span className="logo-print-text bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#bc13fe] animate-pulse filter drop-shadow-[0_0_15px_rgba(188,19,254,0.6)] leading-tight">FIND</span>
+                    <span
+                        className="logo-print-text bg-clip-text bg-gradient-to-r from-[#00f3ff] via-[#bc13fe] to-[#00f3ff] leading-tight will-change-transform motion-reduce:animate-none"
+                        style={{
+                            backgroundSize: '200% auto',
+                            animation: 'shimmer 3s ease-in-out infinite, pulse-soft 2s ease-in-out infinite',
+                            filter: 'brightness(1.1) drop-shadow(0 0 15px rgba(188,19,254,0.6))',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent'
+                        }}
+                    >
+                        FIND
+                    </span>
                 </h1>
-                <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mt-4 animate-pulse"></div>
+                <div className="h-1.5 w-24 bg-gradient-to-r from-primary to-secondary rounded-full mt-4 animate-pulse-soft motion-reduce:animate-none"></div>
             </div>
-            
-            {/* Loading Bar */}
-            <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden mb-6">
-                <div className="h-full bg-gradient-to-r from-[#00f3ff] via-[#bc13fe] to-[#00f3ff] animate-[shimmer_2s_infinite_linear] w-full" style={{backgroundSize: '200% 100%'}}></div>
+
+            {/* Enhanced Loading Bar with Smooth Shimmer */}
+            <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden mb-6 relative">
+                <div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent motion-reduce:hidden"
+                    style={{
+                        animation: 'shimmer 2s ease-in-out infinite',
+                        backgroundSize: '200% 100%'
+                    }}
+                ></div>
+                <div
+                    className="h-full bg-gradient-to-r from-[#00f3ff] via-[#bc13fe] to-[#00f3ff] rounded-full transition-all duration-300 ease-out will-change-transform"
+                    style={{
+                        width: `${progress}%`,
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 2s linear infinite'
+                    }}
+                ></div>
             </div>
-            
-            {/* Boot Sequence Terminal */}
+            <p className="text-[10px] font-mono text-primary/40 tracking-widest mt-2 tabular-nums">{progress}%</p>
+
+            {/* Enhanced Boot Sequence Terminal with Typewriter Effect */}
             <div className="h-16 flex flex-col items-center justify-end overflow-hidden">
-                <p className="text-xs font-mono text-[#00f3ff] tracking-[0.1em] uppercase animate-pulse">
-                    {`> ${bootSequence[bootLine]}`}
-                </p>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-mono text-cyan-600">&gt;</span>
+                    <p
+                        className="text-sm font-mono text-[#00f3ff] tracking-[0.1em] uppercase motion-reduce:animate-pulse"
+                        style={{
+                            animation: bootLine < bootSequence.length - 1
+                                ? 'pulse-soft 1.5s ease-in-out infinite'
+                                : 'glow-breathe 2s ease-in-out infinite'
+                        }}
+                    >
+                        {bootSequence[bootLine]}
+                    </p>
+                    {bootLine < bootSequence.length - 1 && (
+                        <span className="inline-block w-1.5 h-3.5 bg-[#00f3ff] animate-blink ml-1 motion-reduce:opacity-100"></span>
+                    )}
+                </div>
                 {/* Ghost text for layout stability */}
                 <p className="invisible text-xs font-mono">SYSTEM READY</p>
             </div>
         </div>
-        
+
+        {/* Optimized Inline Styles for Smooth Animations */}
         <style>{`
             @keyframes shimmer {
                 0% { background-position: 200% 0; }
                 100% { background-position: -200% 0; }
+            }
+
+            @keyframes blink {
+                0%, 49% { opacity: 1; }
+                50%, 100% { opacity: 0; }
+            }
+
+            .animate-blink {
+                animation: blink 1s step-end infinite;
+            }
+
+            /* Ensure smooth 60fps animations with GPU acceleration */
+            @media (prefers-reduced-motion: no-preference) {
+                .will-change-transform {
+                    will-change: transform;
+                }
             }
         `}</style>
     </div>

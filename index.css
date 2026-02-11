@@ -411,7 +411,7 @@
     @apply border-white/10 bg-white/5 opacity-60 hover:opacity-100 hover:border-white/20;
   }
 
-  /* Scan line hover effect for cards */
+  /* Enhanced scan line hover effect for cards with smooth GPU acceleration */
   .scan-hover {
     position: relative;
     overflow: hidden;
@@ -424,9 +424,16 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, transparent 40%, rgba(6, 182, 212, 0.05) 50%, transparent 60%);
-    transition: top 0.6s ease;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      transparent 40%,
+      rgba(6, 182, 212, 0.08) 50%,
+      transparent 60%,
+      transparent 100%
+    );
+    transition: top 0.7s cubic-bezier(0.05, 0.7, 0.1, 1);
     pointer-events: none;
+    will-change: top;
   }
 
   .scan-hover:hover::after {
@@ -753,5 +760,76 @@
   .scroll-smooth-touch {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+  }
+
+  /* Reduced motion preferences (WCAG 2.1) */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pulse,
+    .animate-bounce,
+    .animate-spin,
+    .animate-ping,
+    .animate-bounce-subtle,
+    .animate-marquee,
+    .animate-pulse-soft {
+      animation: none !important;
+    }
+
+    .scan-hover::after {
+      display: none;
+    }
+
+    .neon-border::before {
+      animation: none;
+    }
+
+    .status-pulse-green,
+    .status-pulse-red,
+    .status-pulse-amber {
+      animation: none;
+    }
+
+    * {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+
+  /* Futuristic floating label for forms */
+  .floating-label-group {
+    @apply relative;
+  }
+
+  .floating-label-group input:focus + label,
+  .floating-label-group input:not(:placeholder-shown) + label {
+    @apply -translate-y-6 scale-90 text-primary;
+  }
+
+  /* Glass morphism button */
+  .glass-btn {
+    @apply relative overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl px-6 py-3 text-white font-bold transition-all duration-300;
+  }
+
+  .glass-btn:hover {
+    @apply bg-white/10 border-primary/30;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+  }
+
+  .glass-btn::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Futuristic divider */
+  .cyber-divider {
+    @apply relative h-px w-full;
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.3), transparent);
+  }
+
+  .cyber-divider::after {
+    content: '';
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary/50;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
   }
 }
