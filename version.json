@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 19,
-  "buildTimestamp": "2026-02-12T02:00:00.000Z",
-  "commitHash": "f887632",
-  "commitMessage": "fix: Eliminate double-load by initializing i18n before React render",
+  "buildNumber": 20,
+  "buildTimestamp": "2026-02-12T02:30:00.000Z",
+  "commitHash": "b126579",
+  "commitMessage": "fix: Prevent scroll-triggered reloads from aggressive service worker",
   "commitDate": "2026-02-12",
   "isProduction": false,
   "environment": "development"

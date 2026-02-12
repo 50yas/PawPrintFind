@@ -71,8 +71,9 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          skipWaiting: true,
-          clientsClaim: true,
+          // In development, don't force SW updates to prevent unexpected reloads
+          skipWaiting: mode !== 'development',
+          clientsClaim: mode !== 'development',
           globPatterns: mode === 'development' ? [] : ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
           runtimeCaching: [
             // Firestore API - Network first with timeout

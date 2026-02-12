@@ -15,8 +15,19 @@ import { initMonitoring } from './services/monitoringService';
 // Initialize Sentry Monitoring
 initMonitoring();
 
-// Register PWA Service Worker
-registerSW({ immediate: true });
+// Register PWA Service Worker - non-immediate in dev to prevent reloads
+registerSW({
+  immediate: !import.meta.env.DEV,
+  onNeedRefresh() {
+    // Only show update prompt in production, don't force refresh
+    if (import.meta.env.PROD) {
+      console.log('New version available. Please refresh.');
+    }
+  },
+  onOfflineReady() {
+    console.log('App ready to work offline');
+  }
+});
 
 // Fix for missing JSX types in the environment
 declare global {

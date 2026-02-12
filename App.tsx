@@ -179,12 +179,13 @@ export default function App() {
 
     const [isAdminBrowsing, setIsAdminBrowsing] = useState(false);
 
-    // Optimize initial load - hide splash as soon as data is ready
+    // Graceful initial load - show complete boot animation before revealing app
     useEffect(() => {
         if (!isLoading) {
-            // Add minimal 200ms delay only to prevent flash of unstyled content
-            // This ensures smooth transition without visible "double load"
-            const timer = setTimeout(() => setShowSplash(false), 200);
+            // Wait for boot sequence to complete (LoadingScreen runs for ~2.1s total)
+            // This ensures all animations finish and everything is stable before revealing app
+            // Prevents any "reload" perception by ensuring single, complete load
+            const timer = setTimeout(() => setShowSplash(false), 2200);
             return () => clearTimeout(timer);
         }
     }, [isLoading]);
