@@ -250,7 +250,9 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
     };
 
     const videoRef = useRef<HTMLVideoElement>(null);
+    const videoContainerRef = useRef<HTMLDivElement>(null);
     const [isMuted, setIsMuted] = useState(true);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Sync React state with video element state to prevent desync on external events
     useEffect(() => {
@@ -260,6 +262,15 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
         const handleVolumeChange = () => setIsMuted(video.muted);
         video.addEventListener('volumechange', handleVolumeChange);
         return () => video.removeEventListener('volumechange', handleVolumeChange);
+    }, []);
+
+    // Monitor fullscreen changes
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, []);
 
     const handleToggleAudio = () => {
@@ -275,6 +286,18 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
         if (videoRef.current) {
             videoRef.current.currentTime = 0;
             videoRef.current.play().catch(console.error);
+        }
+    };
+
+    const handleToggleFullscreen = async () => {
+        try {
+            if (!document.fullscreenElement) {
+                await videoContainerRef.current?.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (error) {
+            console.error('Fullscreen error:', error);
         }
     };
 
@@ -585,7 +608,7 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                   </div>
                         <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">{t('ecosystemTitle')}</h2>
                     </div>
-                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black group">
+                    <div ref={videoContainerRef} className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black group">
                         <video
                             ref={videoRef}
                             className="w-full h-full object-cover"
@@ -628,6 +651,24 @@ export const Home: React.FC<HomeProps> = ({ setView, openLogin, currentUser, los
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                 <span>{t('restartVideo')}</span>
+                            </button>
+
+                            {/* Fullscreen Button */}
+                            <button
+                                onClick={handleToggleFullscreen}
+                                className="flex items-center justify-center gap-3 px-6 py-3 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30 backdrop-blur-md text-cyan-300 rounded-full font-bold uppercase tracking-widest text-[10px] hover:scale-105 transition-all w-full shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                            >
+                                {isFullscreen ? (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                        <span>{t('exitFullscreen')}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                                        <span>{t('fullscreen')}</span>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
