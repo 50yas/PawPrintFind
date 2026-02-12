@@ -167,7 +167,6 @@ const HeroScanner = memo(({ lostPets, onViewPet }: { lostPets: PetProfile[], onV
                     alt={pet.name}
                     className="w-full h-full object-cover filter brightness-90 grayscale-[0.1]"
                     priority={currentIndex === 0}
-                    fetchPriority={currentIndex === 0 ? "high" : "low"}
                 />
 
                 <div className="absolute top-4 start-4 z-20">

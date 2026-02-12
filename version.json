@@ -1,10 +1,10 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 17,
-  "buildTimestamp": "2026-02-11T22:00:00.000Z",
-  "commitHash": "11154ac",
-  "commitMessage": "feat: Phase 2.1 - Social Media Admin UI",
-  "commitDate": "2026-02-11",
+  "buildNumber": 18,
+  "buildTimestamp": "2026-02-12T01:30:00.000Z",
+  "commitHash": "116da4a",
+  "commitMessage": "fix: Remove double-render and React warnings",
+  "commitDate": "2026-02-12",
   "isProduction": false,
   "environment": "development"
 }

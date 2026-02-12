@@ -101,10 +101,6 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  import.meta.env.DEV ? (
-    <React.StrictMode>{AppContent}</React.StrictMode>
-  ) : (
-    AppContent
-  )
-);
+// StrictMode removed to prevent double-mounting and improve UX
+// App is stable enough without it, and it causes confusing double-renders
+root.render(AppContent);

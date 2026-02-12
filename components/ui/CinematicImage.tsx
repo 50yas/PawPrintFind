@@ -8,7 +8,6 @@ interface CinematicImageProps {
     priority?: boolean;
     srcset?: string; // For responsive images: "image-320w.jpg 320w, image-640w.jpg 640w"
     sizes?: string;  // For viewport-based selection: "(max-width: 640px) 100vw, 640px"
-    fetchPriority?: 'high' | 'low' | 'auto'; // Hint for browser resource priority
 }
 
 export const CinematicImage: React.FC<CinematicImageProps> = ({
@@ -17,8 +16,7 @@ export const CinematicImage: React.FC<CinematicImageProps> = ({
     className = "",
     priority = false,
     srcset,
-    sizes,
-    fetchPriority = 'auto'
+    sizes
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -43,7 +41,6 @@ export const CinematicImage: React.FC<CinematicImageProps> = ({
                 onLoad={() => setIsLoaded(true)}
                 loading={priority ? "eager" : "lazy"}
                 decoding={priority ? "sync" : "async"}
-                fetchPriority={fetchPriority}
             />
 
             <style>{`
