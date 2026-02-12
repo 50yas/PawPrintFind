@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 20,
-  "buildTimestamp": "2026-02-12T02:30:00.000Z",
-  "commitHash": "b126579",
-  "commitMessage": "fix: Prevent scroll-triggered reloads from aggressive service worker",
+  "buildNumber": 21,
+  "buildTimestamp": "2026-02-12T03:00:00.000Z",
+  "commitHash": "ebffab3",
+  "commitMessage": "i18n: Complete auth translations for FR, DE, ZH, AR, RO",
   "commitDate": "2026-02-12",
   "isProduction": false,
   "environment": "development"
