@@ -241,5 +241,39 @@
       "question": "Was ist, wenn ich einen Fehler finde?",
       "answer": "Melden Sie Fehler über den KI-Assistenten oder das Admin-Dashboard. Wir belohnen aktive Tester mit exklusiven Abzeichen und vorrangigem Support."
     }
+  },
+  "footer": {
+    "communityHubButton": "Community",
+    "adoptionLink": "Adoption",
+    "pressKit": "Presse-Kit",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "Admin-Konsole",
+    "systemInitialization": "Systeminitialisierung",
+    "initializingSystem": "System wird initialisiert...",
+    "restrictedAccess": "EINGESCHRÄNKTER ZUGANG",
+    "establishingRoot": "Root-Administrator erstellen",
+    "authorizedPersonnelOnly": "Nur autorisiertes Personal. Unbefugte Zugriffe werden protokolliert.",
+    "emailLabel": "E-Mail-Adresse",
+    "adminEmailPlaceholder": "admin@domain.de",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "authenticate": "Authentifizieren",
+    "criticalRecovery": "Kritische Wiederherstellung",
+    "initializeResetSystem": "System initialisieren / zurücksetzen",
+    "securityKey": "Sicherheitsschlüssel",
+    "validateKey": "Schlüssel validieren",
+    "backToLogin": "Zurück zum Login",
+    "keyValidatedCreateRoot": "Schlüssel validiert. Root-Administrator erstellen.",
+    "newAdminEmail": "E-Mail Neuer Admin",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "Mind. 6 Zeichen",
+    "newAdminPassword": "Passwort Neuer Admin",
+    "establishSuperAdmin": "Super Admin erstellen",
+    "invalidAdminCredentials": "Ungültige Admin-Anmeldedaten.",
+    "invalidSecurityKey": "Ungültiger Sicherheitsschlüssel.",
+    "superAdminInitializedSuccess": "Super Admin erfolgreich initialisiert!",
+    "initializationFailed": "Initialisierung fehlgeschlagen: {{error}}"
   }
 }

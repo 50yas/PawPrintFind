@@ -241,5 +241,39 @@
       "question": "¿Qué pasa si encuentro un error?",
       "answer": "Reporta errores a través del Asistente IA o el panel de administración. Recompensamos a los testers activos con insignias exclusivas y soporte prioritario."
     }
+  },
+  "footer": {
+    "communityHubButton": "Comunidad",
+    "adoptionLink": "Adopción",
+    "pressKit": "Kit de Prensa",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "Consola de Admin",
+    "systemInitialization": "Inicialización del Sistema",
+    "initializingSystem": "Inicializando sistema...",
+    "restrictedAccess": "ACCESO RESTRINGIDO",
+    "establishingRoot": "Estableciendo Administrador Root",
+    "authorizedPersonnelOnly": "Solo personal autorizado. Los accesos no autorizados serán registrados.",
+    "emailLabel": "Dirección de Email",
+    "adminEmailPlaceholder": "admin@dominio.com",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Ingrese contraseña",
+    "authenticate": "Autenticar",
+    "criticalRecovery": "Recuperación Crítica",
+    "initializeResetSystem": "Inicializar / Reiniciar Sistema",
+    "securityKey": "Clave de Seguridad",
+    "validateKey": "Validar Clave",
+    "backToLogin": "Volver al Login",
+    "keyValidatedCreateRoot": "Clave Validada. Crear Administrador Root.",
+    "newAdminEmail": "Email Nuevo Admin",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "Mín. 6 caracteres",
+    "newAdminPassword": "Contraseña Nuevo Admin",
+    "establishSuperAdmin": "Establecer Super Admin",
+    "invalidAdminCredentials": "Credenciales de admin inválidas.",
+    "invalidSecurityKey": "Clave de seguridad inválida.",
+    "superAdminInitializedSuccess": "¡Super admin inicializado exitosamente!",
+    "initializationFailed": "Inicialización fallida: {{error}}"
   }
 }

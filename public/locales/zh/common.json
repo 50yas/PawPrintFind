@@ -241,5 +241,39 @@
       "question": "如果我发现错误怎么办？",
       "answer": "通过 AI 助手或管理仪表板报告错误。我们奖励活跃的测试人员独家徽章和优先支持。"
     }
+  },
+  "footer": {
+    "communityHubButton": "社区",
+    "adoptionLink": "领养",
+    "pressKit": "新闻资料",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "管理控制台",
+    "systemInitialization": "系统初始化",
+    "initializingSystem": "正在初始化系统...",
+    "restrictedAccess": "限制访问",
+    "establishingRoot": "创建根管理员",
+    "authorizedPersonnelOnly": "仅限授权人员。未经授权的访问将被记录。",
+    "emailLabel": "电子邮件地址",
+    "adminEmailPlaceholder": "admin@domain.com",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "输入密码",
+    "authenticate": "认证",
+    "criticalRecovery": "关键恢复",
+    "initializeResetSystem": "初始化 / 重置系统",
+    "securityKey": "安全密钥",
+    "validateKey": "验证密钥",
+    "backToLogin": "返回登录",
+    "keyValidatedCreateRoot": "密钥已验证。创建根管理员。",
+    "newAdminEmail": "新管理员电子邮件",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "最少 6 个字符",
+    "newAdminPassword": "新管理员密码",
+    "establishSuperAdmin": "创建超级管理员",
+    "invalidAdminCredentials": "管理员凭据无效。",
+    "invalidSecurityKey": "安全密钥无效。",
+    "superAdminInitializedSuccess": "超级管理员初始化成功！",
+    "initializationFailed": "初始化失败：{{error}}"
   }
 }

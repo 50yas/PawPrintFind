@@ -1,9 +1,9 @@
 {
   "version": "1.0.0-beta.1",
-  "buildNumber": 21,
-  "buildTimestamp": "2026-02-12T03:00:00.000Z",
-  "commitHash": "ebffab3",
-  "commitMessage": "i18n: Complete auth translations for FR, DE, ZH, AR, RO",
+  "buildNumber": 22,
+  "buildTimestamp": "2026-02-12T03:30:00.000Z",
+  "commitHash": "bf49347",
+  "commitMessage": "i18n: Add Footer and Admin Console translations to all languages",
   "commitDate": "2026-02-12",
   "isProduction": false,
   "environment": "development"

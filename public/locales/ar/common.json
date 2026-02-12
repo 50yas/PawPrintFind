@@ -241,5 +241,39 @@
       "question": "ماذا لو وجدت خطأ؟",
       "answer": "أبلغ عن الأخطاء من خلال المساعد الذكي أو لوحة الإدارة. نكافئ المختبرين النشطين بشارات حصرية ودعم ذو أولوية."
     }
+  },
+  "footer": {
+    "communityHubButton": "المجتمع",
+    "adoptionLink": "التبني",
+    "pressKit": "حقيبة الصحافة",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "وحدة تحكم الإدارة",
+    "systemInitialization": "تهيئة النظام",
+    "initializingSystem": "جارٍ تهيئة النظام...",
+    "restrictedAccess": "وصول محدود",
+    "establishingRoot": "إنشاء مسؤول الجذر",
+    "authorizedPersonnelOnly": "الموظفون المصرح لهم فقط. سيتم تسجيل الوصول غير المصرح به.",
+    "emailLabel": "عنوان البريد الإلكتروني",
+    "adminEmailPlaceholder": "admin@domain.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "authenticate": "المصادقة",
+    "criticalRecovery": "استرداد حرج",
+    "initializeResetSystem": "تهيئة / إعادة تعيين النظام",
+    "securityKey": "مفتاح الأمان",
+    "validateKey": "التحقق من صحة المفتاح",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "keyValidatedCreateRoot": "تم التحقق من صحة المفتاح. إنشاء مسؤول الجذر.",
+    "newAdminEmail": "بريد المسؤول الجديد",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "6 أحرف كحد أدنى",
+    "newAdminPassword": "كلمة مرور المسؤول الجديد",
+    "establishSuperAdmin": "إنشاء مسؤول فائق",
+    "invalidAdminCredentials": "بيانات اعتماد المسؤول غير صالحة.",
+    "invalidSecurityKey": "مفتاح الأمان غير صالح.",
+    "superAdminInitializedSuccess": "تم تهيئة المسؤول الفائق بنجاح!",
+    "initializationFailed": "فشلت التهيئة: {{error}}"
   }
 }

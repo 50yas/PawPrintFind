@@ -241,5 +241,39 @@
       "question": "Ce se întâmplă dacă găsesc un bug?",
       "answer": "Raportează bug-uri prin Asistentul AI sau panoul de administrare. Recompensăm testerii activi cu insigne exclusive și suport prioritar."
     }
+  },
+  "footer": {
+    "communityHubButton": "Comunitate",
+    "adoptionLink": "Adopție",
+    "pressKit": "Kit de Presă",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "Consolă Admin",
+    "systemInitialization": "Inițializare Sistem",
+    "initializingSystem": "Se inițializează sistemul...",
+    "restrictedAccess": "ACCES RESTRICȚIONAT",
+    "establishingRoot": "Creare Administrator Root",
+    "authorizedPersonnelOnly": "Doar personal autorizat. Accesul neautorizat va fi înregistrat.",
+    "emailLabel": "Adresă Email",
+    "adminEmailPlaceholder": "admin@domeniu.ro",
+    "passwordLabel": "Parolă",
+    "passwordPlaceholder": "Introduceți parola",
+    "authenticate": "Autentificare",
+    "criticalRecovery": "Recuperare Critică",
+    "initializeResetSystem": "Inițializare / Resetare Sistem",
+    "securityKey": "Cheie de Securitate",
+    "validateKey": "Validare Cheie",
+    "backToLogin": "Înapoi la Login",
+    "keyValidatedCreateRoot": "Cheie Validată. Creați Administrator Root.",
+    "newAdminEmail": "Email Admin Nou",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "Min. 6 caractere",
+    "newAdminPassword": "Parolă Admin Nou",
+    "establishSuperAdmin": "Creare Super Admin",
+    "invalidAdminCredentials": "Credențiale admin invalide.",
+    "invalidSecurityKey": "Cheie de securitate invalidă.",
+    "superAdminInitializedSuccess": "Super admin inițializat cu succes!",
+    "initializationFailed": "Inițializare eșuată: {{error}}"
   }
 }

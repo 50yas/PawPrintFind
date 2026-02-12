@@ -242,5 +242,39 @@
         "question": "What if I find a bug?",
         "answer": "Report bugs through the AI Assistant or admin dashboard. We reward active testers with exclusive badges and priority support."
       }
+    },
+    "footer": {
+      "communityHubButton": "Community",
+      "adoptionLink": "Adoption",
+      "pressKit": "Press Kit",
+      "poweredByGemini": "Powered by Gemini AI"
+    },
+    "adminConsole": {
+      "adminConsole": "Admin Console",
+      "systemInitialization": "System Initialization",
+      "initializingSystem": "Initializing System...",
+      "restrictedAccess": "RESTRICTED ACCESS",
+      "establishingRoot": "Establishing Root Administrator",
+      "authorizedPersonnelOnly": "Authorized personnel only. Unauthorized access will be logged.",
+      "emailLabel": "Email Address",
+      "adminEmailPlaceholder": "admin@domain.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "authenticate": "Authenticate",
+      "criticalRecovery": "Critical Recovery",
+      "initializeResetSystem": "Initialize / Reset System",
+      "securityKey": "Security Key",
+      "validateKey": "Validate Key",
+      "backToLogin": "Back to Login",
+      "keyValidatedCreateRoot": "Key Validated. Create Root Administrator.",
+      "newAdminEmail": "New Admin Email",
+      "rootEmailPlaceholder": "root@system.admin",
+      "minCharacters": "Min. 6 characters",
+      "newAdminPassword": "New Admin Password",
+      "establishSuperAdmin": "Establish Super Admin",
+      "invalidAdminCredentials": "Invalid admin credentials.",
+      "invalidSecurityKey": "Invalid security key.",
+      "superAdminInitializedSuccess": "Super admin initialized successfully!",
+      "initializationFailed": "Initialization failed: {{error}}"
     }
   }
