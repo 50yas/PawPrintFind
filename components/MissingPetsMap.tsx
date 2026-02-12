@@ -291,40 +291,40 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
 
   return (
     <GlassCard variant="default" className="group relative w-full h-full overflow-hidden" style={{ backgroundColor: colors.surfaceContainer }}>
-        {/* MAP HUD CONTROLS */}
-        <div className="absolute top-4 right-4 z-[1002] flex flex-col gap-2">
-            <GlassCard className="p-1 flex border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
-                <button 
+        {/* MAP HUD CONTROLS - Responsive sizing for mobile */}
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-[1002] flex flex-col gap-1.5 md:gap-2">
+            <GlassCard className="p-0.5 md:p-1 flex border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
+                <button
                     onClick={() => switchStyle('street')}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'street' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                    className={`px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest transition-all ${mapStyle === 'street' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'street' ? { backgroundColor: colors.primary } : {}}
                 >{t('mapStreet')}</button>
-                <button 
+                <button
                     onClick={() => switchStyle('satellite')}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${mapStyle === 'satellite' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                    className={`px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest transition-all ${mapStyle === 'satellite' ? 'text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     style={mapStyle === 'satellite' ? { backgroundColor: colors.primary } : {}}
                 >{t('mapSatellite')}</button>
             </GlassCard>
-            
-            <GlassCard className="p-1 flex flex-col gap-1 border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
+
+            <GlassCard className="p-0.5 md:p-1 flex flex-col gap-0.5 md:gap-1 border-white/20" style={{ backgroundColor: colors.surfaceContainerLow + '66' }}>
                  {!hideLostToggle && (
-                 <button 
+                 <button
                     onClick={() => setShowLost(!showLost)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showLost ? 'text-white' : 'text-slate-400 opacity-50'}`}
+                    className={`px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest transition-all flex items-center justify-between gap-1.5 md:gap-2 ${showLost ? 'text-white' : 'text-slate-400 opacity-50'}`}
                     style={showLost ? { backgroundColor: colors.error } : {}}
                 >
                     <span>{t('showLostPets')}</span>
-                    <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white animate-pulse"></span>
                 </button>
                 )}
                 {!hideAdoptableToggle && (
-                <button 
+                <button
                     onClick={() => setShowAdoptable(!showAdoptable)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between gap-2 ${showAdoptable ? 'text-white' : 'text-slate-400 opacity-50'}`}
+                    className={`px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest transition-all flex items-center justify-between gap-1.5 md:gap-2 ${showAdoptable ? 'text-white' : 'text-slate-400 opacity-50'}`}
                     style={showAdoptable ? { backgroundColor: colors.primary } : {}}
                 >
                     <span>{t('showAdoptablePets')}</span>
-                    <span className="w-2 h-2 rounded-full bg-white"></span>
+                    <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white"></span>
                 </button>
                 )}
             </GlassCard>
