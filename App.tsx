@@ -179,11 +179,14 @@ export default function App() {
 
     const [isAdminBrowsing, setIsAdminBrowsing] = useState(false);
 
-    // Optimize initial load - minimal splash for faster LCP
+    // Optimize initial load - hide splash as soon as data is ready
     useEffect(() => {
-        // Only show splash if data is actually loading, hide as soon as possible
-        const timer = setTimeout(() => setShowSplash(false), isLoading ? 1000 : 500);
-        return () => clearTimeout(timer);
+        if (!isLoading) {
+            // Add minimal 200ms delay only to prevent flash of unstyled content
+            // This ensures smooth transition without visible "double load"
+            const timer = setTimeout(() => setShowSplash(false), 200);
+            return () => clearTimeout(timer);
+        }
     }, [isLoading]);
 
     useEffect(() => {

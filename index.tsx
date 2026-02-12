@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import i18n, { initializeLanguage } from './i18n';
 import * as Sentry from "@sentry/react";
@@ -50,49 +50,17 @@ console.error = (...args) => {
 };
 // -----------------------
 
-// I18n Loader Component - waits for i18n initialization before rendering app
-const I18nLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [i18nReady, setI18nReady] = useState(false);
-
-  useEffect(() => {
-    // Initialize i18n and load detected language before rendering
-    initializeLanguage().then(() => {
-      setI18nReady(true);
-    }).catch((error) => {
-      console.error('Failed to initialize i18n:', error);
-      // Even if it fails, render the app with fallback language
-      setI18nReady(true);
-    });
-  }, []);
-
-  // Show minimal loading state while i18n initializes
-  if (!i18nReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-background-secondary">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
-};
-
-// Conditionally wrap in StrictMode (dev only)
+// App content without I18nLoader - i18n will be initialized before React renders
 const AppContent = (
-  <I18nLoader>
-    <LanguageProvider>
-      <ThemeProvider>
-        <SnackbarProvider>
-          <Sentry.ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center bg-background text-foreground">Something went wrong.</div>}>
-            <App />
-          </Sentry.ErrorBoundary>
-        </SnackbarProvider>
-      </ThemeProvider>
-    </LanguageProvider>
-  </I18nLoader>
+  <LanguageProvider>
+    <ThemeProvider>
+      <SnackbarProvider>
+        <Sentry.ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center bg-background text-foreground">Something went wrong.</div>}>
+          <App />
+        </Sentry.ErrorBoundary>
+      </SnackbarProvider>
+    </ThemeProvider>
+  </LanguageProvider>
 );
 
 const rootElement = document.getElementById('root');
@@ -100,7 +68,15 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-const root = ReactDOM.createRoot(rootElement);
-// StrictMode removed to prevent double-mounting and improve UX
-// App is stable enough without it, and it causes confusing double-renders
-root.render(AppContent);
+// Initialize i18n BEFORE creating React root to prevent double-render
+// This ensures translations are ready when the app first renders
+initializeLanguage().then(() => {
+  const root = ReactDOM.createRoot(rootElement);
+  // Single render - no StrictMode, no I18nLoader state changes
+  root.render(AppContent);
+}).catch((error) => {
+  console.error('Failed to initialize i18n:', error);
+  // Render anyway with fallback language
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(AppContent);
+});
