@@ -47,7 +47,12 @@ Based on the file structure, the application includes the following features:
     - **Dynamic Interaction:** Full support for Material 3 state layers (ripples, elevation, focus states) across all interactive components.
     - A community forum or social space (`Community.tsx`).
     - **Multilingual Smart Blog:** A Gemini-powered content hub featuring automated translation across multiple languages (es, fr, de, it, nl), real-time engagement metrics, and an integrated rich-text editor for administrative authorship.
-- **Cinematic Backgrounds:** High-performance, interactive 3D neural network and "Biometric Data Stream" scenes powered by Three.js, featuring adaptive particle systems, DNA-to-Paw morphing, and mouse-reactive parallax effects.
+- **Ecosystem Discovery & Intelligence:**
+    - **Ecosystem Command Center:** A dedicated, high-density interactive hub providing a centralized "map" of every app function (AI Vision, Triage, Social Scraper, Vet Network) with real-time status indicators.
+    - **Problem-Solution Narrative:** A high-impact, cinematic homepage section that visualizes global lost pet statistics to communicate the urgency of the problem and the power of Paw Print's AI-driven solutions.
+    - **Interactive System Tour:** A futuristic guided onboarding experience that points out key modules using stylized overlays and reactive 3D background elements.
+- **Cinematic Backgrounds:**
+ High-performance, interactive 3D neural network and "Biometric Data Stream" scenes powered by Three.js, featuring adaptive particle systems, DNA-to-Paw morphing, and mouse-reactive parallax effects.
 - **User & Role Management & Navigation:**
     - Authentication for different user roles (`Auth.tsx`).
     - Dashboards tailored to different roles (Admin, Shelter, Vet, Volunteer).

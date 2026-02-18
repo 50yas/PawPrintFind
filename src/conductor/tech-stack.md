@@ -32,7 +32,10 @@ This document outlines the core technologies used in the Paw Print application.
             -   **Firestore:** A NoSQL cloud database to store and sync data.
             -   **Authentication:** Provides backend services, easy-to-use SDKs, and ready-made UI libraries to authenticate users.
             -   **Analytics:** Enterprise-grade user engagement and milestone tracking.
-            -   **Performance Monitoring:** Real-time insight into the app's performance, frame rates (via @react-three/fiber integration), and latency.
+            - **Analytics & Visualization:**
+                - **recharts:** A composable charting library built on React components, used for high-density administrative data visualization and system health tracking.
+            - **Performance Monitoring:**
+             Real-time insight into the app's performance, frame rates (via @react-three/fiber integration), and latency.
             -   **Cloud Functions (v1):** Serverless backend logic used to handle secure operations like Stripe webhook processing and AI proxying.
             -   **Security:** Firebase App Check (reCAPTCHA Enterprise), Firebase Secrets Manager.
     -   **Payments:** Stripe
