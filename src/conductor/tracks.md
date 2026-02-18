@@ -30,8 +30,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Homepage Stats Realization (Impatto della Piattaforma)**
 *Link: [./tracks/007-homepage-stats-realization/plan.md](./tracks/007-homepage-stats-realization/plan.md)*
-
----
-
-- [x] **Track: Homepage Storytelling & Technical Performance Audit**
-*Link: [./tracks/homepage_narrative_audit_20260218/](./tracks/homepage_narrative_audit_20260218/)*
