@@ -1,0 +1,8 @@
+{
+  "track_id": "007-homepage-stats-realization",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-18T12:50:00Z",
+  "updated_at": "2026-02-18T12:50:00Z",
+  "description": "Transition homepage 'Impatto della Piattaforma' stats to real Firestore data"
+}

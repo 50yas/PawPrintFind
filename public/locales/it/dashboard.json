@@ -298,7 +298,11 @@
       "addUser": "Nuovo Utente",
       "viewLogs": "Vedi Log",
       "systemConfig": "Config Sistema"
-    }
+    },
+    "mainNavigation": "Navigazione Principale",
+    "advanced": "Avanzate",
+    "notificationCenter": "Centro Notifiche",
+    "notifyShort": "NOTIFY"
   },
   "shelter": {
     "shelterDashboardTitle": "Dashboard Rifugio",
@@ -319,7 +323,34 @@
     "freeTime": "Tutto a posto!",
     "actionManageClinicDesc": "Aggiorna info e orari",
     "actionManagePatientsDesc": "Rivedi storico pazienti",
-    "actionSmartCalendarDesc": "Gestisci appuntamenti"
+    "actionSmartCalendarDesc": "Gestisci appuntamenti",
+    "aiHealthAnalytics": "Analisi Salute AI",
+    "aiHealthAnalyticsDesc": "Ottieni approfondimenti aggregati su tutti i tuoi pazienti con l'analisi AI avanzata",
+    "prioritySupport": "Supporto Prioritario",
+    "prioritySupportDesc": "Accesso diretto al nostro team di ingegneri per problemi urgenti",
+    "verificationRejectedTitle": "Verifica Rifiutata",
+    "freeTierTitle": "Piano Gratuito",
+    "pendingVerificationBadge": "Verifica in Sospeso",
+    "retryVerification": "Riprova Verifica 📄",
+    "upgradeToPro": "Passa a Pro 🚀",
+    "pendingVerificationBtn": "Verifica in Sospeso ⏳",
+    "submitDocuments": "Invia Documenti 📄",
+    "upgradeTitle": "Passa a Vet Pro 🏥",
+    "unlockProTools": "Sblocca Strumenti Professionali",
+    "proToolsDesc": "Gestisci la tua clinica in modo efficiente con insight basati su AI.",
+    "freePlan": "Piano Gratuito",
+    "vetPro": "Vet Pro",
+    "recommended": "CONSIGLIATO",
+    "unlimitedPatients": "Pazienti Illimitati",
+    "aiAnalyticsTriage": "Analisi Salute AI & Triage",
+    "smartCalendarReminders": "Calendario Smart & Promemoria",
+    "prioritySupportItem": "Supporto Prioritario",
+    "perMonth": "/ mese",
+    "upgradeNow": "Passa a Pro Ora",
+    "stripeSecurity": "Protetto da Stripe SSL. Cancella quando vuoi.",
+    "basicPatientRecords": "Record Pazienti Base",
+    "manualAppointments": "Appuntamenti Manuali",
+    "communityVisibility": "Visibilità Community"
   },
   "volunteer": {
     "helpLocate": "Aiuta a trovare animali nella tua zona.",

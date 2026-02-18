@@ -33,5 +33,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Homepage Storytelling & Technical Performance Audit**
+- [x] **Track: Homepage Storytelling & Technical Performance Audit**
 *Link: [./tracks/homepage_narrative_audit_20260218/](./tracks/homepage_narrative_audit_20260218/)*

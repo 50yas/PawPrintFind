@@ -163,21 +163,6 @@
   "youUnlocked": "Hai sbloccato un premio!",
   "loadingUsers": "Caricamento utenti...",
   "searchUsers": "Cerca utenti...",
-  "profileSettings": "Impostazioni Profilo",
-  "notifications": "Notifiche",
-  "myAchievements": "I Miei Traguardi",
-  "finder": "Soccorritore",
-  "owner": "Proprietario",
-  "protectedPets": "{{count}} Animali Protetti",
-  "aiAutofillTitle": "Auto-completamento AI",
-  "aiAutofillDesc": "Carica una foto per rilevare razza e dettagli.",
-  "aiAutofillButton": "Carica e Compila",
-  "aiAutofillSuccess": "✨ Auto-completamento AI riuscito!",
-  "aiAutofillError": "Errore AI! Compila manualmente.",
-  "unnamedOperative": "Animale senza nome",
-  "classified": "Riservato",
-  "petProfilePhoto": "Foto Profilo",
-  "behaviorPlaceholder": "es. Amichevole con le persone ma ha paura dei tuoni...",
   "beta": {
     "badge": "BETA",
     "title": "Unisciti al Programma Beta",
@@ -279,9 +264,7 @@
     "adminEmailPlaceholder": "admin@dominio.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Inserisci password",
-    "authenticate": "Autent
-
-ica",
+    "authenticate": "Autentica",
     "criticalRecovery": "Recupero Critico",
     "initializeResetSystem": "Inizializza / Reimposta Sistema",
     "securityKey": "Chiave di Sicurezza",
@@ -297,5 +280,26 @@ ica",
     "invalidSecurityKey": "Chiave di sicurezza non valida.",
     "superAdminInitializedSuccess": "Super admin inizializzato con successo!",
     "initializationFailed": "Inizializzazione fallita: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Quota giornaliera AI superata. Riprova domani.",
+    "apiConnectionFailed": "Connessione API fallita. Richiesto audit di sistema."
+  },
+  "notFound": {
+    "title": "404 - Oggetti Smarriti Digitali",
+    "subtitle": "Nemmeno la nostra AI riesce a trovare questa pagina. Sembra essersi persa nella natura selvaggia digitale.",
+    "cta": "Torna alla Base"
+  },
+  "thankYou": {
+    "title": "STATO EROE CONFERMATO",
+    "message": "Il tuo contributo alimenta la rete. Insieme, stiamo riunendo famiglie e proteggendo zampe in tutto il mondo.",
+    "transactionId": "ID Transazione",
+    "receiptNote": "Una ricevuta digitale è stata inviata alla tua email.",
+    "homeCta": "Torna alla Dashboard"
+  },
+  "reportSightingFeatureComingSoon": "Questa funzione sarà disponibile a breve!",
+  "petTagTitle": "Tag Digitale Animale",
+  "scanToViewProfile": "Scansiona per il profilo biometrico",
+  "printButton": "Stampa Tag",
+  "orderSafePawTag": "Ordina Tag NFC Safe Paw"
 }

@@ -9,15 +9,15 @@ PawPrintFind is an AI-powered pet finder web app built with React 18 + TypeScrip
 ## Build/Lint/Test Commands
 
 ```bash
-npm run dev        # Start dev server (port 3000)
-npm run build      # TypeScript check + Vite production build → dist/
-npm run lint       # Type-check only (tsc --noEmit)
-npm run test       # Run all tests once (vitest run)
-npm run test:watch # Run tests in watch mode
-npx vitest run <file>   # Run a single test file (e.g., npx vitest run components/Foo.test.tsx)
-npm run deploy     # Deploy to Firebase (runs build first via predeploy)
-firebase deploy --only hosting           # Deploy frontend only
-firebase deploy --only functions         # Deploy Cloud Functions only
+npm run dev              # Start dev server (port 3000)
+npm run build            # TypeScript check + Vite production build → dist/
+npm run lint             # Type-check only (tsc --noEmit)
+npm run test             # Run all tests once (vitest run)
+npx vitest run <file>    # Run a single test file (e.g., npx vitest run src/components/Foo.test.tsx)
+npx vitest run --reporter=verbose  # Run tests with detailed output
+npm run deploy           # Deploy to Firebase (runs build first via predeploy)
+firebase deploy --only hosting     # Deploy frontend only
+firebase deploy --only functions   # Deploy Cloud Functions only
 ```
 
 ## Code Style Guidelines
@@ -30,11 +30,12 @@ firebase deploy --only functions         # Deploy Cloud Functions only
 - Use `lazy()` for code splitting large components
 
 ### TypeScript Conventions
-- Use strict TypeScript configuration
+- Use strict TypeScript configuration (ES2022 target, strict mode enabled)
 - Define all Firestore document types in `types.ts`
 - Use Zod schemas for runtime validation (`validationService.ts`)
 - Use `UserRole` enum for role-based access control
 - Prefer explicit types over `any`
+- Path alias `@/*` maps to `./src/*` for cleaner imports
 
 ### Naming Conventions
 - Components: PascalCase (e.g., `LiveAssistantFAB`)
@@ -104,6 +105,7 @@ firebase deploy --only functions         # Deploy Cloud Functions only
 - Utils in `utils/` directory
 - Types in `types.ts`
 - Tests alongside source files
+- Firebase Cloud Functions in `functions/` directory (separate from frontend)
 
 ### Git Conventions
 - Use conventional commit messages
@@ -114,7 +116,7 @@ firebase deploy --only functions         # Deploy Cloud Functions only
 ### Environment
 - Node >=22 required
 - Firebase project ID: `pawprint-50`
-- Environment: `GEMINI_API_KEY` in `.env.local`
+- Environment variables in `.env.local` (e.g., `GEMINI_API_KEY`, `VITE_FIREBASE_*`)
 - Firebase config is hardcoded in `services/firebase.ts`
 
 ### Architecture Patterns

@@ -189,8 +189,8 @@ export default defineConfig(({ mode }) => {
             }
             // Split Three.js and related 3D libraries (heavy, lazy-loaded)
             if (id.includes('node_modules/three') ||
-                id.includes('node_modules/@react-three') ||
-                id.includes('node_modules/maath')) {
+              id.includes('node_modules/@react-three') ||
+              id.includes('node_modules/maath')) {
               return 'three-vendor';
             }
             // Split Leaflet maps (lazy-loaded)
@@ -242,7 +242,7 @@ export default defineConfig(({ mode }) => {
     test: { // Vitest configuration
       globals: true,
       environment: 'jsdom',
-      setupFiles: './vitest.setup.ts', // A setup file for global mocks
+      setupFiles: ['./src/jest-shim.ts', './src/vitest.setup.ts'], // A setup file for global mocks
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],

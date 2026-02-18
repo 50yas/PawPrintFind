@@ -298,7 +298,11 @@
       "addUser": "Neuer Benutzer",
       "viewLogs": "Protokolle Anzeigen",
       "systemConfig": "Systemkonfiguration"
-    }
+    },
+    "mainNavigation": "Hauptnavigation",
+    "advanced": "Erweitert",
+    "notificationCenter": "Benachrichtigungszentrum",
+    "notifyShort": "NOTIFY"
   },
   "shelter": {
     "shelterDashboardTitle": "Tierheim-Dashboard",
@@ -319,7 +323,34 @@
     "freeTime": "Alles erledigt!",
     "actionManageClinicDesc": "Info & Öffnungszeiten aktualisieren",
     "actionManagePatientsDesc": "Patientenhistorie einsehen",
-    "actionSmartCalendarDesc": "Termine verwalten"
+    "actionSmartCalendarDesc": "Termine verwalten",
+    "aiHealthAnalytics": "KI-Gesundheitsanalyse",
+    "aiHealthAnalyticsDesc": "Erhalten Sie aggregierte Einblicke in alle Ihre Patienten mit fortschrittlicher KI-Analyse",
+    "prioritySupport": "Prioritärer Support",
+    "prioritySupportDesc": "Direkter Zugang zu unserem Entwicklungsteam bei dringenden Problemen",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "Helfen Sie, Haustiere in Ihrer Gegend zu finden.",

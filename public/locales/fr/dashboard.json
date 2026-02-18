@@ -298,7 +298,11 @@
       "addUser": "Nouvel Utilisateur",
       "viewLogs": "Voir Journaux",
       "systemConfig": "Config Système"
-    }
+    },
+    "mainNavigation": "Navigation Principale",
+    "advanced": "Avancé",
+    "notificationCenter": "Centre de Notifications",
+    "notifyShort": "NOTIFIER"
   },
   "shelter": {
     "shelterDashboardTitle": "Tableau de Bord Refuge",
@@ -319,7 +323,34 @@
     "freeTime": "Tout est à jour !",
     "actionManageClinicDesc": "Mettre à jour info et horaires",
     "actionManagePatientsDesc": "Consulter l'historique des patients",
-    "actionSmartCalendarDesc": "Gérer les rendez-vous"
+    "actionSmartCalendarDesc": "Gérer les rendez-vous",
+    "aiHealthAnalytics": "Analyses de Santé IA",
+    "aiHealthAnalyticsDesc": "Obtenez des informations agrégées sur tous vos patients grâce à une analyse IA avancée",
+    "prioritySupport": "Support Prioritaire",
+    "prioritySupportDesc": "Accès direct à notre équipe d'ingénierie pour les problèmes urgents",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "Aidez à retrouver des animaux dans votre région.",

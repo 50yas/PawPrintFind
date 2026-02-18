@@ -298,7 +298,11 @@
       "addUser": "Utilizator Nou",
       "viewLogs": "Vizualizare Jurnale",
       "systemConfig": "Config Sistem"
-    }
+    },
+    "mainNavigation": "Navigație Principală",
+    "advanced": "Avansat",
+    "notificationCenter": "Centru de Notificări",
+    "notifyShort": "NOTIFICĂ"
   },
   "shelter": {
     "shelterDashboardTitle": "Panou Adăpost",
@@ -319,7 +323,34 @@
     "freeTime": "Totul la zi!",
     "actionManageClinicDesc": "Actualizare info și program",
     "actionManagePatientsDesc": "Revizuire istoric pacienți",
-    "actionSmartCalendarDesc": "Gestionare programări"
+    "actionSmartCalendarDesc": "Gestionare programări",
+    "aiHealthAnalytics": "Analiza Sănătății cu AI",
+    "aiHealthAnalyticsDesc": "Obțineți perspective agregate despre toți pacienții dvs. cu analize AI avansate",
+    "prioritySupport": "Suport Prioritar",
+    "prioritySupportDesc": "Acces direct la echipa noastră de inginerie pentru probleme urgente",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "Ajută la găsirea animalelor din zona ta.",

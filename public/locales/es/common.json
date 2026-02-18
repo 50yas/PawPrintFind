@@ -120,6 +120,21 @@
   "moreButton": "Más",
   "selectLanguage": "Seleccionar Idioma",
   "tabOverviewShort": "DASH",
+  "profileSettings": "Configuración de Perfil",
+  "notifications": "Notificaciones",
+  "myAchievements": "Mis Logros",
+  "finder": "Buscador",
+  "owner": "Dueño",
+  "protectedPets": "{{count}} Mascotas Protegidas",
+  "aiAutofillTitle": "Auto-completar IA",
+  "aiAutofillDesc": "Sube una foto para detectar raza y detalles.",
+  "aiAutofillButton": "Subir y Completar",
+  "aiAutofillSuccess": "✨ ¡Auto-completado IA exitoso!",
+  "aiAutofillError": "¡Error de IA! Por favor completa manualmente.",
+  "unnamedOperative": "Mascota sin nombre",
+  "classified": "Clasificado",
+  "petProfilePhoto": "Foto de Perfil",
+  "behaviorPlaceholder": "ej. Amigable con la gente pero teme a los truenos...",
   "pressKit": "Kit de Prensa",
   "pressKitTitle": "Kit de Prensa y Recursos de Marca",
   "pressKitDesc": "Descarga logos oficiales, iconos y guías de marca.",
@@ -148,21 +163,6 @@
   "youUnlocked": "¡Desbloqueaste una recompensa!",
   "loadingUsers": "Cargando usuarios...",
   "searchUsers": "Buscar usuarios...",
-  "profileSettings": "Configuración de Perfil",
-  "notifications": "Notificaciones",
-  "myAchievements": "Mis Logros",
-  "finder": "Buscador",
-  "owner": "Dueño",
-  "protectedPets": "{{count}} Mascotas Protegidas",
-  "aiAutofillTitle": "Auto-completar IA",
-  "aiAutofillDesc": "Sube una foto para detectar raza y detalles.",
-  "aiAutofillButton": "Subir y Completar",
-  "aiAutofillSuccess": "✨ ¡Auto-completado IA exitoso!",
-  "aiAutofillError": "¡Error de IA! Por favor completa manualmente.",
-  "unnamedOperative": "Mascota sin nombre",
-  "classified": "Clasificado",
-  "petProfilePhoto": "Foto de Perfil",
-  "behaviorPlaceholder": "ej. Amigable con la gente pero teme a los truenos...",
   "beta": {
     "badge": "BETA",
     "title": "Únete al Programa Beta",
@@ -280,5 +280,26 @@
     "invalidSecurityKey": "Clave de seguridad inválida.",
     "superAdminInitializedSuccess": "¡Super admin inicializado exitosamente!",
     "initializationFailed": "Inicialización fallida: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Cupo diario de IA excedido. Por favor, intente mañana.",
+    "apiConnectionFailed": "Fallo en la conexión API. Se requiere auditoría del sistema."
+  },
+  "notFound": {
+    "title": "404 - Objetos Perdidos Digitales",
+    "subtitle": "Ni nuestra IA puede encontrar esta página. Parece haberse perdido en la naturaleza digital.",
+    "cta": "Volver a la Base"
+  },
+  "thankYou": {
+    "title": "ESTADO DE HÉROE ASEGURADO",
+    "message": "Tu contribución impulsa la red. Juntos, estamos reuniendo familias y protegiendo huellas en todo el mundo.",
+    "transactionId": "ID de Transacción",
+    "receiptNote": "Se ha enviado un recibo digital a tu correo electrónico.",
+    "homeCta": "Volver al Panel"
+  },
+  "reportSightingFeatureComingSoon": "¡Esta función estará disponible pronto!",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

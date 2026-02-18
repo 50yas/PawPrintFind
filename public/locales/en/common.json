@@ -119,167 +119,187 @@
   "orbitalUnknown": "Unknown Location",
   "moreButton": "More",
   "selectLanguage": "Select Language",
-      "tabOverviewShort": "DASH",
-      "profileSettings": "Profile Settings",
-      "notifications": "Notifications",
-      "myAchievements": "My Achievements",
-      "finder": "Finder",
-      "owner": "Owner",
-      "protectedPets": "{{count}} Protected Pets",
-      "aiAutofillTitle": "AI Auto-Fill",
-    
-    "aiAutofillDesc": "Upload a photo to auto-detect breed & details.",
-    "aiAutofillButton": "Upload & Fill",
-    "aiAutofillSuccess": "✨ AI Auto-fill Complete!",
-    "aiAutofillError": "AI Brain Freeze! Please fill manually.",
-    "unnamedOperative": "Unnamed Pet",
-    "classified": "Classified",
-    "petProfilePhoto": "Pet Profile Photo",
-    "behaviorPlaceholder": "e.g. Friendly with people but scared of thunder...",
-    "pressKit": "Press Kit",
-    "pressKitTitle": "Press Kit & Brand Assets",
-    "pressKitDesc": "Download official logos, icons, and brand guidelines.",
-    "assetLogoIcon": "Icon Only",
-    "assetLogoText": "Wordmark",
-    "assetLogoLockup": "Full Lockup",
-    "downloadAsset": "Download Asset",
-    "formatLabel": "Format",
-    "bgLabel": "Background",
-    "transparentBg": "Transparent",
-    "coloredBg": "Colored",
-    "downloadButton": "Download",
-    "addMarkCta": "Click to add a unique mark",
-    "describeMarkPrompt": "Describe this unique mark",
-    "describeMarkPlaceholder": "e.g. Small scar on left ear...",
-    "saveMarkButton": "Save Mark",
-    "sortByLabel": "Sort By",
-    "filterBySizeLabel": "Filter by Size",
-    "codeRedeemedSuccess": "Code redeemed successfully!",
-    "codeRedeemFailed": "Failed to redeem code. Please try again.",
-    "redeemCodeTitle": "Redeem Code",
-    "redeemCodeDesc": "Enter your promo code below to unlock rewards.",
-    "enterCodePlaceholder": "ENTER-CODE",
-    "redeemButton": "Redeem",
-    "congratulations": "Congratulations!",
-    "youUnlocked": "You unlocked a reward!",
-    "loadingUsers": "Loading users...",
-    "searchUsers": "Search users...",
-    "beta": {
-      "badge": "BETA",
-      "title": "Join the Beta Program",
-      "subtitle": "Help us build the future of pet safety",
-      "description": "Be among the first to experience AI-powered pet protection. Your feedback shapes the platform.",
-      "timeline": "Launch Q2 2026",
-      "joinButton": "Join Beta Program",
-      "learnMore": "Learn More",
-      "testingPhase": "Beta Testing Phase",
-      "earlyAccess": "Early Access",
-      "limitedSpots": "Limited spots available"
+  "tabOverviewShort": "DASH",
+  "profileSettings": "Profile Settings",
+  "notifications": "Notifications",
+  "myAchievements": "My Achievements",
+  "finder": "Finder",
+  "owner": "Owner",
+  "protectedPets": "{{count}} Protected Pets",
+  "aiAutofillTitle": "AI Auto-Fill",
+  "aiAutofillDesc": "Upload a photo to auto-detect breed & details.",
+  "aiAutofillButton": "Upload & Fill",
+  "aiAutofillSuccess": "✨ AI Auto-fill Complete!",
+  "aiAutofillError": "AI Brain Freeze! Please fill manually.",
+  "unnamedOperative": "Unnamed Pet",
+  "classified": "Classified",
+  "petProfilePhoto": "Pet Profile Photo",
+  "behaviorPlaceholder": "e.g. Friendly with people but scared of thunder...",
+  "pressKit": "Press Kit",
+  "pressKitTitle": "Press Kit & Brand Assets",
+  "pressKitDesc": "Download official logos, icons, and brand guidelines.",
+  "assetLogoIcon": "Icon Only",
+  "assetLogoText": "Wordmark",
+  "assetLogoLockup": "Full Lockup",
+  "downloadAsset": "Download Asset",
+  "formatLabel": "Format",
+  "bgLabel": "Background",
+  "transparentBg": "Transparent",
+  "coloredBg": "Colored",
+  "downloadButton": "Download",
+  "addMarkCta": "Click to add a unique mark",
+  "describeMarkPrompt": "Describe this unique mark",
+  "describeMarkPlaceholder": "e.g. Small scar on left ear...",
+  "saveMarkButton": "Save Mark",
+  "sortByLabel": "Sort By",
+  "filterBySizeLabel": "Filter by Size",
+  "codeRedeemedSuccess": "Code redeemed successfully!",
+  "codeRedeemFailed": "Failed to redeem code. Please try again.",
+  "redeemCodeTitle": "Redeem Code",
+  "redeemCodeDesc": "Enter your promo code below to unlock rewards.",
+  "enterCodePlaceholder": "ENTER-CODE",
+  "redeemButton": "Redeem",
+  "congratulations": "Congratulations!",
+  "youUnlocked": "You unlocked a reward!",
+  "loadingUsers": "Loading users...",
+  "searchUsers": "Search users...",
+  "beta": {
+    "badge": "BETA",
+    "title": "Join the Beta Program",
+    "subtitle": "Help us build the future of pet safety",
+    "description": "Be among the first to experience AI-powered pet protection. Your feedback shapes the platform.",
+    "timeline": "Launch Q2 2026",
+    "joinButton": "Join Beta Program",
+    "learnMore": "Learn More",
+    "testingPhase": "Beta Testing Phase",
+    "earlyAccess": "Early Access",
+    "limitedSpots": "Limited spots available"
+  },
+  "features": {
+    "title": "Revolutionary Pet Safety",
+    "subtitle": "Cutting-edge technology to protect what matters most",
+    "aiMatching": {
+      "title": "AI-Powered Matching",
+      "description": "Advanced biometric recognition finds your pet faster than ever"
     },
-    "features": {
-      "title": "Revolutionary Pet Safety",
-      "subtitle": "Cutting-edge technology to protect what matters most",
-      "aiMatching": {
-        "title": "AI-Powered Matching",
-        "description": "Advanced biometric recognition finds your pet faster than ever"
-      },
-      "realtime": {
-        "title": "Real-Time Alerts",
-        "description": "Instant notifications when your pet is sighted nearby"
-      },
-      "community": {
-        "title": "Community Network",
-        "description": "Thousands of volunteers helping reunite pets with families"
-      },
-      "vetNetwork": {
-        "title": "Vet Integration",
-        "description": "Connected with veterinary clinics nationwide"
-      },
-      "blockchain": {
-        "title": "Secure Digital ID",
-        "description": "Immutable pet profiles with biometric verification"
-      },
-      "geoFencing": {
-        "title": "Smart Geofencing",
-        "description": "Automatic alerts when your pet leaves safe zones"
-      }
+    "realtime": {
+      "title": "Real-Time Alerts",
+      "description": "Instant notifications when your pet is sighted nearby"
     },
-    "stats": {
-      "title": "Platform Impact",
-      "petsProtected": "Pets Protected",
-      "successfulMatches": "Successful Matches",
-      "communityMembers": "Community Members",
-      "vetPartners": "Vet Partners",
-      "responseTime": "Avg Response Time",
-      "minutes": "minutes",
-      "activeCities": "Active Cities"
+    "community": {
+      "title": "Community Network",
+      "description": "Thousands of volunteers helping reunite pets with families"
     },
-    "testimonials": {
-      "title": "Beta Tester Stories",
-      "subtitle": "Real experiences from our early adopters",
-      "comingSoon": "Coming Soon",
-      "placeholder": "Beta tester testimonials will appear here as we collect feedback during the beta phase."
+    "vetNetwork": {
+      "title": "Vet Integration",
+      "description": "Connected with veterinary clinics nationwide"
     },
-    "faq": {
-      "title": "Beta Program FAQ",
-      "subtitle": "Everything you need to know",
-      "q1": {
-        "question": "What is the beta program?",
-        "answer": "Our beta program gives early access to PawPrintFind's AI-powered pet safety platform. Help us test features, provide feedback, and shape the final product."
-      },
-      "q2": {
-        "question": "Is the beta free?",
-        "answer": "Yes! Beta access is completely free. You'll get all premium features at no cost during the testing period."
-      },
-      "q3": {
-        "question": "How long is the beta?",
-        "answer": "The beta runs until Q2 2026. Beta testers will receive special perks when we officially launch."
-      },
-      "q4": {
-        "question": "What happens to my data?",
-        "answer": "All data is encrypted and secure. Beta accounts transition seamlessly to the full platform at launch."
-      },
-      "q5": {
-        "question": "Can I invite others?",
-        "answer": "Yes! Beta testers will receive referral codes to invite friends and family."
-      },
-      "q6": {
-        "question": "What if I find a bug?",
-        "answer": "Report bugs through the AI Assistant or admin dashboard. We reward active testers with exclusive badges and priority support."
-      }
+    "blockchain": {
+      "title": "Secure Digital ID",
+      "description": "Immutable pet profiles with biometric verification"
     },
-    "footer": {
-      "communityHubButton": "Community",
-      "adoptionLink": "Adoption",
-      "pressKit": "Press Kit",
-      "poweredByGemini": "Powered by Gemini AI"
-    },
-    "adminConsole": {
-      "adminConsole": "Admin Console",
-      "systemInitialization": "System Initialization",
-      "initializingSystem": "Initializing System...",
-      "restrictedAccess": "RESTRICTED ACCESS",
-      "establishingRoot": "Establishing Root Administrator",
-      "authorizedPersonnelOnly": "Authorized personnel only. Unauthorized access will be logged.",
-      "emailLabel": "Email Address",
-      "adminEmailPlaceholder": "admin@domain.com",
-      "passwordLabel": "Password",
-      "passwordPlaceholder": "Enter password",
-      "authenticate": "Authenticate",
-      "criticalRecovery": "Critical Recovery",
-      "initializeResetSystem": "Initialize / Reset System",
-      "securityKey": "Security Key",
-      "validateKey": "Validate Key",
-      "backToLogin": "Back to Login",
-      "keyValidatedCreateRoot": "Key Validated. Create Root Administrator.",
-      "newAdminEmail": "New Admin Email",
-      "rootEmailPlaceholder": "root@system.admin",
-      "minCharacters": "Min. 6 characters",
-      "newAdminPassword": "New Admin Password",
-      "establishSuperAdmin": "Establish Super Admin",
-      "invalidAdminCredentials": "Invalid admin credentials.",
-      "invalidSecurityKey": "Invalid security key.",
-      "superAdminInitializedSuccess": "Super admin initialized successfully!",
-      "initializationFailed": "Initialization failed: {{error}}"
+    "geoFencing": {
+      "title": "Smart Geofencing",
+      "description": "Automatic alerts when your pet leaves safe zones"
     }
-  }
+  },
+  "stats": {
+    "title": "Platform Impact",
+    "petsProtected": "Pets Protected",
+    "successfulMatches": "Successful Matches",
+    "communityMembers": "Community Members",
+    "vetPartners": "Vet Partners",
+    "responseTime": "Avg Response Time",
+    "minutes": "minutes",
+    "activeCities": "Active Cities"
+  },
+  "testimonials": {
+    "title": "Beta Tester Stories",
+    "subtitle": "Real experiences from our early adopters",
+    "comingSoon": "Coming Soon",
+    "placeholder": "Beta tester testimonials will appear here as we collect feedback during the beta phase."
+  },
+  "faq": {
+    "title": "Beta Program FAQ",
+    "subtitle": "Everything you need to know",
+    "q1": {
+      "question": "What is the beta program?",
+      "answer": "Our beta program gives early access to PawPrintFind's AI-powered pet safety platform. Help us test features, provide feedback, and shape the final product."
+    },
+    "q2": {
+      "question": "Is the beta free?",
+      "answer": "Yes! Beta access is completely free. You'll get all premium features at no cost during the testing period."
+    },
+    "q3": {
+      "question": "How long is the beta?",
+      "answer": "The beta runs until Q2 2026. Beta testers will receive special perks when we officially launch."
+    },
+    "q4": {
+      "question": "What happens to my data?",
+      "answer": "All data is encrypted and secure. Beta accounts transition seamlessly to the full platform at launch."
+    },
+    "q5": {
+      "question": "Can I invite others?",
+      "answer": "Yes! Beta testers will receive referral codes to invite friends and family."
+    },
+    "q6": {
+      "question": "What if I find a bug?",
+      "answer": "Report bugs through the AI Assistant or admin dashboard. We reward active testers with exclusive badges and priority support."
+    }
+  },
+  "footer": {
+    "communityHubButton": "Community",
+    "adoptionLink": "Adoption",
+    "pressKit": "Press Kit",
+    "poweredByGemini": "Powered by Gemini AI"
+  },
+  "adminConsole": {
+    "adminConsole": "Admin Console",
+    "systemInitialization": "System Initialization",
+    "initializingSystem": "Initializing System...",
+    "restrictedAccess": "RESTRICTED ACCESS",
+    "establishingRoot": "Establishing Root Administrator",
+    "authorizedPersonnelOnly": "Authorized personnel only. Unauthorized access will be logged.",
+    "emailLabel": "Email Address",
+    "adminEmailPlaceholder": "admin@domain.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter password",
+    "authenticate": "Authenticate",
+    "criticalRecovery": "Critical Recovery",
+    "initializeResetSystem": "Initialize / Reset System",
+    "securityKey": "Security Key",
+    "validateKey": "Validate Key",
+    "backToLogin": "Back to Login",
+    "keyValidatedCreateRoot": "Key Validated. Create Root Administrator.",
+    "newAdminEmail": "New Admin Email",
+    "rootEmailPlaceholder": "root@system.admin",
+    "minCharacters": "Min. 6 characters",
+    "newAdminPassword": "New Admin Password",
+    "establishSuperAdmin": "Establish Super Admin",
+    "invalidAdminCredentials": "Invalid admin credentials.",
+    "invalidSecurityKey": "Invalid security key.",
+    "superAdminInitializedSuccess": "Super admin initialized successfully!",
+    "initializationFailed": "Initialization failed: {{error}}"
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Daily AI quota exceeded. Please try again tomorrow.",
+    "apiConnectionFailed": "API connection failed. System audit required."
+  },
+  "notFound": {
+    "title": "404 - Digital Lost & Found",
+    "subtitle": "Even our AI can't find this page. It seems to have wandered off into the digital wilderness.",
+    "cta": "Return to Base"
+  },
+  "thankYou": {
+    "title": "HERO STATUS SECURED",
+    "message": "Your contribution fuels the network. Together, we are reuniting families and protecting paws worldwide.",
+    "transactionId": "Transaction ID",
+    "receiptNote": "A digital receipt has been dispatched to your email.",
+    "homeCta": "Return to Dashboard"
+  },
+  "reportSightingFeatureComingSoon": "This feature is coming soon!",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
+}

@@ -120,6 +120,21 @@
   "moreButton": "Mai mult",
   "selectLanguage": "Selectează Limba",
   "tabOverviewShort": "DASH",
+  "profileSettings": "Setări Profil",
+  "notifications": "Notificări",
+  "myAchievements": "Realizările Mele",
+  "finder": "Găsitor",
+  "owner": "Proprietar",
+  "protectedPets": "{{count}} Animale Protejate",
+  "aiAutofillTitle": "Completare Automată AI",
+  "aiAutofillDesc": "Încarcă o fotografie pentru a detecta rasa și detaliile.",
+  "aiAutofillButton": "Încarcă și Completează",
+  "aiAutofillSuccess": "✨ Completare Automată AI reușită!",
+  "aiAutofillError": "Eroare AI! Te rog completează manual.",
+  "unnamedOperative": "Animal fără nume",
+  "classified": "Clasificat",
+  "petProfilePhoto": "Fotografie Profil",
+  "behaviorPlaceholder": "ex. Prietenos cu oamenii dar se teme de tunet...",
   "pressKit": "Kit Presă",
   "pressKitTitle": "Kit Presă & Resurse Brand",
   "pressKitDesc": "Descarcă logo-uri oficiale, pictograme și ghiduri de brand.",
@@ -148,21 +163,6 @@
   "youUnlocked": "Ai deblocat o recompensă!",
   "loadingUsers": "Se încarcă utilizatorii...",
   "searchUsers": "Caută utilizatori...",
-  "profileSettings": "Setări Profil",
-  "notifications": "Notificări",
-  "myAchievements": "Realizările Mele",
-  "finder": "Găsitor",
-  "owner": "Proprietar",
-  "protectedPets": "{{count}} Animale Protejate",
-  "aiAutofillTitle": "Completare Automată AI",
-  "aiAutofillDesc": "Încarcă o fotografie pentru a detecta rasa și detaliile.",
-  "aiAutofillButton": "Încarcă și Completează",
-  "aiAutofillSuccess": "✨ Completare Automată AI reușită!",
-  "aiAutofillError": "Eroare AI! Te rog completează manual.",
-  "unnamedOperative": "Animal fără nume",
-  "classified": "Clasificat",
-  "petProfilePhoto": "Fotografie Profil",
-  "behaviorPlaceholder": "ex. Prietenos cu oamenii dar se teme de tunet...",
   "beta": {
     "badge": "BETA",
     "title": "Alătură-te Programului Beta",
@@ -280,5 +280,26 @@
     "invalidSecurityKey": "Cheie de securitate invalidă.",
     "superAdminInitializedSuccess": "Super admin inițializat cu succes!",
     "initializationFailed": "Inițializare eșuată: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Cota zilnică AI a fost depășită. Vă rugăm să încercați mâine.",
+    "apiConnectionFailed": "Conexiunea API a eșuat. Este necesar un audit de sistem."
+  },
+  "notFound": {
+    "title": "404 - Obiecte Pierdute Digitale",
+    "subtitle": "Nici măcar AI-ul nostru nu poate găsi această pagină. Se pare că s-a rătăcit în pustietatea digitală.",
+    "cta": "Înapoi la Bază"
+  },
+  "thankYou": {
+    "title": "STATUT DE EROU CONFIRMAT",
+    "message": "Contribuția ta susține rețeaua. Împreună, reunim familii și protejăm lăbuțele din întreaga lume.",
+    "transactionId": "ID Tranzacție",
+    "receiptNote": "O chitanță digitală a fost trimisă pe adresa ta de e-mail.",
+    "homeCta": "Înapoi la Panou"
+  },
+  "reportSightingFeatureComingSoon": "Această funcție va fi disponibilă în curând!",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

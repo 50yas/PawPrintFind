@@ -120,6 +120,21 @@
   "moreButton": "Mehr",
   "selectLanguage": "Sprache wählen",
   "tabOverviewShort": "DASH",
+  "profileSettings": "Profileinstellungen",
+  "notifications": "Benachrichtigungen",
+  "myAchievements": "Meine Erfolge",
+  "finder": "Finder",
+  "owner": "Besitzer",
+  "protectedPets": "{{count}} Geschützte Haustiere",
+  "aiAutofillTitle": "KI Auto-Ausfüllen",
+  "aiAutofillDesc": "Laden Sie ein Foto hoch, um Rasse und Details zu erkennen.",
+  "aiAutofillButton": "Hochladen & Ausfüllen",
+  "aiAutofillSuccess": "✨ KI Auto-Ausfüllen erfolgreich!",
+  "aiAutofillError": "KI-Fehler! Bitte manuell ausfüllen.",
+  "unnamedOperative": "Tier ohne Namen",
+  "classified": "Klassifiziert",
+  "petProfilePhoto": "Profilfoto",
+  "behaviorPlaceholder": "z.B. Freundlich zu Menschen aber Angst vor Gewitter...",
   "pressKit": "Pressekit",
   "pressKitTitle": "Pressekit & Markenressourcen",
   "pressKitDesc": "Laden Sie offizielle Logos, Icons und Markenrichtlinien herunter.",
@@ -148,21 +163,6 @@
   "youUnlocked": "Sie haben eine Belohnung freigeschaltet!",
   "loadingUsers": "Benutzer werden geladen...",
   "searchUsers": "Benutzer suchen...",
-  "profileSettings": "Profileinstellungen",
-  "notifications": "Benachrichtigungen",
-  "myAchievements": "Meine Erfolge",
-  "finder": "Finder",
-  "owner": "Besitzer",
-  "protectedPets": "{{count}} Geschützte Haustiere",
-  "aiAutofillTitle": "KI Auto-Ausfüllen",
-  "aiAutofillDesc": "Laden Sie ein Foto hoch, um Rasse und Details zu erkennen.",
-  "aiAutofillButton": "Hochladen & Ausfüllen",
-  "aiAutofillSuccess": "✨ KI Auto-Ausfüllen erfolgreich!",
-  "aiAutofillError": "KI-Fehler! Bitte manuell ausfüllen.",
-  "unnamedOperative": "Tier ohne Namen",
-  "classified": "Klassifiziert",
-  "petProfilePhoto": "Profilfoto",
-  "behaviorPlaceholder": "z.B. Freundlich zu Menschen aber Angst vor Gewitter...",
   "beta": {
     "badge": "BETA",
     "title": "Treten Sie dem Beta-Programm bei",
@@ -280,5 +280,26 @@
     "invalidSecurityKey": "Ungültiger Sicherheitsschlüssel.",
     "superAdminInitializedSuccess": "Super Admin erfolgreich initialisiert!",
     "initializationFailed": "Initialisierung fehlgeschlagen: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Tägliches KI-Kontingent überschritten. Bitte morgen erneut versuchen.",
+    "apiConnectionFailed": "API-Verbindung fehlgeschlagen. Systemprüfung erforderlich."
+  },
+  "notFound": {
+    "title": "404 - Digitales Fundbüro",
+    "subtitle": "Selbst unsere KI findet diese Seite nicht. Sie scheint sich in der digitalen Wildnis verirrt zu haben.",
+    "cta": "Zurück zur Basis"
+  },
+  "thankYou": {
+    "title": "HELDENSTATUS GESICHERT",
+    "message": "Dein Beitrag stärkt das Netzwerk. Gemeinsam führen wir Familien zusammen und schützen Pfoten weltweit.",
+    "transactionId": "Transaktions-ID",
+    "receiptNote": "Ein digitaler Beleg wurde an Ihre E-Mail gesendet.",
+    "homeCta": "Zurück zum Dashboard"
+  },
+  "reportSightingFeatureComingSoon": "Diese Funktion ist bald verfügbar!",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

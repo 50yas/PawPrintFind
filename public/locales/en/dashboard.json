@@ -191,8 +191,6 @@
     "unconfirmedDonationBadge": "Unconfirmed",
     "petUpdated": "Pet updated",
     "configUpdated": "Config saved",
-    "viewsLabel": "Views",
-    "searchPlaceholder": "Search by UID or Email...",
     "tabs": {
       "overview": "Overview",
       "users": "Users",
@@ -300,7 +298,11 @@
       "addUser": "New User",
       "viewLogs": "View Logs",
       "systemConfig": "System Config"
-    }
+    },
+    "mainNavigation": "Main Navigation",
+    "advanced": "Advanced",
+    "notificationCenter": "Notification Center",
+    "notifyShort": "NOTIFY"
   },
   "shelter": {
     "shelterDashboardTitle": "Shelter Dashboard",
@@ -321,7 +323,34 @@
     "freeTime": "All caught up!",
     "actionManageClinicDesc": "Update info & hours",
     "actionManagePatientsDesc": "Review patient history",
-    "actionSmartCalendarDesc": "Manage appointments"
+    "actionSmartCalendarDesc": "Manage appointments",
+    "aiHealthAnalytics": "AI Health Analytics",
+    "aiHealthAnalyticsDesc": "Get aggregate insights across all your patients with advanced AI analysis",
+    "prioritySupport": "Priority Support",
+    "prioritySupportDesc": "Direct access to our engineering team for urgent issues",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "Help find pets in your area.",

@@ -298,7 +298,11 @@
       "addUser": "مستخدم جديد",
       "viewLogs": "عرض السجلات",
       "systemConfig": "تكوين النظام"
-    }
+    },
+    "mainNavigation": "التنقل الرئيسي",
+    "advanced": "متقدم",
+    "notificationCenter": "مركز التنبيهات",
+    "notifyShort": "تنبيه"
   },
   "shelter": {
     "shelterDashboardTitle": "لوحة تحكم الملجأ",
@@ -319,7 +323,34 @@
     "freeTime": "كل شيء محدث!",
     "actionManageClinicDesc": "تحديث المعلومات والساعات",
     "actionManagePatientsDesc": "مراجعة تاريخ المرضى",
-    "actionSmartCalendarDesc": "إدارة المواعيد"
+    "actionSmartCalendarDesc": "إدارة المواعيد",
+    "aiHealthAnalytics": "تحليلات الصحة بالذكاء الاصطناعي",
+    "aiHealthAnalyticsDesc": "احصل على رؤى مجمعة عبر جميع مرضاك باستخدام تحليلات الذكاء الاصطناعي المتقدمة",
+    "prioritySupport": "الدعم ذو الأولوية",
+    "prioritySupportDesc": "الوصول المباشر إلى فريق الهندسة لدينا للقضايا العاجلة",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "ساعد في العثور على الحيوانات الأليفة في منطقتك.",

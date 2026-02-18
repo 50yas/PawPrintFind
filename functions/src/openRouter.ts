@@ -22,9 +22,11 @@ export const callOpenRouterAI = async (
     model: string,
     messages: any[],
     config: any = {},
-    task?: string
+    task?: string,
+    overrideApiKey?: string
 ) => {
-    const apiKey = await getOpenRouterKey();
+    // Use provided API key for testing, or fetch from config
+    const apiKey = overrideApiKey || await getOpenRouterKey();
     if (!apiKey) {
         throw new functions.https.HttpsError(
             "failed-precondition",

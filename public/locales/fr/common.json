@@ -120,6 +120,21 @@
   "moreButton": "Plus",
   "selectLanguage": "Choisir la Langue",
   "tabOverviewShort": "DASH",
+  "profileSettings": "Paramètres du Profil",
+  "notifications": "Notifications",
+  "myAchievements": "Mes Réalisations",
+  "finder": "Trouveur",
+  "owner": "Propriétaire",
+  "protectedPets": "{{count}} Animaux Protégés",
+  "aiAutofillTitle": "Remplissage Auto IA",
+  "aiAutofillDesc": "Chargez une photo pour détecter la race et les détails.",
+  "aiAutofillButton": "Charger et Remplir",
+  "aiAutofillSuccess": "✨ Remplissage Auto IA réussi!",
+  "aiAutofillError": "Erreur IA! Veuillez remplir manuellement.",
+  "unnamedOperative": "Animal sans nom",
+  "classified": "Classifié",
+  "petProfilePhoto": "Photo de Profil",
+  "behaviorPlaceholder": "ex. Amical avec les gens mais peur du tonnerre...",
   "pressKit": "Kit Presse",
   "pressKitTitle": "Kit Presse & Ressources de Marque",
   "pressKitDesc": "Téléchargez les logos officiels, icônes et directives de marque.",
@@ -148,21 +163,6 @@
   "youUnlocked": "Vous avez débloqué une récompense!",
   "loadingUsers": "Chargement des utilisateurs...",
   "searchUsers": "Rechercher des utilisateurs...",
-  "profileSettings": "Paramètres du Profil",
-  "notifications": "Notifications",
-  "myAchievements": "Mes Réalisations",
-  "finder": "Trouveur",
-  "owner": "Propriétaire",
-  "protectedPets": "{{count}} Animaux Protégés",
-  "aiAutofillTitle": "Remplissage Auto IA",
-  "aiAutofillDesc": "Chargez une photo pour détecter la race et les détails.",
-  "aiAutofillButton": "Charger et Remplir",
-  "aiAutofillSuccess": "✨ Remplissage Auto IA réussi!",
-  "aiAutofillError": "Erreur IA! Veuillez remplir manuellement.",
-  "unnamedOperative": "Animal sans nom",
-  "classified": "Classifié",
-  "petProfilePhoto": "Photo de Profil",
-  "behaviorPlaceholder": "ex. Amical avec les gens mais peur du tonnerre...",
   "beta": {
     "badge": "BETA",
     "title": "Rejoignez le Programme Beta",
@@ -280,5 +280,26 @@
     "invalidSecurityKey": "Clé de sécurité invalide.",
     "superAdminInitializedSuccess": "Super admin initialisé avec succès!",
     "initializationFailed": "Échec de l'initialisation: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "Quota IA quotidien dépassé. Veuillez réessayer demain.",
+    "apiConnectionFailed": "Échec de la connexion API. Audit système requis."
+  },
+  "notFound": {
+    "title": "404 - Objets Trouvés Numériques",
+    "subtitle": "Même notre IA ne trouve pas cette page. Elle semble s'être égarée dans la jungle numérique.",
+    "cta": "Retour à la Base"
+  },
+  "thankYou": {
+    "title": "STATUT DE HÉROS CONFIRMÉ",
+    "message": "Votre contribution alimente le réseau. Ensemble, nous réunissons les familles et protégeons les pattes dans le monde entier.",
+    "transactionId": "ID de Transaction",
+    "receiptNote": "Un reçu numérique a été envoyé à votre adresse e-mail.",
+    "homeCta": "Retour au Tableau de Bord"
+  },
+  "reportSightingFeatureComingSoon": "Cette fonctionnalité sera bientôt disponible !",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

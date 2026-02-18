@@ -120,6 +120,21 @@
   "moreButton": "المزيد",
   "selectLanguage": "اختار اللغة",
   "tabOverviewShort": "DASH",
+  "profileSettings": "إعدادات الملف الشخصي",
+  "notifications": "الإشعارات",
+  "myAchievements": "إنجازاتي",
+  "finder": "المكتشف",
+  "owner": "المالك",
+  "protectedPets": "{{count}} حيوانات محمية",
+  "aiAutofillTitle": "الملء التلقائي بالذكاء الاصطناعي",
+  "aiAutofillDesc": "قم بتحميل صورة للكشف التلقائي عن السلالة والتفاصيل.",
+  "aiAutofillButton": "تحميل وملء",
+  "aiAutofillSuccess": "✨ اكتمل الملء التلقائي بالذكاء الاصطناعي!",
+  "aiAutofillError": "خطأ في الذكاء الاصطناعي! يرجى الملء يدويًا.",
+  "unnamedOperative": "حيوان بلا اسم",
+  "classified": "سري",
+  "petProfilePhoto": "صورة الملف الشخصي",
+  "behaviorPlaceholder": "مثال: ودود مع الناس لكنه يخاف من الرعد...",
   "pressKit": "حقيبة الصحافة",
   "pressKitTitle": "حقيبة الصحافة ومواد العلامة التجارية",
   "pressKitDesc": "قم بتنزيل الشعارات الرسمية والأيقونات وإرشادات العلامة التجارية.",
@@ -148,21 +163,6 @@
   "youUnlocked": "لقد فتحت مكافأة!",
   "loadingUsers": "جاري تحميل المستخدمين...",
   "searchUsers": "البحث عن المستخدمين...",
-  "profileSettings": "إعدادات الملف الشخصي",
-  "notifications": "الإشعارات",
-  "myAchievements": "إنجازاتي",
-  "finder": "المكتشف",
-  "owner": "المالك",
-  "protectedPets": "{{count}} حيوانات محمية",
-  "aiAutofillTitle": "الملء التلقائي بالذكاء الاصطناعي",
-  "aiAutofillDesc": "قم بتحميل صورة للكشف التلقائي عن السلالة والتفاصيل.",
-  "aiAutofillButton": "تحميل وملء",
-  "aiAutofillSuccess": "✨ اكتمل الملء التلقائي بالذكاء الاصطناعي!",
-  "aiAutofillError": "خطأ في الذكاء الاصطناعي! يرجى الملء يدويًا.",
-  "unnamedOperative": "حيوان بلا اسم",
-  "classified": "سري",
-  "petProfilePhoto": "صورة الملف الشخصي",
-  "behaviorPlaceholder": "مثال: ودود مع الناس لكنه يخاف من الرعد...",
   "beta": {
     "badge": "بيتا",
     "title": "انضم إلى برنامج البيتا",
@@ -280,5 +280,26 @@
     "invalidSecurityKey": "مفتاح الأمان غير صالح.",
     "superAdminInitializedSuccess": "تم تهيئة المسؤول الفائق بنجاح!",
     "initializationFailed": "فشلت التهيئة: {{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "تم تجاوز الحصة اليومية للذكاء الاصطناعي. يرجى المحاولة غداً.",
+    "apiConnectionFailed": "فشل الاتصال بواجهة برمجة التطبيقات (API). مطلوب تدقيق النظام."
+  },
+  "notFound": {
+    "title": "404 - المفقودات الرقمية",
+    "subtitle": "حتى ذكاؤنا الاصطناعي لم يتمكن من العثور على هذه الصفحة. يبدو أنها تاهت في البرية الرقمية.",
+    "cta": "العودة إلى القاعدة"
+  },
+  "thankYou": {
+    "title": "تم تأمين وضع البطل",
+    "message": "مساهمتك تغذي الشبكة. معاً، نجمع العائلات ونحمي الحيوانات الأليفة في جميع أنحاء العالم.",
+    "transactionId": "معرف المعاملة",
+    "receiptNote": "تم إرسال إيصال رقمي إلى بريدك الإلكتروني.",
+    "homeCta": "العودة إلى لوحة القيادة"
+  },
+  "reportSightingFeatureComingSoon": "هذه الميزة ستتوفر قريباً!",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

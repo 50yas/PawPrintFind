@@ -120,6 +120,21 @@
   "moreButton": "更多",
   "selectLanguage": "选择语言",
   "tabOverviewShort": "DASH",
+  "profileSettings": "个人资料设置",
+  "notifications": "通知",
+  "myAchievements": "我的成就",
+  "finder": "发现者",
+  "owner": "主人",
+  "protectedPets": "{{count}} 只受保护的宠物",
+  "aiAutofillTitle": "AI 自动填充",
+  "aiAutofillDesc": "上传照片以自动检测品种和详细信息。",
+  "aiAutofillButton": "上传并填充",
+  "aiAutofillSuccess": "✨ AI 自动填充成功！",
+  "aiAutofillError": "AI 出错！请手动填写。",
+  "unnamedOperative": "未命名的宠物",
+  "classified": "机密",
+  "petProfilePhoto": "宠物头像",
+  "behaviorPlaceholder": "例如：对人友好但害怕打雷...",
   "pressKit": "新闻资料包",
   "pressKitTitle": "新闻资料包与品牌素材",
   "pressKitDesc": "下载官方标志、图标和品牌指南。",
@@ -148,21 +163,6 @@
   "youUnlocked": "您解锁了奖励！",
   "loadingUsers": "加载用户中...",
   "searchUsers": "搜索用户...",
-  "profileSettings": "个人资料设置",
-  "notifications": "通知",
-  "myAchievements": "我的成就",
-  "finder": "发现者",
-  "owner": "主人",
-  "protectedPets": "{{count}} 只受保护的宠物",
-  "aiAutofillTitle": "AI 自动填充",
-  "aiAutofillDesc": "上传照片以自动检测品种和详细信息。",
-  "aiAutofillButton": "上传并填充",
-  "aiAutofillSuccess": "✨ AI 自动填充成功！",
-  "aiAutofillError": "AI 出错！请手动填写。",
-  "unnamedOperative": "未命名的宠物",
-  "classified": "机密",
-  "petProfilePhoto": "宠物头像",
-  "behaviorPlaceholder": "例如：对人友好但害怕打雷...",
   "beta": {
     "badge": "测试版",
     "title": "加入测试版计划",
@@ -280,5 +280,25 @@
     "invalidSecurityKey": "安全密钥无效。",
     "superAdminInitializedSuccess": "超级管理员初始化成功！",
     "initializationFailed": "初始化失败：{{error}}"
-  }
+  },
+  "errors": {
+    "dailyQuotaExceeded": "每日 AI 配额已用完。请明天再试。\", \"apiConnectionFailed\": \"API 连接失败。需要系统审计。"
+  },
+  "notFound": {
+    "title": "404 - 数字失物招领",
+    "subtitle": "甚至我们的 AI 也找不到这个页面。它似乎在数字荒野中迷路了。",
+    "cta": "返回基地"
+  },
+  "thankYou": {
+    "title": "英雄地位已确认",
+    "message": "您的贡献为网络提供了动力。我们共同让家庭重聚，保护全球的宠物。",
+    "transactionId": "交易 ID",
+    "receiptNote": "电子收据已发送至您的邮箱。",
+    "homeCta": "返回控制面板"
+  },
+  "reportSightingFeatureComingSoon": "此功能即将推出！",
+  "petTagTitle": "Digital Pet Tag",
+  "scanToViewProfile": "Scan to view full biometric profile",
+  "printButton": "Print Tag",
+  "orderSafePawTag": "Order Safe Paw NFC Tag"
 }

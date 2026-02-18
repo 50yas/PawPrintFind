@@ -22,13 +22,16 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
       ]
     },
-    "allowImportingTsExtensions": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "resolveJsonModule": true
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "functions",
     "scripts",

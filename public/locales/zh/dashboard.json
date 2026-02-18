@@ -298,7 +298,11 @@
       "addUser": "新用户",
       "viewLogs": "查看日志",
       "systemConfig": "系统配置"
-    }
+    },
+    "mainNavigation": "主要导航",
+    "advanced": "高级",
+    "notificationCenter": "通知中心",
+    "notifyShort": "通知"
   },
   "shelter": {
     "shelterDashboardTitle": "收容所仪表板",
@@ -319,7 +323,34 @@
     "freeTime": "一切就绪！",
     "actionManageClinicDesc": "更新信息和营业时间",
     "actionManagePatientsDesc": "查看患者历史",
-    "actionSmartCalendarDesc": "管理预约"
+    "actionSmartCalendarDesc": "管理预约",
+    "aiHealthAnalytics": "AI 健康分析",
+    "aiHealthAnalyticsDesc": "通过先进的 AI 分析获取所有患者的综合见解",
+    "prioritySupport": "优先支持",
+    "prioritySupportDesc": "针对紧急问题直接联系我们的工程团队",
+    "verificationRejectedTitle": "Verification Rejected",
+    "freeTierTitle": "Free Tier",
+    "pendingVerificationBadge": "Verification Pending",
+    "retryVerification": "Retry Verification 📄",
+    "upgradeToPro": "Upgrade to Pro 🚀",
+    "pendingVerificationBtn": "Pending Verification ⏳",
+    "submitDocuments": "Submit Documents 📄",
+    "upgradeTitle": "Upgrade to Vet Pro 🏥",
+    "unlockProTools": "Unlock Professional Tools",
+    "proToolsDesc": "Manage your clinic efficiently with AI-powered insights.",
+    "freePlan": "Free Plan",
+    "vetPro": "Vet Pro",
+    "recommended": "RECOMMENDED",
+    "unlimitedPatients": "Unlimited Patients",
+    "aiAnalyticsTriage": "AI Health Analytics & Triage",
+    "smartCalendarReminders": "Smart Calendar & Reminders",
+    "prioritySupportItem": "Priority Support",
+    "perMonth": "/ month",
+    "upgradeNow": "Upgrade Now",
+    "stripeSecurity": "Secured by Stripe SSL. Cancel anytime.",
+    "basicPatientRecords": "Basic Patient Records",
+    "manualAppointments": "Manual Appointments",
+    "communityVisibility": "Community Visibility"
   },
   "volunteer": {
     "helpLocate": "帮助在您所在地区找到宠物。",
