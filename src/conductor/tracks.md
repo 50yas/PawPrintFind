@@ -30,3 +30,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 - [x] **Track: Homepage Stats Realization (Impatto della Piattaforma)**
 *Link: [./tracks/007-homepage-stats-realization/plan.md](./tracks/007-homepage-stats-realization/plan.md)*
+
+---
+
+- [ ] **Track: Homepage UX/UI Overhaul & Performance Optimization**
+*Link: [./tracks/homepage_ux_overhaul_20260218/](./tracks/homepage_ux_overhaul_20260218/)*
