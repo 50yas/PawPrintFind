@@ -28,6 +28,7 @@ const ContentTab = React.lazy(() => import('./admin/ContentTab').then(m => ({ de
 const AISystemsTab = React.lazy(() => import('./admin/AISystemsTab').then(m => ({ default: m.AISystemsTab })));
 const SettingsTab = React.lazy(() => import('./admin/SettingsTab').then(m => ({ default: m.SettingsTab })));
 const SocialMediaTab = React.lazy(() => import('./admin/SocialMediaTab').then(m => ({ default: m.SocialMediaTab })));
+const TestSuiteTab = React.lazy(() => import('./admin/TestSuiteTab').then(m => ({ default: m.TestSuiteTab })));
 
 interface AdminDashboardProps {
     users: User[];
@@ -50,7 +51,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     // Simplified tab system: 5 main tabs + legacy tabs for backward compatibility
     type AdminTab = 'overview' | 'users' | 'content' | 'ai' | 'settings' |
                     'clinics' | 'pets' | 'blog' | 'donations' | 'verification' |
-                    'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications';
+                    'logs' | 'optimization' | 'i18n' | 'social' | 'gamification' | 'config' | 'usage' | 'notifications' | 'testsuite';
     const [activeTab, setActiveTab] = useState<AdminTab>('overview');
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -178,6 +179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             id: 'system',
             label: t('dashboard:admin.categorySystem'),
             tabs: [
+                { id: 'testsuite', label: t('dashboard:admin.tabTestSuiteShort', 'Test Suite'), fullLabel: t('dashboard:admin.tabTestSuite', 'System Test Suite'), icon: '🛠️' },
                 { id: 'blog', label: t('dashboard:admin.tabBlogShort'), fullLabel: t('dashboard:admin.adminTabBlog'), icon: '📰' },
                 { id: 'i18n', label: t('dashboard:admin.tabI18nShort'), fullLabel: t('dashboard:admin.adminTabI18n'), icon: '🌍' },
                 { id: 'notifications', label: t('dashboard:admin.notifyShort'), fullLabel: t('dashboard:admin.notificationCenter'), icon: '🔔' },
@@ -1031,6 +1033,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         {activeTab === 'notifications' && (
                             <div className="animate-fade-in max-w-6xl mx-auto">
                                 <AdminNotificationSettings />
+                            </div>
+                        )}
+
+                        {activeTab === 'testsuite' && (
+                            <div className="animate-fade-in max-w-6xl mx-auto">
+                                <TestSuiteTab />
                             </div>
                         )}
 

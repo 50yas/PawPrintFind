@@ -274,6 +274,15 @@ describe('AdminDashboard Cyber HUD', () => {
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
 
+   it('renders Test Suite tab when selected', async () => {
+        render(<AdminDashboard {...mockProps} />);
+        
+        // Use full title for system group tab
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        
+        expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
+   });
+
    it('does not fetch blog posts redundantly on non-content tab changes', async () => {
         render(<AdminDashboard {...mockProps} />);
         

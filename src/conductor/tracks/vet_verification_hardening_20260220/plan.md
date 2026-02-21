@@ -40,7 +40,7 @@ Goal: Implement the conditional UI for Vets to submit, track, and resubmit their
 ## Phase 4: Admin Audit Suite & Functionality Map
 Goal: Create a centralized "Command Center" for Admins to monitor and test all system features.
 
-- [ ] **Task: Create Admin Test Suite Component**
+- [~] **Task: Create Admin Test Suite Component**
     - [ ] Sub-task: Create `src/components/admin/TestSuiteTab.tsx` with a mapped list of all app functionalities.
     - [ ] Sub-task: Implement "Quick Check" buttons for each feature (e.g., checking if Gemini API is responding, Firestore rules are active, etc.).
 - [ ] **Task: Integrate Test Suite into `AdminDashboard.tsx`**
