@@ -37,7 +37,7 @@ Goal: Implement the conditional UI for Vets to submit, track, and resubmit their
     - [ ] Sub-task: If `declined`, show the verification form again with a prominent alert box displaying the `rejectionReason` provided by the Admin.
 - [ ] **Task: Conductor - User Manual Verification 'Vet Verification UI (Client)' (Protocol in workflow.md)**
 
-## Phase 4: Admin Audit Suite & Functionality Map
+## Phase 4: Admin Audit Suite & Functionality Map [checkpoint: 1ef0b50]
 Goal: Create a centralized "Command Center" for Admins to monitor and test all system features.
 
 - [~] **Task: Create Admin Test Suite Component**
