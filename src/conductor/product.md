@@ -25,7 +25,7 @@ Based on the file structure, the application includes the following features:
 - **Veterinary Services:**
     - A directory to find veterinarians (`FindVet.tsx`, `Vets.tsx`).
     - A dashboard for veterinarians (`VetDashboard.tsx`) to manage their clinic and patients (`MyClinic.tsx`, `MyPatients.tsx`).
-    - **Professional Management:** An administrative "Command Center" featuring a specialized **Vet Verification HUD** for reviewing multi-document credential submissions, manual clinic registration, role-based access control, and account status management (suspension/banning).
+    - **Professional Management:** An administrative "Command Center" featuring a specialized **Vet Verification HUD** for reviewing multi-document credential submissions, manual clinic registration, and a hardened verification lifecycle (Pending/Approved/Declined states with rejection feedback).
     - **Monetization (Vet Pro):**
         - **Subscription System:** A secure billing integration with Stripe, offering a "Vet Pro" tier (€18.00/month).
         - **Advanced Analytics:** Exclusive access for Pro Vets to an AI-powered Health Analytics dashboard, aggregating patient health scores and insights.
@@ -35,6 +35,7 @@ Based on the file structure, the application includes the following features:
     - **Edge Resilience:** Local AI inference fallbacks for instant, offline breed recognition when connectivity is unavailable.
     - **Universal Access:** Fully WCAG 2.1 AA compliant interface with verified screen reader support, logical focus management, and high-contrast visuals.
     - **System Audit Logs:** Comprehensive logging of administrative actions for transparency and security.
+    - **System Audit Suite:** A centralized **Admin Test Suite UI** providing an interactive map of all app functionalities with real-time diagnostic checks for AI, Database, and Storage connectivity.
     - **Structured Observability:** Enterprise-grade structured logging (NDJSON), centralized event tracking via **Firebase Analytics**, and trace correlation for rapid debugging and reliability.
     - **Multi-Provider AI Bridge:** A flexible, provider-agnostic AI layer supporting both **Google Gemini** and **OpenRouter**, ensuring maximum availability and the ability to leverage best-in-class models from different vendors (GPT-4, Claude, Llama).
     - **AI Control Center:** A specialized administrative interface for real-time provider switching, granular model mapping for specific tasks (Vision, Triage, Chat), and dynamic OpenRouter model discovery.
