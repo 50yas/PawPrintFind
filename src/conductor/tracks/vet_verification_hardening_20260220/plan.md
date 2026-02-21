@@ -16,7 +16,7 @@ Goal: Resolve immediate technical blockers (CORS, COOP, Firestore Rules) to stab
     - [x] Sub-task: Check Firebase Auth configuration and ensure proper headers are set (if manageable via Firebase Console or hosting config) to resolve the `Cross-Origin-Opener-Policy` warnings.
 - [x] **Task: Conductor - User Manual Verification 'Technical Infrastructure & Bug Fixes' (Protocol in workflow.md)**
 
-## Phase 2: Vet Verification Hardening (Data & Service) [checkpoint: ]
+## Phase 2: Vet Verification Hardening (Data & Service) [checkpoint: a1b3f8c]
 Goal: Update the backend logic and data models to support the full verification lifecycle.
 
 - [x] **Task: Update User Type and Schema**
