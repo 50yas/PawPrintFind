@@ -67,26 +67,42 @@ async function callAI(
     }
 }
 
+const ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://pawprint-50.web.app",
+    "https://pawprint-50.firebaseapp.com",
+    "https://pawprintfind.com", // Add your custom domain if applicable
+    "https://www.pawprintfind.com"
+];
+
+const ON_CALL_CONFIG = {
+    cors: ALLOWED_ORIGINS,
+    region: "us-central1",
+    maxInstances: 10,
+};
+
 // --- OpenRouter Exports (Gen 2) ---
 
 export const callOpenRouter = onCall({
-    cors: true,
-    region: "us-central1",
+    ...ON_CALL_CONFIG,
     secrets: [openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
     const { model, messages, config, task } = request.data;
-    return callOpenRouterAI(request.auth.uid, model, messages, config, task, openRouterApiKey.value());
+    try {
+        return await callOpenRouterAI(request.auth.uid, model, messages, config, task, openRouterApiKey.value());
+    } catch (error: any) {
+        console.error(`OpenRouter Error [${task}]:`, error);
+        throw new HttpsError("internal", error.message || "OpenRouter call failed.");
+    }
 });
 
 export const fetchOpenRouterModels = onCall({
-    cors: true,
-    region: "us-central1",
+    ...ON_CALL_CONFIG,
     secrets: [openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
-    // Temporarily set the secret in process.env so the helper can find it if needed, 
-    // though the helper should ideally be updated to accept it.
     process.env.OPENROUTER_API_KEY = openRouterApiKey.value();
     const result = await fetchOpenRouterModelsHelper();
     return result;
@@ -113,16 +129,16 @@ async function callGeminiAI(
     }
 
     if (!apiKey) {
+        console.error(`[AI Error] Gemini API Key missing for task: ${featureName}`);
         throw new HttpsError(
             "failed-precondition",
-            "Gemini API Key is not configured."
+            "Gemini API Key is not configured in Secrets."
         );
     }
 
     const client = new GoogleGenAI({ apiKey });
     
     // Config handling for new SDK
-    // Extract model-level params
     const modelParams: any = {
         model: modelName,
     };
@@ -130,7 +146,6 @@ async function callGeminiAI(
     if (config.tools) modelParams.tools = config.tools;
     if (config.toolConfig) modelParams.toolConfig = config.toolConfig;
 
-    // Remaining config goes to generationConfig (temperature, thinking, speech, etc.)
     const generationConfig: any = { ...config };
     delete generationConfig.systemInstruction;
     delete generationConfig.tools;
@@ -147,7 +162,6 @@ async function callGeminiAI(
         const response = result.response;
         const text = response.text();
 
-        // Track usage asynchronously
         trackUsage(userId, featureName, 'google').catch(err => 
             console.error(`Failed to track usage for ${featureName}:`, err)
         );
@@ -156,13 +170,13 @@ async function callGeminiAI(
             success: true,
             text,
             groundingMetadata: response.candidates?.[0]?.groundingMetadata,
-            // audioData is less common in new SDK response structure directly, handle if needed
         };
     } catch (error: any) {
         console.error(`Gemini API Error [${featureName}]:`, error);
+        // Ensure we never throw a raw error that could leak internal details or cause 'internal' without context
         throw new HttpsError(
             "internal",
-            error.message || `An error occurred during ${featureName}.`
+            `AI Error during ${featureName}: ${error.message || 'Unknown error'}`
         );
     }
 }
@@ -171,9 +185,7 @@ async function callGeminiAI(
  * Vision-based pet identification and details extraction (Gen 2).
  */
 export const visionIdentification = onCall({
-    cors: true,
-    region: "us-central1",
-    maxInstances: 10,
+    ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) {
@@ -235,14 +247,17 @@ export const visionIdentification = onCall({
  * Smart natural language search parsing (Gen 2).
  */
 export const smartSearch = onCall({
-    cors: true,
-    region: "us-central1",
-    maxInstances: 10,
+    ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
     const { query } = request.data;
     if (!query) throw new HttpsError("invalid-argument", "Query required.");
+
+    // Handle 'ping' query for connectivity checks
+    if (query === 'ping') {
+        return { success: true, message: "pong" };
+    }
 
     const prompt = Prompts.getSearchParsingPrompt(query);
     const contents = { parts: [{ text: prompt }] };
@@ -259,9 +274,7 @@ export const smartSearch = onCall({
  * AI-powered preliminary health assessment (Gen 2).
  */
 export const healthAssessment = onCall({
-    cors: true,
-    region: "us-central1",
-    maxInstances: 10,
+    ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
@@ -283,9 +296,7 @@ export const healthAssessment = onCall({
  * AI blog post generation (Gen 2).
  */
 export const blogGeneration = onCall({
-    cors: true,
-    region: "us-central1",
-    maxInstances: 10,
+    ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
@@ -309,16 +320,12 @@ export const blogGeneration = onCall({
 
 // Legacy generic function (Gen 2)
 export const callGemini = onCall({
-    cors: true,
-    region: "us-central1",
-    maxInstances: 5,
+    ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
     const { model, contents, config } = request.data;
     
-    // We keep this named callGemini for compatibility but route it through callAI 
-    // to benefit from the global provider switch if needed, or force google if desired.
     return callAI(
         request.auth.uid, 
         "generic", 

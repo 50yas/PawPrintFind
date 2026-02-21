@@ -23,7 +23,22 @@ vi.mock('firebase-admin', () => {
   };
 });
 
-// Mock firebase-functions
+// Mock firebase-functions/v2
+vi.mock('firebase-functions/v2/https', () => {
+    return {
+        onCall: vi.fn((config, handler) => {
+            // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        HttpsError: class HttpsError extends Error {
+            constructor(public code: string, message: string) {
+                super(message);
+            }
+        }
+    };
+});
+
+// Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
     return {
         https: {
@@ -44,8 +59,8 @@ vi.mock('firebase-functions/v1', () => {
     };
 });
 
-// Mock GoogleGenerativeAI
-vi.mock('@google/generative-ai', () => {
+// Mock GoogleGenAI
+vi.mock('@google/genai', () => {
     const generateContentMock = vi.fn().mockResolvedValue({
         response: {
             text: () => 'Mocked AI Response',
@@ -53,15 +68,14 @@ vi.mock('@google/generative-ai', () => {
         }
     });
     
-    // Use a class for the mock to ensure it works as a constructor
-    class MockGoogleGenerativeAI {
-        getGenerativeModel = vi.fn(() => ({
-            generateContent: generateContentMock
-        }))
-    }
-
     return {
-        GoogleGenerativeAI: MockGoogleGenerativeAI
+        GoogleGenAI: vi.fn().mockImplementation(function() {
+            return {
+                getGenerativeModel: vi.fn(() => ({
+                    generateContent: generateContentMock
+                }))
+            };
+        })
     };
 });
 
@@ -95,11 +109,13 @@ describe('AI Cloud Functions', () => {
 
     it('visionIdentification should be defined and track usage', async () => {
         expect(visionIdentification).toBeDefined();
-        const context = { auth: { uid: 'user123' } };
-        const data = { image: 'base64data', task: 'identify' };
+        const request = { 
+            auth: { uid: 'user123' }, 
+            data: { image: 'base64data', task: 'identify' } 
+        };
         
         // @ts-ignore
-        await visionIdentification(data, context);
+        await visionIdentification(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -108,13 +124,30 @@ describe('AI Cloud Functions', () => {
         );
     });
 
-    it('smartSearch should be defined and track usage', async () => {
+    it('smartSearch should handle ping query correctly', async () => {
         expect(smartSearch).toBeDefined();
-        const context = { auth: { uid: 'user123' } };
-        const data = { query: 'lost dog' };
+        const request = { 
+            auth: { uid: 'user123' }, 
+            data: { query: 'ping' } 
+        };
         
         // @ts-ignore
-        await smartSearch(data, context);
+        const result = await smartSearch(request);
+        
+        expect(result).toEqual({ success: true, message: "pong" });
+        // Should NOT track usage for a ping
+        expect(mockCollection).not.toHaveBeenCalledWith('usageStats');
+    });
+
+    it('smartSearch should be defined and track usage', async () => {
+        expect(smartSearch).toBeDefined();
+        const request = { 
+            auth: { uid: 'user123' }, 
+            data: { query: 'lost dog' } 
+        };
+        
+        // @ts-ignore
+        await smartSearch(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -125,11 +158,13 @@ describe('AI Cloud Functions', () => {
 
     it('healthAssessment should be defined and track usage', async () => {
         expect(healthAssessment).toBeDefined();
-        const context = { auth: { uid: 'user123' } };
-        const data = { pet: { name: 'Buddy' }, symptoms: 'coughing' };
+        const request = { 
+            auth: { uid: 'user123' }, 
+            data: { pet: { name: 'Buddy' }, symptoms: 'coughing' } 
+        };
         
         // @ts-ignore
-        await healthAssessment(data, context);
+        await healthAssessment(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -140,11 +175,13 @@ describe('AI Cloud Functions', () => {
 
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
-        const context = { auth: { uid: 'user123' } };
-        const data = { topic: 'Pet safety' };
+        const request = { 
+            auth: { uid: 'user123' }, 
+            data: { topic: 'Pet safety' } 
+        };
         
         // @ts-ignore
-        await blogGeneration(data, context);
+        await blogGeneration(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -154,23 +191,22 @@ describe('AI Cloud Functions', () => {
     });
 
     it('should throw unauthenticated if no context.auth', async () => {
-        const data = { query: 'test' };
+        const request = { data: { query: 'test' } };
         // @ts-ignore
-        await expect(smartSearch(data, {})).rejects.toThrow('Auth required.');
+        await expect(smartSearch(request)).rejects.toThrow('Auth required.');
     });
 
     it('should throw invalid-argument if missing data', async () => {
-        const context = { auth: { uid: 'user1' } };
+        const request = { auth: { uid: 'user1' }, data: {} };
         // @ts-ignore
-        await expect(smartSearch({}, context)).rejects.toThrow('Query required.');
+        await expect(smartSearch(request)).rejects.toThrow('Query required.');
     });
 
     it('should throw resource-exhausted if quota exceeded', async () => {
-        const context = { auth: { uid: 'user1' } };
-        const data = { query: 'test' };
+        const request = { auth: { uid: 'user1' }, data: { query: 'test' } };
         mockCheckQuota.mockResolvedValueOnce({ allowed: false, reason: 'Quota exceeded' });
         
         // @ts-ignore
-        await expect(smartSearch(data, context)).rejects.toThrow('Quota exceeded');
+        await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
     });
 });

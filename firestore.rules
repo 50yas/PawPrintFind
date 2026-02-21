@@ -43,13 +43,14 @@ service cloud.firestore {
 
     // 1. USERS
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin(); // Strictly admin-only listing. Community leaderboard requires Admin SDK or Cloud Function in production.
-      allow write: if isOwner(userId) || isAdmin();
+      // Allow get and list for Admins (list is required for aggregation/count queries)
+      // Users can read their own documents.
+      allow read: if isAdmin() || isOwner(userId);
+      allow write: if isAdmin() || isOwner(userId);
 
       // User subcollections (usageStats, etc.)
       match /{subcollection}/{docId} {
-        allow read, write: if isOwner(userId) || isAdmin();
+        allow read, write: if isAdmin() || isOwner(userId);
       }
     }
     

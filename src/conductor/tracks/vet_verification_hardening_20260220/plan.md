@@ -1,20 +1,20 @@
 # Implementation Plan: Vet Verification Hardening & Admin Audit System
 
-## Phase 1: Technical Infrastructure & Bug Fixes
+## Phase 1: Technical Infrastructure & Bug Fixes [checkpoint: ]
 Goal: Resolve immediate technical blockers (CORS, COOP, Firestore Rules) to stabilize the development environment.
 
-- [ ] **Task: Fix Firestore Permission Denied on Aggregation Queries**
-    - [ ] Sub-task: Update `firestore.rules` to allow `get` and `list` (and thus `runAggregationQuery`) on the `users` collection for authenticated Admins.
-    - [ ] Sub-task: Verify `RunAggregationQuery` no longer throws `permission-denied` in the browser console.
-- [ ] **Task: Fix Cloud Function CORS Policy for `smartSearch`**
-    - [ ] Sub-task: Modify `functions/src/index.ts` (or the specific file where `smartSearch` is defined) to include correct CORS headers (using `cors` middleware or manual header setting).
-    - [ ] Sub-task: Ensure the allowed origins include both `http://localhost:3000`, `http://localhost:3001`, and the production domain.
-- [ ] **Task: Resolve AI Protocol Initialization Failure**
-    - [ ] Sub-task: Investigate the `functions/internal` error in `App.tsx`'s `initAISystem` and `functions/src/usage.ts`.
-    - [ ] Sub-task: Fix potential configuration or initialization order issues in the AI startup protocol.
-- [ ] **Task: Address Auth COOP Warnings**
-    - [ ] Sub-task: Check Firebase Auth configuration and ensure proper headers are set (if manageable via Firebase Console or hosting config) to resolve the `Cross-Origin-Opener-Policy` warnings.
-- [ ] **Task: Conductor - User Manual Verification 'Technical Infrastructure & Bug Fixes' (Protocol in workflow.md)**
+- [x] **Task: Fix Firestore Permission Denied on Aggregation Queries**
+    - [x] Sub-task: Update `firestore.rules` to allow `get` and `list` (and thus `runAggregationQuery`) on the `users` collection for authenticated Admins.
+    - [x] Sub-task: Verify `RunAggregationQuery` no longer throws `permission-denied` in the browser console.
+- [x] **Task: Fix Cloud Function CORS Policy for `smartSearch`**
+    - [x] Sub-task: Modify `functions/src/index.ts` (or the specific file where `smartSearch` is defined) to include correct CORS headers (using `cors` middleware or manual header setting).
+    - [x] Sub-task: Ensure the allowed origins include both `http://localhost:3000`, `http://localhost:3001`, and the production domain.
+- [x] **Task: Resolve AI Protocol Initialization Failure**
+    - [x] Sub-task: Investigate the `functions/internal` error in `App.tsx`'s `initAISystem` and `functions/src/usage.ts`.
+    - [x] Sub-task: Fix potential configuration or initialization order issues in the AI startup protocol.
+- [x] **Task: Address Auth COOP Warnings**
+    - [x] Sub-task: Check Firebase Auth configuration and ensure proper headers are set (if manageable via Firebase Console or hosting config) to resolve the `Cross-Origin-Opener-Policy` warnings.
+- [x] **Task: Conductor - User Manual Verification 'Technical Infrastructure & Bug Fixes' (Protocol in workflow.md)**
 
 ## Phase 2: Vet Verification Hardening (Data & Service)
 Goal: Update the backend logic and data models to support the full verification lifecycle.

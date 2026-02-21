@@ -234,9 +234,19 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3000,
+      strictPort: false, // Allow falling back to 3001 if 3000 is busy
       headers: {
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-        'Cross-Origin-Embedder-Policy': 'unsafe-none'
+        'Cross-Origin-Embedder-Policy': 'unsafe-none',
+        'Access-Control-Allow-Origin': '*'
+      }
+    },
+    preview: {
+      port: 3000,
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+        'Cross-Origin-Embedder-Policy': 'unsafe-none',
+        'Access-Control-Allow-Origin': '*'
       }
     },
     test: { // Vitest configuration
