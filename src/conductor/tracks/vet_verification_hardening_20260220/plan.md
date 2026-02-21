@@ -30,10 +30,10 @@ Goal: Update the backend logic and data models to support the full verification 
 ## Phase 3: Vet Verification UI (Client)
 Goal: Implement the conditional UI for Vets to submit, track, and resubmit their verification.
 
-- [ ] **Task: Implement "Pending" Banner and UI Locking**
-    - [ ] Sub-task: Update `VetDashboard.tsx` or the relevant verification component to check `user.verificationStatus`.
-    - [ ] Sub-task: If `pending`, hide the submission form and display a high-visibility "Under Review" banner.
-- [ ] **Task: Implement Decline/Rejection Feedback UI**
+- [x] **Task: Implement "Pending" Banner and UI Locking**
+    - [x] Sub-task: Update `VetDashboard.tsx` or the relevant verification component to check `user.verificationStatus`.
+    - [x] Sub-task: If `pending`, hide the submission form and display a high-visibility "Under Review" banner.
+- [~] **Task: Implement Decline/Rejection Feedback UI**
     - [ ] Sub-task: If `declined`, show the verification form again with a prominent alert box displaying the `rejectionReason` provided by the Admin.
 - [ ] **Task: Conductor - User Manual Verification 'Vet Verification UI (Client)' (Protocol in workflow.md)**
 

@@ -93,9 +93,13 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
     }, [user.uid]); // strictly depend on user.uid string, not the user object
 
     const isPro = user.vetTier === 'pro' && (!user.vetProExpiry || user.vetProExpiry > Date.now());
-    const isVerified = user.isVetVerified || false;
-    const hasSubmittedDocs = user.vetDocumentsSubmitted || false;
-    const isRejected = verificationRequest?.status === 'rejected';
+    
+    // Hardened Verification Logic
+    const verificationStatus = user.verificationStatus || (user.isVetVerified ? 'approved' : (user.vetDocumentsSubmitted ? 'pending' : 'none'));
+    const isPending = verificationStatus === 'pending';
+    const isApproved = verificationStatus === 'approved' || user.isVetVerified;
+    const isDeclined = verificationStatus === 'declined' || verificationRequest?.status === 'rejected';
+    
     const currentTier = user.vetTier || 'free';
     const patientLimit = user.vetMonthlyPatientsLimit || 5;
 
@@ -111,47 +115,68 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                     }}
                     vetUid={user.uid}
                     vetEmail={user.email}
+                    initialRejectionReason={user.rejectionReason || verificationRequest?.rejectionReason}
                 />
             )}
             {showUpgradeModal && (
                 <VetProUpgradeModal
                     onClose={() => setShowUpgradeModal(false)}
                     vetUid={user.uid}
-                    isVerified={isVerified}
+                    isVerified={isApproved}
                 />
             )}
 
-            {/* Tier Status Banner */}
-            {!isPro && (
-                <div className={`border rounded-xl p-4 ${
-                    isRejected 
+            {/* Verification Status Banner */}
+            {!isApproved && (
+                <div className={`border rounded-2xl p-6 shadow-xl backdrop-blur-xl ${
+                    isDeclined 
                     ? 'bg-red-500/10 border-red-500/30' 
-                    : 'bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/30'
+                    : isPending
+                        ? 'bg-blue-500/10 border-blue-500/30 animate-pulse-subtle'
+                        : 'bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border-teal-500/30'
                 }`}>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className={`font-bold flex items-center gap-2 ${isRejected ? 'text-red-400' : 'text-yellow-400'}`}>
-                                <span>{isRejected ? '❌' : '🆓'}</span>
-                                {isRejected ? t('dashboard:vet.verificationRejectedTitle') : t('dashboard:vet.freeTierTitle')}
-                                {hasSubmittedDocs && !isRejected && <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded">⏳ {t('dashboard:vet.pendingVerificationBadge')}</span>}
-                            </h3>
-                            <p className="text-xs text-slate-400 mt-1">
-                                {isRejected 
-                                    ? `Reason: ${verificationRequest.rejectionReason || 'Documents invalid or incomplete.'}`
-                                    : hasSubmittedDocs
-                                        ? 'Your verification is under review. Upgrade to Pro will be available once verified!'
-                                        : `${patientLimitInfo.current}/${patientLimitInfo.limit} patients this month • Submit documents to unlock Pro upgrade`}
-                            </p>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+                                isDeclined ? 'bg-red-500/20 text-red-400' : isPending ? 'bg-blue-500/20 text-blue-400' : 'bg-teal-500/20 text-teal-400'
+                            }`}>
+                                {isDeclined ? '⚠️' : isPending ? '⏳' : '🛡️'}
+                            </div>
+                            <div>
+                                <h3 className={`text-lg font-black uppercase tracking-tight ${
+                                    isDeclined ? 'text-red-400' : isPending ? 'text-blue-400' : 'text-teal-400'
+                                }`}>
+                                    {isDeclined 
+                                        ? t('dashboard:vet.verificationRejectedTitle') 
+                                        : isPending 
+                                            ? t('dashboard:vet.pendingVerificationTitle', 'Verification Under Review') 
+                                            : t('dashboard:vet.notVerifiedTitle', 'Verify Professional Status')}
+                                </h3>
+                                <p className="text-sm text-slate-300 mt-1 max-w-md">
+                                    {isDeclined 
+                                        ? `${t('dashboard:vet.rejectionReason', 'Reason')}: ${user.rejectionReason || verificationRequest?.rejectionReason || 'Documents invalid.'}`
+                                        : isPending
+                                            ? t('dashboard:vet.pendingVerificationDesc', 'Our team is reviewing your credentials. You will have full access once verified.')
+                                            : t('dashboard:vet.verifyToUnlockDesc', 'Submit your license and clinic documents to unlock Pro features and community badges.')}
+                                </p>
+                            </div>
                         </div>
                         <button
                             onClick={() => setShowVerificationModal(true)}
-                            className={`px-4 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-all ${
-                                isRejected
-                                ? 'bg-red-500 text-white'
-                                : 'bg-gradient-to-r from-primary to-cyan-500 text-black'
+                            disabled={isPending}
+                            className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                                isDeclined
+                                ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
+                                : isPending
+                                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
+                                    : 'bg-primary text-black hover:scale-105 shadow-lg shadow-primary/20'
                             }`}
                         >
-                            {isRejected ? t('dashboard:vet.retryVerification') : (hasSubmittedDocs ? (isVerified ? t('dashboard:vet.upgradeToPro') : t('dashboard:vet.pendingVerificationBtn')) : t('dashboard:vet.submitDocuments'))}
+                            {isDeclined 
+                                ? t('dashboard:vet.retryVerification', 'Retry Verification') 
+                                : isPending 
+                                    ? t('dashboard:vet.pendingVerificationBtn', 'Awaiting Review') 
+                                    : t('dashboard:vet.submitDocuments', 'Submit Documents')}
                         </button>
                     </div>
                 </div>
@@ -177,7 +202,11 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                             <span className="text-xs text-teal-100 text-center">Until {new Date(user.vetProExpiry!).toLocaleDateString()}</span>
                         </div>
                     ) : (
-                        <button onClick={() => setShowUpgradeModal(true)} className="btn bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 hover:brightness-110 font-black shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5 transition-all">
+                        <button 
+                            onClick={() => setShowUpgradeModal(true)} 
+                            disabled={!isApproved}
+                            className={`btn ${!isApproved ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 transform hover:-translate-y-0.5'} bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 font-black shadow-lg flex items-center gap-2 transition-all`}
+                        >
                             <span>🦁 Upgrade to Pro</span>
                         </button>
                     )}

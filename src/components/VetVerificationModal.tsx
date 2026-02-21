@@ -7,9 +7,10 @@ interface VetVerificationModalProps {
     onClose: () => void;
     vetUid: string;
     vetEmail: string;
+    initialRejectionReason?: string;
 }
 
-export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onClose, vetUid, vetEmail }) => {
+export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onClose, vetUid, vetEmail, initialRejectionReason }) => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
 
@@ -109,6 +110,17 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
                         </svg>
                     </button>
                 </div>
+
+                {initialRejectionReason && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex gap-3">
+                        <span className="text-xl">⚠️</span>
+                        <div>
+                            <p className="text-red-400 text-sm font-bold uppercase tracking-tight">Previous Request Declined</p>
+                            <p className="text-red-200/70 text-xs mt-1">Reason: {initialRejectionReason}</p>
+                            <p className="text-slate-400 text-[10px] mt-2 italic">Please update your information or documents and resubmit for review.</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Progress Indicator */}
                 <div className="flex items-center gap-2 mb-8">
