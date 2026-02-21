@@ -115,4 +115,76 @@ describe('vetService', () => {
              expect(logger.error).toHaveBeenCalled();
         });
     });
+
+    describe('submitVetVerification', () => {
+        const validRequest = {
+            vetUid: 'v1',
+            vetEmail: 'vet@test.com',
+            clinicName: 'My Clinic',
+            licenseNumber: '12345',
+            specialization: ['Small Animals'],
+            documentUrls: ['http://doc.url'],
+            status: 'pending' as const,
+            submittedAt: Date.now()
+        };
+
+        it('should add a request document and update user status', async () => {
+            const { addDoc } = await import('firebase/firestore');
+            (addDoc as Mock).mockResolvedValue({ id: 'req-123' });
+            (setDoc as Mock).mockResolvedValue(undefined);
+
+            const requestId = await vetService.submitVetVerification(validRequest);
+            expect(requestId).toBe('req-123');
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ 
+                    verificationStatus: 'pending',
+                    vetDocumentsSubmitted: true 
+                }),
+                { merge: true }
+            );
+        });
+    });
+
+    describe('approveVetVerification', () => {
+        it('should update request status and user roles', async () => {
+            const { getDoc } = await import('firebase/firestore');
+            (getDoc as Mock).mockResolvedValue({
+                exists: () => true,
+                data: () => ({ vetUid: 'v1' })
+            });
+            (setDoc as Mock).mockResolvedValue(undefined);
+
+            await vetService.approveVetVerification('req-1', true);
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ isVetVerified: true, verificationStatus: 'approved', activeRole: 'vet' }),
+                { merge: true }
+            );
+        });
+    });
+
+    describe('rejectVetVerification', () => {
+        it('should update request status and user rejection reason', async () => {
+            const { getDoc } = await import('firebase/firestore');
+            (getDoc as Mock).mockResolvedValue({
+                exists: () => true,
+                data: () => ({ vetUid: 'v1' })
+            });
+            (setDoc as Mock).mockResolvedValue(undefined);
+
+            await vetService.rejectVetVerification('req-1', 'Invalid license');
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ 
+                    verificationStatus: 'declined', 
+                    rejectionReason: 'Invalid license',
+                    isVetVerified: false 
+                }),
+                { merge: true }
+            );
+        });
+    });
 });

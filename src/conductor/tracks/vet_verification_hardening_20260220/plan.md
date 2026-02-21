@@ -16,16 +16,16 @@ Goal: Resolve immediate technical blockers (CORS, COOP, Firestore Rules) to stab
     - [x] Sub-task: Check Firebase Auth configuration and ensure proper headers are set (if manageable via Firebase Console or hosting config) to resolve the `Cross-Origin-Opener-Policy` warnings.
 - [x] **Task: Conductor - User Manual Verification 'Technical Infrastructure & Bug Fixes' (Protocol in workflow.md)**
 
-## Phase 2: Vet Verification Hardening (Data & Service)
+## Phase 2: Vet Verification Hardening (Data & Service) [checkpoint: ]
 Goal: Update the backend logic and data models to support the full verification lifecycle.
 
-- [ ] **Task: Update User Type and Schema**
-    - [ ] Sub-task: Add `verificationStatus` ('none', 'pending', 'approved', 'declined'), `verificationSubmittedAt`, and `rejectionReason` to the `User` interface in `src/types.ts`.
-    - [ ] Sub-task: Update Zod schema for `User` validation in `src/types.ts`.
-- [ ] **Task: Implement Admin Verification Actions in `adminService`**
-    - [ ] Sub-task: Create or update `approveVet(uid: string)` and `declineVet(uid: string, reason: string)` methods in `src/services/adminService.ts`.
-    - [ ] Sub-task: Ensure these methods correctly update the user's `verificationStatus` and `role` (if applicable).
-- [ ] **Task: Conductor - User Manual Verification 'Vet Verification Hardening (Data & Service)' (Protocol in workflow.md)**
+- [x] **Task: Update User Type and Schema**
+    - [x] Sub-task: Add `verificationStatus` ('none', 'pending', 'approved', 'declined'), `verificationSubmittedAt`, and `rejectionReason` to the `User` interface in `src/types.ts`.
+    - [x] Sub-task: Update Zod schema for `User` validation in `src/types.ts`.
+- [x] **Task: Implement Admin Verification Actions in `adminService`**
+    - [x] Sub-task: Create or update `approveVet(uid: string)` and `declineVet(uid: string, reason: string)` methods in `src/services/adminService.ts`.
+    - [x] Sub-task: Ensure these methods correctly update the user's `verificationStatus` and `role` (if applicable).
+- [x] **Task: Conductor - User Manual Verification 'Vet Verification Hardening (Data & Service)' (Protocol in workflow.md)**
 
 ## Phase 3: Vet Verification UI (Client)
 Goal: Implement the conditional UI for Vets to submit, track, and resubmit their verification.

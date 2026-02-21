@@ -132,7 +132,10 @@ export const vetService = {
             await setDoc(doc(db, 'users', request.vetUid), {
                 vetDocumentsSubmitted: true,
                 vetLicenseNumber: request.licenseNumber,
-                vetSpecialization: request.specialization
+                vetSpecialization: request.specialization,
+                verificationStatus: 'pending',
+                verificationSubmittedAt: fullRequest.submittedAt,
+                rejectionReason: "" // Clear previous reason on resubmission
             }, { merge: true });
 
             logger.info('Vet verification submitted', { vetUid: request.vetUid, requestId: docRef.id });
@@ -204,7 +207,9 @@ export const vetService = {
 
             // Update user
             const userUpdate: Partial<User> = {
-                isVetVerified: true
+                isVetVerified: true,
+                verificationStatus: 'approved' as const,
+                activeRole: 'vet' // Switch to vet role upon approval
             };
 
             if (grantPro) {
@@ -228,6 +233,10 @@ export const vetService = {
     async rejectVetVerification(requestId: string, reason: string): Promise<void> {
         try {
             const requestRef = doc(db, 'vet_verification_requests', requestId);
+            const requestSnap = await getDoc(requestRef);
+            if (!requestSnap.exists()) throw new Error('Request not found');
+            const request = requestSnap.data() as VetVerificationRequest;
+
             const currentUser = auth.currentUser;
 
             await setDoc(requestRef, {
@@ -235,6 +244,13 @@ export const vetService = {
                 reviewedAt: Date.now(),
                 reviewedBy: currentUser?.email || 'admin',
                 rejectionReason: reason
+            }, { merge: true });
+
+            // Update User status
+            await setDoc(doc(db, 'users', request.vetUid), {
+                verificationStatus: 'declined' as const,
+                rejectionReason: reason,
+                isVetVerified: false
             }, { merge: true });
 
             logger.info('Vet verification rejected', { requestId, reason });

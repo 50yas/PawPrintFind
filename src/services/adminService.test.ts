@@ -55,13 +55,12 @@ describe('adminService', () => {
             (getCountFromServer as Mock).mockResolvedValue({ data: () => ({ count: 10 }) });
             
             // Mock aggregation (sum)
-            (getAggregateFromServer as Mock).mockResolvedValue({ data: () => ({ totalAmount: 500 }) });
+            (getAggregateFromServer as Mock).mockResolvedValue({ data: () => ({ total: 500 }) });
 
             const stats = await adminService.getSystemStats();
             
-            // We expect counts for Users, Pets, Clinics
-            expect(getCountFromServer).toHaveBeenCalledTimes(4); // Users, Pets, Clinics, Active Alerts (Pets where isLost=true)
-            // Or maybe 3 and active alerts is a filter?
+            // We expect counts for Users, Pets, Clinics, Matches, and Active Alerts
+            expect(getCountFromServer).toHaveBeenCalledTimes(5); 
             
             // Let's verify structure
             expect(stats).toEqual({
@@ -182,6 +181,61 @@ describe('adminService', () => {
             (setDoc as Mock).mockResolvedValue(undefined);
             await adminService.verifyUser(fullValidUser as any);
             expect(setDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ isVerified: true }), { merge: true });
+        });
+    });
+
+    describe('approveVet', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.approveVet('u1')).rejects.toThrow('Auth required.');
+        });
+
+        it('should update user to approved vet and log action', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1', email: 'admin@test.com' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            (addDoc as Mock).mockResolvedValue({ id: 'log-1' });
+
+            await adminService.approveVet('user-123');
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    isVetVerified: true,
+                    verificationStatus: 'approved',
+                    activeRole: 'vet'
+                }),
+                { merge: true }
+            );
+            expect(addDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ action: 'APPROVE_VET', targetId: 'user-123' })
+            );
+        });
+    });
+
+    describe('declineVet', () => {
+        it('should throw if unauthenticated', async () => {
+            await expect(adminService.declineVet('u1', 'bad docs')).rejects.toThrow('Auth required.');
+        });
+
+        it('should update user to declined and store reason', async () => {
+            (auth.currentUser as any) = { uid: 'admin-1', email: 'admin@test.com' };
+            (setDoc as Mock).mockResolvedValue(undefined);
+            (addDoc as Mock).mockResolvedValue({ id: 'log-1' });
+
+            await adminService.declineVet('user-123', 'Incomplete documents');
+
+            expect(setDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({
+                    verificationStatus: 'declined',
+                    rejectionReason: 'Incomplete documents'
+                }),
+                { merge: true }
+            );
+            expect(addDoc).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ action: 'DECLINE_VET', targetId: 'user-123' })
+            );
         });
     });
 

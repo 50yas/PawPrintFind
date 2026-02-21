@@ -288,6 +288,11 @@ export interface User {
   vetLicenseNumber?: string;                   // Professional license number
   vetSpecialization?: string[];                // Specializations
   isVetVerified?: boolean;                     // Admin approved verification
+
+  // Hardened Verification Lifecycle
+  verificationStatus?: 'none' | 'pending' | 'approved' | 'declined';
+  verificationSubmittedAt?: number;
+  rejectionReason?: string;
 }
 
 export interface MatchResult {
@@ -492,6 +497,9 @@ export const UserSchema = z.object({
     sightingsReported: z.number().default(0),
     reunionsSupported: z.number().default(0),
   }).optional(),
+  verificationStatus: z.enum(['none', 'pending', 'approved', 'declined']).optional().default('none'),
+  verificationSubmittedAt: z.number().optional(),
+  rejectionReason: z.string().optional(),
 });
 
 export const UniqueMarkSchema = z.object({

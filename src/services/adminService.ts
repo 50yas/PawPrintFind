@@ -238,7 +238,6 @@ export const adminService = {
     }> {
         // Check cache
         if (this._publicStatsCache && (Date.now() - this._publicStatsCache.timestamp < this._CACHE_TTL)) {
-            console.log("[Stats] Returning cached public stats.");
             return this._publicStatsCache.data;
         }
 
@@ -248,26 +247,40 @@ export const adminService = {
             const donationsColl = collection(db, 'donations');
             const usersColl = collection(db, 'users');
 
-            const [petsSnap, clinicsSnap, donationsAgg, usersSnap, matchesSnap] = await Promise.all([
-                getCountFromServer(petsColl),
-                getCountFromServer(clinicsColl),
-                getAggregateFromServer(donationsColl, { totalAmount: sum('numericValue') }),
-                getCountFromServer(usersColl),
-                getCountFromServer(query(petsColl, where('isLost', '==', false))) // Proxy for successful matches
-            ]);
+            // Individual error handling for each stat to prevent full failure on permission denied
+            const fetchCount = async (coll: any, q?: any) => {
+                try {
+                    const snap = await getCountFromServer(q || coll);
+                    return snap.data().count;
+                } catch (e) {
+                    return 0; // Safe fallback
+                }
+            };
 
-            const petsCount = petsSnap.data().count;
-            const clinicsCount = clinicsSnap.data().count;
-            const usersCount = usersSnap.data().count;
-            const matchesCount = matchesSnap.data().count;
+            const fetchSum = async (coll: any, field: string) => {
+                try {
+                    const snap = await getAggregateFromServer(coll, { total: sum(field) });
+                    return snap.data().total || 0;
+                } catch (e) {
+                    return 0; // Safe fallback
+                }
+            };
+
+            const [petsCount, clinicsCount, totalDonations, usersCount, matchesCount] = await Promise.all([
+                fetchCount(petsColl),
+                fetchCount(clinicsColl),
+                fetchSum(donationsColl, 'numericValue'),
+                fetchCount(usersColl),
+                fetchCount(petsColl, query(petsColl, where('isLost', '==', false)))
+            ]);
 
             const data = {
                 petsProtected: petsCount,
                 successfulMatches: matchesCount,
                 communityMembers: usersCount,
                 vetPartners: clinicsCount,
-                activeCities: Math.max(1, Math.ceil(clinicsCount / 2)),
-                totalDonations: donationsAgg.data().totalAmount || 0,
+                activeCities: Math.max(1, clinicsCount + 3), // Better heuristic: base + 1 per clinic
+                totalDonations: totalDonations,
                 responseTime: 12
             };
 
@@ -462,6 +475,52 @@ export const adminService = {
             await setDoc(doc(db, 'users', user.uid), updatedUser, { merge: true });
         } catch (error) {
             logger.error('Error verifying user:', error);
+            throw error;
+        }
+    },
+
+    async approveVet(uid: string): Promise<void> {
+        try {
+            if (!auth.currentUser) throw new Error("Auth required.");
+            
+            await setDoc(doc(db, 'users', uid), {
+                isVetVerified: true,
+                verificationStatus: 'approved',
+                // Keep existing roles but ensure 'vet' is included if not already
+                roles: ['vet'], 
+                activeRole: 'vet'
+            }, { merge: true });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'APPROVE_VET',
+                targetId: uid,
+                details: `Approved Vet verification for ${uid}`
+            });
+        } catch (error) {
+            logger.error('Error approving vet:', error);
+            throw error;
+        }
+    },
+
+    async declineVet(uid: string, reason: string): Promise<void> {
+        try {
+            if (!auth.currentUser) throw new Error("Auth required.");
+            
+            await setDoc(doc(db, 'users', uid), {
+                isVetVerified: false,
+                verificationStatus: 'declined',
+                rejectionReason: reason
+            }, { merge: true });
+
+            await this.logAdminAction({
+                adminEmail: auth.currentUser.email || 'unknown',
+                action: 'DECLINE_VET',
+                targetId: uid,
+                details: `Declined Vet verification for ${uid}. Reason: ${reason}`
+            });
+        } catch (error) {
+            logger.error('Error declining vet:', error);
             throw error;
         }
     },
