@@ -27,7 +27,7 @@ Goal: Update the backend logic and data models to support the full verification 
     - [x] Sub-task: Ensure these methods correctly update the user's `verificationStatus` and `role` (if applicable).
 - [x] **Task: Conductor - User Manual Verification 'Vet Verification Hardening (Data & Service)' (Protocol in workflow.md)**
 
-## Phase 3: Vet Verification UI (Client)
+## Phase 3: Vet Verification UI (Client) [checkpoint: 682c776]
 Goal: Implement the conditional UI for Vets to submit, track, and resubmit their verification.
 
 - [x] **Task: Implement "Pending" Banner and UI Locking**
