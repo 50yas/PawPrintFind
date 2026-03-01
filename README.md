@@ -6,6 +6,9 @@
 
 **AI-powered pet finder & community rescue platform**
 
+**Read in your language:**
+[🇮🇹 Italiano](docs/README.it.md) · [🇪🇸 Español](docs/README.es.md) · [🇫🇷 Français](docs/README.fr.md) · [🇩🇪 Deutsch](docs/README.de.md) · [🇨🇳 中文](docs/README.zh.md) · [🇸🇦 العربية](docs/README.ar.md) · [🇷🇴 Română](docs/README.ro.md)
+
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-pawprint--50.web.app-teal?style=for-the-badge&logo=firebase)](https://pawprint-50.web.app)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
