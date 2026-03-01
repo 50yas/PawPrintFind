@@ -13,7 +13,7 @@
 
 Security issues can expose users' data or compromise platform integrity. To responsibly disclose a vulnerability:
 
-1. **Email us directly** at: `security@pawprintfind.app` *(or open a private GitHub Security Advisory)*
+1. **Email us directly** at: `meya@europe.com` *(or open a private GitHub Security Advisory)*
 2. Include in your report:
    - Description of the vulnerability
    - Steps to reproduce
