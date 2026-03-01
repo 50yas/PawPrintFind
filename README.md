@@ -24,6 +24,8 @@
 PawPrintFind is a real-time, community-driven platform that uses AI to help locate and reunite lost pets. Users can report missing pets, log sightings with GPS coordinates, get AI-powered matching, and coordinate rescue efforts — all in one place.
 
 **Live at:** [https://pawprint-50.web.app](https://pawprint-50.web.app)
+**Official Website:** [https://pawprintfind.com](https://pawprintfind.com)
+
 
 ---
 
