@@ -15,6 +15,7 @@ interface EcosystemNodeProps {
 }
 
 const EcosystemNode = memo(({ title, description, icon, view, onNavigate, status }: EcosystemNodeProps) => {
+    const { t } = useTranslations();
     return (
         <GlassCard 
             variant="interactive" 
@@ -39,7 +40,7 @@ const EcosystemNode = memo(({ title, description, icon, view, onNavigate, status
             {/* Nav Link Decoration */}
             {view && (
                 <div className="mt-4 flex items-center gap-2 text-primary font-mono text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                    Access Protocol <span className="animate-pulse">→</span>
+                    {t('ecosystemHub.accessProtocol')} <span className="animate-pulse">→</span>
                 </div>
             )}
         </GlassCard>
@@ -51,27 +52,27 @@ export const EcosystemHub: React.FC<{ onNavigate: (view: View) => void }> = ({ o
 
     const sections = [
         {
-            title: "Core Intelligence",
+            title: t('ecosystemHub.sections.intelligence'),
             nodes: [
-                { title: "AI Vision", description: "Multi-modal breed and unique marking identification powered by Gemini 2.0 Pro.", icon: "👁️", view: 'home' as View, status: 'active' as const },
-                { title: "Health Triage", description: "Proactive AI assessments and symptoms analysis for immediate guidance.", icon: "🩺", view: 'home' as View, status: 'active' as const },
-                { title: "Smart Search", description: "Natural language queries to find exact matches across the global database.", icon: "🔍", view: 'adoptionCenter' as View, status: 'active' as const }
+                { title: t('ecosystemHub.nodes.aiVision.title'), description: t('ecosystemHub.nodes.aiVision.desc'), icon: "👁️", view: 'home' as View, status: 'active' as const },
+                { title: t('ecosystemHub.nodes.triage.title'), description: t('ecosystemHub.nodes.triage.desc'), icon: "🩺", view: 'home' as View, status: 'active' as const },
+                { title: t('ecosystemHub.nodes.smartSearch.title'), description: t('ecosystemHub.nodes.smartSearch.desc'), icon: "🔍", view: 'adoptionCenter' as View, status: 'active' as const }
             ]
         },
         {
-            title: "Safety Grid",
+            title: t('ecosystemHub.sections.safety'),
             nodes: [
-                { title: "Smart Geofencing", description: "Predictive safe-zone monitoring and automatic alert triggering.", icon: "📍", view: 'dashboard' as View, status: 'active' as const },
-                { title: "Global Alerts", description: "Instant community-wide broadcasts for missing pet reports.", icon: "🚨", view: 'lostPetsCenter' as View, status: 'active' as const },
-                { title: "Sightings Map", description: "Real-time interactive tracking of verified pet encounters.", icon: "🗺️", view: 'lostPetsCenter' as View, status: 'active' as const }
+                { title: t('ecosystemHub.nodes.geofencing.title'), description: t('ecosystemHub.nodes.geofencing.desc'), icon: "📍", view: 'dashboard' as View, status: 'active' as const },
+                { title: t('ecosystemHub.nodes.alerts.title'), description: t('ecosystemHub.nodes.alerts.desc'), icon: "🚨", view: 'lostPetsCenter' as View, status: 'active' as const },
+                { title: t('ecosystemHub.nodes.map.title'), description: t('ecosystemHub.nodes.map.desc'), icon: "🗺️", view: 'lostPetsCenter' as View, status: 'active' as const }
             ]
         },
         {
-            title: "External Intel",
+            title: t('ecosystemHub.sections.external'),
             nodes: [
-                { title: "Social Scraper", description: "Autonomous AI agents discovering lost pet reports across social platforms.", icon: "📡", status: 'active' as const },
-                { title: "Vet Network", description: "Integrated professional verification and patient management systems.", icon: "🏥", view: 'findVet' as View, status: 'active' as const },
-                { title: "Community Hub", description: "Decentralized support network for pet owners and volunteers.", icon: "👥", view: 'community' as View, status: 'active' as const }
+                { title: t('ecosystemHub.nodes.scraper.title'), description: t('ecosystemHub.nodes.scraper.desc'), icon: "📡", status: 'active' as const },
+                { title: t('ecosystemHub.nodes.vets.title'), description: t('ecosystemHub.nodes.vets.desc'), icon: "🏥", view: 'findVet' as View, status: 'active' as const },
+                { title: t('ecosystemHub.nodes.community.title'), description: t('ecosystemHub.nodes.community.desc'), icon: "👥", view: 'community' as View, status: 'active' as const }
             ]
         }
     ];
@@ -91,13 +92,13 @@ export const EcosystemHub: React.FC<{ onNavigate: (view: View) => void }> = ({ o
                         onClick={() => onNavigate('home')}
                         className="text-primary font-black uppercase tracking-widest text-[10px] mb-4 hover:text-white transition-colors"
                     >
-                        ← Back to Base
+                        {t('ecosystemHub.backToBase')}
                     </button>
                     <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-4 leading-none">
-                        System <span className="text-primary">Ecosystem</span>
+                        {t('ecosystemHub.title').split(' ')[0]} <span className="text-primary">{t('ecosystemHub.title').split(' ')[1]}</span>
                     </h1>
                     <p className="text-slate-400 font-medium max-w-xl">
-                        A centralized overview of the Paw Print autonomous safety network and its integrated AI protocols.
+                        {t('ecosystemHub.description')}
                     </p>
                 </div>
 

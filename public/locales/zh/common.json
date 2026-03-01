@@ -160,7 +160,7 @@
   "enterCodePlaceholder": "输入代码",
   "redeemButton": "兑换",
   "congratulations": "恭喜！",
-  "youUnlocked": "您解锁了奖励！",
+  "youUnlocked": "您已解锁奖励！",
   "loadingUsers": "加载用户中...",
   "searchUsers": "搜索用户...",
   "beta": {
@@ -282,7 +282,8 @@
     "initializationFailed": "初始化失败：{{error}}"
   },
   "errors": {
-    "dailyQuotaExceeded": "每日 AI 配额已用完。请明天再试。\", \"apiConnectionFailed\": \"API 连接失败。需要系统审计。"
+    "dailyQuotaExceeded": "每日 AI 配额已用完。请明天再试。",
+    "apiConnectionFailed": "API 连接失败。需要系统审计。"
   },
   "notFound": {
     "title": "404 - 数字失物招领",
@@ -297,8 +298,312 @@
     "homeCta": "返回控制面板"
   },
   "reportSightingFeatureComingSoon": "此功能即将推出！",
-  "petTagTitle": "Digital Pet Tag",
-  "scanToViewProfile": "Scan to view full biometric profile",
-  "printButton": "Print Tag",
-  "orderSafePawTag": "Order Safe Paw NFC Tag"
+  "petTagTitle": "数字宠物标签",
+  "scanToViewProfile": "扫描查看完整生物识别档案",
+  "printButton": "打印标签",
+  "orderSafePawTag": "订购 Safe Paw NFC 标签",
+  "exploreEcosystem": "探索完整生态系统",
+  "tutorial": {
+    "step": "步骤",
+    "skip": "跳过",
+    "finish": "完成",
+    "home": {
+      "title": "欢迎来到基地",
+      "desc": "您的主要指挥中心。"
+    },
+    "register": {
+      "title": "生物特征注册",
+      "desc": "为您的宠物创建唯一的数字指纹。"
+    },
+    "map": {
+      "title": "安全网格",
+      "desc": "实时监控活动警报。"
+    },
+    "community": {
+      "title": "生态系统中心",
+      "desc": "访问AI协议、兽医网络和社区情报。"
+    },
+    "emergency": {
+      "title": "即时援助",
+      "desc": "AI助手全天候待命，应对紧急情况。"
+    },
+    "owner": {
+      "welcome": {
+        "title": "欢迎使用PawPrint！🐾",
+        "desc": "PawPrintFind是您的AI平台，助您保护宠物安全。我们使用GPS、AI扫描和社区网络，帮助走失宠物与家人团聚。"
+      },
+      "register": {
+        "title": "注册您的宠物",
+        "desc": "为您的宠物创建数字护照，包含照片、特征和生物特征数据。这是您宠物的唯一身份标识。"
+      },
+      "map": {
+        "title": "走失宠物地图",
+        "desc": "实时查看您所在区域的所有走失宠物。您也可以举报找到的宠物。"
+      },
+      "community": {
+        "title": "社区中心",
+        "desc": "与其他宠物主人、志愿者和收容所建立联系。分享目击信息，构建安全网络。"
+      },
+      "emergency": {
+        "title": "紧急按钮",
+        "desc": "宠物走失了？点击此按钮立即提醒您的社区。"
+      },
+      "karma": {
+        "title": "积分与奖励",
+        "desc": "每项行动都可获得积分。举报目击、帮助他人并完成任务以提升等级。"
+      },
+      "vet": {
+        "title": "查找兽医",
+        "desc": "浏览您附近的认证兽医诊所。预约就诊，并获取AI健康检查。"
+      }
+    },
+    "vet": {
+      "welcome": {
+        "title": "欢迎，医生！🩺",
+        "desc": "您的兽医仪表板为您提供管理预约、验证资质和使用AI诊断的工具。"
+      },
+      "verify": {
+        "title": "验证资质",
+        "desc": "上传您的兽医资质以获得已认证徽章并解锁PRO功能。"
+      },
+      "appointments": {
+        "title": "管理预约",
+        "desc": "查看和管理所有预约请求。客户直接通过平台预约。"
+      },
+      "ai": {
+        "title": "AI健康助手",
+        "desc": "使用我们的AI初步健康评估。分析症状并获取诊断建议。"
+      },
+      "clinic": {
+        "title": "诊所资料",
+        "desc": "管理您诊所的公开资料、服务、营业时间和地址。"
+      },
+      "pro": {
+        "title": "升级至PRO 👑",
+        "desc": "PRO兽医可获得优先排名、高级AI功能和预约分析。"
+      }
+    },
+    "shelter": {
+      "welcome": {
+        "title": "欢迎，收容所！🏠",
+        "desc": "您的仪表板帮助您管理待领养宠物，并与社区建立联系。"
+      },
+      "register": {
+        "title": "发布待领养宠物",
+        "desc": "注册所有收容所宠物，包含照片、病历和性格档案。"
+      },
+      "adoption": {
+        "title": "领养中心",
+        "desc": "您的所有宠物将显示在公开领养中心。跟踪申请并协调见面。"
+      },
+      "community": {
+        "title": "社区参与",
+        "desc": "分享动态、发布成功案例，开展社区活动。"
+      },
+      "stats": {
+        "title": "追踪您的影响",
+        "desc": "监控领养率、申请趋势和社区参与度。"
+      }
+    },
+    "volunteer": {
+      "welcome": {
+        "title": "欢迎，志愿者！🤝",
+        "desc": "作为志愿者，您是社区的眼睛和耳朵。您的巡逻和目击报告直接发挥作用。"
+      },
+      "patrol": {
+        "title": "巡逻模式 🚴",
+        "desc": "开启GPS巡逻以追踪您的路线，并为每公里赚取积分。"
+      },
+      "sighting": {
+        "title": "举报目击 👁️",
+        "desc": "看到走失宠物了？使用\"发现宠物\"扫描仪立即通知主人。"
+      },
+      "karma": {
+        "title": "赚取积分 ⭐",
+        "desc": "每次目击、巡逻和任务都能赚取积分。用积分兑换专属奖励。"
+      },
+      "missions": {
+        "title": "社区任务 🎯",
+        "desc": "参加小组任务，覆盖特定区域，支持搜索行动。"
+      },
+      "leaderboard": {
+        "title": "排行榜 🏆",
+        "desc": "与您城市的志愿者竞争。最优秀的志愿者将登上社区排行榜。"
+      }
+    },
+    "admin": {
+      "welcome": {
+        "title": "管理员指挥中心 ⚡",
+        "desc": "您拥有完整的系统访问权限。从此中心管理用户、运营、财务和AI模型。"
+      },
+      "users": {
+        "title": "用户管理 👥",
+        "desc": "查看、编辑和管理所有注册用户。分配角色并验证账户。"
+      },
+      "operations": {
+        "title": "运营中心 🐾",
+        "desc": "审查兽医验证申请，管理宠物注册，监督运营工作。"
+      },
+      "finance": {
+        "title": "财务与优惠券 💰",
+        "desc": "跟踪捐款、管理Stripe付款并生成促销码。"
+      },
+      "ai": {
+        "title": "AI配置 🧠",
+        "desc": "在AI服务商（Google Gemini / OpenRouter）之间切换，并配置模型映射。"
+      },
+      "community": {
+        "title": "社区与积分 🏆",
+        "desc": "管理积分系统、授予徽章并审核社区内容。"
+      }
+    }
+  },
+  "problemStats": {
+    "criticalAlert": "全球紧急警报",
+    "title": "每年，数百万个家庭失去联系。",
+    "description": "传统方法正在失败。尽管技术进步，宠物走失的找回率几十年来没有改变。直到现在。",
+    "lostAnnually": {
+      "label": "每年走失",
+      "desc": "全球每年有一千万只宠物走失。"
+    },
+    "missingProb": {
+      "label": "走失概率",
+      "desc": "令人震惊的是，33%的宠物在其一生中至少会走失一次。"
+    },
+    "idGap": {
+      "label": "识别差距",
+      "desc": "没有数字识别，90%的走失宠物永远无法与主人团聚。"
+    },
+    "initiatingProtocols": "启动恢复协议",
+    "seeSolution": "查看解决方案"
+  },
+  "solutionNarrative": {
+    "title": "Paw Print 生态系统",
+    "description": "我们不仅仅寻找宠物。我们通过全球AI驱动的安全网络，在家庭和他们的伴侣之间建立永久的数字联系。",
+    "problemLabel": "问题：{{problem}}",
+    "detailsButton": "协议详情",
+    "biometrics": {
+      "problem": "90%识别失败",
+      "solution": "AI生物特征指纹"
+    },
+    "geofencing": {
+      "problem": "1/3概率",
+      "solution": "预测性智能地理围栏"
+    },
+    "uplink": {
+      "problem": "响应时间延迟",
+      "solution": "实时社区链接"
+    },
+    "stats": {
+      "neuralRender": "60 FPS",
+      "neuralRenderLabel": "神经渲染",
+      "aiLatency": "< 200ms",
+      "aiLatencyLabel": "AI延迟",
+      "encryption": "AES-256",
+      "encryptionLabel": "数据加密",
+      "uplinkStatus": "24/7/365",
+      "uplinkStatusLabel": "链接状态"
+    }
+  },
+  "ecosystemHub": {
+    "backToBase": "← 返回基地",
+    "title": "系统生态系统",
+    "description": "Paw Print自主安全网络及其集成AI协议的集中概览。",
+    "accessProtocol": "访问协议",
+    "sections": {
+      "intelligence": "核心智能",
+      "safety": "安全网格",
+      "external": "外部情报"
+    },
+    "nodes": {
+      "aiVision": {
+        "title": "AI视觉",
+        "desc": "由Gemini 2.0 Pro驱动的多模态品种和独特标记识别。"
+      },
+      "triage": {
+        "title": "健康分诊",
+        "desc": "主动AI评估和症状分析，提供即时指导。"
+      },
+      "smartSearch": {
+        "title": "智能搜索",
+        "desc": "自然语言查询，在全球数据库中找到精确匹配。"
+      },
+      "geofencing": {
+        "title": "智能地理围栏",
+        "desc": "预测性安全区域监控和自动警报触发。"
+      },
+      "alerts": {
+        "title": "全球警报",
+        "desc": "针对宠物丢失报告的即时全社区广播。"
+      },
+      "map": {
+        "title": "目击地图",
+        "desc": "已验证宠物相遇的实时互动追踪。"
+      },
+      "scraper": {
+        "title": "社交抓取器",
+        "desc": "自主AI代理在社交平台上发现宠物丢失报告。"
+      },
+      "vets": {
+        "title": "兽医网络",
+        "desc": "集成专业验证和患者管理系统。"
+      },
+      "community": {
+        "title": "社区中心",
+        "desc": "面向宠物主人和志愿者的去中心化支持网络。"
+      }
+    }
+  },
+  "adoptionLink": "领养",
+  "showLostPets": "走失宠物",
+  "communityHubButton": "社区中心",
+  "rankAlpha": "阿尔法",
+  "activeBadges": "活跃徽章",
+  "redeemCodeButton": "兑换码",
+  "dashboardWelcome": "欢迎回来",
+  "noImpronte": "尚未注册宠物",
+  "noImpronteDesc": "注册您的第一只宠物，开始保护它。",
+  "addNewImprontaButton": "添加宠物",
+  "rank": "排名",
+  "myProfileAndBadges": "我的档案与徽章",
+  "invalidCode": "代码未找到或已被使用。",
+  "errorOccurred": "发生错误，请重试。",
+  "noBadgesYet": "还没有徽章 — 开始探索吧！",
+  "syncSuccessful": "{{name}} 同步成功！",
+  "criticalSyncFailure": "严重同步失败：",
+  "networkTimeout": "网络超时",
+  "secureSessionClosed": "安全会话已关闭",
+  "loginToContactOwner": "登录以联系主人",
+  "adoptionInquiryTemplate": "您好！我对领养 {{petName}} 感兴趣。能告诉我更多关于它的信息吗？",
+  "maxNamePlaceholder": "如 Max、Bella、Charlie...",
+  "labradorPlaceholder": "如 拉布拉多、金毛寻回犬...",
+  "stepMedical": "医疗记录",
+  "registerStrayTitle": "登记流浪动物",
+  "registerForAdoptionTitle": "登记待领养",
+  "videoUploadLabel": "视频录制",
+  "audioUploadLabel": "语音录制",
+  "selectVideo": "选择视频",
+  "selectAudio": "选择音频",
+  "analyzeVideoButton": "分析视频",
+  "transcribeAudioButton": "转录",
+  "analyzingStatus": "分析中...",
+  "transcribingStatus": "转录中...",
+  "changePhotoButton": "更换",
+  "aiBiometricIdentity": "AI 生物特征档案",
+  "generateVisualHash": "生成视觉哈希",
+  "allergiesLabel": "过敏情况",
+  "chronicConditionsLabel": "慢性病史",
+  "medicationsLabel": "用药情况",
+  "vaccinationsTitle": "疫苗记录",
+  "vaccinationNamePlaceholder": "如 狂犬病、猫三联...",
+  "addHomeAreaButton": "添加家庭区域",
+  "homeAreasTitle": "家庭与安全区域",
+  "foundLocationTitle": "发现地点",
+  "step4DescStray": "这只动物是在哪里被发现的？",
+  "step4DescOwner": "标记您宠物的家庭区域以接收地理围栏提醒。",
+  "finalStepForAdoption": "添加您收容所的位置",
+  "identifyingBreed": "识别中...",
+  "uploadOnePhotoWarning": "请先上传至少一张照片。",
+  "videoAnalysisFailed": "视频分析失败，请重试。",
+  "audioTranscriptionFailed": "音频转录失败，请重试。"
 }

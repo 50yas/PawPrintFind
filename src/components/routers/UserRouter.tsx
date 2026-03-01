@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { View, User, PetProfile, VetClinic, Appointment, ChatSession, Donation, BlogPost } from '../../types';
 import { dbService } from '../../services/firebase';
 import { LoadingSpinner } from '../LoadingSpinner';
@@ -18,6 +18,10 @@ const Donors = lazy(() => import('../Donors').then(m => ({ default: m.Donors }))
 const Blog = lazy(() => import('../Blog').then(m => ({ default: m.Blog })));
 const BlogPostDetail = lazy(() => import('../BlogPostDetail').then(m => ({ default: m.BlogPostDetail })));
 const PublicPetDetail = lazy(() => import('../PublicPetDetail').then(m => ({ default: m.PublicPetDetail })));
+const RiderMissionCenter = lazy(() => import('../RiderMissionCenter').then(m => ({ default: m.RiderMissionCenter })));
+const LeaderboardView = lazy(() => import('../Leaderboard').then(m => ({ default: m.Leaderboard })));
+const UserProfileView = lazy(() => import('../UserProfile').then(m => ({ default: m.UserProfile })));
+const ChatModal = lazy(() => import('../ChatModal').then(m => ({ default: m.ChatModal })));
 
 const RouterSkeleton: React.FC<{ view: View }> = ({ view }) => {
     if (view === 'dashboard') return <DashboardSkeleton />;
@@ -55,13 +59,22 @@ interface UserRouterProps {
     setSelectedPet: (pet: PetProfile | null) => void;
     onViewPet: (pet: PetProfile) => void;
     onReportSighting?: (pet: PetProfile) => void;
+    setCurrentUser?: (u: User) => void;
 }
 
 export const UserRouter: React.FC<UserRouterProps> = ({
     currentView, setView, currentUser, allPets, vetClinics, appointments, chatSessions, lostPets, petsForAdoption, donations, allUsers, editingPet, setEditingPet, petToLink, setPetToLink, selectedPost, setSelectedPost, handleRegisterPet, handleStartChat, handleLogout, setIsLoginModalOpen, setHealthCheckingPet, onApplySearch, predefinedFilters, isLoading,
-    selectedPet, setSelectedPet, onViewPet, onReportSighting
+    selectedPet, setSelectedPet, onViewPet, onReportSighting, setCurrentUser
 }) => {
+    const [activeChatId, setActiveChatId] = useState<string | null>(null);
+
     return (
+        <>
+        {activeChatId && (
+            <Suspense fallback={null}>
+                <ChatModal sessionId={activeChatId} currentUser={currentUser} onClose={() => setActiveChatId(null)} />
+            </Suspense>
+        )}
         <Suspense fallback={<RouterSkeleton view={currentView} />}>
             {(() => {
                 switch (currentView) {
@@ -90,11 +103,18 @@ export const UserRouter: React.FC<UserRouterProps> = ({
                     case 'blogPost':
                         return selectedPost ? <BlogPostDetail post={selectedPost} onBack={() => setView('blog')} /> : null;
                     case 'dashboard':
-                        return <Dashboard user={currentUser} userPets={allPets.filter(p => p.ownerEmail === currentUser.email)} appointments={appointments} onReportLost={(id, loc, rad) => dbService.savePet({ ...allPets.find(p => p.id === id)!, isLost: true, lastSeenLocation: loc, searchRadius: rad })} onMarkFound={(id) => dbService.markPetFound(allPets.find(p => p.id === id)!)} onEditPet={(p) => { setEditingPet(p); setView('register'); }} onRegisterNew={() => { setEditingPet(null); setView('register'); }} setView={setView} chatSessions={chatSessions} onOpenChat={(id) => { }} onRequestAppointment={() => { }} onLinkVet={(pet) => { setPetToLink(pet); setView('linkVet'); }} onSharePet={() => { }} onHealthCheck={setHealthCheckingPet} onViewPet={onViewPet} onTransferOwnership={() => { }} onLogout={handleLogout} onApplySearch={onApplySearch} />;
+                        return <Dashboard user={currentUser} userPets={allPets.filter(p => p.ownerEmail === currentUser.email)} appointments={appointments} onReportLost={(id, loc, rad) => dbService.savePet({ ...allPets.find(p => p.id === id)!, isLost: true, lastSeenLocation: loc, searchRadius: rad })} onMarkFound={(id) => dbService.markPetFound(allPets.find(p => p.id === id)!)} onEditPet={(p) => { setEditingPet(p); setView('register'); }} onRegisterNew={() => { setEditingPet(null); setView('register'); }} setView={setView} chatSessions={chatSessions} onOpenChat={(id) => setActiveChatId(id)} onRequestAppointment={() => { }} onLinkVet={(pet) => { setPetToLink(pet); setView('linkVet'); }} onSharePet={() => { }} onHealthCheck={setHealthCheckingPet} onViewPet={onViewPet} onTransferOwnership={() => { }} onLogout={handleLogout} onApplySearch={onApplySearch} />;
+                    case 'riderMissionCenter':
+                        return <RiderMissionCenter user={currentUser} lostPets={lostPets} setView={setView} onViewPet={onViewPet} onLogout={handleLogout} />;
+                    case 'leaderboard':
+                        return <LeaderboardView setView={setView} currentUserId={currentUser.uid} />;
+                    case 'userProfile':
+                        return <UserProfileView currentUser={currentUser} setCurrentUser={setCurrentUser || (() => {})} setView={setView} />;
                     default:
                         return <Home setView={setView} openLogin={() => setIsLoginModalOpen(true)} currentUser={currentUser} lostPets={lostPets} petsForAdoption={petsForAdoption} onContactOwner={handleStartChat} onViewPet={onViewPet} />;
                 }
             })()}
         </Suspense>
+        </>
     );
 };

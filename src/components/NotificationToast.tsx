@@ -11,7 +11,7 @@ interface NotificationToastProps {
 
 export const NotificationToast: React.FC<NotificationToastProps> = ({ notifications }) => {
   return (
-    <div className="fixed top-20 right-4 z-[150] space-y-2">
+    <div className="fixed top-[110px] right-4 z-[10000] space-y-2">
       {notifications.map(notification => (
         <div 
           key={notification.id} 

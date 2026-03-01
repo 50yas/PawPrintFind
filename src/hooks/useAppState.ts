@@ -49,14 +49,18 @@ export const useAppState = (currentUser: User | null, currentView: View) => {
             (error) => handleSubError('pets', error)
         );
 
-        const unsubDonations = dbService.subscribeToDonations(
-            (data) => {
-                setDonations(data);
-                donationsLoaded = true;
-                checkLoaded();
-            },
-            (error) => handleSubError('donations', error)
-        );
+        // Only subscribe to donations for admins — regular users don't have list permission
+        const isAdminRole = currentUser?.activeRole === 'super_admin';
+        let unsubDonations = () => {};
+        if (isAdminRole) {
+            unsubDonations = dbService.subscribeToDonations(
+                (data) => { setDonations(data); donationsLoaded = true; checkLoaded(); },
+                (error) => handleSubError('donations', error)
+            );
+        } else {
+            donationsLoaded = true;
+            checkLoaded();
+        }
 
         const unsubClinics = dbService.subscribeToClinics(
             (data) => {

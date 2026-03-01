@@ -28,9 +28,13 @@ service firebase.storage {
     }
 
     // 2. FILE UTENTI & RIFUGI (User & Shelter Files)
-    // Questo è quello che MANCAVA e causava l'errore "unauthorized".
-    // Permette all'utente di caricare file nella propria cartella specifica.
     match /users/{userId}/{allPaths=**} {
+      allow write: if isOwner(userId);
+    }
+
+    // 2b. FOTO PROFILO (Profile Photos)
+    // Legacy path — keep for backwards compat, new uploads go to users/{uid}/profile/
+    match /profile_photos/{userId}/{allPaths=**} {
       allow write: if isOwner(userId);
     }
     

@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onCall, HttpsError, onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { GoogleGenAI } from "@google/genai";
 import { defineSecret } from "firebase-functions/params";
@@ -12,6 +12,8 @@ admin.initializeApp();
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
+const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
+const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 
 /**
  * Resolves the active AI provider and model for a given task.
@@ -42,7 +44,7 @@ async function callAI(
     taskOverride?: string
 ) {
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);
-    
+
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
         let messages = contents;
@@ -60,7 +62,7 @@ async function callAI(
                 }];
             }
         }
-        
+
         return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
@@ -137,7 +139,7 @@ async function callGeminiAI(
     }
 
     const client = new GoogleGenAI({ apiKey });
-    
+
     // Config handling for new SDK
     const modelParams: any = {
         model: modelName,
@@ -152,17 +154,17 @@ async function callGeminiAI(
     delete generationConfig.toolConfig;
 
     try {
-        const model = client.getGenerativeModel(modelParams);
-        
+        const model = (client as any).getGenerativeModel(modelParams);
+
         const result = await model.generateContent({
             contents,
             config: generationConfig
         });
-        
+
         const response = result.response;
         const text = response.text();
 
-        trackUsage(userId, featureName, 'google').catch(err => 
+        trackUsage(userId, featureName, 'google').catch(err =>
             console.error(`Failed to track usage for ${featureName}:`, err)
         );
 
@@ -300,7 +302,7 @@ export const blogGeneration = onCall({
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
-    
+
     const { topic } = request.data;
     if (!topic) throw new HttpsError("invalid-argument", "Topic required.");
 
@@ -325,14 +327,125 @@ export const callGemini = onCall({
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
     const { model, contents, config } = request.data;
-    
+
     return callAI(
-        request.auth.uid, 
-        "generic", 
-        contents, 
+        request.auth.uid,
+        "generic",
+        contents,
         { ...config, modelOverride: model }
     );
 });
 
 // Firestore Triggers (re-exported)
 export { onUserCreated, onStripePaymentSuccess, onSubscriptionChange } from './triggers';
+
+// ---------------------------------------------------------------------------
+// STRIPE INTEGRATION
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a Stripe Checkout session for one-off donations.
+ * Requires STRIPE_SECRET_KEY to be set in Firebase Functions secrets.
+ * Run: firebase functions:secrets:set STRIPE_SECRET_KEY
+ */
+export const createDonationCheckout = onCall({
+    ...ON_CALL_CONFIG,
+    secrets: [stripeSecretKey],
+}, async (request) => {
+    if (!stripeSecretKey.value()) {
+        throw new HttpsError("failed-precondition", "Stripe is not configured on the server.");
+    }
+
+    const { amount, donationId, donorEmail, donorName } = request.data;
+
+    if (!amount || amount < 1) {
+        throw new HttpsError("invalid-argument", "Amount must be at least 1 EUR.");
+    }
+
+    try {
+        const Stripe = (await import('stripe')).default;
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' as const });
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            line_items: [{
+                price_data: {
+                    currency: 'eur',
+                    product_data: {
+                        name: 'Support PawPrint Project',
+                        description: 'One-time donation to help find lost pets worldwide.',
+                        images: ['https://pawprint-50.web.app/icon-512.png'],
+                    },
+                    unit_amount: Math.round(amount * 100), // Convert to cents
+                },
+                quantity: 1,
+            }],
+            customer_email: donorEmail || undefined,
+            success_url: `https://pawprint-50.web.app/payment-success?session_id={CHECKOUT_SESSION_ID}&donationId=${donationId}`,
+            cancel_url: `https://pawprint-50.web.app/donors`,
+            metadata: {
+                donationId: donationId || '',
+                donorName: donorName || 'Anonymous',
+                source: 'pawprint_webapp',
+            },
+        });
+
+        return { id: session.id, url: session.url };
+    } catch (error: any) {
+        console.error("[Stripe] createDonationCheckout error:", error);
+        throw new HttpsError("internal", `Stripe error: ${error.message}`);
+    }
+});
+
+/**
+ * Stripe Webhook handler — confirms payment and marks donation as paid.
+ * URL: https://us-central1-pawprint-50.cloudfunctions.net/stripeWebhook
+ * Register this in Stripe Dashboard → Webhooks → Add endpoint.
+ * Events to listen: checkout.session.completed, payment_intent.succeeded
+ */
+export const stripeWebhook = onRequest({
+    cors: false, // Stripe sends raw POST, no preflight needed
+    region: "us-central1",
+    secrets: [stripeSecretKey, stripeWebhookSecret],
+}, async (req, res) => {
+    if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+    }
+
+    const sig = req.headers['stripe-signature'];
+    if (!sig || !stripeWebhookSecret.value()) {
+        res.status(400).send('Missing Stripe signature or webhook secret.');
+        return;
+    }
+
+    try {
+        const Stripe = (await import('stripe')).default;
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' as const });
+        const event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret.value());
+
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object as any;
+            const donationId = session.metadata?.donationId;
+            const amountTotal = session.amount_total; // in cents
+
+            if (donationId) {
+                const donationRef = admin.firestore().collection('donations').doc(donationId);
+                await donationRef.set({
+                    status: 'paid',
+                    approved: true,
+                    numericValue: (amountTotal || 0) / 100,
+                    stripeSessionId: session.id,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                }, { merge: true });
+                console.log(`[Stripe Webhook] Donation ${donationId} confirmed as paid.`);
+            }
+        }
+
+        res.status(200).json({ received: true });
+    } catch (error: any) {
+        console.error('[Stripe Webhook] Error:', error.message);
+        res.status(400).send(`Webhook Error: ${error.message}`);
+    }
+});

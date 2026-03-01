@@ -2,6 +2,8 @@
 import React, { useState, memo, useRef, useEffect, useCallback, useMemo } from 'react';
 import { PetProfile, User, Geolocation, ChatSession, Appointment, View } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { dbService } from '../services/firebase';
+import { useSnackbar } from '../contexts/SnackbarContext';
 import { SightingsMap } from './SightingsMap';
 import { ReportLostModal } from './ReportLostModal';
 import { SharePetModal } from './SharePetModal';
@@ -79,16 +81,62 @@ const QuickAction: React.FC<{ title: string; icon: React.ReactNode; onClick: () 
     </GlassCard>
 ));
 
+const TIER_META: Record<string, { label: string; color: string; icon: string }> = {
+  scout:    { label: 'Scout',    color: '#64748b', icon: '🔍' },
+  tracker:  { label: 'Tracker',  color: '#10b981', icon: '🌿' },
+  ranger:   { label: 'Ranger',   color: '#3b82f6', icon: '🌀' },
+  guardian: { label: 'Guardian', color: '#8b5cf6', icon: '🛡️' },
+  legend:   { label: 'Legend',   color: '#f59e0b', icon: '⭐' },
+};
+
+function getTierFromPoints(points: number) {
+  if (points >= 15000) return 'legend';
+  if (points >= 5000)  return 'guardian';
+  if (points >= 2000)  return 'ranger';
+  if (points >= 500)   return 'tracker';
+  return 'scout';
+}
+
 export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointments = [], onReportLost, onMarkFound, onEditPet, onRegisterNew, setView, chatSessions, onOpenChat, onRequestAppointment, onLinkVet, onSharePet, onHealthCheck, onViewPet, onTransferOwnership, onLogout, onApplySearch }) => {
   const { t } = useTranslations();
+  const { addSnackbar } = useSnackbar();
   const [reportingPet, setReportingPet] = useState<PetProfile | null>(null);
   const [sharingPet, setSharingPet] = useState<PetProfile | null>(null);
   const [qrPet, setQrPet] = useState<PetProfile | null>(null);
   const [selectedPetForDetail, setSelectedPetForDetail] = useState<PetProfile | null>(null);
-  
+
   // User Menu State
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Redeem Code State
+  const [showRedeemInput, setShowRedeemInput] = useState(false);
+  const [redeemCode, setRedeemCode] = useState('');
+  const [redeemLoading, setRedeemLoading] = useState(false);
+
+  const karmaPoints = user.karmaBalance ?? user.points ?? 0;
+  const tierKey = user.karmaTier || getTierFromPoints(karmaPoints);
+  const tierMeta = TIER_META[tierKey] || TIER_META.scout;
+  const isAlphaTester = user.badges?.includes('alpha_tester');
+
+  const handleRedeem = useCallback(async () => {
+    if (!redeemCode.trim()) return;
+    setRedeemLoading(true);
+    try {
+      const result = await dbService.redeemCode(redeemCode.trim().toUpperCase());
+      if (result.success) {
+        addSnackbar(t('congratulations') + ' — ' + result.reward, 'success');
+        setRedeemCode('');
+        setShowRedeemInput(false);
+      } else {
+        addSnackbar(t('invalidCode', 'Code not found or already used.'), 'error');
+      }
+    } catch {
+      addSnackbar(t('errorOccurred', 'An error occurred. Please try again.'), 'error');
+    } finally {
+      setRedeemLoading(false);
+    }
+  }, [redeemCode, addSnackbar, t]);
 
   useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -139,28 +187,135 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                         className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary p-[2px] shadow-lg hover:scale-105 transition-transform neon-glow-teal"
                     >
                         <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-2xl font-bold text-primary overflow-hidden border border-white/10">
-                            {user.email.charAt(0).toUpperCase()}
+                            {user.photoURL ? (
+                                <img src={user.photoURL} alt="avatar" className="w-full h-full object-cover rounded-full" />
+                            ) : (
+                                (user.displayName || user.email).charAt(0).toUpperCase()
+                            )}
                         </div>
                     </button>
                     
-                    {/* User Dropdown Menu */}
+                    {/* Rich Mini-Profile Card */}
                     {showUserMenu && (
-                        <GlassCard className="absolute top-full left-0 mt-3 w-56 z-50 overflow-hidden animate-fade-in origin-top-left border-white/20">
-                            <div className="p-4 border-b border-white/10 bg-white/5">
-                                <p className="font-bold text-white truncate">{user.email}</p>
-                                <p className="text-xs text-primary/70 capitalize font-mono tracking-wider">{user.activeRole}</p>
+                        <GlassCard className="absolute top-full left-0 mt-3 w-72 z-50 overflow-hidden animate-fade-in origin-top-left border-white/20">
+                            {/* Identity Block */}
+                            <div
+                                onClick={() => { setView('userProfile'); setShowUserMenu(false); }}
+                                className="p-4 border-b border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border-2 border-white/10" style={{ boxShadow: `0 0 12px ${tierMeta.color}40` }}>
+                                        {user.photoURL
+                                            ? <img src={user.photoURL} alt="avatar" className="w-full h-full object-cover" />
+                                            : <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white" style={{ background: `${tierMeta.color}30` }}>
+                                                {(user.displayName || user.email).charAt(0).toUpperCase()}
+                                              </div>
+                                        }
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-bold text-white truncate text-sm group-hover:text-primary transition-colors">
+                                            {user.displayName || user.email.split('@')[0]}
+                                        </p>
+                                        <p className="text-[10px] text-slate-400 truncate font-mono">{user.email}</p>
+                                        <span className="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
+                                            {user.activeRole}
+                                        </span>
+                                    </div>
+                                    <svg className="h-4 w-4 text-slate-500 group-hover:text-primary transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                </div>
                             </div>
-                            <div className="p-2">
-                                <button className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    {t('profileSettings')}
+
+                            {/* Karma & Rank Stats */}
+                            <div className="px-4 py-3 border-b border-white/10 bg-white/3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Karma</p>
+                                        <p className="text-xl font-black text-white">{karmaPoints.toLocaleString()}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">{t('rank', 'Rank')}</p>
+                                        <p className="text-sm font-black flex items-center justify-center gap-1" style={{ color: tierMeta.color }}>
+                                            <span>{tierMeta.icon}</span>
+                                            <span>{isAlphaTester ? t('rankAlpha', 'Alpha') : tierMeta.label}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Active Badges */}
+                            {user.badges && user.badges.length > 0 && (
+                                <div className="px-4 py-3 border-b border-white/10">
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mb-2">{t('activeBadges', 'Active Badges')}</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {user.badges.slice(0, 4).map(badge => (
+                                            <span key={badge} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 capitalize">
+                                                {badge.replace(/_/g, ' ')}
+                                            </span>
+                                        ))}
+                                        {user.badges.length > 4 && (
+                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-slate-400 border border-white/10">
+                                                +{user.badges.length - 4}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Redeem Code */}
+                            <div className="px-4 py-2 border-b border-white/10">
+                                {showRedeemInput ? (
+                                    <div className="space-y-1.5">
+                                        <input
+                                            type="text"
+                                            value={redeemCode}
+                                            onChange={e => setRedeemCode(e.target.value.toUpperCase())}
+                                            onKeyDown={e => { if (e.key === 'Enter') handleRedeem(); if (e.key === 'Escape') setShowRedeemInput(false); }}
+                                            placeholder="PAW-XXXX-XXXX"
+                                            className="w-full px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 text-xs font-mono focus:outline-none focus:border-primary/50"
+                                            autoFocus
+                                        />
+                                        <div className="flex gap-1.5">
+                                            <button
+                                                onClick={handleRedeem}
+                                                disabled={redeemLoading || !redeemCode.trim()}
+                                                className="flex-1 py-1 rounded-lg bg-primary/20 text-primary text-xs font-bold hover:bg-primary/30 transition-colors disabled:opacity-50"
+                                            >
+                                                {redeemLoading ? '...' : t('redeemCodeButton', 'Redeem')}
+                                            </button>
+                                            <button onClick={() => setShowRedeemInput(false)} className="px-2 py-1 rounded-lg bg-white/5 text-slate-400 text-xs hover:bg-white/10 transition-colors">
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setShowRedeemInput(true)}
+                                        className="w-full text-left px-1 py-1.5 text-sm text-slate-300 hover:text-primary transition-colors flex items-center gap-2"
+                                    >
+                                        <span>🎁</span>
+                                        <span className="text-xs font-bold">{t('redeemCodeButton', 'Riscatta Codice')}</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="p-2 space-y-0.5">
+                                <button
+                                    onClick={() => { setView('userProfile'); setShowUserMenu(false); }}
+                                    className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                                >
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    {t('myProfileAndBadges', 'My Profile & Badges')}
                                 </button>
-                                <button className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2">
+                                <button
+                                    onClick={() => { setView('userProfile'); setShowUserMenu(false); }}
+                                    className="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                     {t('notifications')}
                                 </button>
                                 <div className="h-px bg-white/10 my-1"></div>
-                                <button 
+                                <button
                                     onClick={onLogout}
                                     className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 font-bold"
                                 >
@@ -173,7 +328,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
                 </div>
                 
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.email.split('@')[0] })}</h1>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">{t('dashboardWelcome', { name: user.displayName || user.email.split('@')[0] })}</h1>
                     <p className="text-slate-300 mt-1 flex items-center gap-2 text-sm font-medium">
                         <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--md-sys-color-primary)]"></span>
                         <span className="font-mono text-[10px] tracking-widest uppercase">{t('dashboard:common.systemActive')}</span> 
@@ -273,7 +428,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, userPets, appointmen
         {userPets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {useMemo(() => userPets.map((pet, index) => (
-                <div className="h-full animate-fade-in" style={{animationDelay: `${index * 100}ms`}} key={pet.id}>
+                <div className="h-full" key={pet.id}>
                     <PetCard 
                         variant="owner"
                         pet={pet} 

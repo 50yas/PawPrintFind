@@ -369,7 +369,7 @@
     "noVaccinationRecords": "No medical records.",
     "savedLocations": "Saved Locations",
     "goldfishWarning": "Please provide a Name and Breed. 🐾",
-    " mainframeResisting": "Error: {{error}}",
+    "mainframeResisting": "Error: {{error}}",
     "securityDenied": "Access Denied.",
     "uploadCanceled": "Canceled.",
     "unknownStorageError": "Storage error.",

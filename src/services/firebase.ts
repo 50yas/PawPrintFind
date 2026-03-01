@@ -104,6 +104,7 @@ import { vetService } from './vetService';
 import { contentService } from './contentService';
 import { adminService } from './adminService';
 import { favoritesService } from './favoritesService';
+import { karmaService } from './karmaService';
 
 export const dbService = {
     auth,
@@ -216,7 +217,7 @@ export const dbService = {
         return adminService.initializeSystem();
     },
 
-    async getPublicStats(): Promise<{ activeNodes: number; biometricMatches: number; totalDonations: number }> {
+    async getPublicStats(): Promise<{ petsProtected: number; successfulMatches: number; communityMembers: number; vetPartners: number; activeCities: number; totalDonations: number; responseTime: number; }> {
         return adminService.getPublicStats();
     },
 
@@ -274,6 +275,7 @@ export const dbService = {
         await petService.reportSighting(petId, sighting);
         if (auth.currentUser) {
             await authService.checkAndAwardBadges(auth.currentUser.uid);
+            await karmaService.awardKarma(auth.currentUser.uid, 'sighting_report', { petId }).catch(console.error);
         }
     },
 
@@ -308,6 +310,10 @@ export const dbService = {
             }
         } catch (e) {
             console.error("Failed to generate success story:", e);
+        }
+        // Award karma for successful reunion
+        if (auth.currentUser) {
+            await karmaService.awardKarma(auth.currentUser.uid, 'successful_reunion', { petId: pet.id }).catch(console.error);
         }
     },
 
@@ -429,8 +435,8 @@ export const dbService = {
         return contentService.incrementBlogPostView(id);
     },
 
-    async createCheckoutSession(amount: number, donationId: string): Promise<{ id: string, url: string }> {
-        return contentService.createCheckoutSession(amount, donationId);
+    async createCheckoutSession(amount: number, donationId: string, donorEmail?: string, donorName?: string): Promise<{ id: string, url: string }> {
+        return contentService.createCheckoutSession(amount, donationId, donorEmail, donorName);
     },
 
     async logAdminAction(log: { adminEmail: string, action: string, targetId?: string, details: string }) {
@@ -439,5 +445,38 @@ export const dbService = {
 
     async redeemCode(code: string): Promise<{ success: boolean; reward: string }> {
         return authService.redeemCode(code);
-    }
+    },
+
+    // --- KARMA SYSTEM (Delegated to karmaService) ---
+    async awardKarma(userId: string, action: import('../types').KarmaAction, metadata?: any) {
+        return karmaService.awardKarma(userId, action, metadata);
+    },
+
+    async getKarmaBalance(userId: string) {
+        return karmaService.getBalance(userId);
+    },
+
+    async getKarmaHistory(userId: string, maxResults?: number) {
+        return karmaService.getTransactionHistory(userId, maxResults);
+    },
+
+    async redeemKarma(userId: string, partnerId: string, points: number) {
+        return karmaService.redeemKarma(userId, partnerId, points);
+    },
+
+    async getLeaderboard(timeframe: 'weekly' | 'monthly' | 'allTime' = 'allTime') {
+        return karmaService.getLeaderboard(timeframe);
+    },
+
+    async getPartnerStores() {
+        return karmaService.getPartnerStores();
+    },
+
+    async setRiderType(userId: string, riderType: import('../types').RiderType, vehicleName?: string, deliveryPlatform?: string) {
+        return karmaService.setRiderType(userId, riderType, vehicleName, deliveryPlatform);
+    },
+
+    async savePatrolSession(session: Omit<import('../types').PatrolSession, 'id'>) {
+        return karmaService.savePatrolSession(session);
+    },
 };

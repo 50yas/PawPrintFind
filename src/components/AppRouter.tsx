@@ -52,6 +52,7 @@ interface AppRouterProps {
     onDeleteUser: (uid: string) => Promise<void>;
     onViewPet: (pet: PetProfile) => void;
     onReportSighting?: (pet: PetProfile) => void;
+    setCurrentUser?: (u: User) => void;
 }
 
 export const AppRouter: React.FC<AppRouterProps> = (props) => {
@@ -64,7 +65,7 @@ export const AppRouter: React.FC<AppRouterProps> = (props) => {
         petToLink, setPetToLink, setHealthCheckingPet, predefinedFilters,
         handleApplySearch, handleLogout, handleRegisterPet, handleStartChat,
         handleRefreshAdminData, setIsLoginModalOpen, setActiveChatSession, onDeleteUser,
-        onViewPet, onReportSighting
+        onViewPet, onReportSighting, setCurrentUser
     } = props;
 
     const lostPets = allPets.filter(p => p.isLost);
@@ -184,6 +185,7 @@ export const AppRouter: React.FC<AppRouterProps> = (props) => {
                 setSelectedPet={setSelectedPet}
                 onViewPet={onViewPet}
                 onReportSighting={onReportSighting}
+                setCurrentUser={setCurrentUser}
             />
         );
     }
@@ -211,6 +213,7 @@ export const AppRouter: React.FC<AppRouterProps> = (props) => {
                 handleStartChat={handleStartChat}
                 setIsLoginModalOpen={setIsLoginModalOpen}
                 isLoading={isLoading}
+                setCurrentUser={setCurrentUser}
             />
         );
     }
@@ -275,6 +278,7 @@ export const AppRouter: React.FC<AppRouterProps> = (props) => {
             setSelectedPet={setSelectedPet}
             onViewPet={onViewPet}
             onReportSighting={onReportSighting}
+            setCurrentUser={setCurrentUser}
         />
     );
 };

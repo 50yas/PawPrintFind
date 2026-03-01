@@ -24,10 +24,17 @@ export const AddClinicModal: React.FC<AddClinicModalProps> = ({ onClose, onSucce
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Basic validation
+
         if (!name || !email || !address || !phone) {
             addSnackbar(t('auth:alerts.fieldsRequired'), 'error');
+            return;
+        }
+        if (address.trim().length < 5) {
+            addSnackbar('Address must be at least 5 characters.', 'error');
+            return;
+        }
+        if (phone.trim().length < 5) {
+            addSnackbar('Phone must be at least 5 characters.', 'error');
             return;
         }
 

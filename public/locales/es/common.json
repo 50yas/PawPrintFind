@@ -160,7 +160,7 @@
   "enterCodePlaceholder": "INGRESA-CODIGO",
   "redeemButton": "Canjear",
   "congratulations": "¡Felicitaciones!",
-  "youUnlocked": "¡Desbloqueaste una recompensa!",
+  "youUnlocked": "¡Has desbloqueado una recompensa!",
   "loadingUsers": "Cargando usuarios...",
   "searchUsers": "Buscar usuarios...",
   "beta": {
@@ -298,8 +298,312 @@
     "homeCta": "Volver al Panel"
   },
   "reportSightingFeatureComingSoon": "¡Esta función estará disponible pronto!",
-  "petTagTitle": "Digital Pet Tag",
-  "scanToViewProfile": "Scan to view full biometric profile",
-  "printButton": "Print Tag",
-  "orderSafePawTag": "Order Safe Paw NFC Tag"
+  "petTagTitle": "Etiqueta Digital de Mascota",
+  "scanToViewProfile": "Escanea para ver el perfil biométrico completo",
+  "printButton": "Imprimir Etiqueta",
+  "orderSafePawTag": "Pedir Etiqueta NFC Safe Paw",
+  "exploreEcosystem": "Explorar el Ecosistema Completo",
+  "tutorial": {
+    "step": "Paso",
+    "skip": "Saltar",
+    "finish": "Finalizar",
+    "home": {
+      "title": "Bienvenido a la Base",
+      "desc": "Tu centro de mando principal."
+    },
+    "register": {
+      "title": "Registro Biométrico",
+      "desc": "Crea una huella digital única para tu mascota."
+    },
+    "map": {
+      "title": "Cuadrícula de Seguridad",
+      "desc": "Monitorea alertas activas en tiempo real."
+    },
+    "community": {
+      "title": "Centro del Ecosistema",
+      "desc": "Accede a protocolos AI, redes veterinarias e inteligencia comunitaria."
+    },
+    "emergency": {
+      "title": "Asistencia Inmediata",
+      "desc": "Asistente AI disponible 24/7 para situaciones críticas."
+    },
+    "owner": {
+      "welcome": {
+        "title": "¡Bienvenido a PawPrint! 🐾",
+        "desc": "PawPrintFind es tu plataforma AI para mantener a tus mascotas seguras. Usamos GPS, escaneo AI y redes comunitarias para ayudar a reunir mascotas perdidas con sus familias."
+      },
+      "register": {
+        "title": "Registra tu Mascota",
+        "desc": "Crea un pasaporte digital para tu mascota con fotos, marcas y datos biométricos. Esta es la identidad única de tu mascota."
+      },
+      "map": {
+        "title": "Mapa de Mascotas Perdidas",
+        "desc": "Visualiza todas las mascotas perdidas en tu área en tiempo real. También puedes reportar mascotas encontradas."
+      },
+      "community": {
+        "title": "Centro Comunitario",
+        "desc": "Conéctate con otros dueños, voluntarios y refugios. Comparte avistamientos y construye una red de seguridad."
+      },
+      "emergency": {
+        "title": "Botón de Emergencia",
+        "desc": "¿Perdiste a tu mascota? Toca este botón para alertar a tu comunidad de inmediato."
+      },
+      "karma": {
+        "title": "Karma y Recompensas",
+        "desc": "Cada acción gana Puntos Karma. Reporta avistamientos, ayuda a otros y completa misiones para subir de nivel."
+      },
+      "vet": {
+        "title": "Encuentra un Veterinario",
+        "desc": "Explora clínicas veterinarias verificadas cerca de ti. Reserva citas y accede a revisiones de salud AI."
+      }
+    },
+    "vet": {
+      "welcome": {
+        "title": "¡Bienvenido, Doctor! 🩺",
+        "desc": "Tu panel veterinario te ofrece herramientas para gestionar citas, verificar tus credenciales y usar diagnósticos AI."
+      },
+      "verify": {
+        "title": "Verifica tus Credenciales",
+        "desc": "Sube tus credenciales veterinarias para obtener la insignia verificada y desbloquear funciones PRO."
+      },
+      "appointments": {
+        "title": "Gestiona Citas",
+        "desc": "Visualiza y gestiona todas las solicitudes de cita. Los clientes reservan directamente desde la plataforma."
+      },
+      "ai": {
+        "title": "Asistente de Salud AI",
+        "desc": "Usa nuestra evaluación de salud preliminar AI. Analiza síntomas y obtén sugerencias diagnósticas."
+      },
+      "clinic": {
+        "title": "Perfil de la Clínica",
+        "desc": "Gestiona el perfil público de tu clínica, servicios, horarios y ubicación."
+      },
+      "pro": {
+        "title": "Actualizar a PRO 👑",
+        "desc": "Los veterinarios PRO obtienen listados prioritarios, funciones AI avanzadas y análisis de citas."
+      }
+    },
+    "shelter": {
+      "welcome": {
+        "title": "¡Bienvenido, Refugio! 🏠",
+        "desc": "Tu panel te ayuda a gestionar mascotas en adopción y a conectarte con la comunidad."
+      },
+      "register": {
+        "title": "Lista Mascotas en Adopción",
+        "desc": "Registra todas las mascotas del refugio con fotos, historiales médicos y perfiles de personalidad."
+      },
+      "adoption": {
+        "title": "Centro de Adopciones",
+        "desc": "Todas tus mascotas aparecen en el Centro de Adopciones público. Sigue las solicitudes y coordina los encuentros."
+      },
+      "community": {
+        "title": "Involucra a la Comunidad",
+        "desc": "Comparte actualizaciones, publica historias de éxito y conduce campañas comunitarias."
+      },
+      "stats": {
+        "title": "Monitorea tu Impacto",
+        "desc": "Sigue las tasas de adopción, tendencias de solicitudes y el compromiso de la comunidad."
+      }
+    },
+    "volunteer": {
+      "welcome": {
+        "title": "¡Bienvenido, Voluntario! 🤝",
+        "desc": "Como voluntario, eres los ojos y oídos de la comunidad. Tus patrullas y avistamientos ayudan directamente."
+      },
+      "patrol": {
+        "title": "Modo Patrulla 🚴",
+        "desc": "Activa la patrulla GPS para rastrear tu recorrido y ganar Puntos Karma por cada kilómetro."
+      },
+      "sighting": {
+        "title": "Reporta Avistamientos 👁️",
+        "desc": "¿Viste una mascota perdida? Usa el escáner 'Mascota Encontrada' para notificar al dueño de inmediato."
+      },
+      "karma": {
+        "title": "Gana Karma ⭐",
+        "desc": "Cada avistamiento, patrulla y misión gana Puntos Karma. Canjéalos por recompensas exclusivas."
+      },
+      "missions": {
+        "title": "Misiones Comunitarias 🎯",
+        "desc": "Únete a misiones grupales para cubrir áreas específicas y apoyar operaciones de búsqueda."
+      },
+      "leaderboard": {
+        "title": "Clasificación 🏆",
+        "desc": "Compite con voluntarios de tu ciudad. Los mejores voluntarios aparecen en la clasificación de la comunidad."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "title": "Centro de Comando Admin ⚡",
+        "desc": "Tienes acceso completo al sistema. Gestiona usuarios, operaciones, finanzas y modelos AI desde este hub central."
+      },
+      "users": {
+        "title": "Gestión de Usuarios 👥",
+        "desc": "Visualiza, edita y gestiona todos los usuarios registrados. Asigna roles y verifica cuentas."
+      },
+      "operations": {
+        "title": "Hub de Operaciones 🐾",
+        "desc": "Revisa las solicitudes de verificación veterinaria, gestiona los registros de mascotas y supervisa las operaciones."
+      },
+      "finance": {
+        "title": "Finanzas y Cupones 💰",
+        "desc": "Rastrea donaciones, gestiona pagos Stripe y genera códigos promocionales."
+      },
+      "ai": {
+        "title": "Configuración AI 🧠",
+        "desc": "Cambia entre proveedores AI (Google Gemini / OpenRouter) y configura los mapeos de modelos."
+      },
+      "community": {
+        "title": "Comunidad y Karma 🏆",
+        "desc": "Gestiona el sistema de karma, asigna insignias y modera el contenido de la comunidad."
+      }
+    }
+  },
+  "problemStats": {
+    "criticalAlert": "Alerta Global Crítica",
+    "title": "Cada año, millones de familias pierden su conexión.",
+    "description": "Los métodos tradicionales están fallando. Las tasas de recuperación de mascotas perdidas no han cambiado en décadas, a pesar de los avances tecnológicos. Hasta ahora.",
+    "lostAnnually": {
+      "label": "Perdidos Anualmente",
+      "desc": "Diez millones de mascotas desaparecen cada año en todo el mundo."
+    },
+    "missingProb": {
+      "label": "Probabilidad de Pérdida",
+      "desc": "Un asombroso 33% de todas las mascotas desaparecerá al menos una vez en su vida."
+    },
+    "idGap": {
+      "label": "Brecha de Identificación",
+      "desc": "Sin identificación digital, el 90% de las mascotas perdidas nunca se reúne con sus dueños."
+    },
+    "initiatingProtocols": "Iniciando Protocolos de Recuperación",
+    "seeSolution": "Ver la Solución"
+  },
+  "solutionNarrative": {
+    "title": "El Ecosistema Paw Print",
+    "description": "No solo encontramos mascotas. Creamos un vínculo digital permanente entre las familias y sus compañeros a través de una red de seguridad global impulsada por IA.",
+    "problemLabel": "El Problema: {{problem}}",
+    "detailsButton": "Detalles del Protocolo",
+    "biometrics": {
+      "problem": "90% de Fallo de Identificación",
+      "solution": "Huella Biométrica AI"
+    },
+    "geofencing": {
+      "problem": "Probabilidad 1 de 3",
+      "solution": "Geocerca Inteligente Predictiva"
+    },
+    "uplink": {
+      "problem": "Tiempos de Respuesta Lentos",
+      "solution": "Enlace Comunitario en Tiempo Real"
+    },
+    "stats": {
+      "neuralRender": "60 FPS",
+      "neuralRenderLabel": "Render Neural",
+      "aiLatency": "< 200ms",
+      "aiLatencyLabel": "Latencia AI",
+      "encryption": "AES-256",
+      "encryptionLabel": "Cifrado de Datos",
+      "uplinkStatus": "24/7/365",
+      "uplinkStatusLabel": "Estado del Enlace"
+    }
+  },
+  "ecosystemHub": {
+    "backToBase": "← Volver a la Base",
+    "title": "Ecosistema del Sistema",
+    "description": "Una visión centralizada de la red de seguridad autónoma Paw Print y sus protocolos AI integrados.",
+    "accessProtocol": "Acceder al Protocolo",
+    "sections": {
+      "intelligence": "Inteligencia Central",
+      "safety": "Cuadrícula de Seguridad",
+      "external": "Intel Externo"
+    },
+    "nodes": {
+      "aiVision": {
+        "title": "AI Vision",
+        "desc": "Identificación multimodal de raza y marcas únicas impulsada por Gemini 2.0 Pro."
+      },
+      "triage": {
+        "title": "Triage de Salud",
+        "desc": "Evaluaciones AI proactivas y análisis de síntomas para orientación inmediata."
+      },
+      "smartSearch": {
+        "title": "Búsqueda Inteligente",
+        "desc": "Consultas en lenguaje natural para encontrar coincidencias exactas en la base de datos global."
+      },
+      "geofencing": {
+        "title": "Geocerca Inteligente",
+        "desc": "Monitoreo predictivo de zonas seguras y activación automática de alertas."
+      },
+      "alerts": {
+        "title": "Alertas Globales",
+        "desc": "Transmisiones instantáneas a toda la comunidad para reportes de mascotas perdidas."
+      },
+      "map": {
+        "title": "Mapa de Avistamientos",
+        "desc": "Seguimiento interactivo en tiempo real de encuentros verificados con mascotas."
+      },
+      "scraper": {
+        "title": "Rastreador Social",
+        "desc": "Agentes AI autónomos que descubren reportes de mascotas perdidas en plataformas sociales."
+      },
+      "vets": {
+        "title": "Red Veterinaria",
+        "desc": "Sistemas integrados de verificación profesional y gestión de pacientes."
+      },
+      "community": {
+        "title": "Centro Comunitario",
+        "desc": "Red de apoyo descentralizada para propietarios de mascotas y voluntarios."
+      }
+    }
+  },
+  "adoptionLink": "Adopción",
+  "showLostPets": "Mascotas Perdidas",
+  "communityHubButton": "Hub Comunitario",
+  "rankAlpha": "Alfa",
+  "activeBadges": "Insignias Activas",
+  "redeemCodeButton": "Canjear Código",
+  "dashboardWelcome": "Bienvenido de nuevo",
+  "noImpronte": "Sin mascotas registradas",
+  "noImpronteDesc": "Registra tu primera mascota para empezar a protegerla.",
+  "addNewImprontaButton": "Agregar Mascota",
+  "rank": "Rango",
+  "myProfileAndBadges": "Mi Perfil e Insignias",
+  "invalidCode": "Código no encontrado o ya utilizado.",
+  "errorOccurred": "Ocurrió un error. Por favor, inténtalo de nuevo.",
+  "noBadgesYet": "¡Aún sin insignias — empieza a explorar!",
+  "syncSuccessful": "¡{{name}} sincronizado con éxito!",
+  "criticalSyncFailure": "Fallo crítico de sincronización: ",
+  "networkTimeout": "Tiempo de espera de red agotado",
+  "secureSessionClosed": "Sesión segura cerrada",
+  "loginToContactOwner": "Inicia sesión para contactar al propietario",
+  "adoptionInquiryTemplate": "¡Hola! Me interesa adoptar a {{petName}}. ¿Podrías contarme más sobre él/ella?",
+  "maxNamePlaceholder": "ej. Max, Bella, Charlie...",
+  "labradorPlaceholder": "ej. Labrador, Golden Retriever...",
+  "stepMedical": "Historial Médico",
+  "registerStrayTitle": "Registrar un Animal Callejero",
+  "registerForAdoptionTitle": "Registrar para Adopción",
+  "videoUploadLabel": "Grabación de Video",
+  "audioUploadLabel": "Grabación de Voz",
+  "selectVideo": "Seleccionar Video",
+  "selectAudio": "Seleccionar Audio",
+  "analyzeVideoButton": "Analizar Video",
+  "transcribeAudioButton": "Transcribir",
+  "analyzingStatus": "Analizando...",
+  "transcribingStatus": "Transcribiendo...",
+  "changePhotoButton": "Cambiar",
+  "aiBiometricIdentity": "Perfil Biométrico IA",
+  "generateVisualHash": "Generar Hash Visual",
+  "allergiesLabel": "Alergias",
+  "chronicConditionsLabel": "Condiciones Crónicas",
+  "medicationsLabel": "Medicamentos",
+  "vaccinationsTitle": "Registro de Vacunas",
+  "vaccinationNamePlaceholder": "ej. Rabia, Parvovirus...",
+  "addHomeAreaButton": "Agregar Área de Casa",
+  "homeAreasTitle": "Casa y Zonas Seguras",
+  "foundLocationTitle": "Lugar del Hallazgo",
+  "step4DescStray": "¿Dónde fue encontrado este animal?",
+  "step4DescOwner": "Marca las áreas de casa de tu mascota para alertas de geovalla.",
+  "finalStepForAdoption": "Agrega la ubicación de tu refugio",
+  "identifyingBreed": "Identificando...",
+  "uploadOnePhotoWarning": "Por favor, sube al menos una foto primero.",
+  "videoAnalysisFailed": "Análisis de video fallido. Por favor, inténtalo de nuevo.",
+  "audioTranscriptionFailed": "Transcripción de audio fallida. Por favor, inténtalo de nuevo."
 }

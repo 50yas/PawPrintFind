@@ -8,9 +8,13 @@
     "sourceMap": true,
     "target": "es2022",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
   ]
 }

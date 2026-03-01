@@ -4,7 +4,7 @@ import { dbService } from './firebase';
 
 export const recordInteractionAsDonation = async (tierId: string, amount: string, donorName: string = 'Anonymous') => {
     const numericAmount = parseFloat(amount.replace(/[^0-9.]/g, ''));
-    
+
     const donation: Donation = {
         id: Date.now().toString(),
         donorName,
@@ -13,8 +13,9 @@ export const recordInteractionAsDonation = async (tierId: string, amount: string
         timestamp: Date.now(),
         // Hidden field for calculation
         numericValue: numericAmount,
-        status: 'paid',
-        approved: true,
+        // Always start as pending — only the Stripe webhook trigger marks it paid
+        status: 'pending_payment',
+        approved: false,
         isPublic: true
     };
 

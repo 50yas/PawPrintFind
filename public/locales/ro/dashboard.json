@@ -369,7 +369,7 @@
     "noVaccinationRecords": "Nicio înregistrare medicală.",
     "savedLocations": "Locații Salvate",
     "goldfishWarning": "Te rog furnizează un Nume și Rasă. 🐾",
-    " mainframeResisting": "Eroare: {{error}}",
+    "mainframeResisting": "Eroare: {{error}}",
     "securityDenied": "Acces Refuzat.",
     "uploadCanceled": "Anulat.",
     "unknownStorageError": "Eroare de stocare.",

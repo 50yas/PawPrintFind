@@ -71,7 +71,8 @@ export const petService = {
             await setDoc(doc(db, 'pets', pet.id), cleanPet, { merge: true });
         } catch (error: unknown) {
             const err = error as Error;
-            logger.error('Error saving pet:', err);
+            // Log the full error detail so the admin can debug it
+            logger.error('Error saving pet:', err.message || err);
             throw error;
         }
     },

@@ -17,18 +17,20 @@ service cloud.firestore {
       return isSignedIn() && (
         // 1. Email Whitelist (Reliable for core admins)
         (request.auth.token.keys().hasAny(['email']) && (
-            request.auth.token.email.matches('(?i).*(admin|yas)@pawprint\\.ai') || 
+            request.auth.token.email.matches('(?i).*(admin|yas)@pawprint\\.ai') ||
             request.auth.token.email in ['admin@pawprint.ai', 'yas@pawprint.ai', 'super@pawprint.ai']
         )) ||
-        
-        // 2. Custom Claims (Optimized for performance)
+
+        // 2. Custom Claims — fastest check, set via Firebase Admin SDK
         (request.auth.token.keys().hasAny(['role']) && request.auth.token.role in ['super_admin', 'admin']) ||
-        
-        // 3. Firestore Document (Source of truth for UI roles)
+        (request.auth.token.keys().hasAny(['admin']) && request.auth.token.admin == true) ||
+        (request.auth.token.keys().hasAny(['super_admin']) && request.auth.token.super_admin == true) ||
+
+        // 3. Firestore Document (fallback — slower due to cross-document read)
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && (
            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.activeRole in ['super_admin', 'admin'] ||
-           (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.keys().hasAny(['roles']) && 
-            ('admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles || 
+           (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.keys().hasAny(['roles']) &&
+            ('admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles ||
              'super_admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles))
         ))
       );
@@ -82,24 +84,23 @@ service cloud.firestore {
 
     // 4. DONATIONS
     match /donations/{donationId} {
-      // Hardened Read: Allow if public OR if admin.
-      allow read: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
-      // Allow list for public donations OR admin OR for aggregate queries (sum only, no individual data)
-      allow list: if (resource.data.keys().hasAny(['isPublic']) && resource.data.isPublic == true) || isAdmin();
+      // Individual read: public+paid documents OR admin
+      allow read: if (resource.data.isPublic == true && resource.data.status == 'paid') || isAdmin();
 
-      // Hardened Create: Public can create, BUT must enforce initial status
+      // List/query access: only admins can browse the full list;
+      // aggregate queries (getCountFromServer / getAggregateFromServer) also need list permission.
+      // We allow listing paid+approved donations so the public total can be summed.
+      allow list: if isAdmin() ||
+        (resource.data.status == 'paid' && resource.data.approved == true);
+
+      // Hardened Create: anyone can create, but must start as pending + not yet approved
       allow create: if
         request.resource.data.status == 'pending_payment' &&
         request.resource.data.approved == false &&
         request.resource.data.numericValue > 0 &&
-        // Rate limiting check (basic): Timestamp must be close to request time
         request.resource.data.timestamp is number;
 
       allow update, delete: if isAdmin();
-
-      // Allow aggregation queries (for public stats) - only sum operations, not individual data
-      // This enables getAggregateFromServer() calls for public donation stats
-      allow get: if true; // Required for aggregation queries to work
     }
 
     // 5. APPOINTMENTS
@@ -197,7 +198,8 @@ service cloud.firestore {
 
     // 17. SYSTEM CONFIGURATION (Notifications, etc.)
     match /config/{configId} {
-      allow read, write: if isAdmin();
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     // 18. SYSTEM CONFIGURATION (AI, API Keys)
@@ -278,6 +280,61 @@ service cloud.firestore {
     match /social_analytics/{analyticsId} {
       allow read: if isAdmin();
       allow write: if false; // Only Cloud Functions can write via Admin SDK
+    }
+
+    // ====== KARMA & RIDER SYSTEM RULES ======
+
+    // 25. KARMA TRANSACTIONS
+    match /karma_transactions/{txId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow list: if isAdmin() || isSignedIn();
+      allow delete: if isAdmin();
+    }
+
+    // 26. KARMA BALANCES
+    match /karma_balances/{userId} {
+      allow read: if true;
+      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    // 27. PATROL SESSIONS
+    match /patrol_sessions/{sessionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow list: if isAdmin();
+    }
+
+    // 28. MISSIONS
+    match /missions/{missionId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isSignedIn();
+    }
+
+    // 29. PARTNER STORES
+    match /partner_stores/{storeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 30. KARMA REDEMPTIONS
+    match /karma_redemptions/{redemptionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+    }
+
+    // 31. RIDER PROFILES
+    match /rider_profiles/{userId} {
+      allow read: if true;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // 32. LEADERBOARD (cached)
+    match /leaderboard/{period} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

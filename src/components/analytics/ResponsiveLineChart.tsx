@@ -127,8 +127,8 @@ export const ResponsiveLineChart: React.FC<ResponsiveLineChartProps> = ({
         </h3>
       )}
 
-      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4" style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4" style={{ height, minHeight: height, minWidth: 0 }}>
+        <ResponsiveContainer width="99%" height="100%">
           <ChartComponent data={data}>
             {showGrid && (
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -146,11 +146,11 @@ export const ResponsiveLineChart: React.FC<ResponsiveLineChartProps> = ({
               label={
                 yAxisLabel
                   ? {
-                      value: yAxisLabel,
-                      angle: -90,
-                      position: 'insideLeft',
-                      style: { fill: 'rgba(148, 163, 184, 0.8)', fontSize: 10, fontWeight: 'bold' }
-                    }
+                    value: yAxisLabel,
+                    angle: -90,
+                    position: 'insideLeft',
+                    style: { fill: 'rgba(148, 163, 184, 0.8)', fontSize: 10, fontWeight: 'bold' }
+                  }
                   : undefined
               }
             />

@@ -282,12 +282,20 @@ export const vetService = {
 
     async createVetProCheckout(vetUid: string, plan: 'monthly' | 'yearly'): Promise<{ url: string }> {
         try {
-            const amount = plan === 'monthly' ? 4900 : 49000; // in cents
-            logger.info('Vet Pro checkout created', { vetUid, plan, amount });
-
-            return {
-                url: `https://checkout.stripe.com/pay/vet_pro_${plan}_${vetUid}`
+            // Stripe Payment Links — replace yearly link once created in Stripe Dashboard
+            const STRIPE_PAYMENT_LINKS: Record<string, string> = {
+                monthly: 'https://buy.stripe.com/test_5kQaEQ2lScPG10icxz3AY00',
+                // TODO: create a yearly price in Stripe and paste the link below
+                yearly: 'https://buy.stripe.com/test_5kQaEQ2lScPG10icxz3AY00',
             };
+
+            const baseUrl = STRIPE_PAYMENT_LINKS[plan];
+            const url = new URL(baseUrl);
+            // Pass the vet UID as a client reference so the webhook can identify the user
+            url.searchParams.set('client_reference_id', vetUid);
+
+            logger.info('Vet Pro checkout redirect', { vetUid, plan });
+            return { url: url.toString() };
         } catch (error: any) {
             logger.error('Create vet pro checkout failed', error);
             throw new Error('Failed to create checkout session');

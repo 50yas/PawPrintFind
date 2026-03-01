@@ -182,13 +182,19 @@ export const authService = {
                     await updateDoc(userRef, { lastLoginAt: Date.now() });
                 }
 
-                const finalData = { ...data, ...updates, uid: fbUser.uid };
+                // Merge Firebase Auth display data (photoURL, displayName) so Navbar always reflects reality
+                const authOverrides: any = {};
+                if (fbUser.displayName) authOverrides.displayName = fbUser.displayName;
+                if (fbUser.photoURL) authOverrides.photoURL = fbUser.photoURL;
+                const finalData = { ...data, ...updates, ...authOverrides, uid: fbUser.uid };
                 return validationService.validate(UserSchema, finalData, `syncUserProfile:final:${fbUser.uid}`);
             } else {
                 // Initialize new profile if missing (fallback)
                 const newUser: User = {
                     uid: fbUser.uid,
                     email: fbUser.email || 'unknown@pawprint.ai',
+                    ...(fbUser.displayName ? { displayName: fbUser.displayName } : {}),
+                    ...(fbUser.photoURL ? { photoURL: fbUser.photoURL } : {}),
                     roles: ['owner'],
                     activeRole: 'owner',
                     friends: [],
@@ -319,6 +325,16 @@ export const authService = {
             if (promo.expiresAt && Date.now() > promo.expiresAt) {
                  await updateDoc(promoDoc.ref, { status: 'expired' });
                  throw new Error("Code expired.");
+            }
+
+            // Prevent same user from redeeming the same code twice
+            const alreadyUsed = await getDocs(query(
+                collection(db, 'promo_usage_logs'),
+                where('code', '==', code),
+                where('userId', '==', auth.currentUser.uid)
+            ));
+            if (!alreadyUsed.empty) {
+                throw new Error("You have already redeemed this code.");
             }
 
             // Apply Reward

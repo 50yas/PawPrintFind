@@ -229,11 +229,27 @@ export const contentService = {
     },
 
     // --- STRIPE / CHECKOUT ---
-    async createCheckoutSession(amount: number, donationId: string): Promise<{ id: string, url: string }> {
+    async createCheckoutSession(amount: number, donationId: string, donorEmail?: string, donorName?: string): Promise<{ id: string, url: string }> {
         try {
             let user = auth.currentUser;
             if (!user) user = (await signInAnonymously(auth)).user;
 
+            // Primary path: Call our custom Cloud Function (works without Stripe Extension)
+            try {
+                const { httpsCallable } = await import('firebase/functions');
+                const { functions } = await import('./firebase');
+                const createCheckout = httpsCallable(functions, 'createDonationCheckout');
+                const result = await createCheckout({ amount, donationId, donorEmail, donorName }) as any;
+                if (result.data?.url) {
+                    return { id: result.data.id || donationId, url: result.data.url };
+                }
+            } catch (cfError: any) {
+                // If the Cloud Function isn't deployed or STRIPE_SECRET_KEY isn't set,
+                // fall through to the Extension-based approach below
+                logger.warn('createDonationCheckout Cloud Function unavailable, falling back to Stripe Extension:', cfError.message);
+            }
+
+            // Fallback: Firebase Stripe Extension (checkout_sessions subcollection)
             const docRef = await addDoc(collection(db, 'customers', user.uid, 'checkout_sessions'), {
                 mode: 'payment',
                 price_data: {
@@ -241,23 +257,32 @@ export const contentService = {
                     product_data: { name: 'Support Paw Print Project' },
                     unit_amount: Math.round(amount * 100),
                 },
-                success_url: `${window.location.origin}/payment-success`,
+                success_url: `${window.location.origin}/payment-success?donationId=${donationId}`,
                 cancel_url: `${window.location.origin}/donors`,
                 metadata: { donationId }
             });
 
             return new Promise((res, rej) => {
+                // 20 s timeout — if the Stripe Extension never responds the user won't be stuck
+                const timeout = setTimeout(() => {
+                    unsub();
+                    rej(new Error('Payment gateway timeout. Please ensure the Stripe Firebase Extension is installed and the secret key is configured.'));
+                }, 20_000);
+
                 const unsub = onSnapshot(docRef, (s) => {
                     const data = s.data();
                     if (data?.url) {
+                        clearTimeout(timeout);
                         unsub();
                         res({ id: docRef.id, url: data.url });
                     }
                     if (data?.error) {
+                        clearTimeout(timeout);
                         unsub();
                         rej(new Error(data.error.message));
                     }
                 }, (error) => {
+                    clearTimeout(timeout);
                     unsub();
                     rej(error);
                 });

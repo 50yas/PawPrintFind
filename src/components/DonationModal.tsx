@@ -130,18 +130,20 @@ const CostBreakdown = ({ t, totalRaised }: { t: any, totalRaised?: number }) => 
                 {t('dashboard:admin.platformCostsTitle')}
             </h4>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
                 {monthlyCosts.map((c, i) => (
-                    <div key={i} className="flex justify-between items-center group">
-                        <span className="text-xs text-slate-400 flex items-center gap-2 group-hover:text-white transition-colors">
-                            <span className="text-sm">{c.icon}</span> {t(`dashboard:admin.${c.key}`)}
+                    <div key={i} className="flex justify-between items-center group bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition-colors">
+                        <span className="text-xs text-slate-300 flex items-center gap-3">
+                            <span className="text-lg bg-black/20 p-2 rounded-lg">{c.icon}</span>
+                            <span className="font-medium">{t(`dashboard:admin.${c.key}`)}</span>
                         </span>
-                        <span className={`text-xs font-mono font-bold ${c.color} bg-white/5 px-2 py-0.5 rounded border border-white/5`}>
+                        <span className={`text-xs font-mono font-bold ${c.color} bg-black/30 px-3 py-1.5 rounded-lg shadow-inner`}>
+                            {c.val}
                         </span>
                     </div>
                 ))}
 
-                <div className="pt-3 border-t border-white/10">
+                <div className="pt-4 border-t border-white/10 mt-2">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-xs font-black text-white uppercase">{t('dashboard:admin.totalMonthlyCosts')}</span>
                         <span className="text-sm font-black text-primary drop-shadow-[0_0_8px_rgba(20,184,166,0.4)]">€{totalMonthly}.00 / mo</span>
@@ -268,7 +270,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                 isPublic: isPublic
             });
 
-            const { url } = await dbService.createCheckoutSession(selectedAmount, donationId);
+            const { url } = await dbService.createCheckoutSession(selectedAmount, donationId, donorEmail, donorName);
             window.location.href = url;
 
         } catch (error: any) {
@@ -287,18 +289,18 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
             <div className="flex flex-col h-full animate-fade-in">
 
                 {/* Payment Method Tabs */}
-                <div className="flex p-1 bg-white/5 rounded-xl mb-6 border border-white/10">
+                <div className="flex p-1.5 bg-black/40 backdrop-blur-md rounded-2xl mb-6 border border-white/10 shadow-inner">
                     <button
                         onClick={() => setPaymentMethod('stripe')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'stripe' ? 'bg-slate-900 shadow text-primary' : 'text-slate-400 hover:text-white'}`}
+                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${paymentMethod === 'stripe' ? 'bg-gradient-to-r from-primary/80 to-teal-500/80 shadow-[0_0_15px_rgba(20,184,166,0.5)] text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        {t('paymentMethodCard')}
+                        <span>💳</span> {t('paymentMethodCard')}
                     </button>
                     <button
                         onClick={() => setPaymentMethod('crypto')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${paymentMethod === 'crypto' ? 'bg-slate-900 shadow text-primary' : 'text-slate-400 hover:text-white'}`}
+                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${paymentMethod === 'crypto' ? 'bg-gradient-to-r from-blue-500/80 to-purple-500/80 shadow-[0_0_15px_rgba(59,130,246,0.5)] text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        {t('paymentMethodCrypto')}
+                        <span>🔗</span> {t('paymentMethodCrypto')}
                     </button>
                 </div>
 
@@ -312,12 +314,16 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     key={tier.id}
                                     type="button"
                                     onClick={() => handleTierSelect(tier.amount)}
-                                    className={`relative p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-start text-center group ${!isCustom && selectedAmount === tier.amount
-                                        ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105 z-10'
-                                        : 'border-white/10 bg-white/5 hover:border-primary/50 hover:shadow-md'
+                                    className={`relative p-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-start text-center group overflow-hidden ${!isCustom && selectedAmount === tier.amount
+                                        ? 'border-primary bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)] scale-105 z-10'
+                                        : 'border-white/10 bg-black/20 hover:border-primary/50 hover:bg-white/5'
                                         }`}
                                 >
-                                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{tier.emoji}</div>
+                                    {/* Active Glow Background */}
+                                    {!isCustom && selectedAmount === tier.amount && (
+                                        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none"></div>
+                                    )}
+                                    <div className="text-4xl mb-3 transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">{tier.emoji}</div>
                                     <div className="font-bold text-xl text-white mb-1">€{tier.amount}</div>
                                     <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">{tier.label}</div>
 
@@ -336,10 +342,10 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                         </div>
 
                         {/* Custom Amount */}
-                        <div className={`relative transition-all ${isCustom ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}>
-                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('customAmount')}</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-400">€</span>
+                        <div className={`relative transition-all duration-500 mt-6 ${isCustom ? 'opacity-100 transform translate-y-0' : 'opacity-70 hover:opacity-100 transform translate-y-1'}`}>
+                            <label className="block text-xs font-black text-primary uppercase tracking-widest mb-2">{t('customAmount')}</label>
+                            <div className="relative group">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl font-black text-primary pointer-events-none transition-colors group-focus-within:text-white">€</span>
                                 <input
                                     type="number"
                                     min="1"
@@ -348,30 +354,31 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                                     onFocus={handleCustomFocus}
                                     onChange={(e) => setCustomAmount(e.target.value)}
                                     placeholder={t('donationAmountPlaceholder')}
-                                    className={`w-full pl-10 pr-4 py-4 rounded-xl border-2 font-bold text-lg bg-slate-900 text-white transition-colors outline-none ${isCustom ? 'border-primary ring-2 ring-primary/20' : 'border-white/10 focus:border-primary'
+                                    className={`w-full pl-12 pr-6 py-5 rounded-2xl border-2 font-black text-2xl bg-black/40 text-white transition-all outline-none backdrop-blur-md shadow-inner ${isCustom ? 'border-primary shadow-[0_0_20px_rgba(20,184,166,0.2)] bg-primary/5' : 'border-white/10 hover:border-primary/50'
                                         }`}
                                 />
                             </div>
                         </div>
 
                         {/* Basic Info */}
-                        <div className="space-y-4 pt-4 border-t border-white/10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-5 pt-6 border-t border-white/10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('yourNameLabel')} {t('optionalSuffix')}</label>
-                                    <input type="text" value={donorName} onChange={e => setDonorName(e.target.value)} className="input-base" placeholder={t('donorNamePlaceholder')} />
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{t('yourNameLabel')} {t('optionalSuffix')}</label>
+                                    <input type="text" value={donorName} onChange={e => setDonorName(e.target.value)} className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder={t('donorNamePlaceholder')} />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('emailLabel')} {t('receiptsSuffix')}</label>
-                                    <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} className="input-base" placeholder={t('donorEmailPlaceholder')} />
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{t('emailLabel')} {t('receiptsSuffix')}</label>
+                                    <input type="email" value={donorEmail} onChange={e => setDonorEmail(e.target.value)} className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all" placeholder={t('donorEmailPlaceholder')} />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">{t('yourMessageLabel')}</label>
-                                <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} className="input-base resize-none" placeholder={t('donationMessagePlaceholder')} />
-                            </div>                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer">
-                                <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="h-5 w-5 text-primary rounded border-gray-300 focus:ring-primary" />
-                                <span className="text-xs text-slate-400">{t('publiclyVisible')}</span>
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{t('yourMessageLabel')}</label>
+                                <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all resize-none" placeholder={t('donationMessagePlaceholder')} />
+                            </div>
+                            <label className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors">
+                                <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} className="h-5 w-5 rounded bg-black/50 border-white/20 text-primary focus:ring-primary/50 focus:ring-offset-0" />
+                                <span className="text-sm font-medium text-slate-200">{t('publiclyVisible')}</span>
                             </label>
                         </div>
 
@@ -379,11 +386,14 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
                         <CostBreakdown t={t} totalRaised={totalRaised} />
 
-                        <div className="pt-2">
-                            <button type="submit" disabled={isProcessing} className="w-full btn btn-primary py-4 text-lg shadow-lg hover:shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3">
-                                {isProcessing ? <LoadingSpinner /> : <><span className="text-xl">💳</span><span>{t('payWithStripe')} {selectedAmount > 0 ? `€${selectedAmount.toFixed(2)}` : ''}</span></>}
+                        <div className="pt-4">
+                            <button type="submit" disabled={isProcessing} className="w-full bg-gradient-to-r from-primary to-teal-500 text-slate-900 font-black tracking-widest uppercase rounded-2xl py-5 text-lg shadow-[0_0_30px_rgba(20,184,166,0.3)] hover:shadow-[0_0_40px_rgba(20,184,166,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                                {isProcessing ? <LoadingSpinner /> : <><span className="text-2xl drop-shadow-md">💳</span><span>{t('payWithStripe')} {selectedAmount > 0 ? `€${selectedAmount.toFixed(2)}` : ''}</span></>}
                             </button>
-                            <p className="text-[10px] text-center text-slate-400 mt-3 opacity-70">{t('securedByStripe')}</p>
+                            <p className="text-[10px] uppercase font-bold tracking-widest text-center text-slate-500 mt-4 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+                                {t('securedByStripe')}
+                            </p>
                         </div>
                     </form>
                 )}
@@ -393,7 +403,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                     <div className="space-y-6 py-2 text-center animate-slide-in-right">
 
                         {/* Coin Selection */}
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {CRYPTO_WALLETS.map((wallet) => (
                                 <button
                                     key={wallet.symbol}
@@ -423,10 +433,9 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
                             <div className="space-y-2">
                                 <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('cryptoAddressLabel')} ({selectedCrypto.symbol})</p>
 
-                                <div className="flex items-center gap-0 w-full max-w-sm mx-auto bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-                                    <div className="flex-grow py-3 px-4 overflow-hidden relative group">
-                                        <p className="text-xs font-mono text-white truncate">{selectedCrypto.address}</p>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-slate-900/90"></div>
+                                <div className="flex items-center gap-2 w-full max-w-sm mx-auto bg-black/40 rounded-xl border border-white/10 overflow-hidden shadow-inner p-1">
+                                    <div className="flex-grow py-3 px-4 overflow-hidden relative group rounded-lg bg-white/5">
+                                        <p className="text-xs font-mono text-primary font-bold truncate">{selectedCrypto.address}</p>
                                     </div>
                                     <button
                                         onClick={handleCopyCrypto}

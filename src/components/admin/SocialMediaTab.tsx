@@ -3,22 +3,18 @@ import { useTranslations } from '../../hooks/useTranslations';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
 import { socialPostService } from '../../services/socialPostService';
-import { SocialScheduledPost, SocialPlatform } from '../../types';
+import { SocialScheduledPost, SocialPlatform, User } from '../../types';
 import { format } from 'date-fns';
+import { SchedulePostModal } from './SchedulePostModal';
+
+interface SocialMediaTabProps {
+  currentUser?: User;
+}
 
 /**
  * Social Media Management Tab
- *
- * Main dashboard for managing social media posts across multiple platforms.
- * Features:
- * - Quick stats overview (total posts, published today, scheduled upcoming)
- * - List of scheduled posts with filters
- * - Platform selector filter (Facebook, Twitter, Instagram, LinkedIn)
- * - Status filter (draft, scheduled, published, failed)
- * - Create new post button
- * - Post actions (edit, delete, publish now)
  */
-export const SocialMediaTab: React.FC = () => {
+export const SocialMediaTab: React.FC<SocialMediaTabProps> = ({ currentUser }) => {
   const { t } = useTranslations();
   const [posts, setPosts] = useState<SocialScheduledPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -309,21 +305,13 @@ export const SocialMediaTab: React.FC = () => {
         )}
       </GlassCard>
 
-      {/* TODO: Add SchedulePostModal component when ready */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <GlassCard className="p-6 max-w-2xl w-full mx-4">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              {t('dashboard:admin.social.createPost')}
-            </h2>
-            <p className="text-slate-400 mb-4">
-              {t('dashboard:admin.social.modalComingSoon')}
-            </p>
-            <GlassButton onClick={() => setShowCreateModal(false)}>
-              {t('dashboard:admin.social.close')}
-            </GlassButton>
-          </GlassCard>
-        </div>
+      {currentUser && (
+        <SchedulePostModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => setShowCreateModal(false)}
+          currentUser={currentUser}
+        />
       )}
     </div>
   );

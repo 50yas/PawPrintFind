@@ -12,6 +12,24 @@ dist
 dist-ssr
 *.local
 
+# Environment — never commit real API keys
+.env
+.env.local
+.env.*.local
+
+# Firebase CLI cache
+.firebase/
+
+# Claude agent memory (internal AI tooling state)
+.claude/agent-memory/
+.claude/projects/
+
+# Internal / unpublished developer docs — not for public repo
+_unpublished/
+
+# Build artifacts
+dev-dist/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -159,8 +159,8 @@
   "redeemCodeDesc": "Entrez votre code promo ci-dessous pour débloquer des récompenses.",
   "enterCodePlaceholder": "ENTRER-CODE",
   "redeemButton": "Échanger",
-  "congratulations": "Félicitations!",
-  "youUnlocked": "Vous avez débloqué une récompense!",
+  "congratulations": "Félicitations !",
+  "youUnlocked": "Vous avez débloqué une récompense !",
   "loadingUsers": "Chargement des utilisateurs...",
   "searchUsers": "Rechercher des utilisateurs...",
   "beta": {
@@ -298,8 +298,312 @@
     "homeCta": "Retour au Tableau de Bord"
   },
   "reportSightingFeatureComingSoon": "Cette fonctionnalité sera bientôt disponible !",
-  "petTagTitle": "Digital Pet Tag",
-  "scanToViewProfile": "Scan to view full biometric profile",
-  "printButton": "Print Tag",
-  "orderSafePawTag": "Order Safe Paw NFC Tag"
+  "petTagTitle": "Étiquette Numérique pour Animal",
+  "scanToViewProfile": "Scannez pour voir le profil biométrique complet",
+  "printButton": "Imprimer l'Étiquette",
+  "orderSafePawTag": "Commander une Étiquette NFC Safe Paw",
+  "exploreEcosystem": "Explorer l'Écosystème Complet",
+  "tutorial": {
+    "step": "Étape",
+    "skip": "Passer",
+    "finish": "Terminer",
+    "home": {
+      "title": "Bienvenue à la Base",
+      "desc": "Votre centre de commandement principal."
+    },
+    "register": {
+      "title": "Enregistrement Biométrique",
+      "desc": "Créez une empreinte numérique unique pour votre animal."
+    },
+    "map": {
+      "title": "Grille de Sécurité",
+      "desc": "Surveillez les alertes actives en temps réel."
+    },
+    "community": {
+      "title": "Hub de l'Écosystème",
+      "desc": "Accédez aux protocoles AI, aux réseaux vétérinaires et à l'intelligence communautaire."
+    },
+    "emergency": {
+      "title": "Assistance Immédiate",
+      "desc": "Assistant AI disponible 24h/24 pour les situations critiques."
+    },
+    "owner": {
+      "welcome": {
+        "title": "Bienvenue sur PawPrint ! 🐾",
+        "desc": "PawPrintFind est votre plateforme AI pour garder vos animaux en sécurité. Nous utilisons le GPS, la numérisation AI et les réseaux communautaires pour aider à réunir les animaux perdus avec leurs familles."
+      },
+      "register": {
+        "title": "Enregistrez votre Animal",
+        "desc": "Créez un passeport numérique pour votre animal avec photos, marques et données biométriques. C'est l'identité unique de votre animal."
+      },
+      "map": {
+        "title": "Carte des Animaux Perdus",
+        "desc": "Visualisez tous les animaux perdus dans votre secteur en temps réel. Vous pouvez aussi signaler des animaux trouvés."
+      },
+      "community": {
+        "title": "Centre Communautaire",
+        "desc": "Connectez-vous avec d'autres propriétaires, bénévoles et refuges. Partagez des observations et construisez un réseau de sécurité."
+      },
+      "emergency": {
+        "title": "Bouton d'Urgence",
+        "desc": "Vous avez perdu votre animal ? Appuyez sur ce bouton pour alerter immédiatement votre communauté."
+      },
+      "karma": {
+        "title": "Karma et Récompenses",
+        "desc": "Chaque action rapporte des Points Karma. Signalez des observations, aidez les autres et accomplissez des missions pour monter en niveau."
+      },
+      "vet": {
+        "title": "Trouver un Vétérinaire",
+        "desc": "Parcourez les cliniques vétérinaires vérifiées près de chez vous. Prenez des rendez-vous et accédez aux bilans de santé AI."
+      }
+    },
+    "vet": {
+      "welcome": {
+        "title": "Bienvenue, Docteur ! 🩺",
+        "desc": "Votre tableau de bord vétérinaire vous offre des outils pour gérer les rendez-vous, vérifier vos accréditations et utiliser les diagnostics AI."
+      },
+      "verify": {
+        "title": "Vérifiez vos Accréditations",
+        "desc": "Téléversez vos accréditations vétérinaires pour obtenir le badge vérifié et débloquer les fonctionnalités PRO."
+      },
+      "appointments": {
+        "title": "Gérez les Rendez-vous",
+        "desc": "Visualisez et gérez toutes les demandes de rendez-vous. Les clients réservent directement depuis la plateforme."
+      },
+      "ai": {
+        "title": "Assistant Santé AI",
+        "desc": "Utilisez notre évaluation de santé préliminaire AI. Analysez les symptômes et obtenez des suggestions diagnostiques."
+      },
+      "clinic": {
+        "title": "Profil de la Clinique",
+        "desc": "Gérez le profil public de votre clinique, les services, les horaires et la localisation."
+      },
+      "pro": {
+        "title": "Passer à PRO 👑",
+        "desc": "Les vétérinaires PRO obtiennent des référencements prioritaires, des fonctionnalités AI avancées et des analyses de rendez-vous."
+      }
+    },
+    "shelter": {
+      "welcome": {
+        "title": "Bienvenue, Refuge ! 🏠",
+        "desc": "Votre tableau de bord vous aide à gérer les animaux à l'adoption et à vous connecter avec la communauté."
+      },
+      "register": {
+        "title": "Listez les Animaux à Adopter",
+        "desc": "Enregistrez tous les animaux du refuge avec photos, dossiers médicaux et profils de personnalité."
+      },
+      "adoption": {
+        "title": "Centre d'Adoption",
+        "desc": "Tous vos animaux apparaissent dans le Centre d'Adoption public. Suivez les demandes et coordonnez les rencontres."
+      },
+      "community": {
+        "title": "Impliquez la Communauté",
+        "desc": "Partagez des mises à jour, publiez des histoires de réussite et menez des campagnes communautaires."
+      },
+      "stats": {
+        "title": "Suivez votre Impact",
+        "desc": "Surveillez les taux d'adoption, les tendances des demandes et l'engagement de la communauté."
+      }
+    },
+    "volunteer": {
+      "welcome": {
+        "title": "Bienvenue, Bénévole ! 🤝",
+        "desc": "En tant que bénévole, vous êtes les yeux et les oreilles de la communauté. Vos patrouilles et observations aident directement."
+      },
+      "patrol": {
+        "title": "Mode Patrouille 🚴",
+        "desc": "Activez la patrouille GPS pour tracer votre parcours et gagner des Points Karma pour chaque kilomètre."
+      },
+      "sighting": {
+        "title": "Signalez des Observations 👁️",
+        "desc": "Vous avez vu un animal perdu ? Utilisez le scanner 'Animal Trouvé' pour notifier immédiatement le propriétaire."
+      },
+      "karma": {
+        "title": "Gagnez du Karma ⭐",
+        "desc": "Chaque observation, patrouille et mission rapporte des Points Karma. Échangez-les contre des récompenses exclusives."
+      },
+      "missions": {
+        "title": "Missions Communautaires 🎯",
+        "desc": "Rejoignez des missions de groupe pour couvrir des zones spécifiques et soutenir les opérations de recherche."
+      },
+      "leaderboard": {
+        "title": "Classement 🏆",
+        "desc": "Rivalisez avec les bénévoles de votre ville. Les meilleurs bénévoles sont présentés dans le classement de la communauté."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "title": "Centre de Commandement Admin ⚡",
+        "desc": "Vous avez un accès complet au système. Gérez les utilisateurs, les opérations, les finances et les modèles AI depuis ce hub central."
+      },
+      "users": {
+        "title": "Gestion des Utilisateurs 👥",
+        "desc": "Visualisez, modifiez et gérez tous les utilisateurs enregistrés. Attribuez des rôles et vérifiez les comptes."
+      },
+      "operations": {
+        "title": "Hub des Opérations 🐾",
+        "desc": "Examinez les demandes de vérification vétérinaire, gérez les enregistrements d'animaux et supervisez les opérations."
+      },
+      "finance": {
+        "title": "Finances et Coupons 💰",
+        "desc": "Suivez les dons, gérez les paiements Stripe et générez des codes promotionnels."
+      },
+      "ai": {
+        "title": "Configuration AI 🧠",
+        "desc": "Passez entre fournisseurs AI (Google Gemini / OpenRouter) et configurez les mappages de modèles."
+      },
+      "community": {
+        "title": "Communauté et Karma 🏆",
+        "desc": "Gérez le système de karma, attribuez des badges et modérez le contenu de la communauté."
+      }
+    }
+  },
+  "problemStats": {
+    "criticalAlert": "Alerte Mondiale Critique",
+    "title": "Chaque année, des millions de familles perdent leur lien.",
+    "description": "Les méthodes traditionnelles échouent. Les taux de récupération d'animaux perdus n'ont pas changé depuis des décennies, malgré les avancées technologiques. Jusqu'à maintenant.",
+    "lostAnnually": {
+      "label": "Perdus Annuellement",
+      "desc": "Dix millions d'animaux disparaissent chaque année dans le monde entier."
+    },
+    "missingProb": {
+      "label": "Probabilité de Disparition",
+      "desc": "Un étonnant 33% de tous les animaux disparaîtra au moins une fois dans leur vie."
+    },
+    "idGap": {
+      "label": "Écart d'Identification",
+      "desc": "Sans identification numérique, 90% des animaux perdus ne sont jamais réunis avec leurs propriétaires."
+    },
+    "initiatingProtocols": "Initiation des Protocoles de Récupération",
+    "seeSolution": "Voir la Solution"
+  },
+  "solutionNarrative": {
+    "title": "L'Écosystème Paw Print",
+    "description": "Nous ne trouvons pas seulement des animaux. Nous créons un lien numérique permanent entre les familles et leurs compagnons grâce à un réseau de sécurité mondial alimenté par l'IA.",
+    "problemLabel": "Le Problème : {{problem}}",
+    "detailsButton": "Détails du Protocole",
+    "biometrics": {
+      "problem": "90% d'Échec d'Identification",
+      "solution": "Empreinte Biométrique AI"
+    },
+    "geofencing": {
+      "problem": "Probabilité 1 sur 3",
+      "solution": "Géorepérage Intelligent Prédictif"
+    },
+    "uplink": {
+      "problem": "Temps de Réponse Lents",
+      "solution": "Liaison Communautaire en Temps Réel"
+    },
+    "stats": {
+      "neuralRender": "60 FPS",
+      "neuralRenderLabel": "Rendu Neural",
+      "aiLatency": "< 200ms",
+      "aiLatencyLabel": "Latence AI",
+      "encryption": "AES-256",
+      "encryptionLabel": "Chiffrement des Données",
+      "uplinkStatus": "24/7/365",
+      "uplinkStatusLabel": "État de la Liaison"
+    }
+  },
+  "ecosystemHub": {
+    "backToBase": "← Retour à la Base",
+    "title": "Écosystème du Système",
+    "description": "Une vue centralisée du réseau de sécurité autonome Paw Print et de ses protocoles AI intégrés.",
+    "accessProtocol": "Accéder au Protocole",
+    "sections": {
+      "intelligence": "Intelligence Centrale",
+      "safety": "Grille de Sécurité",
+      "external": "Intel Externe"
+    },
+    "nodes": {
+      "aiVision": {
+        "title": "AI Vision",
+        "desc": "Identification multimodale des races et marques uniques alimentée par Gemini 2.0 Pro."
+      },
+      "triage": {
+        "title": "Triage de Santé",
+        "desc": "Évaluations AI proactives et analyse des symptômes pour une orientation immédiate."
+      },
+      "smartSearch": {
+        "title": "Recherche Intelligente",
+        "desc": "Requêtes en langage naturel pour trouver des correspondances exactes dans la base de données mondiale."
+      },
+      "geofencing": {
+        "title": "Géorepérage Intelligent",
+        "desc": "Surveillance prédictive des zones sécurisées et déclenchement automatique des alertes."
+      },
+      "alerts": {
+        "title": "Alertes Mondiales",
+        "desc": "Diffusions instantanées à toute la communauté pour les signalements d'animaux perdus."
+      },
+      "map": {
+        "title": "Carte des Observations",
+        "desc": "Suivi interactif en temps réel des rencontres vérifiées avec des animaux."
+      },
+      "scraper": {
+        "title": "Scraper Social",
+        "desc": "Agents AI autonomes découvrant des signalements d'animaux perdus sur les plateformes sociales."
+      },
+      "vets": {
+        "title": "Réseau Vétérinaire",
+        "desc": "Systèmes intégrés de vérification professionnelle et de gestion des patients."
+      },
+      "community": {
+        "title": "Hub Communautaire",
+        "desc": "Réseau de soutien décentralisé pour les propriétaires d'animaux et les bénévoles."
+      }
+    }
+  },
+  "adoptionLink": "Adoption",
+  "showLostPets": "Animaux Perdus",
+  "communityHubButton": "Hub Communautaire",
+  "rankAlpha": "Alpha",
+  "activeBadges": "Badges Actifs",
+  "redeemCodeButton": "Échanger le Code",
+  "dashboardWelcome": "Bon retour",
+  "noImpronte": "Aucun animal enregistré",
+  "noImpronteDesc": "Enregistrez votre premier animal pour commencer à le protéger.",
+  "addNewImprontaButton": "Ajouter un Animal",
+  "rank": "Rang",
+  "myProfileAndBadges": "Mon Profil et Badges",
+  "invalidCode": "Code introuvable ou déjà utilisé.",
+  "errorOccurred": "Une erreur est survenue. Veuillez réessayer.",
+  "noBadgesYet": "Pas encore de badges — commencez à explorer !",
+  "syncSuccessful": "{{name}} synchronisé avec succès !",
+  "criticalSyncFailure": "Échec critique de synchronisation : ",
+  "networkTimeout": "Délai réseau dépassé",
+  "secureSessionClosed": "Session sécurisée fermée",
+  "loginToContactOwner": "Connectez-vous pour contacter le propriétaire",
+  "adoptionInquiryTemplate": "Bonjour ! Je suis intéressé par l'adoption de {{petName}}. Pouvez-vous m'en dire plus sur lui/elle ?",
+  "maxNamePlaceholder": "ex. Max, Bella, Charlie...",
+  "labradorPlaceholder": "ex. Labrador, Golden Retriever...",
+  "stepMedical": "Dossier Médical",
+  "registerStrayTitle": "Enregistrer un Animal Errant",
+  "registerForAdoptionTitle": "Enregistrer pour l'Adoption",
+  "videoUploadLabel": "Enregistrement Vidéo",
+  "audioUploadLabel": "Enregistrement Vocal",
+  "selectVideo": "Sélectionner une Vidéo",
+  "selectAudio": "Sélectionner un Audio",
+  "analyzeVideoButton": "Analyser la Vidéo",
+  "transcribeAudioButton": "Transcrire",
+  "analyzingStatus": "Analyse en cours...",
+  "transcribingStatus": "Transcription en cours...",
+  "changePhotoButton": "Changer",
+  "aiBiometricIdentity": "Profil Biométrique IA",
+  "generateVisualHash": "Générer un Hash Visuel",
+  "allergiesLabel": "Allergies",
+  "chronicConditionsLabel": "Maladies Chroniques",
+  "medicationsLabel": "Médicaments",
+  "vaccinationsTitle": "Carnet de Vaccination",
+  "vaccinationNamePlaceholder": "ex. Rage, Parvovirose...",
+  "addHomeAreaButton": "Ajouter une Zone de Domicile",
+  "homeAreasTitle": "Domicile et Zones Sûres",
+  "foundLocationTitle": "Lieu de Découverte",
+  "step4DescStray": "Où cet animal a-t-il été trouvé ?",
+  "step4DescOwner": "Marquez les zones de domicile de votre animal pour les alertes de géofencing.",
+  "finalStepForAdoption": "Ajoutez l'emplacement de votre refuge",
+  "identifyingBreed": "Identification...",
+  "uploadOnePhotoWarning": "Veuillez d'abord télécharger au moins une photo.",
+  "videoAnalysisFailed": "L'analyse vidéo a échoué. Veuillez réessayer.",
+  "audioTranscriptionFailed": "La transcription audio a échoué. Veuillez réessayer."
 }

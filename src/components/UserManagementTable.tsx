@@ -19,7 +19,7 @@ export const UserManagementTable: React.FC = () => {
 
   useEffect(() => {
     const lowerTerm = searchTerm.toLowerCase();
-    const filtered = users.filter(user => 
+    const filtered = users.filter(user =>
       user.email.toLowerCase().includes(lowerTerm) ||
       user.uid.includes(lowerTerm)
     );
@@ -64,12 +64,12 @@ export const UserManagementTable: React.FC = () => {
     const isPro = currentStatus !== 'active';
     try {
       await adminService.toggleUserSubscription(uid, isPro);
-      setUsers(prev => prev.map(u => u.uid === uid ? { 
-        ...u, 
-        subscription: { 
-            ...u.subscription, 
-            status: isPro ? 'active' : 'inactive',
-            planId: isPro ? 'vet_pro' : 'vet_free' 
+      setUsers(prev => prev.map(u => u.uid === uid ? {
+        ...u,
+        subscription: {
+          ...u.subscription,
+          status: isPro ? 'active' : 'inactive',
+          planId: isPro ? 'vet_pro' : 'vet_free'
         } as any
       } : u));
     } catch (err) {
@@ -89,14 +89,14 @@ export const UserManagementTable: React.FC = () => {
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl p-6 shadow-lg border border-white/20">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">User Management</h2>
         <input
           type="text"
           placeholder={t('searchUsers')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
       </div>
 
@@ -107,6 +107,7 @@ export const UserManagementTable: React.FC = () => {
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Email</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Role</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Status</th>
+              <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Vet Verification</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Subscription</th>
               <th className="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
             </tr>
@@ -129,48 +130,57 @@ export const UserManagementTable: React.FC = () => {
                   </select>
                 </td>
                 <td className="p-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.status === 'suspended' || user.status === 'banned' 
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                      : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                  }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.status === 'suspended' || user.status === 'banned'
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    }`}>
                     {user.status || 'active'}
                   </span>
                 </td>
                 <td className="p-3">
-                    {(user.activeRole === 'vet' || user.roles.includes('vet')) && (
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.subscription?.status === 'active'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                        }`}>
-                            {user.subscription?.status === 'active' ? 'Pro' : 'Free'}
-                        </span>
-                    )}
+                  {(user.activeRole === 'vet' || user.roles.includes('vet')) ? (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.verificationStatus === 'approved' || user.isVetVerified ? 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300' :
+                      user.verificationStatus === 'pending' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                        user.verificationStatus === 'declined' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                          'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>
+                      {user.verificationStatus === 'approved' || user.isVetVerified ? 'Verified' :
+                        user.verificationStatus === 'pending' ? 'Pending' :
+                          user.verificationStatus === 'declined' ? 'Declined' : 'Unverified'}
+                    </span>
+                  ) : <span className="text-gray-400 text-xs">-</span>}
+                </td>
+                <td className="p-3">
+                  {(user.activeRole === 'vet' || user.roles.includes('vet')) && (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.subscription?.status === 'active'
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>
+                      {user.subscription?.status === 'active' ? 'Pro' : 'Free'}
+                    </span>
+                  )}
                 </td>
                 <td className="p-3 flex items-center gap-2">
                   <button
                     onClick={() => handleStatusToggle(user.uid, user.status)}
-                    className={`text-sm font-medium ${
-                      user.status === 'suspended' 
-                        ? 'text-green-600 hover:text-green-700' 
-                        : 'text-red-600 hover:text-red-700'
-                    }`}
+                    className={`text-sm font-medium ${user.status === 'suspended'
+                      ? 'text-green-600 hover:text-green-700'
+                      : 'text-red-600 hover:text-red-700'
+                      }`}
                   >
                     {user.status === 'suspended' ? 'Activate' : 'Suspend'}
                   </button>
-                  
+
                   {(user.activeRole === 'vet' || user.roles.includes('vet')) && (
-                      <button
-                        onClick={() => handleSubscriptionToggle(user.uid, user.subscription?.status)}
-                        className={`text-sm font-medium ${
-                            user.subscription?.status === 'active'
-                            ? 'text-orange-600 hover:text-orange-700'
-                            : 'text-teal-600 hover:text-teal-700'
+                    <button
+                      onClick={() => handleSubscriptionToggle(user.uid, user.subscription?.status)}
+                      className={`text-sm font-medium ${user.subscription?.status === 'active'
+                        ? 'text-orange-600 hover:text-orange-700'
+                        : 'text-teal-600 hover:text-teal-700'
                         }`}
-                      >
-                        {user.subscription?.status === 'active' ? 'Demote' : 'Promote'}
-                      </button>
+                    >
+                      {user.subscription?.status === 'active' ? 'Demote' : 'Promote'}
+                    </button>
                   )}
                 </td>
               </tr>

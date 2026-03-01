@@ -21,6 +21,8 @@ const CountUp = ({ end, duration = 2000 }: { end: number, duration?: number }) =
     const [count, setCount] = useState(0);
 
     useEffect(() => {
+        if (end === undefined || end === null) return;
+
         let startTime: number;
         let animationFrame: number;
 
@@ -45,6 +47,8 @@ const CountUp = ({ end, duration = 2000 }: { end: number, duration?: number }) =
         return () => cancelAnimationFrame(animationFrame);
     }, [end, duration]);
 
+    if (end === undefined || end === null) return <>0</>;
+
     return <>{count.toLocaleString()}</>;
 };
 
@@ -67,7 +71,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [publicStats, setPublicStats] = useState<{ activeNodes: number; biometricMatches: number } | null>(null);
+    const [publicStats, setPublicStats] = useState<{ activeCities: number; successfulMatches: number } | null>(null);
 
     React.useEffect(() => {
         const fetchStats = async () => {
@@ -416,7 +420,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
                                     value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    onChange={(e) => { setConfirmPassword(e.target.value); }}
                                     placeholder={t('placeholders.confirmPassword')}
                                     required
                                     className="input-enhanced pl-10 sm:pl-12 pr-10 sm:pr-12 py-3 sm:py-4 text-sm"
@@ -434,6 +438,12 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     )}
                                 </button>
                             </div>
+                        )}
+
+                        {isRegistering && confirmPassword && password !== confirmPassword && (
+                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-tight px-1 -mt-1">
+                                ⚠️ {t('errors.passwordMismatch')}
+                            </p>
                         )}
 
                         <div className="pt-2">
@@ -467,7 +477,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                             )}
                         </div>
 
-                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); setIsMagicLink(false); setIsPhoneAuth(false); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => { setIsRegistering(!isRegistering); setIsForgotPassword(false); setIsMagicLink(false); setIsPhoneAuth(false); setEmail(''); setPassword(''); setConfirmPassword(''); setPhoneNumber(''); setErrorMsg(null); setSuccessMsg(null); }} className="text-[10px] sm:text-xs text-slate-400 hover:text-white transition-colors font-bold flex items-center justify-center gap-2">
                             {isRegistering ? (
                                 <><span>{t('buttons.alreadyRegistered')}</span> <span className="text-primary border-b border-primary/30">{t('buttons.signInProtocol')}</span></>
                             ) : (
@@ -517,13 +527,13 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                     <div className="flex flex-col items-center">
                         <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Active Nodes</p>
                         <p className="text-lg font-mono font-bold text-white tabular-nums leading-none">
-                            <CountUp end={publicStats ? publicStats.activeNodes : 0} duration={2000} />
+                            <CountUp end={publicStats ? publicStats.activeCities : 0} duration={2000} />
                         </p>
                     </div>
                     <div className="flex flex-col items-center">
                         <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Bio Matches</p>
                         <p className="text-lg font-mono font-bold text-emerald-400 tabular-nums leading-none">
-                            <CountUp end={publicStats ? publicStats.biometricMatches : 0} duration={2500} />
+                            <CountUp end={publicStats ? publicStats.successfulMatches : 0} duration={2500} />
                         </p>
                     </div>
                 </div>
@@ -563,7 +573,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     </p>
                                     <div className="relative">
                                         <p className="text-3xl font-mono font-bold text-white tabular-nums relative z-10">
-                                            <CountUp end={publicStats ? publicStats.activeNodes : 0} duration={2000} />
+                                            <CountUp end={publicStats ? publicStats.activeCities : 0} duration={2000} />
                                         </p>
                                         <div className="absolute -inset-2 bg-primary/5 blur-lg rounded-lg opacity-0 group-hover/stat:opacity-100 transition-opacity"></div>
                                     </div>
@@ -575,7 +585,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
                                     </p>
                                     <div className="relative">
                                         <p className="text-3xl font-mono font-bold text-emerald-400 tabular-nums relative z-10">
-                                            <CountUp end={publicStats ? publicStats.biometricMatches : 0} duration={2500} />
+                                            <CountUp end={publicStats ? publicStats.successfulMatches : 0} duration={2500} />
                                         </p>
                                         <div className="absolute -inset-2 bg-emerald-500/5 blur-lg rounded-lg opacity-0 group-hover/stat:opacity-100 transition-opacity"></div>
                                     </div>

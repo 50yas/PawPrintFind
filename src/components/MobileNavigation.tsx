@@ -50,9 +50,19 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentView,
     };
 
     return (
-        <div 
-            className="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe"
-            style={{ WebkitTransform: 'translate3d(0,0,0)' }}
+        <div
+            className="fixed left-0 right-0 w-full bg-slate-950/98 backdrop-blur-3xl border-t border-white/10 z-[9999] md:hidden no-print"
+            style={{
+                bottom: 0,
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                boxShadow: '0 -10px 40px rgba(0,0,0,0.85)',
+                /* Force GPU composite layer so it never scrolls away on Safari */
+                transform: 'translate3d(0,0,0)',
+                WebkitTransform: 'translate3d(0,0,0)',
+                willChange: 'transform',
+                /* Prevent iOS elastic overscroll from hiding the bar */
+                WebkitOverflowScrolling: 'auto',
+            } as React.CSSProperties}
         >
             {/* Gradient top border accent */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>

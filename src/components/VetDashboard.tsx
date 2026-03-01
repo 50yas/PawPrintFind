@@ -7,7 +7,8 @@ import { VetVerificationModal } from './VetVerificationModal';
 import { VetProUpgradeModal } from './VetProUpgradeModal';
 import { ProFeatureTeaser } from './ui/ProFeatureTeaser';
 import { PetProfile } from '../types';
-import { dbService } from '../services/firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { dbService, db } from '../services/firebase';
 
 interface VetDashboardProps {
     user: User;
@@ -56,14 +57,26 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
     const [patientLimitInfo, setPatientLimitInfo] = useState({ current: 0, limit: 5, reached: false });
     const [verificationRequest, setVerificationRequest] = useState<any>(null);
 
-    // Fetch verification status
+    // Listen to verification status in real-time
     useEffect(() => {
         if (!user?.uid) return;
-        const fetchStatus = async () => {
-            const req = await dbService.getVerificationStatus(user.uid);
-            setVerificationRequest(req);
-        };
-        fetchStatus();
+        const q = query(
+            collection(db, 'vet_verification_requests'),
+            where('vetUid', '==', user.uid)
+        );
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                // sort by submittedAt descending to get the latest
+                const requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                requests.sort((a: any, b: any) => (b.submittedAt || 0) - (a.submittedAt || 0));
+                setVerificationRequest(requests[0]);
+            } else {
+                setVerificationRequest(null);
+            }
+        }, (error) => {
+            console.error('[VetDashboard] verification listener error:', error);
+        });
+        return () => unsubscribe();
     }, [user.uid]);
 
     // Check patient limit (read-only, no state mutations)
@@ -93,13 +106,13 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
     }, [user.uid]); // strictly depend on user.uid string, not the user object
 
     const isPro = user.vetTier === 'pro' && (!user.vetProExpiry || user.vetProExpiry > Date.now());
-    
-    // Hardened Verification Logic
-    const verificationStatus = user.verificationStatus || (user.isVetVerified ? 'approved' : (user.vetDocumentsSubmitted ? 'pending' : 'none'));
-    const isPending = verificationStatus === 'pending';
-    const isApproved = verificationStatus === 'approved' || user.isVetVerified;
-    const isDeclined = verificationStatus === 'declined' || verificationRequest?.status === 'rejected';
-    
+
+    // Hardened Verification Logic: Prioritize the latest snapshot request status.
+    const latestReqStatus = verificationRequest?.status;
+    const isPending = latestReqStatus === 'pending' || user.verificationStatus === 'pending';
+    const isApproved = latestReqStatus === 'approved' || user.verificationStatus === 'approved' || user.isVetVerified;
+    const isDeclined = !isPending && !isApproved && (latestReqStatus === 'rejected' || user.verificationStatus === 'declined');
+
     const currentTier = user.vetTier || 'free';
     const patientLimit = user.vetMonthlyPatientsLimit || 5;
 
@@ -110,8 +123,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                 <VetVerificationModal
                     onClose={() => {
                         setShowVerificationModal(false);
-                        // Refresh status
-                        dbService.getVerificationStatus(user.uid).then(setVerificationRequest);
+                        // Status refreshes via real-time listener automatically
                     }}
                     vetUid={user.uid}
                     vetEmail={user.email}
@@ -122,38 +134,35 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                 <VetProUpgradeModal
                     onClose={() => setShowUpgradeModal(false)}
                     vetUid={user.uid}
-                    isVerified={isApproved}
+                    isVerified={isApproved ?? false}
                 />
             )}
 
             {/* Verification Status Banner */}
-            {!isApproved && (
-                <div className={`border rounded-2xl p-6 shadow-xl backdrop-blur-xl ${
-                    isDeclined 
-                    ? 'bg-red-500/10 border-red-500/30' 
+            {!isApproved ? (
+                <div className={`border rounded-2xl p-6 shadow-xl backdrop-blur-xl ${isDeclined
+                    ? 'bg-red-500/10 border-red-500/30'
                     : isPending
                         ? 'bg-blue-500/10 border-blue-500/30 animate-pulse-subtle'
                         : 'bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border-teal-500/30'
-                }`}>
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
-                                isDeclined ? 'bg-red-500/20 text-red-400' : isPending ? 'bg-blue-500/20 text-blue-400' : 'bg-teal-500/20 text-teal-400'
-                            }`}>
+                    }`}>
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div className={`w-12 h-12 rounded-full flex shrink-0 items-center justify-center text-2xl ${isDeclined ? 'bg-red-500/20 text-red-400' : isPending ? 'bg-blue-500/20 text-blue-400' : 'bg-teal-500/20 text-teal-400'
+                                }`}>
                                 {isDeclined ? '⚠️' : isPending ? '⏳' : '🛡️'}
                             </div>
                             <div>
-                                <h3 className={`text-lg font-black uppercase tracking-tight ${
-                                    isDeclined ? 'text-red-400' : isPending ? 'text-blue-400' : 'text-teal-400'
-                                }`}>
-                                    {isDeclined 
-                                        ? t('dashboard:vet.verificationRejectedTitle') 
-                                        : isPending 
-                                            ? t('dashboard:vet.pendingVerificationTitle', 'Verification Under Review') 
+                                <h3 className={`text-lg font-black uppercase tracking-tight ${isDeclined ? 'text-red-400' : isPending ? 'text-blue-400' : 'text-teal-400'
+                                    }`}>
+                                    {isDeclined
+                                        ? t('dashboard:vet.verificationRejectedTitle', 'Verification Rejected')
+                                        : isPending
+                                            ? t('dashboard:vet.pendingVerificationTitle', 'Verification Under Review')
                                             : t('dashboard:vet.notVerifiedTitle', 'Verify Professional Status')}
                                 </h3>
                                 <p className="text-sm text-slate-300 mt-1 max-w-md">
-                                    {isDeclined 
+                                    {isDeclined
                                         ? `${t('dashboard:vet.rejectionReason', 'Reason')}: ${user.rejectionReason || verificationRequest?.rejectionReason || 'Documents invalid.'}`
                                         : isPending
                                             ? t('dashboard:vet.pendingVerificationDesc', 'Our team is reviewing your credentials. You will have full access once verified.')
@@ -164,20 +173,46 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                         <button
                             onClick={() => setShowVerificationModal(true)}
                             disabled={isPending}
-                            className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
-                                isDeclined
+                            className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${isDeclined
                                 ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
                                 : isPending
                                     ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
                                     : 'bg-primary text-black hover:scale-105 shadow-lg shadow-primary/20'
-                            }`}
+                                }`}
                         >
-                            {isDeclined 
-                                ? t('dashboard:vet.retryVerification', 'Retry Verification') 
-                                : isPending 
-                                    ? t('dashboard:vet.pendingVerificationBtn', 'Awaiting Review') 
+                            {isDeclined
+                                ? t('dashboard:vet.retryVerification', 'Retry Verification')
+                                : isPending
+                                    ? t('dashboard:vet.pendingVerificationBtn', 'Awaiting Review')
                                     : t('dashboard:vet.submitDocuments', 'Submit Documents')}
                         </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="border rounded-2xl p-6 shadow-xl backdrop-blur-xl bg-emerald-500/10 border-emerald-500/30">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div className="w-12 h-12 rounded-full flex shrink-0 items-center justify-center text-2xl bg-emerald-500/20 text-emerald-400">
+                                ✓
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black uppercase tracking-tight text-emerald-400">
+                                    {t('dashboard:vet.verifiedTitle', 'Identity Verified')}
+                                </h3>
+                                <p className="text-sm text-slate-300 mt-1 max-w-md">
+                                    {t('dashboard:vet.verifiedDesc', 'Your professional credentials have been authenticated.')}
+                                    {isPro ? ` ${t('dashboard:vet.proActiveDesc', 'You currently enjoy unlimited Pro access.')}` : ` ${t('dashboard:vet.upgradeProDesc', 'Upgrade to Pro to unlock unlimited patient tracking and advanced AI diagnostics.')}`}
+                                </p>
+                            </div>
+                        </div>
+                        {!isPro && (
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 hover:scale-105 shadow-lg shadow-amber-500/20 flex items-center gap-2"
+                            >
+                                <span>👑 Unlock Pro</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
@@ -193,24 +228,31 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                     <h1 className="text-3xl font-bold">{t('vetDashboardTitle')}</h1>
                     <p className="text-teal-100 mt-1">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
-                <div className="flex gap-3 relative z-10">
+                <div className="flex flex-wrap sm:flex-nowrap gap-3 relative z-10 w-full md:w-auto">
                     {isPro ? (
-                        <div className="flex flex-col gap-1">
-                            <button className="btn bg-white/20 text-white hover:bg-white/30 font-bold shadow-lg flex items-center gap-2 border border-white/30 backdrop-blur-sm">
-                                <span>👑 Pro Active</span>
+                        <div className="flex flex-col gap-1 items-end">
+                            <button className="bg-white/10 text-white font-bold shadow-lg flex items-center gap-2 border border-white/20 backdrop-blur-md rounded-xl px-5 py-2.5 cursor-default transition-all">
+                                <span className="text-yellow-400">👑</span> Pro Active
                             </button>
-                            <span className="text-xs text-teal-100 text-center">Until {new Date(user.vetProExpiry!).toLocaleDateString()}</span>
+                            {user.vetProExpiry && <span className="text-[10px] text-teal-200/70 font-bold uppercase tracking-widest pr-2">Until {new Date(user.vetProExpiry).toLocaleDateString()}</span>}
                         </div>
-                    ) : (
-                        <button 
-                            onClick={() => setShowUpgradeModal(true)} 
-                            disabled={!isApproved}
-                            className={`btn ${!isApproved ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 transform hover:-translate-y-0.5'} bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 font-black shadow-lg flex items-center gap-2 transition-all`}
+                    ) : isApproved ? (
+                        <button
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 font-black shadow-lg flex items-center gap-2 transition-all rounded-xl px-5 py-2.5 hover:scale-105 hover:shadow-amber-500/20"
                         >
-                            <span>🦁 Upgrade to Pro</span>
+                            <span>👑 Upgrade PRO</span>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setShowVerificationModal(true)}
+                            className="bg-white/10 border border-white/20 text-white font-black shadow-lg flex items-center gap-2 transition-all rounded-xl px-5 py-2.5 hover:bg-white/20 text-xs uppercase tracking-widest"
+                            title="Complete verification to unlock Pro"
+                        >
+                            <span>🛡️ Verify to Unlock PRO</span>
                         </button>
                     )}
-                    <button onClick={() => setView('smartCalendar')} className="btn bg-white text-teal-800 hover:bg-teal-50 font-bold shadow-lg flex items-center gap-2">
+                    <button onClick={() => setView('smartCalendar')} className="bg-white text-teal-900 hover:bg-teal-50 font-black shadow-lg flex items-center gap-2 rounded-xl px-5 py-2.5 transition-all hover:scale-105 h-fit">
                         <span>+ {t('newAppointmentTitle')}</span>
                     </button>
                 </div>
@@ -307,14 +349,14 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                             <ActionCard
                                 title={t('dashboard:vet.aiHealthAnalytics')}
                                 description={t('dashboard:vet.aiHealthAnalyticsDesc')}
-                                onClick={() => alert('AI Analytics coming soon!')}
+                                onClick={() => setView('myPatients')}
                                 isPro={true}
                                 icon={<span className="text-xl">📊</span>}
                             />
                             <ActionCard
                                 title={t('dashboard:vet.prioritySupport')}
                                 description={t('dashboard:vet.prioritySupportDesc')}
-                                onClick={() => alert('Priority Support coming soon!')}
+                                onClick={() => window.open('mailto:support@pawprintfind.com?subject=Pro Support Request', '_blank')}
                                 isPro={true}
                                 icon={<span className="text-xl">🚀</span>}
                             />
@@ -334,7 +376,7 @@ export const VetDashboard: React.FC<VetDashboardProps> = ({ user, setView, pendi
                                 onUpgrade={() => setShowUpgradeModal(true)}
                             />
                         </div>
-                    ) }
+                    )}
                 </div>
             </div>
         </div>

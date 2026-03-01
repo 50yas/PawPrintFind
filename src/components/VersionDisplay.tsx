@@ -39,9 +39,15 @@ export const VersionDisplay: React.FC<VersionDisplayProps> = ({
         <div className="space-y-0.5 text-xs text-slate-400 font-mono">
           <div>
             <span className="text-slate-500">Commit:</span> {versionData.commitHash}
+            {(versionData as any).branch && (
+              <span className="ml-2 text-slate-600">({(versionData as any).branch})</span>
+            )}
           </div>
           <div>
-            <span className="text-slate-500">Date:</span> {formatDate(versionData.buildTimestamp)}
+            <span className="text-slate-500">Date:</span> {(versionData as any).commitDate || formatDate(versionData.buildTimestamp)}
+          </div>
+          <div>
+            <span className="text-slate-500">Built:</span> {formatDate(versionData.buildTimestamp)}
           </div>
           <div>
             <span className="text-slate-500">Env:</span> {versionData.environment}

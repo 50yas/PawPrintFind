@@ -6,7 +6,7 @@ export type Language = 'en' | 'it' | 'es' | 'fr' | 'de' | 'zh' | 'ar' | 'ro';
 type LanguageContextType = {
   locale: Language;
   setLocale: (language: Language) => void;
-  t: (key: string, values?: Record<string, string | number>) => string;
+  t: (key: string, options?: any) => string; // Using any here because i18next types are complex, but I'll try to use a more specific type if possible.
 };
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -30,7 +30,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const contextValue = {
     locale,
     setLocale,
-    t: (key: string, values?: Record<string, string | number>) => t(key, values) as string,
+    t: (key: string, options?: any) => t(key, options) as string,
   };
 
   return (

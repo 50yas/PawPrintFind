@@ -8,51 +8,78 @@ import * as THREE from 'three';
 const BASE_PARTICLE_COUNT = 4000;
 const GLOBE_RADIUS = 12;
 
+// Node color categories: AI Teal, Lost Pet Red, Safe/Found Amber, Community Purple
+const NODE_COLORS = [
+    new THREE.Color("#00D2FF"), // AI network / active nodes
+    new THREE.Color("#ef4444"), // Emergency / lost pets
+    new THREE.Color("#f59e0b"), // Safe / found pets
+    new THREE.Color("#8b5cf6"), // Community / karma
+    new THREE.Color("#10b981"), // Verified / safe
+];
+
 function NeuralNetwork({ count }: { count: number }) {
     const ref = useRef<THREE.Points>(null);
     const { mouse, viewport } = useThree();
 
     // Create particle positions on a sphere
-    const [positions, colors] = useMemo(() => {
+    const [positions, colors, sizes] = useMemo(() => {
         const positions = new Float32Array(count * 3);
         const colors = new Float32Array(count * 3);
-        const colorInside = new THREE.Color("#00D2FF"); // Gemini Teal
-        const colorOutside = new THREE.Color("#FFB02E"); // Safety Amber
+        const sizes = new Float32Array(count);
 
         for (let i = 0; i < count; i++) {
             // Spherical distribution
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos((Math.random() * 2) - 1);
-            const r = GLOBE_RADIUS + (Math.random() - 0.5) * 2;
+            // Mix: 80% on sphere, 20% scattered in cloud around it
+            const r = Math.random() < 0.8
+                ? GLOBE_RADIUS + (Math.random() - 0.5) * 2
+                : GLOBE_RADIUS * (0.6 + Math.random() * 0.8);
 
-            const x = r * Math.sin(phi) * Math.cos(theta);
-            const y = r * Math.sin(phi) * Math.sin(theta);
-            const z = r * Math.cos(phi);
+            positions[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
 
-            positions[i * 3] = x;
-            positions[i * 3 + 1] = y;
-            positions[i * 3 + 2] = z;
+            // Weighted color distribution: 55% teal, 15% red, 20% amber, 5% purple, 5% green
+            const rnd = Math.random();
+            let colorBase: THREE.Color;
+            if (rnd < 0.55) colorBase = NODE_COLORS[0];
+            else if (rnd < 0.70) colorBase = NODE_COLORS[2];
+            else if (rnd < 0.85) colorBase = NODE_COLORS[1];
+            else if (rnd < 0.93) colorBase = NODE_COLORS[3];
+            else colorBase = NODE_COLORS[4];
 
-            const mixedColor = colorInside.clone().lerp(colorOutside, Math.random() * 0.3);
-            colors[i * 3] = mixedColor.r;
-            colors[i * 3 + 1] = mixedColor.g;
-            colors[i * 3 + 2] = mixedColor.b;
+            const jitter = (Math.random() - 0.5) * 0.15;
+            const c = colorBase.clone().multiplyScalar(0.8 + Math.abs(jitter) * 3);
+            colors[i * 3]     = Math.min(1, c.r + jitter);
+            colors[i * 3 + 1] = Math.min(1, c.g + jitter);
+            colors[i * 3 + 2] = Math.min(1, c.b + jitter);
+
+            // Varied particle sizes: most small, some bright "nodes"
+            sizes[i] = Math.random() < 0.05 ? 0.22 + Math.random() * 0.1 : 0.06 + Math.random() * 0.08;
         }
-        return [positions, colors];
+        return [positions, colors, sizes];
     }, [count]);
 
     useFrame((state) => {
         if (!ref.current) return;
 
         // Slow automatic rotation
-        ref.current.rotation.y += 0.0005;
-        ref.current.rotation.x += 0.0002;
+        ref.current.rotation.y += 0.0004;
+        ref.current.rotation.x += 0.00015;
+
+        // Gentle oscillation
+        ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.15) * 0.03;
 
         // Mouse Interaction
         const x = (mouse.x * viewport.width) / 2;
         const y = (mouse.y * viewport.height) / 2;
 
-        ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, y * 0.05, 0.05);
+        // Scroll Parallax
+        const scrollY = window.scrollY;
+        const scrollOffset = scrollY * 0.0005;
+
+        ref.current.rotation.x = THREE.MathUtils.lerp(ref.current.rotation.x, (y * 0.05) + scrollOffset, 0.05);
         ref.current.rotation.y = THREE.MathUtils.lerp(ref.current.rotation.y, x * 0.05, 0.05);
     });
 
@@ -73,7 +100,22 @@ function NeuralNetwork({ count }: { count: number }) {
 }
 
 const GradientOverlay = () => (
-    <div className="absolute inset-0 bg-gradient-to-br from-[#0B1120] via-transparent to-[#0B1120]/80 z-0 pointer-events-none" />
+    <>
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1120] via-transparent to-[#0B1120]/80 z-0 pointer-events-none" />
+        {/* Ambient pulsing rings */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0">
+            <div className="absolute w-[40vmax] h-[40vmax] rounded-full border border-cyan-500/5 animate-ping" style={{ animationDuration: '8s' }} />
+            <div className="absolute w-[60vmax] h-[60vmax] rounded-full border border-cyan-500/3 animate-ping" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+            <div className="absolute w-[30vmax] h-[30vmax] rounded-full" style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.04) 0%, transparent 70%)' }} />
+        </div>
+        {/* Top-left glow (emergency/lost) */}
+        <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full pointer-events-none z-0"
+             style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.04) 0%, transparent 70%)' }} />
+        {/* Bottom-right glow (karma/community) */}
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full pointer-events-none z-0"
+             style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)' }} />
+    </>
 );
 
 export const Background = () => {
@@ -95,7 +137,7 @@ export const Background = () => {
                     }} 
                 />
                 <fog attach="fog" args={['#0B1120', 10, 40]} />
-                <NeuralNetwork count={particleCount} />
+                <NeuralNetwork key={particleCount} count={particleCount} />
             </Canvas>
             <GradientOverlay />
         </div>

@@ -9,6 +9,24 @@ import { GlassButton } from './ui/GlassButton';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
 import { RedeemCodeModal } from './RedeemCodeModal';
 
+const TIER_META: Record<string, { label: string; color: string; icon: string }> = {
+  scout:    { label: 'Scout',    color: '#64748b', icon: '🔍' },
+  tracker:  { label: 'Tracker',  color: '#10b981', icon: '🌿' },
+  ranger:   { label: 'Ranger',   color: '#3b82f6', icon: '🌀' },
+  guardian: { label: 'Guardian', color: '#8b5cf6', icon: '🛡️' },
+  legend:   { label: 'Legend',   color: '#f59e0b', icon: '⭐' },
+};
+
+function getTierKey(user: User): string {
+  if (user.karmaTier && TIER_META[user.karmaTier]) return user.karmaTier;
+  const pts = (user as any).karmaBalance ?? user.points ?? 0;
+  if (pts >= 15000) return 'legend';
+  if (pts >= 5000)  return 'guardian';
+  if (pts >= 2000)  return 'ranger';
+  if (pts >= 500)   return 'tracker';
+  return 'scout';
+}
+
 interface NavbarProps {
   currentUser: User | null;
   setCurrentUser: (user: User) => void;
@@ -184,74 +202,122 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
               {currentUser && <RoleSwitcher currentUser={currentUser} setCurrentUser={setCurrentUser} />}
 
               <div className="relative">
+                {/* Avatar Button */}
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="relative group/avatar focus:outline-none"
                 >
                   <div className="absolute inset-0 bg-primary/20 rounded-xl blur group-hover/avatar:bg-primary/40 transition-all"></div>
-                  <div className={`relative w-11 h-11 rounded-xl bg-slate-900 border ${showProfileMenu ? 'border-primary' : 'border-white/20'} flex items-center justify-center text-sm font-black text-primary shadow-xl transition-all active:scale-95`}>
-                    {currentUser.email.charAt(0).toUpperCase()}
+                  <div className={`relative w-11 h-11 rounded-xl bg-slate-900 border ${showProfileMenu ? 'border-primary' : 'border-white/20'} flex items-center justify-center text-sm font-black text-primary shadow-xl transition-all active:scale-95 overflow-hidden`}>
+                    {currentUser.photoURL
+                      ? <img src={currentUser.photoURL} alt="avatar" className="w-full h-full object-cover" />
+                      : (currentUser.displayName || currentUser.email).charAt(0).toUpperCase()
+                    }
                   </div>
                 </button>
 
                 {/* Profile Popover */}
-                {showProfileMenu && (
-                  <>
-                    <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
-                    <div className="absolute top-14 end-0 w-72 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-up-mobile neon-border">
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-4 pb-4 border-b border-white/10">
-                          <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-xl font-black text-primary border border-primary/20">
-                            {currentUser.email.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-white font-black text-xs truncate uppercase tracking-tighter">{currentUser.email}</p>
-                            <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{currentUser.activeRole}</p>
-                          </div>
-                        </div>
+                {showProfileMenu && (() => {
+                  const tierKey = getTierKey(currentUser);
+                  const tier = TIER_META[tierKey];
+                  const karmaPoints = (currentUser as any).karmaBalance ?? currentUser.points ?? 0;
+                  const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+                  const activeBadges = currentUser.badges || [];
+                  return (
+                    <>
+                      <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
+                      <div className="absolute top-14 end-0 w-72 bg-slate-950/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-slide-up-mobile overflow-hidden" style={{ borderColor: `${tier.color}30` }}>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
-                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('karma')}</p>
-                            <p className="text-sm font-black text-white">{currentUser.points || 0}</p>
+                        {/* Identity — clickable → View Profile */}
+                        <button
+                          onClick={() => { handleNavClick('userProfile'); }}
+                          className="w-full flex items-center gap-3 p-5 pb-4 border-b border-white/10 hover:bg-white/5 transition-colors text-left group"
+                        >
+                          <div className="w-12 h-12 rounded-2xl flex-shrink-0 overflow-hidden border-2" style={{ borderColor: `${tier.color}50`, boxShadow: `0 0 14px ${tier.color}30` }}>
+                            {currentUser.photoURL
+                              ? <img src={currentUser.photoURL} alt="avatar" className="w-full h-full object-cover" />
+                              : <div className="w-full h-full flex items-center justify-center text-xl font-black text-white" style={{ background: `${tier.color}25` }}>
+                                  {displayName.charAt(0).toUpperCase()}
+                                </div>
+                            }
                           </div>
-                          <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
-                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('rank')}</p>
-                            <p className="text-[10px] font-black text-primary uppercase">{t('rankAlpha')}</p>
+                          <div className="overflow-hidden flex-1 min-w-0">
+                            <p className="text-white font-black text-sm truncate group-hover:text-primary transition-colors">{displayName}</p>
+                            <p className="text-[10px] text-slate-400 truncate font-mono">{currentUser.email}</p>
+                            <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
+                              {currentUser.activeRole}
+                            </span>
                           </div>
-                        </div>
+                          <svg className="h-4 w-4 text-slate-600 group-hover:text-primary transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
 
-                        <div className="space-y-2">
-                          <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest px-1">{t('activeBadges')}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {(currentUser.badges || ['Tester']).map(badge => (
-                              <span key={badge} className="px-2 py-1 rounded-lg bg-primary/10 border border-primary/20 text-[8px] font-black text-primary uppercase tracking-tighter">
-                                {badge}
-                              </span>
-                            ))}
+                        <div className="p-5 flex flex-col gap-4">
+                          {/* Karma & Rank */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+                              <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('karma')}</p>
+                              <p className="text-lg font-black text-white">{karmaPoints.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+                              <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest mb-1">{t('rank', 'Rank')}</p>
+                              <p className="text-sm font-black flex items-center gap-1" style={{ color: tier.color }}>
+                                <span>{tier.icon}</span>
+                                <span>{tier.label}</span>
+                              </p>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="pt-2 space-y-2">
-                          <button
-                            onClick={() => { setShowRedeemModal(true); setShowProfileMenu(false); }}
-                            className="w-full py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
-                          >
-                            <span>🎁</span> {t('redeemCodeButton')}
-                          </button>
+                          {/* Active Badges */}
+                          <div className="space-y-2">
+                            <p className="text-[8px] text-slate-500 uppercase font-black tracking-widest px-1">{t('activeBadges')}</p>
+                            {activeBadges.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {activeBadges.slice(0, 5).map(badge => (
+                                  <span key={badge} className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[8px] font-black text-amber-400 uppercase tracking-tighter">
+                                    {badge.replace(/_/g, ' ')}
+                                  </span>
+                                ))}
+                                {activeBadges.length > 5 && (
+                                  <span className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[8px] font-black text-slate-400">
+                                    +{activeBadges.length - 5}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-[9px] text-slate-600 italic px-1">{t('noBadgesYet', 'No badges yet — start exploring!')}</p>
+                            )}
+                          </div>
 
-                          <GlassButton
-                            onClick={onLogoutClick}
-                            variant="danger"
-                            className="w-full !py-3 text-[10px] font-black tracking-widest uppercase rounded-xl"
-                          >
-                            {t('logoutButton')}
-                          </GlassButton>
+                          {/* Action Buttons */}
+                          <div className="space-y-2 pt-1 border-t border-white/10">
+                            <button
+                              onClick={() => handleNavClick('userProfile')}
+                              className="w-full py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 text-[10px] font-black text-primary uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                            >
+                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                              {t('myProfileAndBadges', 'My Profile & Badges')}
+                            </button>
+
+                            <button
+                              onClick={() => { setShowRedeemModal(true); setShowProfileMenu(false); }}
+                              className="w-full py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                            >
+                              <span>🎁</span> {t('redeemCodeButton')}
+                            </button>
+
+                            <GlassButton
+                              onClick={onLogoutClick}
+                              variant="danger"
+                              className="w-full !py-2.5 text-[10px] font-black tracking-widest uppercase rounded-xl"
+                            >
+                              {t('logoutButton')}
+                            </GlassButton>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           )}

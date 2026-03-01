@@ -48,6 +48,24 @@ export const AdminAISettings: React.FC = () => {
     const [connectionStatus, setConnectionStatus] = useState<Record<string, { success: boolean; message: string } | null>>({});
     const [isSystemInit, setIsSystemInit] = useState<boolean>(true);
 
+    const hasUnsavedChanges = useMemo(() => {
+        if (!settings || !originalSettings) return false;
+        return JSON.stringify(settings) !== JSON.stringify(originalSettings);
+    }, [settings, originalSettings]);
+
+    const handleInitializeSystem = async () => {
+        setSaving(true);
+        try {
+            await adminService.initializeSystem();
+            setIsSystemInit(true);
+            addSnackbar('System Initialized', 'success');
+        } catch (e: any) {
+            addSnackbar('Failed to init: ' + e.message, 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
+
     useEffect(() => {
         const fetchSettings = async () => {
             try {
@@ -76,7 +94,7 @@ export const AdminAISettings: React.FC = () => {
         try {
             await adminService.saveAISettings(settings, secrets);
             // Clear cache in bridge to ensure new settings are used immediately
-            await aiBridgeService.getSettings(true); 
+            await aiBridgeService.getSettings(true);
             setOriginalSettings(JSON.parse(JSON.stringify(settings)));
             setSaveSuccess(true);
             addSnackbar(t('dashboard:admin.configSaved'), 'success');
@@ -148,7 +166,7 @@ export const AdminAISettings: React.FC = () => {
                     </p>
                 </div>
                 {!isSystemInit && (
-                    <button 
+                    <button
                         onClick={handleInitializeSystem}
                         className="bg-amber-500 text-black px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:scale-105 transition-all"
                     >
@@ -231,10 +249,10 @@ export const AdminAISettings: React.FC = () => {
                         MANAGED VIA SECRET MANAGER
                     </div>
                 </div>
-                
+
                 <p className="text-[10px] text-slate-500 mb-6 font-mono uppercase tracking-tight leading-relaxed max-w-2xl">
-                    For enterprise security, API keys are now stored in <span className="text-white">Google Cloud Secret Manager</span>. 
-                    The fields below are for <span className="text-primary italic">local identification</span> only. 
+                    For enterprise security, API keys are now stored in <span className="text-white">Google Cloud Secret Manager</span>.
+                    The fields below are for <span className="text-primary italic">local identification</span> only.
                     To update actual keys, use: <code className="bg-white/5 px-1 py-0.5 rounded text-cyan-400">firebase functions:secrets:set GEMINI_API_KEY</code>
                 </p>
 
@@ -288,15 +306,14 @@ export const AdminAISettings: React.FC = () => {
                                     <button
                                         onClick={() => handleTestConnection(field.provider)}
                                         disabled={testingConnection === field.provider}
-                                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 border whitespace-nowrap ${
-                                            testingConnection === field.provider ? 'border-amber-500/30 bg-amber-500/10 text-amber-400 animate-pulse' :
-                                            connectionStatus[field.provider]?.success ? 'border-green-500/30 bg-green-500/10 text-green-400 neon-glow-green' :
-                                            'border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-black'
-                                        }`}
+                                        className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 border whitespace-nowrap ${testingConnection === field.provider ? 'border-amber-500/30 bg-amber-500/10 text-amber-400 animate-pulse' :
+                                                connectionStatus[field.provider]?.success ? 'border-green-500/30 bg-green-500/10 text-green-400 neon-glow-green' :
+                                                    'border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-black'
+                                            }`}
                                     >
                                         {testingConnection === field.provider ? t('dashboard:admin.testing') :
-                                         connectionStatus[field.provider]?.success ? '✓ ALIVE' :
-                                         'TEST CONNECTION'}
+                                            connectionStatus[field.provider]?.success ? '✓ ALIVE' :
+                                                'TEST CONNECTION'}
                                     </button>
                                 </div>
                             </div>
@@ -363,7 +380,15 @@ export const AdminAISettings: React.FC = () => {
                                                 <option value="gemini-1.5-pro" />
                                             </>
                                         ) : (
-                                            availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)
+                                            <>
+                                                {/* Recommended free models */}
+                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ qwen3-next-80b (chat/reasoning)</option>
+                                                <option value="qwen/qwen3-coder:free">⭐ qwen3-coder (code/matching)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (vision)</option>
+                                                <option value="meta-llama/llama-3.3-70b-instruct:free">llama-3.3-70b-instruct</option>
+                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                            </>
                                         )}
                                     </datalist>
                                 </div>

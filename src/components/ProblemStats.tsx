@@ -51,14 +51,14 @@ export const ProblemStats: React.FC = () => {
                         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6"
                     >
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                        Critical Global Alert
+                        {t('problemStats.criticalAlert')}
                     </motion.div>
                     
                     <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 leading-[0.9]">
-                        Every year, millions of families <span className="text-red-500 italic">lose their connection.</span>
+                        {t('problemStats.title', { interpolation: { escapeValue: false } })}
                     </h2>
                     <p className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto">
-                        Traditional methods are failing. Lost pet recovery rates haven't changed in decades, despite advances in technology. Until now.
+                        {t('problemStats.description')}
                     </p>
                 </div>
 
@@ -66,22 +66,22 @@ export const ProblemStats: React.FC = () => {
                     <ProblemCard 
                         value={10} 
                         suffix="M"
-                        label="Lost Annually" 
-                        sublabel="Ten million pets go missing every single year across the globe." 
+                        label={t('problemStats.lostAnnually.label')} 
+                        sublabel={t('problemStats.lostAnnually.desc')} 
                         color="red" 
                     />
                     <ProblemCard 
                         value={1} 
                         suffix=" in 3"
-                        label="Missing Probability" 
-                        sublabel="A staggering 33% of all pets will disappear at least once in their lifetime." 
+                        label={t('problemStats.missingProb.label')} 
+                        sublabel={t('problemStats.missingProb.desc')} 
                         color="red" 
                     />
                     <ProblemCard 
                         value={90} 
                         suffix="%"
-                        label="Identification Gap" 
-                        sublabel="Without digital identification, 90% of lost pets are never reunited with their owners." 
+                        label={t('problemStats.idGap.label')} 
+                        sublabel={t('problemStats.idGap.desc')} 
                         color="amber" 
                     />
                 </div>
@@ -95,12 +95,12 @@ export const ProblemStats: React.FC = () => {
                     className="mt-20 flex flex-col items-center"
                 >
                     <div className="w-px h-24 bg-gradient-to-b from-red-500/50 to-primary/50 animate-pulse"></div>
-                    <p className="text-[10px] font-mono-tech text-slate-500 uppercase tracking-[0.5em] mt-4 mb-8">Initiating Recovery Protocols</p>
+                    <p className="text-[10px] font-mono-tech text-slate-500 uppercase tracking-[0.5em] mt-4 mb-8">{t('problemStats.initiatingProtocols')}</p>
                     <button 
                         onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                         className="group relative px-10 py-5 bg-primary text-black font-black uppercase tracking-[0.2em] rounded-xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.4)]"
                     >
-                        See the Solution
+                        {t('problemStats.seeSolution')}
                         <div className="absolute inset-0 border-2 border-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </button>
                 </motion.div>

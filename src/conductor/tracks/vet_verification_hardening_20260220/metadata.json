@@ -1,8 +1,0 @@
-{
-  "track_id": "vet_verification_hardening_20260220",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-20T22:55:00Z",
-  "updated_at": "2026-02-20T22:55:00Z",
-  "description": "Functional Vet verification flow, rejection reasons, and Admin Functionality Map/Test Suite."
-}

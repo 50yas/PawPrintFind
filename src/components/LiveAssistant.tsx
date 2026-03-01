@@ -183,9 +183,11 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
 
         const settings = await aiBridgeService.getSettings();
         if (settings?.provider === 'openrouter') {
-            setStatus('Active Protocol: OpenRouter (Text-Only)');
-            // For now, we don't initialize a live session for OpenRouter
-            // We handle text inputs directly in sendText
+            setStatus('Text Mode · OpenRouter');
+            setChatLog(prev => prev.length === 0
+                ? [...prev, { speaker: 'model', text: "Hi! I'm PawPrint AI in text mode. How can I help you today?" }]
+                : prev
+            );
             return;
         }
 
@@ -208,9 +210,13 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
         }
 
         if (!apiKey) {
-            console.error("Gemini API Key is missing. Please configure it in the Admin Panel or Remote Config.");
-            setChatLog(prev => [...prev, { speaker: 'model', text: "System Error: AI Module not initialized. Please try again later." }]);
-            setStatus(t('statusError'));
+            // Gracefully degrade to text-only mode instead of hard error
+            console.warn("[LiveAssistant] Gemini API key not configured — falling back to text mode.");
+            setStatus('Text Mode · No Voice Key');
+            setChatLog(prev => [...prev, {
+                speaker: 'model',
+                text: "Voice mode is not configured yet. I'm ready to help via text! Ask me anything about lost pets, sightings, or the app."
+            }]);
             return;
         }
         const ai = new GoogleGenAI({ apiKey });
@@ -296,19 +302,19 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                     }
                 },
                 onerror: (e: ErrorEvent) => {
-                    console.error('Session error:', e);
-                    // If key selection error, notify main app
+                    console.error('[LiveAssistant] Session error:', e);
                     if (e.message?.includes("Requested entity was not found.")) {
                         window.dispatchEvent(new CustomEvent('pawprint_api_error', { detail: { message: e.message } }));
                     }
-
-                    const msg = e.message?.includes('unavailable')
-                        ? 'Service temporarily unavailable'
-                        : (e.message || 'Connection error');
-                    setStatus(`${t('statusError')}: ${msg}`);
+                    // Auto-fallback to text mode
+                    setStatus('Text Mode · Voice Unavailable');
                     setIsError(true);
                     sessionPromiseRef.current = null;
                     stopMicrophone();
+                    setChatLog(prev => [...prev, {
+                        speaker: 'model',
+                        text: "Voice connection lost. Switching to text mode — I'm still here to help!"
+                    }]);
                 },
                 onclose: () => {
                     setStatus(t('statusConnectionClosed'));
@@ -378,23 +384,21 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
 
         const settings = await aiBridgeService.getSettings();
         const isOpenRouter = settings?.provider === 'openrouter';
-
-        if (!sessionPromiseRef.current && !isOpenRouter) await startSession();
+        // Also use text mode if there's no active Gemini session (e.g. key missing)
+        const useTextMode = isOpenRouter || (!sessionPromiseRef.current && !isOpenRouter);
 
         setChatLog(prev => [...prev, { speaker: 'user', text }]);
         setTextInput('');
 
-        if (isOpenRouter) {
+        if (isOpenRouter || (useTextMode && !sessionPromiseRef.current)) {
             try {
                 setStatus('Transmitting...');
-                // Build conversation history for multi-turn chat
                 const history = chatLog
                     .filter(e => e.text)
                     .map(e => ({
                         role: (e.speaker === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
                         text: e.text || '',
                     }));
-                // Add the current message
                 history.push({ role: 'user', text });
 
                 const systemPrompt = currentUserRole
@@ -402,14 +406,19 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                     : t('liveAssistantSystemPrompt');
 
                 const response = await aiBridgeService.chat(history, systemPrompt);
-                setChatLog(prev => [...prev, { speaker: 'model', text: response || "I'm processing your request." }]);
-                setStatus('Active Protocol: OpenRouter');
-            } catch (error) {
-                console.error("OpenRouter chat failed:", error);
-                setChatLog(prev => [...prev, { speaker: 'model', text: "Connection lost. Please try again." }]);
+                setChatLog(prev => [...prev, { speaker: 'model', text: response || "I'm here — what can I help you with?" }]);
+                setStatus(isOpenRouter ? 'Text Mode · OpenRouter' : 'Text Mode · Active');
+            } catch (error: any) {
+                console.error("[LiveAssistant] Text chat failed:", error);
+                const errMsg = error?.message?.includes('unauthenticated')
+                    ? "Please sign in to use the AI assistant."
+                    : "Connection interrupted. Please try again.";
+                setChatLog(prev => [...prev, { speaker: 'model', text: errMsg }]);
                 setStatus('Transmission Failure');
             }
         } else {
+            // Active Gemini Live session — send directly
+            if (!sessionPromiseRef.current) await startSession();
             sessionPromiseRef.current?.then(session => session.sendRealtimeInput({ text: text.trim() }));
         }
     };
@@ -451,7 +460,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                             <span className="text-white text-[10px] font-bold">{t('aiLabel')}</span>
                         </div>
                         <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-slate-900 ${status === 'connected' ? 'bg-green-500 animate-pulse' :
-                                status === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
+                            status === 'connecting' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
                             }`}></div>
                     </div>
                     <div>
@@ -501,6 +510,18 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
                         </div>
                     </div>
                 ))}
+                {status === 'Transmitting...' && (
+                    <div className="flex items-end gap-2 justify-start animate-fade-in">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-sm overflow-hidden border border-white/20">
+                            <span className="text-white text-[10px] font-bold">{t('aiLabel', 'AI')}</span>
+                        </div>
+                        <div className="max-w-[85%] px-4 py-3 rounded-2xl text-base bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-bl-none shadow-sm flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/50 animate-bounce"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/50 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/50 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Input Area */}

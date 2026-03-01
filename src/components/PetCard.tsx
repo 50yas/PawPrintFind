@@ -1,12 +1,14 @@
 import React, { useState, useRef, memo } from 'react';
 import { PetProfile } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { useTapIntent } from '../hooks/useTapIntent';
 import { CinematicImage } from './ui/CinematicImage';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
 import { calculateProfileCompleteness } from '../services/geminiService';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareButton } from './ShareButton';
+
 
 // --- Types ---
 
@@ -83,13 +85,13 @@ const CompletenessRing: React.FC<{ score: number }> = memo(({ score }) => {
 
 // --- Variant Implementations ---
 
-const OwnerPetCard: React.FC<OwnerPetCardProps> = ({ 
-    pet, onMarkFound, onReportLost, onEdit, onShare, onTransfer, onHealthCheck, onGenerateQR, onViewDetail 
+const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
+    pet, onMarkFound, onReportLost, onEdit, onShare, onTransfer, onHealthCheck, onGenerateQR, onViewDetail
 }) => {
     const { t } = useTranslations();
     const isLost = pet.isLost;
     const completeness = calculateProfileCompleteness(pet);
-    
+
     // 3D Tilt State
     const cardRef = useRef<HTMLDivElement>(null);
     const lastUpdateRef = useRef(0);
@@ -107,11 +109,11 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
+
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        
-        const rotateX = ((y - centerY) / centerY) * -15; 
+
+        const rotateX = ((y - centerY) / centerY) * -15;
         const rotateY = ((x - centerX) / centerX) * 15;
 
         setRotation({ x: rotateX, y: rotateY });
@@ -120,7 +122,7 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
     const handleMouseLeave = () => {
         setRotation({ x: 0, y: 0 });
     };
-    
+
     return (
         <div
             className="group relative w-full h-[480px] perspective-1000"
@@ -128,7 +130,7 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
             onMouseLeave={handleMouseLeave}
             onClick={() => setShowActions(prev => !prev)}
         >
-            <GlassCard 
+            <GlassCard
                 ref={cardRef}
                 className="w-full h-full overflow-hidden transition-transform duration-200 ease-out transform-style-3d relative border-white/10"
                 style={{
@@ -136,17 +138,23 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
                 }}
             >
                 {/* 1. Background Image with Adaptive Overlay */}
-                <div className="absolute inset-0 cursor-pointer" onClick={() => onViewDetail(pet)}>
-                    <CinematicImage 
-                        className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110" 
-                        src={pet.photos[0]?.url} 
-                        alt={pet.name} 
+                <div
+                    className="absolute inset-0 cursor-pointer"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onViewDetail(pet);
+                    }}
+                >
+                    <CinematicImage
+                        className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110"
+                        src={pet.photos[0]?.url}
+                        alt={pet.name}
                     />
                     {/* Cinematic Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent transition-opacity duration-300"></div>
-                    
+
                     {/* Holographic Shine Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundSize: '200% 200%', backgroundPosition: '0% 0%', transform: `translate(${rotation.y}px, ${rotation.x}px)`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundSize: '200% 200%', backgroundPosition: '0% 0%', transform: `translate(${rotation.y}px, ${rotation.x}px)` }}></div>
                 </div>
 
                 {/* 2. HUD SCANNING EFFECT (Only visible on Hover) */}
@@ -159,7 +167,7 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
 
                     {/* Scanning Line */}
                     <div className="absolute top-0 left-0 w-full h-[3px] bg-primary shadow-[0_0_20px_rgba(45,212,191,0.8)] animate-[scan_2s_linear_infinite]"></div>
-                    
+
                     {/* Grid Overlay */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#2dd4bf1a_1px,transparent_1px),linear-gradient(to_bottom,#2dd4bf1a_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 
@@ -187,7 +195,10 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
 
                 {/* 4. Main Info */}
                 <div className="absolute bottom-28 left-6 z-20 transition-transform duration-500 group-hover:-translate-y-6 transform translate-z-30">
-                    <h3 className="text-4xl font-extrabold text-white leading-none tracking-tight drop-shadow-md cursor-pointer" onClick={() => onViewDetail(pet)}>{pet.name}</h3>
+                    <h3
+                        className="text-4xl font-extrabold text-white leading-none tracking-tight drop-shadow-md cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); onViewDetail(pet); }}
+                    >{pet.name}</h3>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="text-xs font-mono text-cyan-200 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/30 backdrop-blur-sm">{pet.breed}</span>
                         <span className="text-xs font-mono text-purple-200 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-500/30 backdrop-blur-sm">{pet.age}</span>
@@ -196,7 +207,7 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
 
                 {/* 5. Action Panel (Slide Up on Hover) */}
                 <GlassCard className={`absolute bottom-0 left-0 w-full rounded-none border-t border-white/10 p-5 transform ${showActions ? 'translate-y-0' : 'translate-y-[65%]'} group-hover:translate-y-0 transition-transform duration-500 ease-out z-30 translate-z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] bg-slate-900/90 backdrop-blur-2xl`}>
-                    
+
                     {/* Visible Strip (Buttons Preview) */}
                     <div className="flex justify-between items-center mb-6">
                         <div className="flex gap-4">
@@ -252,14 +263,13 @@ const CommunityPetCard: React.FC<CommunityPetCardProps> = ({ pet, onShare, onVie
     const statusColor = pet.isLost
         ? 'text-red-300 bg-red-500/10'
         : 'text-green-300 bg-green-500/10';
-    
+
+    const tapHandlers = useTapIntent(() => onViewDetail(pet));
+
     return (
-        <div 
-            className="bg-white/5 backdrop-blur-xl rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-white/10 cursor-pointer active:scale-95 transition-transform" 
-            onPointerDown={(e) => {
-                if ((e.target as HTMLElement).closest('button')) return;
-                onViewDetail(pet);
-            }}
+        <div
+            className="bg-white/5 backdrop-blur-xl rounded-xl shadow-md overflow-hidden transition-shadow hover:shadow-lg border border-white/10 cursor-pointer active:scale-95 transition-transform"
+            {...tapHandlers}
         >
             <div className="md:flex">
                 <div className="md:flex-shrink-0 w-full md:w-48 h-40 md:h-48 relative">
@@ -288,13 +298,13 @@ const CommunityPetCard: React.FC<CommunityPetCardProps> = ({ pet, onShare, onVie
 
 const MissionPetCard: React.FC<MissionPetCardProps> = ({ pet, distance, points, onClick, onViewDetail }) => {
     const { t } = useTranslations();
+    const tapHandlers = useTapIntent(() => {
+        if (onViewDetail) onViewDetail(pet);
+        else if (onClick) onClick();
+    });
     return (
         <div
-            onPointerDown={(e) => {
-                if ((e.target as HTMLElement).closest('button')) return;
-                if (onViewDetail) onViewDetail(pet);
-                else if (onClick) onClick();
-            }}
+            {...tapHandlers}
             className="bg-[#0f172a]/60 hover:bg-primary/10 border border-white/5 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] flex items-center gap-5 group relative overflow-hidden active:scale-95"
         >
             <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
@@ -319,13 +329,11 @@ const MissionPetCard: React.FC<MissionPetCardProps> = ({ pet, distance, points, 
 
 const ShelterPetCard: React.FC<ShelterPetCardProps> = ({ pet, onEdit, onAdopt, onViewDetail }) => {
     const { t } = useTranslations();
+    const tapHandlers = useTapIntent(() => onViewDetail(pet));
     return (
-        <div 
-            className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-white/10 group cursor-pointer active:scale-95" 
-            onPointerDown={(e) => {
-                if ((e.target as HTMLElement).closest('button')) return;
-                onViewDetail(pet);
-            }}
+        <div
+            className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-white/10 group cursor-pointer active:scale-95"
+            {...tapHandlers}
         >
             <div className="flex flex-col sm:flex-row">
                 <div className="sm:w-48 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
@@ -361,22 +369,19 @@ const ShelterPetCard: React.FC<ShelterPetCardProps> = ({ pet, onEdit, onAdopt, o
 
 const AdoptionPetCard: React.FC<AdoptionPetCardProps> = ({ pet, onViewDetail, onInquire, mode = 'grid', explanation }) => {
     const { t } = useTranslations();
-    
-    const handleCardClick = (e: React.MouseEvent | React.PointerEvent) => {
-        if ((e.target as HTMLElement).closest('button')) return;
-        onViewDetail(pet);
-    };
+
+    const tapHandlers = useTapIntent(() => onViewDetail(pet));
 
     return (
-        <GlassCard 
-            variant="interactive" 
+        <GlassCard
+            variant="interactive"
             className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl relative cursor-pointer active:scale-95 transition-transform`}
-            onPointerDown={handleCardClick}
+            {...tapHandlers}
         >
             <div className={`${mode === 'list' ? 'w-48' : 'w-full h-64'} relative overflow-hidden`}>
                 <CinematicImage className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src={pet.photos[0]?.url} alt={pet.name} />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                   <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
+                    <span className="text-white text-xs font-bold uppercase tracking-widest drop-shadow-md">{pet.breed}</span>
                 </div>
                 {/* Action Overlays */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
@@ -389,10 +394,10 @@ const AdoptionPetCard: React.FC<AdoptionPetCardProps> = ({ pet, onViewDetail, on
                     <div className="flex-1 min-w-0">
                         <h2 className="text-2xl font-black text-white uppercase tracking-tight drop-shadow-md truncate">{pet.name}</h2>
                         <p className="text-xs font-mono text-primary uppercase tracking-[0.2em] mt-1 drop-shadow-sm truncate">{pet.breed}</p>
-                    </div>                    
+                    </div>
                     <span className="bg-primary/20 text-primary border border-primary/30 px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur-md flex-shrink-0 ml-2">{pet.age}</span>
                 </div>
-                
+
                 {explanation && (
                     <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20 animate-pulse-slow">
                         <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1">{t('aiMatchReason')}</p>
@@ -401,14 +406,14 @@ const AdoptionPetCard: React.FC<AdoptionPetCardProps> = ({ pet, onViewDetail, on
                 )}
 
                 <p className="text-sm text-slate-200 mt-4 flex-grow leading-relaxed line-clamp-3 drop-shadow-sm">{pet.behavior}</p>
-                
+
                 <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-                     <div className="flex gap-2">
+                    <div className="flex gap-2">
                         {pet.weight && <span className="bg-white/10 text-slate-300 px-2 py-1 rounded text-[10px] uppercase font-bold border border-white/5">{pet.weight}</span>}
-                     </div>
-                     <GlassButton onClick={(e) => { e.stopPropagation(); onInquire(pet); }} className="text-[10px] uppercase tracking-[0.2em] font-black shadow-lg" variant="primary">
+                    </div>
+                    <GlassButton onClick={(e) => { e.stopPropagation(); onInquire(pet); }} className="text-[10px] uppercase tracking-[0.2em] font-black shadow-lg" variant="primary">
                         {t('inquireToAdoptButton')}
-                     </GlassButton>
+                    </GlassButton>
                 </div>
             </div>
         </GlassCard>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { dbService } from '../../services/firebase';
+import { dbService, storage } from '../../services/firebase';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
 import { useTranslation } from 'react-i18next';
@@ -91,7 +91,7 @@ export const TestSuiteTab: React.FC = () => {
                 }
                 case 'storage': {
                     // Check if storage instance is available
-                    if (dbService.storage) {
+                    if (storage) {
                         updateResult(featureId, { status: 'pass', message: 'Cloud Storage instance initialized and reachable.' });
                     } else {
                         updateResult(featureId, { status: 'fail', message: 'Storage initialization failed.' });
@@ -128,9 +128,9 @@ export const TestSuiteTab: React.FC = () => {
             }
         } catch (error: any) {
             console.error(`[Test Suite] Failure in ${featureId}:`, error);
-            updateResult(featureId, { 
-                status: 'fail', 
-                message: `Protocol Error: ${error.code || 'UNKNOWN'} - ${error.message}` 
+            updateResult(featureId, {
+                status: 'fail',
+                message: `Protocol Error: ${error.code || 'UNKNOWN'} - ${error.message}`
             });
         }
     };
@@ -143,8 +143,8 @@ export const TestSuiteTab: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div className="space-y-1">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="space-y-1 w-full">
                     <h2 className="text-2xl font-black text-white flex items-center gap-3">
                         <span className="text-primary">🛠️</span>
                         System Audit & Test Suite
@@ -160,12 +160,11 @@ export const TestSuiteTab: React.FC = () => {
                 {FEATURES.map(feature => {
                     const result = results[feature.id] || { status: 'idle' };
                     return (
-                        <GlassCard key={feature.id} className={`p-5 transition-all duration-500 border-l-4 ${
-                            result.status === 'pass' ? 'border-l-emerald-500 bg-emerald-500/5' :
+                        <GlassCard key={feature.id} className={`p-5 transition-all duration-500 border-l-4 ${result.status === 'pass' ? 'border-l-emerald-500 bg-emerald-500/5' :
                             result.status === 'fail' ? 'border-l-red-500 bg-red-500/5' :
-                            result.status === 'running' ? 'border-l-blue-500 bg-blue-500/5 animate-pulse' :
-                            'border-l-slate-700 bg-white/5'
-                        }`}>
+                                result.status === 'running' ? 'border-l-blue-500 bg-blue-500/5 animate-pulse' :
+                                    'border-l-slate-700 bg-white/5'
+                            }`}>
                             <div className="flex justify-between items-start mb-3">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl">
@@ -176,7 +175,7 @@ export const TestSuiteTab: React.FC = () => {
                                         <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{feature.category}</span>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => runTest(feature.id)}
                                     disabled={result.status === 'running'}
                                     className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 transition-all"
@@ -187,15 +186,14 @@ export const TestSuiteTab: React.FC = () => {
                                     </svg>
                                 </button>
                             </div>
-                            
+
                             <p className="text-xs text-slate-400 mb-4 h-8 line-clamp-2">{feature.description}</p>
-                            
-                            <div className={`text-[10px] p-2 rounded-lg font-mono flex flex-col gap-1 ${
-                                result.status === 'pass' ? 'bg-emerald-500/10 text-emerald-400' :
+
+                            <div className={`text-[10px] p-2 rounded-lg font-mono flex flex-col gap-1 ${result.status === 'pass' ? 'bg-emerald-500/10 text-emerald-400' :
                                 result.status === 'fail' ? 'bg-red-500/10 text-red-400' :
-                                result.status === 'running' ? 'bg-blue-500/10 text-blue-400' :
-                                'bg-black/20 text-slate-500'
-                            }`}>
+                                    result.status === 'running' ? 'bg-blue-500/10 text-blue-400' :
+                                        'bg-black/20 text-slate-500'
+                                }`}>
                                 <div className="flex justify-between items-center">
                                     <span className="font-bold">STATUS: {result.status.toUpperCase()}</span>
                                     {result.timestamp && <span className="opacity-50">{new Date(result.timestamp).toLocaleTimeString()}</span>}

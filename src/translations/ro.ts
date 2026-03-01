@@ -301,5 +301,312 @@ export const ro = {
     "petTagTitle": "Digital Pet Tag",
     "scanToViewProfile": "Scan to view full biometric profile",
     "printButton": "Print Tag",
-    "orderSafePawTag": "Order Safe Paw NFC Tag"
+    "orderSafePawTag": "Order Safe Paw NFC Tag",
+
+
+    // === MISSING KEYS ADDED FROM public/locales/ro/common.json ===
+    "exploreEcosystem": "Explorați Ecosistemul Complet",
+    "tutorial": {
+        "step": "Pas",
+        "skip": "Sari",
+        "finish": "Finalizare",
+        "home": {
+            "title": "Bun venit la Bază",
+            "desc": "Centrul dvs. principal de comandă."
+        },
+        "register": {
+            "title": "Înregistrare Biometrică",
+            "desc": "Creați o amprentă digitală unică pentru animalul dvs."
+        },
+        "map": {
+            "title": "Rețeaua de Siguranță",
+            "desc": "Monitorizați alertele active în timp real."
+        },
+        "community": {
+            "title": "Hub-ul Ecosistemului",
+            "desc": "Accesați protocoale AI, rețele veterinare și inteligența comunității."
+        },
+        "emergency": {
+            "title": "Asistență Imediată",
+            "desc": "Asistent AI disponibil 24/7 pentru situații critice."
+        },
+        "owner": {
+            "welcome": {
+                "title": "Bun venit pe PawPrint! 🐾",
+                "desc": "PawPrintFind este platforma dvs. AI pentru a vă menține animalele în siguranță. Folosim GPS, scanare AI și rețele comunitare pentru a ajuta animalele pierdute să se reunească cu familiile lor."
+            },
+            "register": {
+                "title": "Înregistrați-vă Animalul",
+                "desc": "Creați un pașaport digital pentru animalul dvs. cu fotografii, semne distinctive și date biometrice. Aceasta este identitatea unică a animalului dvs."
+            },
+            "map": {
+                "title": "Harta Animalelor Pierdute",
+                "desc": "Vizualizați toate animalele pierdute din zona dvs. în timp real. Puteți raporta și animale găsite."
+            },
+            "community": {
+                "title": "Centrul Comunitar",
+                "desc": "Conectați-vă cu alți proprietari, voluntari și adăposturi. Partajați observații și construiți o rețea de siguranță."
+            },
+            "emergency": {
+                "title": "Butonul de Urgență",
+                "desc": "V-ați pierdut animalul? Apăsați acest buton pentru a alerta imediat comunitatea dvs."
+            },
+            "karma": {
+                "title": "Karma și Recompense",
+                "desc": "Fiecare acțiune câștigă Puncte Karma. Raportați observații, ajutați alții și completați misiuni pentru a avansa."
+            },
+            "vet": {
+                "title": "Găsiți un Veterinar",
+                "desc": "Răsfoiți clinicile veterinare verificate din apropierea dvs. Programați consultații și accesați verificări de sănătate AI."
+            }
+        },
+        "vet": {
+            "welcome": {
+                "title": "Bun venit, Doctore! 🩺",
+                "desc": "Panoul dvs. veterinar oferă instrumente pentru gestionarea programărilor, verificarea acreditărilor și utilizarea diagnosticului AI."
+            },
+            "verify": {
+                "title": "Verificați Acreditările",
+                "desc": "Încărcați acreditările veterinare pentru a obține insigna verificat și a debloca funcțiile PRO."
+            },
+            "appointments": {
+                "title": "Gestionați Programările",
+                "desc": "Vizualizați și gestionați toate solicitările de programare. Clienții rezervă direct din platformă."
+            },
+            "ai": {
+                "title": "Asistent Sănătate AI",
+                "desc": "Utilizați evaluarea noastră preliminară de sănătate AI. Analizați simptome și obțineți sugestii diagnostice."
+            },
+            "clinic": {
+                "title": "Profilul Clinicii",
+                "desc": "Gestionați profilul public al clinicii dvs., serviciile, orarul și locația."
+            },
+            "pro": {
+                "title": "Actualizare la PRO 👑",
+                "desc": "Veterinarii PRO obțin listări prioritare, funcții AI avansate și analize ale programărilor."
+            }
+        },
+        "shelter": {
+            "welcome": {
+                "title": "Bun venit, Adăpost! 🏠",
+                "desc": "Panoul dvs. vă ajută să gestionați animalele disponibile pentru adopție și să vă conectați cu comunitatea."
+            },
+            "register": {
+                "title": "Listați Animale pentru Adopție",
+                "desc": "Înregistrați toate animalele adăpostului cu fotografii, dosare medicale și profiluri de personalitate."
+            },
+            "adoption": {
+                "title": "Centrul de Adopție",
+                "desc": "Toate animalele dvs. apar în Centrul de Adopție public. Urmăriți solicitările și coordonați întâlnirile."
+            },
+            "community": {
+                "title": "Implicați Comunitatea",
+                "desc": "Partajați actualizări, publicați povești de succes și conduceți campanii comunitare."
+            },
+            "stats": {
+                "title": "Monitorizați Impactul",
+                "desc": "Urmăriți ratele de adopție, tendințele solicitărilor și implicarea comunității."
+            }
+        },
+        "volunteer": {
+            "welcome": {
+                "title": "Bun venit, Voluntar! 🤝",
+                "desc": "Ca voluntar, ești ochii și urechile comunității. Patrulele și observațiile tale ajută direct."
+            },
+            "patrol": {
+                "title": "Modul Patrulare 🚴",
+                "desc": "Activați patrularea GPS pentru a vă urmări traseul și a câștiga Puncte Karma pentru fiecare kilometru."
+            },
+            "sighting": {
+                "title": "Raportați Observații 👁️",
+                "desc": "Ați văzut un animal pierdut? Folosiți scanerul 'Animal Găsit' pentru a notifica imediat proprietarul."
+            },
+            "karma": {
+                "title": "Câștigați Karma ⭐",
+                "desc": "Fiecare observație, patrulă și misiune câștigă Puncte Karma. Răscumpărați-le pentru recompense exclusive."
+            },
+            "missions": {
+                "title": "Misiuni Comunitare 🎯",
+                "desc": "Alăturați-vă misiunilor de grup pentru a acoperi zone specifice și a sprijini operațiunile de căutare."
+            },
+            "leaderboard": {
+                "title": "Clasament 🏆",
+                "desc": "Concurați cu voluntarii din orașul dvs. Cei mai buni voluntari sunt prezentați în clasamentul comunității."
+            }
+        },
+        "admin": {
+            "welcome": {
+                "title": "Centrul de Comandă Admin ⚡",
+                "desc": "Aveți acces complet la sistem. Gestionați utilizatori, operațiuni, finanțe și modele AI din acest hub central."
+            },
+            "users": {
+                "title": "Gestionarea Utilizatorilor 👥",
+                "desc": "Vizualizați, editați și gestionați toți utilizatorii înregistrați. Atribuiți roluri și verificați conturi."
+            },
+            "operations": {
+                "title": "Hub Operațiuni 🐾",
+                "desc": "Examinați solicitările de verificare veterinară, gestionați înregistrările animalelor și supravegheați operațiunile."
+            },
+            "finance": {
+                "title": "Finanțe și Cupoane 💰",
+                "desc": "Urmăriți donațiile, gestionați plățile Stripe și generați coduri promoționale."
+            },
+            "ai": {
+                "title": "Configurare AI 🧠",
+                "desc": "Comutați între furnizori AI (Google Gemini / OpenRouter) și configurați mapările modelelor."
+            },
+            "community": {
+                "title": "Comunitate și Karma 🏆",
+                "desc": "Gestionați sistemul de karma, acordați insigne și moderați conținutul comunității."
+            }
+        }
+    },
+    "problemStats": {
+        "criticalAlert": "Alertă Globală Critică",
+        "title": "În fiecare an, milioane de familii pierd conexiunea.",
+        "description": "Metodele tradiționale eșuează. Ratele de recuperare a animalelor pierdute nu s-au schimbat de decenii, în ciuda progreselor tehnologice. Până acum.",
+        "lostAnnually": {
+            "label": "Pierdute Anual",
+            "desc": "Zece milioane de animale de companie dispar în fiecare an în întreaga lume."
+        },
+        "missingProb": {
+            "label": "Probabilitatea Pierderii",
+            "desc": "Un uluitor 33% din toate animalele de companie vor dispărea cel puțin o dată în viața lor."
+        },
+        "idGap": {
+            "label": "Decalajul de Identificare",
+            "desc": "Fără identificare digitală, 90% din animalele pierdute nu sunt niciodată reunite cu proprietarii lor."
+        },
+        "initiatingProtocols": "Inițierea Protocoalelor de Recuperare",
+        "seeSolution": "Vedeți Soluția"
+    },
+    "solutionNarrative": {
+        "title": "Ecosistemul Paw Print",
+        "description": "Nu găsim doar animale de companie. Creăm o legătură digitală permanentă între familii și companionii lor printr-o rețea de siguranță globală alimentată de AI.",
+        "problemLabel": "Problema: {{problem}}",
+        "detailsButton": "Detalii Protocol",
+        "biometrics": {
+            "problem": "90% Eșec de Identificare",
+            "solution": "Amprentă Biometrică AI"
+        },
+        "geofencing": {
+            "problem": "Probabilitate 1 din 3",
+            "solution": "Geofencing Inteligent Predictiv"
+        },
+        "uplink": {
+            "problem": "Timpuri de Răspuns Întârziate",
+            "solution": "Uplink Comunitar în Timp Real"
+        },
+        "stats": {
+            "neuralRender": "60 FPS",
+            "neuralRenderLabel": "Randare Neurală",
+            "aiLatency": "< 200ms",
+            "aiLatencyLabel": "Latență AI",
+            "encryption": "AES-256",
+            "encryptionLabel": "Criptare Date",
+            "uplinkStatus": "24/7/365",
+            "uplinkStatusLabel": "Status Uplink"
+        }
+    },
+    "ecosystemHub": {
+        "backToBase": "← Înapoi la Bază",
+        "title": "Ecosistemul Sistemului",
+        "description": "O prezentare centralizată a rețelei de siguranță autonome Paw Print și a protocoalelor AI integrate.",
+        "accessProtocol": "Accesați Protocolul",
+        "sections": {
+            "intelligence": "Inteligența de Bază",
+            "safety": "Rețeaua de Siguranță",
+            "external": "Intel Extern"
+        },
+        "nodes": {
+            "aiVision": {
+                "title": "AI Vision",
+                "desc": "Identificare multimodală a rasei și marcajelor unice alimentată de Gemini 2.0 Pro."
+            },
+            "triage": {
+                "title": "Triaj Sănătate",
+                "desc": "Evaluări AI proactive și analiză a simptomelor pentru îndrumare imediată."
+            },
+            "smartSearch": {
+                "title": "Căutare Inteligentă",
+                "desc": "Interogări în limbaj natural pentru a găsi potriviri exacte în baza de date globală."
+            },
+            "geofencing": {
+                "title": "Geofencing Inteligent",
+                "desc": "Monitorizarea predictivă a zonelor sigure și declanșarea automată a alertelor."
+            },
+            "alerts": {
+                "title": "Alerte Globale",
+                "desc": "Transmisiuni instantanee la nivel de comunitate pentru rapoarte de animale pierdute."
+            },
+            "map": {
+                "title": "Harta Observațiilor",
+                "desc": "Urmărire interactivă în timp real a întâlnirilor verificate cu animale."
+            },
+            "scraper": {
+                "title": "Scraper Social",
+                "desc": "Agenți AI autonomi care descoperă rapoarte despre animale pierdute pe platformele sociale."
+            },
+            "vets": {
+                "title": "Rețeaua Veterinară",
+                "desc": "Sisteme integrate de verificare profesională și management al pacienților."
+            },
+            "community": {
+                "title": "Hub Comunitar",
+                "desc": "Rețea de suport descentralizată pentru proprietarii de animale și voluntari."
+            }
+        }
+    },
+    "adoptionLink": "Adopție",
+    "showLostPets": "Animale Pierdute",
+    "communityHubButton": "Hub Comunitar",
+    "rankAlpha": "Alpha",
+    "activeBadges": "Insigne Active",
+    "redeemCodeButton": "Răscumpără Codul",
+    "dashboardWelcome": "Bun venit înapoi",
+    "noImpronte": "Niciun animal înregistrat",
+    "noImpronteDesc": "Înregistrează primul tău animal pentru a-l proteja.",
+    "addNewImprontaButton": "Adaugă Animal",
+    "rank": "Clasament",
+    "myProfileAndBadges": "Profilul și Insignele Mele",
+    "invalidCode": "Cod negăsit sau deja utilizat.",
+    "errorOccurred": "A apărut o eroare. Te rog încearcă din nou.",
+    "noBadgesYet": "Nicio insignă încă — începe să explorezi!",
+    "syncSuccessful": "{{name}} sincronizat cu succes!",
+    "criticalSyncFailure": "Eroare critică de sincronizare: ",
+    "networkTimeout": "Timp de rețea depășit",
+    "secureSessionClosed": "Sesiunea securizată a fost închisă",
+    "loginToContactOwner": "Autentifică-te pentru a contacta proprietarul",
+    "adoptionInquiryTemplate": "Bună! Sunt interesat să adopt pe {{petName}}. Îmi poți spune mai multe despre el/ea?",
+    "maxNamePlaceholder": "ex. Max, Bella, Charlie...",
+    "labradorPlaceholder": "ex. Labrador, Golden Retriever...",
+    "stepMedical": "Fișă Medicală",
+    "registerStrayTitle": "Înregistrează un Rătăcit",
+    "registerForAdoptionTitle": "Înregistrează pentru Adopție",
+    "videoUploadLabel": "Înregistrare Video",
+    "audioUploadLabel": "Înregistrare Vocală",
+    "selectVideo": "Selectează Video",
+    "selectAudio": "Selectează Audio",
+    "analyzeVideoButton": "Analizează Video",
+    "transcribeAudioButton": "Transcrie",
+    "analyzingStatus": "Se analizează...",
+    "transcribingStatus": "Se transcrie...",
+    "changePhotoButton": "Schimbă",
+    "aiBiometricIdentity": "Profil Biometric AI",
+    "generateVisualHash": "Generează Hash Vizual",
+    "allergiesLabel": "Alergii",
+    "chronicConditionsLabel": "Afecțiuni Cronice",
+    "medicationsLabel": "Medicamente",
+    "vaccinationsTitle": "Registru Vaccinări",
+    "vaccinationNamePlaceholder": "ex. Rabie, Parvoviroză...",
+    "addHomeAreaButton": "Adaugă Zonă de Casă",
+    "homeAreasTitle": "Casă și Zone Sigure",
+    "foundLocationTitle": "Locul Găsirii",
+    "step4DescStray": "Unde a fost găsit acest animal?",
+    "step4DescOwner": "Marchează zonele de casă ale animalului pentru alerte de geofencing.",
+    "finalStepForAdoption": "Adaugă locația adăpostului tău",
+    "identifyingBreed": "Se identifică...",
+    "uploadOnePhotoWarning": "Te rog încarcă cel puțin o fotografie mai întâi.",
+    "videoAnalysisFailed": "Analiza video a eșuat. Te rog încearcă din nou.",
+    "audioTranscriptionFailed": "Transcrierea audio a eșuat. Te rog încearcă din nou."
 };

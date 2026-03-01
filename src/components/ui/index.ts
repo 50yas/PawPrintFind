@@ -6,3 +6,4 @@ export * from './CinematicImage';
 export * from './EmptyState';
 export * from './SkeletonLoader';
 export * from './Snackbar';
+export * from './Tooltip';

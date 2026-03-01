@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/firebase';
+import { dbService, db } from '../services/firebase';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { VetVerificationRequest } from '../types';
 import { GlassButton } from './ui/GlassButton';
 import { GlassCard } from './ui/GlassCard';
@@ -15,12 +16,19 @@ export const AdminVetVerificationHUD: React.FC = () => {
     const [processing, setProcessing] = useState(false);
 
     useEffect(() => {
-        const fetchRequests = async () => {
-            const pending = await dbService.getPendingVerifications();
+        const requestsRef = collection(db, 'vet_verification_requests');
+        const q = query(requestsRef, where('status', '==', 'pending'), orderBy('submittedAt', 'desc'));
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const pending = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VetVerificationRequest));
             setRequests(pending);
             setLoading(false);
-        };
-        fetchRequests();
+        }, (error) => {
+            console.error("Error fetching verification requests:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const handleApprove = async (grantPro: boolean) => {

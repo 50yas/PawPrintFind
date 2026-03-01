@@ -372,8 +372,11 @@ export default function App() {
                 {showSplash && <div className="fixed inset-0 z-[200]"><LoadingScreen /></div>}
 
                 <div className={`relative z-10 flex-grow flex flex-col transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
-                    {/* Main content padding adjusted to account for fixed marquee + fixed navbar */}
-                    <main className="flex-grow pt-32 md:pt-40 pb-32 md:pb-24">
+                    {/* Main content padding: top for fixed navbar/marquee, bottom for mobile bottom nav */}
+                    <main
+                        className="flex-grow pt-32 md:pt-40 md:pb-24"
+                        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)' } as React.CSSProperties}
+                    >
                         <Suspense fallback={
                             <div className="flex items-center justify-center h-full">
                                 <LoadingSpinner />
@@ -435,6 +438,7 @@ export default function App() {
                                     onReportSighting={(pet) => {
                                         addSnackbar(t('reportSightingFeatureComingSoon'), 'info');
                                     }}
+                                    setCurrentUser={setCurrentUser}
                                 />
                             </PageTransition>
                         </Suspense>
@@ -498,7 +502,7 @@ export default function App() {
 
             {showTutorial && (
                 <Suspense fallback={null}>
-                    <TutorialOverlay onClose={handleTutorialClose} />
+                    <TutorialOverlay onClose={handleTutorialClose} userRole={currentUser?.activeRole} />
                 </Suspense>
             )}
         </div>

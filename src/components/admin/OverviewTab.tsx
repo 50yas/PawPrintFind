@@ -13,7 +13,7 @@ interface OverviewTabProps {
   allPets: PetProfile[];
   donations: Donation[];
   blogPosts: BlogPost[];
-  pendingVerifications: User[];
+  pendingRequestsCount: number; // Use real-time count
   onNavigateToTab: (tab: string) => void;
   onNavigateToBlog: () => void;
 }
@@ -23,7 +23,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   allPets,
   donations,
   blogPosts,
-  pendingVerifications,
+  pendingRequestsCount,
   onNavigateToTab,
   onNavigateToBlog
 }) => {
@@ -105,11 +105,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         />
         <MetricCard
           title={t('dashboard:admin.statActiveAlerts')}
-          value={pendingVerifications.length}
-          icon={pendingVerifications.length > 0 ? '🔴' : '✅'}
-          trend={pendingVerifications.length > 0 ? 'neutral' : 'up'}
-          colorClass={pendingVerifications.length > 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}
-          onClick={() => onNavigateToTab('verification')}
+          value={pendingRequestsCount}
+          icon={pendingRequestsCount > 0 ? '🔴' : '✅'}
+          trend={pendingRequestsCount > 0 ? 'neutral' : 'up'}
+          colorClass={pendingRequestsCount > 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}
+          onClick={() => onNavigateToTab('operations')}
         />
       </div>
 
@@ -180,7 +180,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             <span className="text-[10px] font-black">{t('dashboard:admin.quickAction.addUser')}</span>
           </GlassButton>
           <GlassButton
-            onClick={() => onNavigateToTab('logs')}
+            onClick={() => onNavigateToTab('system')}
             variant="secondary"
             className="!py-3 flex flex-col items-center gap-2"
           >
@@ -188,7 +188,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             <span className="text-[10px] font-black">{t('dashboard:admin.quickAction.viewLogs')}</span>
           </GlassButton>
           <GlassButton
-            onClick={() => onNavigateToTab('config')}
+            onClick={() => onNavigateToTab('system')}
             variant="secondary"
             className="!py-3 flex flex-col items-center gap-2"
           >

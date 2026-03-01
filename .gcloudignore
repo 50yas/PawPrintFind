@@ -1,7 +1,29 @@
 .gcloudignore
 .git
 .gitignore
+
+# Internal developer docs — never deploy to App Engine
+_unpublished/
+
 node_modules/
 coverage/
 
+# Local environment & secrets
+.env
+.env.local
+.env.*.local
 
+# Dev & test artifacts
+dev-dist/
+*.log
+
+# Firebase CLI cache
+.firebase/
+
+# Claude agent memory
+.claude/
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store

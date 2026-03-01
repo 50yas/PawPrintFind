@@ -31,7 +31,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
 
   if (!isOpen) return null;
 
-  const baseClasses = "fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-4 px-4 py-3 min-w-[300px] max-w-[90vw] rounded-xl shadow-2xl transition-all animate-[slide-up-fade_0.3s_ease-out]";
+  const baseClasses = "fixed left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-4 px-4 py-3 min-w-[300px] max-w-[90vw] rounded-xl shadow-2xl transition-all animate-[slide-up-fade_0.3s_ease-out]";
   
   const variantClasses = {
       info: "bg-inverse-surface text-inverse-on-surface",
@@ -42,7 +42,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
   const finalClass = `${baseClasses} ${variant === 'error' ? variantClasses.error : variantClasses.info}`;
 
   return createPortal(
-    <div className={finalClass} role="alert">
+    <div className={finalClass} role="alert" style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)' }}>
       <span className="flex-1 text-sm font-medium tracking-wide">{message}</span>
       {actionLabel && (
         <button 

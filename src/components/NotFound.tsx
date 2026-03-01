@@ -2,9 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
+import { View } from '../types';
 
 interface NotFoundProps {
-    setView: (view: string) => void;
+    setView: (view: View) => void;
 }
 
 export const NotFound: React.FC<NotFoundProps> = ({ setView }) => {

@@ -24,7 +24,7 @@
   "homeTitle1": "Every Paw Print",
   "homeTitle2": "is Unique",
   "homeSubtitle": "The fastest way to reunite with your lost pet. Create a secure digital passport today.",
-  "createImprontaButton": "Create Impronta 🐾",
+  "createImprontaButton": "Create PawPrint 🐾",
   "foundPetButton": "I Found a Pet 🐱",
   "explorerMapButton": "Explorer Map",
   "aiScannerButton": "AI Scanner",
@@ -160,7 +160,7 @@
   "enterCodePlaceholder": "ENTER-CODE",
   "redeemButton": "Redeem",
   "congratulations": "Congratulations!",
-  "youUnlocked": "You unlocked a reward!",
+  "youUnlocked": "You have unlocked a reward!",
   "loadingUsers": "Loading users...",
   "searchUsers": "Search users...",
   "beta": {
@@ -301,5 +301,311 @@
   "petTagTitle": "Digital Pet Tag",
   "scanToViewProfile": "Scan to view full biometric profile",
   "printButton": "Print Tag",
-  "orderSafePawTag": "Order Safe Paw NFC Tag"
+  "orderSafePawTag": "Order Safe Paw NFC Tag",
+  "exploreEcosystem": "Explore Full Ecosystem",
+  "tutorial": {
+    "step": "Step",
+    "skip": "Skip",
+    "finish": "Finish",
+    "home": {
+      "title": "Welcome to Base",
+      "desc": "Your primary command center. Return here anytime."
+    },
+    "register": {
+      "title": "Biometric Enrollment",
+      "desc": "Create a unique visual fingerprint for your companion."
+    },
+    "map": {
+      "title": "Safety Grid",
+      "desc": "Monitor active alerts and sightings in real-time."
+    },
+    "community": {
+      "title": "Ecosystem Hub",
+      "desc": "Access AI protocols, vet networks, and community intelligence."
+    },
+    "emergency": {
+      "title": "Immediate Assistance",
+      "desc": "AI Assistant standing by 24/7 for critical situations."
+    },
+    "owner": {
+      "welcome": {
+        "title": "Welcome to PawPrint! 🐾",
+        "desc": "PawPrintFind is your AI-powered platform to keep your pets safe. We use GPS, AI scanning, and community networks to help reunite lost pets with their families."
+      },
+      "register": {
+        "title": "Register Your Pet",
+        "desc": "Create a digital passport for your pet with photos, markings, and biometric data. This is your pet's unique identity that makes them findable anywhere in the world."
+      },
+      "map": {
+        "title": "Live Missing Pets Map",
+        "desc": "View all reported lost pets in your area in real-time. You can also report found animals and help reunite them with their owners."
+      },
+      "community": {
+        "title": "Community Hub",
+        "desc": "Connect with other pet owners, volunteers, and shelters. Share sightings, ask for help, and build a safety network around your neighborhood."
+      },
+      "emergency": {
+        "title": "Emergency Button",
+        "desc": "Lost your pet? Tap this button to instantly alert your entire community, nearby vets, and our AI assistant will guide you through the next steps."
+      },
+      "karma": {
+        "title": "Karma & Rewards",
+        "desc": "Every action earns Karma Points — reporting sightings, helping others, and completing missions. Level up from Scout to Legend and earn exclusive badges!"
+      },
+      "vet": {
+        "title": "Find a Vet",
+        "desc": "Browse verified veterinary clinics near you. Book appointments, access AI health checks, and connect directly with vets who can help your pet."
+      }
+    },
+    "vet": {
+      "welcome": {
+        "title": "Welcome, Doctor! 🩺",
+        "desc": "Your veterinary dashboard gives you tools to manage appointments, verify your credentials, and use AI-powered diagnostics to help your patients."
+      },
+      "verify": {
+        "title": "Get Verified",
+        "desc": "Upload your veterinary credentials to get the verified badge. Verification unlocks client trust, more appointments, and access to PRO features."
+      },
+      "appointments": {
+        "title": "Manage Appointments",
+        "desc": "View and manage all your appointment requests. Clients book directly through the platform — accept, reschedule, or complete appointments in one place."
+      },
+      "ai": {
+        "title": "AI Health Assistant",
+        "desc": "Use our AI-powered preliminary health assessment tool. Analyze symptoms, get diagnostic suggestions, and save time on initial consultations."
+      },
+      "clinic": {
+        "title": "Your Clinic Profile",
+        "desc": "Manage your clinic's public profile, services, hours, and location. A complete profile attracts more clients and builds community trust."
+      },
+      "pro": {
+        "title": "Upgrade to PRO 👑",
+        "desc": "PRO vets get priority listing, advanced AI features, appointment analytics, and the ability to verify shelter animals. Requires credential verification first."
+      }
+    },
+    "shelter": {
+      "welcome": {
+        "title": "Welcome, Shelter! 🏠",
+        "desc": "Your shelter dashboard helps you manage pets for adoption, track inquiries, and connect with your local community to find loving homes."
+      },
+      "register": {
+        "title": "List Pets for Adoption",
+        "desc": "Register all your shelter animals with photos, health records, and personality profiles. AI helps match pets with compatible adopter families."
+      },
+      "adoption": {
+        "title": "Adoption Center",
+        "desc": "All your listed animals appear in the public Adoption Center. Track inquiries, manage applications, and coordinate meetups with potential adopters."
+      },
+      "community": {
+        "title": "Engage the Community",
+        "desc": "Share updates, post success stories, and run community campaigns. Building visibility helps animals find homes faster."
+      },
+      "stats": {
+        "title": "Track Your Impact",
+        "desc": "Monitor adoption rates, inquiry trends, and community engagement. Use data to improve your listing strategy and reach more adopters."
+      }
+    },
+    "volunteer": {
+      "welcome": {
+        "title": "Welcome, Volunteer! 🤝",
+        "desc": "As a volunteer, you are the eyes and ears of the community. Your patrols, sightings, and missions directly help lost pets find their way home."
+      },
+      "patrol": {
+        "title": "Patrol Mode 🚴",
+        "desc": "Activate GPS patrol to track your route and earn Karma Points for every kilometer. Food delivery riders get bonus multipliers for reporting sightings on the go!"
+      },
+      "sighting": {
+        "title": "Report Sightings 👁️",
+        "desc": "Spotted a lost or stray pet? Tap the emergency button or use the Found Pet scanner to instantly notify the owner and nearby helpers."
+      },
+      "karma": {
+        "title": "Earn Karma ⭐",
+        "desc": "Every sighting, patrol, and mission earns Karma Points. Redeem them for badges, subscription upgrades, and exclusive rewards from partner stores."
+      },
+      "missions": {
+        "title": "Community Missions 🎯",
+        "desc": "Join group missions to cover specific areas, help shelter animals, or support search parties. Missions multiply your karma earnings!"
+      },
+      "leaderboard": {
+        "title": "Leaderboard 🏆",
+        "desc": "Compete with volunteers in your city. Top volunteers get featured on the community leaderboard and earn special recognition badges."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "title": "Admin Command Center ⚡",
+        "desc": "You have full system access. Manage users, operations, finances, AI models, and community health from this central hub."
+      },
+      "users": {
+        "title": "User Management 👥",
+        "desc": "View, edit, and manage all registered users. Assign roles, verify accounts, suspend users, and track user activity across the platform."
+      },
+      "operations": {
+        "title": "Operations Hub 🐾",
+        "desc": "Review vet verification requests, manage pet registrations, handle abuse reports, and oversee all platform operations."
+      },
+      "finance": {
+        "title": "Finance & Coupons 💰",
+        "desc": "Track donations, manage Stripe payments, generate promotional coupon codes, and view financial analytics for the platform."
+      },
+      "ai": {
+        "title": "AI Configuration 🧠",
+        "desc": "Switch between AI providers (Google Gemini / OpenRouter), configure model mappings for each task, and test API connections."
+      },
+      "community": {
+        "title": "Community & Karma 🏆",
+        "desc": "Manage the karma system, award badges, moderate community content, schedule social media posts, and track engagement metrics."
+      }
+    }
+  },
+  "problemStats": {
+    "criticalAlert": "Critical Global Alert",
+    "title": "Every year, millions of families lose their connection.",
+    "description": "Traditional methods are failing. Lost pet recovery rates haven't changed in decades, despite advances in technology. Until now.",
+    "lostAnnually": {
+      "label": "Lost Annually",
+      "desc": "Ten million pets go missing every single year across the globe."
+    },
+    "missingProb": {
+      "label": "Missing Probability",
+      "desc": "A staggering 33% of all pets will disappear at least once in their lifetime."
+    },
+    "idGap": {
+      "label": "Identification Gap",
+      "desc": "Without digital identification, 90% of lost pets are never reunited with their owners."
+    },
+    "initiatingProtocols": "Initiating Recovery Protocols",
+    "seeSolution": "See the Solution"
+  },
+  "solutionNarrative": {
+    "title": "The Paw Print Ecosystem",
+    "description": "We don't just find pets. We create a permanent, digital link between families and their companions through a global, AI-powered safety net.",
+    "problemLabel": "The Problem: {{problem}}",
+    "detailsButton": "Protocol Details",
+    "biometrics": {
+      "problem": "90% Identification Failure",
+      "solution": "AI Biometric Fingerprinting"
+    },
+    "geofencing": {
+      "problem": "1 in 3 Probability",
+      "solution": "Predictive Smart Geofencing"
+    },
+    "uplink": {
+      "problem": "Delayed Response Times",
+      "solution": "Real-Time Community Uplink"
+    },
+    "stats": {
+      "neuralRender": "60 FPS",
+      "neuralRenderLabel": "Neural Render",
+      "aiLatency": "< 200ms",
+      "aiLatencyLabel": "AI Latency",
+      "encryption": "AES-256",
+      "encryptionLabel": "Data Encryption",
+      "uplinkStatus": "24/7/365",
+      "uplinkStatusLabel": "Uplink Status"
+    }
+  },
+  "ecosystemHub": {
+    "backToBase": "← Back to Base",
+    "title": "System Ecosystem",
+    "description": "A centralized overview of the Paw Print autonomous safety network and its integrated AI protocols.",
+    "accessProtocol": "Access Protocol",
+    "sections": {
+      "intelligence": "Core Intelligence",
+      "safety": "Safety Grid",
+      "external": "External Intel"
+    },
+    "nodes": {
+      "aiVision": {
+        "title": "AI Vision",
+        "desc": "Multi-modal breed and unique marking identification powered by Gemini 2.0 Pro."
+      },
+      "triage": {
+        "title": "Health Triage",
+        "desc": "Proactive AI assessments and symptoms analysis for immediate guidance."
+      },
+      "smartSearch": {
+        "title": "Smart Search",
+        "desc": "Natural language queries to find exact matches across the global database."
+      },
+      "geofencing": {
+        "title": "Smart Geofencing",
+        "desc": "Predictive safe-zone monitoring and automatic alert triggering."
+      },
+      "alerts": {
+        "title": "Global Alerts",
+        "desc": "Instant community-wide broadcasts for missing pet reports."
+      },
+      "map": {
+        "title": "Sightings Map",
+        "desc": "Real-time interactive tracking of verified pet encounters."
+      },
+      "scraper": {
+        "title": "Social Scraper",
+        "desc": "Autonomous AI agents discovering lost pet reports across social platforms."
+      },
+      "vets": {
+        "title": "Vet Network",
+        "desc": "Integrated professional verification and patient management systems."
+      },
+      "community": {
+        "title": "Community Hub",
+        "desc": "Decentralized support network for pet owners and volunteers."
+      }
+    }
+  },
+  "adoptionLink": "Adoption",
+  "showLostPets": "Missing Pets",
+  "communityHubButton": "Community Hub",
+  "rankAlpha": "Alpha",
+  "activeBadges": "Active Badges",
+  "redeemCodeButton": "Redeem Code",
+  "dashboardWelcome": "Welcome back",
+  "noImpronte": "No pets registered yet",
+  "noImpronteDesc": "Register your first pet to start protecting them.",
+  "addNewImprontaButton": "Add New Pet",
+  "rank": "Rank",
+  "myProfileAndBadges": "My Profile & Badges",
+  "invalidCode": "Code not found or already used.",
+  "errorOccurred": "An error occurred. Please try again.",
+  "noBadgesYet": "No badges yet — start exploring!",
+
+  "syncSuccessful": "{{name}} synced successfully!",
+  "criticalSyncFailure": "Critical sync failure: ",
+  "networkTimeout": "Network timeout",
+  "secureSessionClosed": "Secure session closed",
+  "loginToContactOwner": "Login to contact the owner",
+  "adoptionInquiryTemplate": "Hi! I'm interested in adopting {{petName}}. Could you tell me more about them?",
+
+  "maxNamePlaceholder": "e.g. Max, Bella, Charlie...",
+  "labradorPlaceholder": "e.g. Labrador, Golden Retriever...",
+  "stepMedical": "Medical Records",
+  "registerStrayTitle": "Register a Stray",
+  "registerForAdoptionTitle": "Register for Adoption",
+  "videoUploadLabel": "Video Recording",
+  "audioUploadLabel": "Voice Recording",
+  "selectVideo": "Select Video",
+  "selectAudio": "Select Audio",
+  "analyzeVideoButton": "Analyze Video",
+  "transcribeAudioButton": "Transcribe",
+  "analyzingStatus": "Analyzing...",
+  "transcribingStatus": "Transcribing...",
+  "changePhotoButton": "Change",
+  "aiBiometricIdentity": "AI Biometric Profile",
+  "generateVisualHash": "Generate Visual Hash",
+  "allergiesLabel": "Allergies",
+  "chronicConditionsLabel": "Chronic Conditions",
+  "medicationsLabel": "Medications",
+  "vaccinationsTitle": "Vaccination Records",
+  "vaccinationNamePlaceholder": "e.g. Rabies, FVRCP...",
+  "addHomeAreaButton": "Add Home Area",
+  "homeAreasTitle": "Home & Safe Zones",
+  "foundLocationTitle": "Found Location",
+  "step4DescStray": "Where was this animal found?",
+  "step4DescOwner": "Mark your pet's home areas for geofencing alerts.",
+  "finalStepForAdoption": "Add your shelter's location",
+  "identifyingBreed": "Identifying...",
+  "uploadOnePhotoWarning": "Please upload at least one photo first.",
+  "videoAnalysisFailed": "Video analysis failed. Please try again.",
+  "audioTranscriptionFailed": "Audio transcription failed. Please try again."
 }

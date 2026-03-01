@@ -369,7 +369,7 @@
     "noVaccinationRecords": "无医疗记录。",
     "savedLocations": "已保存位置",
     "goldfishWarning": "请提供名称和品种。🐾",
-    " mainframeResisting": "错误：{{error}}",
+    "mainframeResisting": "错误：{{error}}",
     "securityDenied": "拒绝访问。",
     "uploadCanceled": "已取消。",
     "unknownStorageError": "存储错误。",

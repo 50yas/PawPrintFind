@@ -130,7 +130,8 @@ export type View = 'home' | 'register' | 'find' | 'dashboard' | 'editPet' |
   'smartCalendar' | 'findVet' | 'linkVet' | 'community' |
   'shelterDashboard' | 'adoptionCenter' | 'lostPetsCenter' | 'registerForAdoption' |
   'donors' | 'adminDashboard' | 'pressKit' | 'volunteerDashboard' |
-  'blog' | 'blogPost' | 'blogDetail' | 'paymentSuccess' | 'publicPetDetail' | 'notFound' | 'ecosystemHub';
+  'blog' | 'blogPost' | 'blogDetail' | 'paymentSuccess' | 'publicPetDetail' | 'notFound' | 'ecosystemHub' |
+  'riderMissionCenter' | 'karmaStore' | 'leaderboard' | 'userProfile';
 
 export interface LogEntry {
   id: string;
@@ -293,6 +294,18 @@ export interface User {
   verificationStatus?: 'none' | 'pending' | 'approved' | 'declined';
   verificationSubmittedAt?: number;
   rejectionReason?: string;
+
+  // Karma & Rider System
+  karmaBalance?: number;
+  karmaTier?: 'scout' | 'tracker' | 'ranger' | 'guardian' | 'legend';
+  streakDays?: number;
+  lastActiveDate?: string;
+
+  // Profile customization
+  displayName?: string;
+  bio?: string;
+  photoURL?: string;
+  notificationsEnabled?: boolean;
 }
 
 export interface MatchResult {
@@ -474,6 +487,8 @@ export const GeolocationSchema = z.object({
 export const UserSchema = z.object({
   uid: z.string(),
   email: z.string().email(),
+  displayName: z.string().optional(),
+  photoURL: z.string().optional(),
   phoneNumber: z.string().optional(),
   roles: z.array(UserRoleSchema).default(['owner']),
   activeRole: UserRoleSchema.default('owner'),
@@ -857,6 +872,7 @@ export interface AISettings {
   modelMapping: Record<AIModelTask, string>;
   lastUpdated: number;
   updatedBy: string;
+  apiKeys?: Record<string, string>;
 }
 
 export const AISecretsSchema = z.object({
@@ -988,4 +1004,241 @@ export const SocialPlatformCredentialSchema = z.object({
   createdBy: z.string(),
   createdAt: z.date(),
   lastUsed: z.date().optional()
+});
+
+// ====== KARMA & RIDER SYSTEM TYPES ======
+
+export type RiderType = 'bicycle' | 'ebike' | 'monowheel' | 'scooter' | 'motorcycle' | 'food_delivery' | 'walking';
+
+export type KarmaAction =
+  | 'sighting_report'
+  | 'verified_sighting'
+  | 'search_patrol'
+  | 'patrol_time'
+  | 'successful_reunion'
+  | 'mission_complete'
+  | 'daily_check_in'
+  | 'referral'
+  | 'waiting_mode_scan'
+  | 'photo_verification'
+  | 'community_alert'
+  | 'first_sighting_bonus'
+  | 'streak_bonus'
+  | 'donation_bonus';
+
+export type KarmaTier = 'scout' | 'tracker' | 'ranger' | 'guardian' | 'legend';
+
+export type MissionType = 'patrol_zone' | 'sighting_verify' | 'search_party' | 'delivery_scan' | 'area_sweep';
+export type MissionStatus = 'open' | 'accepted' | 'in_progress' | 'completed' | 'expired' | 'failed';
+export type MissionPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface KarmaTransaction {
+  id: string;
+  userId: string;
+  action: KarmaAction;
+  points: number;
+  multiplier: number;
+  metadata?: {
+    petId?: string;
+    missionId?: string;
+    patrolSessionId?: string;
+    distance?: number;
+    duration?: number;
+  };
+  timestamp: number;
+}
+
+export interface KarmaBalance {
+  userId: string;
+  totalEarned: number;
+  totalRedeemed: number;
+  currentBalance: number;
+  currentTier: KarmaTier;
+  streakDays: number;
+  lastActiveDate: string;
+  riderType?: RiderType;
+  riderBonusMultiplier: number;
+  monthlyStats: {
+    sightings: number;
+    patrolKm: number;
+    patrolMinutes: number;
+    missionsCompleted: number;
+    reunions: number;
+  };
+}
+
+export interface RiderProfile {
+  userId: string;
+  riderType: RiderType;
+  vehicleName?: string;
+  deliveryPlatform?: string;
+  coverageAreaCenter?: Geolocation;
+  coverageRadiusKm: number;
+  isOnDuty: boolean;
+  lastKnownLocation?: Geolocation;
+  totalPatrolKm: number;
+  totalPatrolMinutes: number;
+  registeredAt: number;
+}
+
+export interface Mission {
+  id: string;
+  type: MissionType;
+  title: string;
+  description: string;
+  petId?: string;
+  petName?: string;
+  petPhotoUrl?: string;
+  zoneCenter: Geolocation;
+  zoneRadiusKm: number;
+  priority: MissionPriority;
+  karmaReward: number;
+  bonusReward?: number;
+  status: MissionStatus;
+  createdAt: number;
+  expiresAt?: number;
+  acceptedBy?: string;
+  acceptedAt?: number;
+  completedAt?: number;
+  maxParticipants: number;
+  currentParticipants: string[];
+  requiredRiderTypes?: RiderType[];
+  completionCriteria?: {
+    photosRequired?: number;
+    minPatrolKm?: number;
+    minPatrolMinutes?: number;
+    verificationRequired?: boolean;
+  };
+}
+
+export interface PatrolSession {
+  id: string;
+  userId: string;
+  missionId?: string;
+  startTime: number;
+  endTime?: number;
+  durationMinutes: number;
+  distanceKm: number;
+  route: Geolocation[];
+  sightingsReported: number;
+  karmaEarned: number;
+  riderType: RiderType;
+}
+
+export interface PartnerStore {
+  id: string;
+  name: string;
+  type: 'vet_clinic' | 'pet_shop' | 'pet_food' | 'grooming' | 'accessories' | 'cafe';
+  address: string;
+  location: Geolocation;
+  karmaDiscountPercent: number;
+  karmaPointsAccepted: number;
+  rewardDescription: string;
+  isActive: boolean;
+  logoUrl?: string;
+  website?: string;
+  partnerSince: number;
+}
+
+export interface KarmaRedemption {
+  id: string;
+  userId: string;
+  partnerId: string;
+  partnerName: string;
+  pointsRedeemed: number;
+  rewardDescription: string;
+  status: 'pending' | 'confirmed' | 'used' | 'expired';
+  redemptionCode: string;
+  createdAt: number;
+  expiresAt: number;
+  usedAt?: number;
+}
+
+export interface KarmaAdminStats {
+  totalKarmaAwarded: number;
+  activeRiders: number;
+  totalPatrolKm: number;
+  tierDistribution: Record<KarmaTier, number>;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  avatarInitial: string;
+  totalKarma: number;
+  tier: KarmaTier;
+  riderType?: RiderType;
+  sightingsCount: number;
+  reunionsCount: number;
+  patrolKm: number;
+  rank: number;
+}
+
+// Karma Zod Schemas
+export const KarmaTransactionSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  action: z.string(),
+  points: z.number(),
+  multiplier: z.number().default(1),
+  metadata: z.object({
+    petId: z.string().optional(),
+    missionId: z.string().optional(),
+    patrolSessionId: z.string().optional(),
+    distance: z.number().optional(),
+    duration: z.number().optional(),
+  }).optional(),
+  timestamp: z.number(),
+});
+
+export const PatrolSessionSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  missionId: z.string().optional(),
+  startTime: z.number(),
+  endTime: z.number().optional(),
+  durationMinutes: z.number().default(0),
+  distanceKm: z.number().default(0),
+  route: z.array(GeolocationSchema).default([]),
+  sightingsReported: z.number().default(0),
+  karmaEarned: z.number().default(0),
+  riderType: z.string().default('walking'),
+});
+
+// Coupon / Promo Code System
+export interface PromoCode {
+  id: string;
+  code: string;
+  type: 'badge' | 'subscription' | 'points';
+  value: string; // badge name, plan ID, or point amount
+  description: string;
+  maxUses: number; // 0 = unlimited
+  currentUses: number;
+  status: 'active' | 'revoked' | 'expired';
+  expiresAt?: number; // unix ms, optional
+  createdAt: number;
+  createdBy: string;
+}
+
+export const MissionSchema = z.object({
+  id: z.string(),
+  type: z.string(),
+  title: z.string(),
+  description: z.string(),
+  petId: z.string().optional(),
+  petName: z.string().optional(),
+  petPhotoUrl: z.string().optional(),
+  zoneCenter: GeolocationSchema,
+  zoneRadiusKm: z.number(),
+  priority: z.string().default('medium'),
+  karmaReward: z.number(),
+  bonusReward: z.number().optional(),
+  status: z.string().default('open'),
+  createdAt: z.number(),
+  expiresAt: z.number().optional(),
+  acceptedBy: z.string().optional(),
+  acceptedAt: z.number().optional(),
+  completedAt: z.number().optional(),
+  maxParticipants: z.number().default(1),
+  currentParticipants: z.array(z.string()).default([]),
 });

@@ -18,10 +18,12 @@ const Donors = lazy(() => import('../Donors').then(m => ({ default: m.Donors }))
 const Blog = lazy(() => import('../Blog').then(m => ({ default: m.Blog })));
 const BlogPostDetail = lazy(() => import('../BlogPostDetail').then(m => ({ default: m.BlogPostDetail })));
 const PublicPetDetail = lazy(() => import('../PublicPetDetail').then(m => ({ default: m.PublicPetDetail })));
+const UserProfileView = lazy(() => import('../UserProfile').then(m => ({ default: m.UserProfile })));
 
 const RouterSkeleton: React.FC<{ view: View }> = ({ view }) => {
     if (view === 'vetDashboard') return <DashboardSkeleton />;
     if (view === 'adoptionCenter') return <div className="max-w-7xl mx-auto p-6"><GridSkeleton variant="card" count={6} /></div>;
+    if (view === 'userProfile') return <div className="flex items-center justify-center min-h-[50vh]"><LoadingSpinner /></div>;
     return <div className="flex items-center justify-center min-h-[50vh]"><LoadingSpinner /></div>;
 };
 
@@ -46,10 +48,11 @@ interface VetRouterProps {
     handleStartChat: (p: PetProfile) => Promise<void>;
     setIsLoginModalOpen: (open: boolean) => void;
     isLoading: boolean;
+    setCurrentUser?: (u: User) => void;
 }
 
 export const VetRouter: React.FC<VetRouterProps> = ({
-    currentView, setView, currentUser, allPets, lostPets, petsForAdoption, vetClinics, donations, appointments, viewingPatient, setViewingPatient, selectedPet, setSelectedPet, onViewPet, onReportSighting, selectedPost, setSelectedPost, handleStartChat, setIsLoginModalOpen, isLoading
+    currentView, setView, currentUser, allPets, lostPets, petsForAdoption, vetClinics, donations, appointments, viewingPatient, setViewingPatient, selectedPet, setSelectedPet, onViewPet, onReportSighting, selectedPost, setSelectedPost, handleStartChat, setIsLoginModalOpen, isLoading, setCurrentUser
 }) => {
     const vetApps = React.useMemo(() => appointments.filter(a => a.vetEmail === currentUser.email), [appointments, currentUser.email]);
     const vetPatients = React.useMemo(() => allPets.filter(p => p.vetEmail === currentUser.email && p.vetLinkStatus === 'linked'), [allPets, currentUser.email]);
@@ -105,6 +108,8 @@ export const VetRouter: React.FC<VetRouterProps> = ({
                         return <Blog setView={setView} onSelectPost={(p) => { setSelectedPost(p); setView('blogPost'); }} />;
                     case 'blogPost':
                         return selectedPost ? <BlogPostDetail post={selectedPost} onBack={() => setView('blog')} /> : null;
+                    case 'userProfile':
+                        return <UserProfileView currentUser={currentUser} setCurrentUser={setCurrentUser || (() => {})} setView={setView} />;
                     case 'vetDashboard':
                         return (
                             <VetDashboard

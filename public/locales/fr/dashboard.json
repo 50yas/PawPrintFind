@@ -369,7 +369,7 @@
     "noVaccinationRecords": "Aucun dossier médical.",
     "savedLocations": "Emplacements Enregistrés",
     "goldfishWarning": "Veuillez fournir un Nom et une Race. 🐾",
-    " mainframeResisting": "Erreur : {{error}}",
+    "mainframeResisting": "Erreur : {{error}}",
     "securityDenied": "Accès Refusé.",
     "uploadCanceled": "Annulé.",
     "unknownStorageError": "Erreur de stockage.",

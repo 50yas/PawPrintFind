@@ -4,10 +4,13 @@ interface GlassCardProps {
     children: React.ReactNode;
     className?: string;
     variant?: 'default' | 'interactive';
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
     onPointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerUp?: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerCancel?: (e: React.PointerEvent<HTMLDivElement>) => void;
     style?: React.CSSProperties;
 }
+
 
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
     children,
@@ -15,6 +18,8 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
     variant = 'default',
     onClick,
     onPointerDown,
+    onPointerUp,
+    onPointerCancel,
     style
 }, ref) => {
     const baseStyles = "backdrop-blur-xl bg-white/5 border border-white/20 shadow-2xl rounded-2xl overflow-hidden text-white outline-none ring-1 ring-white/5";
@@ -32,11 +37,13 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(({
             className={`${baseStyles} ${interactiveStyles} ${className}`}
             onClick={onClick}
             onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerCancel}
             style={style}
             onKeyDown={(e) => {
                 if (variant === 'interactive' && onClick && (e.key === 'Enter' || e.key === ' ')) {
                     e.preventDefault();
-                    onClick();
+                    onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
                 }
             }}
         >

@@ -369,7 +369,7 @@
     "noVaccinationRecords": "لا توجد سجلات طبية.",
     "savedLocations": "المواقع المحفوظة",
     "goldfishWarning": "يرجى تقديم اسم وسلالة. 🐾",
-    " mainframeResisting": "خطأ: {{error}}",
+    "mainframeResisting": "خطأ: {{error}}",
     "securityDenied": "تم رفض الوصول.",
     "uploadCanceled": "تم الإلغاء.",
     "unknownStorageError": "خطأ في التخزين.",
