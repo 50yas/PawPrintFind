@@ -4,6 +4,9 @@
 # Internal developer docs — never deploy
 _unpublished/
 
+# README assets (only for GitHub display, not web app)
+assets/
+
 # Source code (only dist/ goes to hosting)
 src/
 functions/src/
