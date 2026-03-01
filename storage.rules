@@ -48,9 +48,18 @@ service firebase.storage {
       allow write: if isOwner(userId);
     }
 
-    // 3. CARTELLE ANIMALI (Fallback)
-    // Se l'upload avviene direttamente sotto 'pets/', permettiamo a chiunque sia loggato
-    match /pets/{petId}/{allPaths=**} {
+    // 3. CARTELLE ANIMALI (Pet Photos)
+    // Scoped by uploader UID: path must be pets/{userId}/{petId}/filename
+    // This prevents any signed-in user from overwriting another user's pet photos.
+    match /pets/{userId}/{allPaths=**} {
+      allow write: if isOwner(userId);
+    }
+
+    // 3b. Legacy flat path (pets/{petId}/...) — allow reads, restrict writes to signed-in
+    // NOTE: New uploads should use pets/{userId}/{petId}/ path via petService.ts
+    // This legacy rule is retained for backwards compatibility with existing photo URLs.
+    // TODO: migrate all uploads to UID-scoped path and remove this rule.
+    match /pets/{petId}/{filename} {
       allow write: if isSignedIn();
     }
 

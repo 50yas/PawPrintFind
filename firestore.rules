@@ -285,10 +285,11 @@ service cloud.firestore {
     // ====== KARMA & RIDER SYSTEM RULES ======
 
     // 25. KARMA TRANSACTIONS
+    // Security: list is restricted to the owner's own records (prevents cross-user data leaks)
     match /karma_transactions/{txId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow list: if isAdmin() || isSignedIn();
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow delete: if isAdmin();
     }
 
