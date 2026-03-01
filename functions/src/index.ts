@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions/v1";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { onCall, HttpsError, onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { GoogleGenAI } from "@google/genai";
@@ -528,3 +529,109 @@ export const stripeWebhook = onRequest({
         res.status(400).send(`Webhook Error: ${error.message}`);
     }
 });
+
+/**
+ * onSightingEventCreated — triggered when petService writes to sighting_events.
+ * Finds the pet owner's UID by email, then writes an in-app notification to
+ * user_notifications/{ownerUid}/items/{notifId}.
+ * Optionally sends an FCM push if the owner has registered FCM tokens.
+ */
+export const onSightingEventCreated = onDocumentCreated(
+    { document: "sighting_events/{eventId}", region: "us-central1" },
+    async (event) => {
+        const data = event.data?.data();
+        if (!data) return;
+
+        const { petId, petName, petPhotoUrl, ownerEmail, finderEmail, location, notes } = data;
+
+        if (!ownerEmail || !petId) {
+            console.warn("[onSightingEventCreated] Missing ownerEmail or petId — skipping.");
+            return;
+        }
+
+        // 1. Look up the pet owner's UID by email
+        const usersSnap = await admin.firestore()
+            .collection("users")
+            .where("email", "==", ownerEmail)
+            .limit(1)
+            .get();
+
+        if (usersSnap.empty) {
+            console.warn(`[onSightingEventCreated] No user found for email ${ownerEmail}`);
+            return;
+        }
+
+        const ownerDoc = usersSnap.docs[0];
+        const ownerUid = ownerDoc.id;
+        const ownerData = ownerDoc.data();
+
+        // 2. Write in-app notification
+        const locationLabel = location?.address
+            ? location.address
+            : (location?.latitude ? `(${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)})` : "an unknown location");
+
+        const notifRef = admin.firestore()
+            .collection("user_notifications")
+            .doc(ownerUid)
+            .collection("items")
+            .doc();
+
+        await notifRef.set({
+            type: "sighting",
+            title: `${petName} was spotted!`,
+            body: notes
+                ? `Someone saw ${petName} near ${locationLabel}: "${notes}"`
+                : `Someone spotted ${petName} near ${locationLabel}.`,
+            petId,
+            petName,
+            petPhotoUrl: petPhotoUrl ?? null,
+            timestamp: Date.now(),
+            read: false,
+        });
+
+        console.log(`[onSightingEventCreated] Notification written for owner ${ownerUid} (pet: ${petName})`);
+
+        // 3. Send FCM push if owner has registered tokens
+        const fcmTokens: string[] = ownerData?.fcmTokens ?? [];
+        if (fcmTokens.length === 0) return;
+
+        const validTokens: string[] = [];
+        const failedTokens: string[] = [];
+
+        await Promise.allSettled(
+            fcmTokens.map(async (token) => {
+                try {
+                    await admin.messaging().send({
+                        token,
+                        notification: {
+                            title: `🐾 ${petName} was spotted!`,
+                            body: notes
+                                ? `Near ${locationLabel}: "${notes}"`
+                                : `Someone spotted ${petName} near ${locationLabel}.`,
+                            imageUrl: petPhotoUrl ?? undefined,
+                        },
+                        webpush: {
+                            fcmOptions: {
+                                link: `${process.env.APP_BASE_URL ?? "https://pawprint-50.web.app"}/p/${petId}`,
+                            },
+                        },
+                    });
+                    validTokens.push(token);
+                } catch (err: any) {
+                    if (err.code === "messaging/registration-token-not-registered") {
+                        failedTokens.push(token);
+                    } else {
+                        console.warn("[onSightingEventCreated] FCM send error:", err.message);
+                    }
+                }
+            })
+        );
+
+        // Clean up stale tokens
+        if (failedTokens.length > 0) {
+            const remaining = fcmTokens.filter(t => !failedTokens.includes(t));
+            await ownerDoc.ref.update({ fcmTokens: remaining });
+            console.log(`[onSightingEventCreated] Removed ${failedTokens.length} stale FCM token(s) for ${ownerUid}`);
+        }
+    }
+);

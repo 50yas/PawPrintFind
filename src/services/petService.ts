@@ -1,6 +1,6 @@
 
 import {
-    collection, getDocs, setDoc, doc, deleteDoc, writeBatch, arrayUnion, increment
+    collection, getDocs, setDoc, doc, deleteDoc, writeBatch, arrayUnion, increment, addDoc, serverTimestamp
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from './firebase';
@@ -125,7 +125,7 @@ export const petService = {
         }
     },
 
-    async reportSighting(petId: string, sighting: Omit<Sighting, 'id'>): Promise<void> {
+    async reportSighting(petId: string, sighting: Omit<Sighting, 'id'>, pet?: Pick<PetProfile, 'name' | 'ownerEmail' | 'photos'>): Promise<void> {
         if (!auth.currentUser) {
             throw new Error("Authentication required to report sighting.");
         }
@@ -150,6 +150,22 @@ export const petService = {
             });
 
             await batch.commit();
+
+            // Write sighting_event so Cloud Function can notify the pet owner
+            if (pet?.ownerEmail && auth.currentUser.email !== pet.ownerEmail) {
+                await addDoc(collection(db, 'sighting_events'), {
+                    petId,
+                    petName: pet.name,
+                    petPhotoUrl: pet.photos?.[0]?.url ?? null,
+                    ownerEmail: pet.ownerEmail,
+                    finderUid: auth.currentUser.uid,
+                    finderEmail: auth.currentUser.email ?? '',
+                    location: sanitizedSighting.location,
+                    notes: sanitizedSighting.notes,
+                    timestamp: sighting.timestamp,
+                    createdAt: serverTimestamp(),
+                });
+            }
         } catch (error) {
             logger.error('Error reporting sighting:', error);
             throw error;

@@ -350,6 +350,30 @@ export interface Sighting {
   photo?: PhotoWithMarks;
 }
 
+export interface SightingEvent {
+  petId: string;
+  petName: string;
+  petPhotoUrl?: string;
+  ownerEmail: string;
+  finderUid: string;
+  finderEmail: string;
+  location: Geolocation;
+  notes: string;
+  timestamp: number;
+}
+
+export interface AppNotification {
+  id: string;
+  type: 'sighting' | 'system';
+  title: string;
+  body: string;
+  petId?: string;
+  petName?: string;
+  petPhotoUrl?: string;
+  timestamp: number;
+  read: boolean;
+}
+
 export interface HealthCheck {
   timestamp: number;
   symptoms: string;

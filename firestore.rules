@@ -354,5 +354,17 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // 33. SIGHTING EVENTS (write-only for signed-in users; read by admin or Cloud Function via Admin SDK)
+    match /sighting_events/{eventId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 34. USER NOTIFICATIONS (owner only)
+    match /user_notifications/{userId}/items/{notifId} {
+      allow read, update: if isSignedIn() && request.auth.uid == userId;
+      allow create, delete: if false; // Cloud Function writes via Admin SDK
+    }
   }
 }

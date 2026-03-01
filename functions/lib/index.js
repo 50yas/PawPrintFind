@@ -33,7 +33,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stripeWebhook = exports.createDonationCheckout = exports.onSubscriptionChange = exports.onStripePaymentSuccess = exports.onUserCreated = exports.callGemini = exports.blogGeneration = exports.healthAssessment = exports.smartSearch = exports.visionIdentification = exports.fetchOpenRouterModels = exports.callOpenRouter = void 0;
+exports.onSightingEventCreated = exports.stripeWebhook = exports.createDonationCheckout = exports.verifyAdminKey = exports.onSubscriptionChange = exports.onStripePaymentSuccess = exports.onUserCreated = exports.callGemini = exports.blogGeneration = exports.healthAssessment = exports.smartSearch = exports.visionIdentification = exports.fetchOpenRouterModels = exports.callOpenRouter = void 0;
+const firestore_1 = require("firebase-functions/v2/firestore");
 const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
 const genai_1 = require("@google/genai");
@@ -47,6 +48,7 @@ const geminiApiKey = (0, params_1.defineSecret)("GEMINI_API_KEY");
 const openRouterApiKey = (0, params_1.defineSecret)("OPENROUTER_API_KEY");
 const stripeSecretKey = (0, params_1.defineSecret)("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = (0, params_1.defineSecret)("STRIPE_WEBHOOK_SECRET");
+const genesisKeyHash = (0, params_1.defineSecret)("GENESIS_KEY_HASH");
 async function resolveAIConfig(task) {
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
@@ -105,6 +107,20 @@ exports.callOpenRouter = (0, https_1.onCall)({
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
     const { model, messages, config, task } = request.data;
+    if (typeof model !== 'string' || model.length > 200) {
+        throw new https_1.HttpsError("invalid-argument", "Invalid model identifier.");
+    }
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+        throw new https_1.HttpsError("invalid-argument", "Messages must be a non-empty array (max 50).");
+    }
+    const allowedConfigKeys = new Set(['max_tokens', 'temperature', 'top_p', 'response_format']);
+    if (config && typeof config === 'object') {
+        for (const k of Object.keys(config)) {
+            if (!allowedConfigKeys.has(k)) {
+                throw new https_1.HttpsError("invalid-argument", `Unsupported config key: ${k}`);
+            }
+        }
+    }
     try {
         return await (0, openRouter_1.callOpenRouterAI)(request.auth.uid, model, messages, config, task, openRouterApiKey.value());
     }
@@ -255,6 +271,14 @@ exports.blogGeneration = (0, https_1.onCall)({
 }, async (request) => {
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
+    const token = request.auth.token;
+    const isAdmin = token.role === 'super_admin' ||
+        token.role === 'admin' ||
+        token.admin === true ||
+        token.super_admin === true;
+    if (!isAdmin) {
+        throw new https_1.HttpsError("permission-denied", "Admin access required for blog generation.");
+    }
     const { topic } = request.data;
     if (!topic)
         throw new https_1.HttpsError("invalid-argument", "Topic required.");
@@ -278,6 +302,33 @@ var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
 Object.defineProperty(exports, "onStripePaymentSuccess", { enumerable: true, get: function () { return triggers_1.onStripePaymentSuccess; } });
 Object.defineProperty(exports, "onSubscriptionChange", { enumerable: true, get: function () { return triggers_1.onSubscriptionChange; } });
+exports.verifyAdminKey = (0, https_1.onCall)({
+    ...ON_CALL_CONFIG,
+    secrets: [genesisKeyHash],
+}, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError("unauthenticated", "Authentication required.");
+    }
+    const { key } = request.data;
+    if (!key || typeof key !== 'string' || key.length > 512) {
+        throw new https_1.HttpsError("invalid-argument", "Invalid key format.");
+    }
+    const { createHash } = await Promise.resolve().then(() => __importStar(require('crypto')));
+    const hashHex = createHash('sha256').update(key, 'utf8').digest('hex');
+    const storedGenesisHash = genesisKeyHash.value();
+    if (storedGenesisHash && hashHex === storedGenesisHash) {
+        return { valid: true, type: 'GENESIS' };
+    }
+    const snapshot = await admin.firestore()
+        .collection('admin_keys')
+        .where('keyHash', '==', hashHex)
+        .where('status', '==', 'active')
+        .get();
+    if (!snapshot.empty) {
+        return { valid: true, type: 'ISSUED', keyDocId: snapshot.docs[0].id };
+    }
+    return { valid: false, type: 'GENESIS' };
+});
 exports.createDonationCheckout = (0, https_1.onCall)({
     ...ON_CALL_CONFIG,
     secrets: [stripeSecretKey],
@@ -362,6 +413,87 @@ exports.stripeWebhook = (0, https_1.onRequest)({
     catch (error) {
         console.error('[Stripe Webhook] Error:', error.message);
         res.status(400).send(`Webhook Error: ${error.message}`);
+    }
+});
+exports.onSightingEventCreated = (0, firestore_1.onDocumentCreated)({ document: "sighting_events/{eventId}", region: "us-central1" }, async (event) => {
+    const data = event.data?.data();
+    if (!data)
+        return;
+    const { petId, petName, petPhotoUrl, ownerEmail, finderEmail, location, notes } = data;
+    if (!ownerEmail || !petId) {
+        console.warn("[onSightingEventCreated] Missing ownerEmail or petId — skipping.");
+        return;
+    }
+    const usersSnap = await admin.firestore()
+        .collection("users")
+        .where("email", "==", ownerEmail)
+        .limit(1)
+        .get();
+    if (usersSnap.empty) {
+        console.warn(`[onSightingEventCreated] No user found for email ${ownerEmail}`);
+        return;
+    }
+    const ownerDoc = usersSnap.docs[0];
+    const ownerUid = ownerDoc.id;
+    const ownerData = ownerDoc.data();
+    const locationLabel = location?.address
+        ? location.address
+        : (location?.latitude ? `(${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)})` : "an unknown location");
+    const notifRef = admin.firestore()
+        .collection("user_notifications")
+        .doc(ownerUid)
+        .collection("items")
+        .doc();
+    await notifRef.set({
+        type: "sighting",
+        title: `${petName} was spotted!`,
+        body: notes
+            ? `Someone saw ${petName} near ${locationLabel}: "${notes}"`
+            : `Someone spotted ${petName} near ${locationLabel}.`,
+        petId,
+        petName,
+        petPhotoUrl: petPhotoUrl ?? null,
+        timestamp: Date.now(),
+        read: false,
+    });
+    console.log(`[onSightingEventCreated] Notification written for owner ${ownerUid} (pet: ${petName})`);
+    const fcmTokens = ownerData?.fcmTokens ?? [];
+    if (fcmTokens.length === 0)
+        return;
+    const validTokens = [];
+    const failedTokens = [];
+    await Promise.allSettled(fcmTokens.map(async (token) => {
+        try {
+            await admin.messaging().send({
+                token,
+                notification: {
+                    title: `🐾 ${petName} was spotted!`,
+                    body: notes
+                        ? `Near ${locationLabel}: "${notes}"`
+                        : `Someone spotted ${petName} near ${locationLabel}.`,
+                    imageUrl: petPhotoUrl ?? undefined,
+                },
+                webpush: {
+                    fcmOptions: {
+                        link: `${process.env.APP_BASE_URL ?? "https://pawprint-50.web.app"}/p/${petId}`,
+                    },
+                },
+            });
+            validTokens.push(token);
+        }
+        catch (err) {
+            if (err.code === "messaging/registration-token-not-registered") {
+                failedTokens.push(token);
+            }
+            else {
+                console.warn("[onSightingEventCreated] FCM send error:", err.message);
+            }
+        }
+    }));
+    if (failedTokens.length > 0) {
+        const remaining = fcmTokens.filter(t => !failedTokens.includes(t));
+        await ownerDoc.ref.update({ fcmTokens: remaining });
+        console.log(`[onSightingEventCreated] Removed ${failedTokens.length} stale FCM token(s) for ${ownerUid}`);
     }
 });
 //# sourceMappingURL=index.js.map

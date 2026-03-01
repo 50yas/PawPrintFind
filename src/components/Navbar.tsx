@@ -1,13 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
 import { useTranslations } from '../hooks/useTranslations';
-import { User, View } from '../types';
+import { User, View, AppNotification } from '../types';
 import { RoleSwitcher } from './RoleSwitcher';
 import { GlassButton } from './ui/GlassButton';
 import { NavigationBottomSheet } from './NavigationBottomSheet';
 import { RedeemCodeModal } from './RedeemCodeModal';
+import { userNotificationService } from '../services/userNotificationService';
 
 const TIER_META: Record<string, { label: string; color: string; icon: string }> = {
   scout:    { label: 'Scout',    color: '#64748b', icon: '🔍' },
@@ -42,6 +43,27 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    if (!currentUser?.uid) { setNotifications([]); return; }
+    const unsub = userNotificationService.subscribe(currentUser.uid, setNotifications);
+    return unsub;
+  }, [currentUser?.uid]);
+
+  // Close notif panel when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifPanel(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -200,6 +222,79 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, setCurrentUser, onL
           ) : (
             <div className="flex items-center gap-4 relative">
               {currentUser && <RoleSwitcher currentUser={currentUser} setCurrentUser={setCurrentUser} />}
+
+              {/* Notification Bell */}
+              {currentUser && (() => {
+                const unread = notifications.filter(n => !n.read).length;
+                return (
+                  <div className="relative" ref={notifRef}>
+                    <button
+                      onClick={() => {
+                        setShowNotifPanel(v => !v);
+                        if (!showNotifPanel && unread > 0) {
+                          userNotificationService.markAllAsRead(currentUser.uid);
+                        }
+                      }}
+                      className="relative w-10 h-10 rounded-xl bg-slate-900/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary/40 transition-all active:scale-95"
+                      aria-label="Notifications"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      {unread > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center leading-none">
+                          {unread > 9 ? '9+' : unread}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notification Dropdown Panel */}
+                    {showNotifPanel && (
+                      <div className="absolute right-0 top-14 w-80 bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[5000]">
+                        <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                          <span className="text-xs font-black uppercase tracking-widest text-slate-400">Notifications</span>
+                          {notifications.length > 0 && (
+                            <button
+                              onClick={() => userNotificationService.markAllAsRead(currentUser.uid)}
+                              className="text-[10px] text-primary hover:text-white transition-colors font-bold"
+                            >
+                              Mark all read
+                            </button>
+                          )}
+                        </div>
+                        <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-8 text-center text-slate-500 text-xs">No notifications yet</div>
+                          ) : notifications.slice(0, 10).map(n => (
+                            <button
+                              key={n.id}
+                              onClick={() => {
+                                if (n.petId && setView) setView('lostPetsCenter');
+                                setShowNotifPanel(false);
+                                if (!n.read) userNotificationService.markAsRead(currentUser.uid, n.id);
+                              }}
+                              className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors ${n.read ? 'opacity-50' : ''}`}
+                            >
+                              {n.petPhotoUrl
+                                ? <img src={n.petPhotoUrl} alt={n.petName} className="w-9 h-9 rounded-lg object-cover flex-shrink-0 mt-0.5" />
+                                : <div className="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 text-base">🐾</div>
+                              }
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-white truncate">{n.title}</p>
+                                <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-2">{n.body}</p>
+                                <p className="text-[9px] text-slate-600 mt-1">
+                                  {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div className="relative">
                 {/* Avatar Button */}
