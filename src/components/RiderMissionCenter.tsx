@@ -121,7 +121,7 @@ export const RiderMissionCenter: React.FC<RiderMissionCenterProps> = ({
                         <button
                             onClick={() => {
                                 addSnackbar('Please sign in to access the Rider Mission Center', 'info');
-                                setView('auth');
+                                setView('home');
                             }}
                             className="w-full bg-gradient-to-r from-primary to-teal-500 text-slate-900 font-black uppercase rounded-2xl py-4 shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_35px_rgba(20,184,166,0.5)] hover:-translate-y-0.5 transition-all"
                         >
