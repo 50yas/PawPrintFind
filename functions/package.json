@@ -16,7 +16,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@google/genai": "^1.0.0",
-    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "firebase-admin": "^13.6.1",
     "firebase-functions": "^7.0.5",
     "stripe": "^20.3.1"
