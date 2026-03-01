@@ -12,6 +12,7 @@ interface SavedSearchesListProps {
 export const SavedSearchesList: React.FC<SavedSearchesListProps> = ({ userEmail, onApply }) => {
     const [searches, setSearches] = useState<SavedSearch[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     const fetchSearches = async () => {
         setIsLoading(true);
@@ -29,11 +30,15 @@ export const SavedSearchesList: React.FC<SavedSearchesListProps> = ({ userEmail,
         fetchSearches();
     }, [userEmail]);
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm("Delete this saved search?")) {
-            await searchService.deleteSavedSearch(id);
-            fetchSearches();
-        }
+    const handleDelete = (id: string) => {
+        setConfirmDeleteId(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!confirmDeleteId) return;
+        await searchService.deleteSavedSearch(confirmDeleteId);
+        setConfirmDeleteId(null);
+        fetchSearches();
     };
 
     return (
@@ -86,6 +91,33 @@ export const SavedSearchesList: React.FC<SavedSearchesListProps> = ({ userEmail,
             ) : (
                 <p className="text-slate-500 italic text-sm py-4">No saved searches yet. Try saving one from the Adoption Center.</p>
             )}
+
+            {/* Inline delete confirmation — replaces native window.confirm() */}
+            <AnimatePresence>
+                {confirmDeleteId && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        onClick={() => setConfirmDeleteId(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-slate-900 border border-red-500/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-red-500/10"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <p className="text-white font-bold text-center mb-4">Delete this saved search?</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setConfirmDeleteId(null)} className="flex-1 py-2 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-colors text-sm">Cancel</button>
+                                <button onClick={confirmDelete} className="flex-1 py-2 rounded-xl bg-red-500/80 hover:bg-red-500 text-white font-bold transition-colors text-sm">Delete</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

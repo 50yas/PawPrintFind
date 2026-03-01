@@ -4,6 +4,7 @@ import { Modal } from './Modal';
 import { useTranslations } from '../hooks/useTranslations';
 import { subscriptionService } from '../services/subscriptionService';
 import { LoadingSpinner } from './LoadingSpinner';
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 interface VetPremiumModalProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ const VET_PRO_PRICE_ID = 'price_1SqMqwF5MKyyAoN7zzOsmNZe';
 
 export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubscribe = async () => {
@@ -26,7 +28,7 @@ export const VetPremiumModal: React.FC<VetPremiumModalProps> = ({ isOpen, onClos
         } catch (error) {
             console.error(error);
             setIsLoading(false);
-            alert("Subscription failed. Please try again.");
+            addSnackbar('Subscription failed. Please try again.', 'error');
         }
     };
 

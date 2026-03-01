@@ -11,6 +11,7 @@ export const SearchOptimizationDashboard: React.FC = () => {
     const [config, setConfig] = useState<SearchConfig | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'overview' | 'trials' | 'controls'>('overview');
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -32,16 +33,19 @@ export const SearchOptimizationDashboard: React.FC = () => {
         fetchData();
     }, []);
 
-    const handleReset = async () => {
-        if (window.confirm("Are you sure you want to reset the search optimizer? All trial data will be ignored for future sampling.")) {
-            await optimizationService.setSearchConfig({
-                breedMatchWeight: 0.5,
-                locationWeight: 0.3,
-                ageWeight: 0.2,
-                isAutoOptimized: false
-            });
-            fetchData();
-        }
+    const handleReset = () => {
+        setShowResetConfirm(true);
+    };
+
+    const confirmReset = async () => {
+        setShowResetConfirm(false);
+        await optimizationService.setSearchConfig({
+            breedMatchWeight: 0.5,
+            locationWeight: 0.3,
+            ageWeight: 0.2,
+            isAutoOptimized: false
+        });
+        fetchData();
     };
 
     const handleManualOverride = async (params: Partial<SearchConfig>) => {
@@ -246,6 +250,34 @@ export const SearchOptimizationDashboard: React.FC = () => {
                                 </div>
                             </GlassCard>
                         )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Inline reset confirmation — replaces native window.confirm() */}
+            <AnimatePresence>
+                {showResetConfirm && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        onClick={() => setShowResetConfirm(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-slate-900 border border-red-500/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-red-500/10"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <p className="text-white font-bold text-center mb-1">Reset Search Optimizer?</p>
+                            <p className="text-slate-400 text-xs text-center mb-5">All trial data will be ignored for future sampling. This cannot be undone.</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowResetConfirm(false)} className="flex-1 py-2 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-colors text-sm">Cancel</button>
+                                <button onClick={confirmReset} className="flex-1 py-2 rounded-xl bg-red-500/80 hover:bg-red-500 text-white font-bold transition-colors text-sm">Reset</button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

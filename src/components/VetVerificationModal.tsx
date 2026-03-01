@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { dbService } from '../services/firebase';
 import type { VetVerificationRequest } from '../types';
 import { GlassButton } from './ui/GlassButton';
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 interface VetVerificationModalProps {
     onClose: () => void;
@@ -11,6 +12,7 @@ interface VetVerificationModalProps {
 }
 
 export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onClose, vetUid, vetEmail, initialRejectionReason }) => {
+    const { addSnackbar } = useSnackbar();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
 
@@ -36,7 +38,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
             for (const file of Array.from(files)) {
                 // Check file size (10MB)
                 if (file.size > 10 * 1024 * 1024) {
-                    alert(`File ${file.name} is too large. Max size is 10MB.`);
+                    addSnackbar(`File "${file.name}" is too large. Max size is 10MB.`, 'error');
                     continue;
                 }
                 const url = await dbService.uploadVerificationDoc(file, vetUid);
@@ -45,7 +47,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
             setUploadedDocs(prev => [...prev, ...newDocs]);
         } catch (error: any) {
             console.error('[Upload Error]', error);
-            alert(`Failed to upload documents: ${error.message || 'Unknown error'}. Please try again.`);
+            addSnackbar(`Upload failed: ${error.message || 'Unknown error'}. Please try again.`, 'error');
         } finally {
             setUploading(false);
         }
@@ -61,7 +63,7 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
 
     const handleSubmit = async () => {
         if (!clinicName || !licenseNumber || specialization.length === 0 || uploadedDocs.length === 0) {
-            alert('Please complete all fields and upload at least one document.');
+            addSnackbar('Please complete all fields and upload at least one document.', 'error');
             return;
         }
 
@@ -85,10 +87,10 @@ export const VetVerificationModal: React.FC<VetVerificationModalProps> = ({ onCl
             };
 
             await dbService.submitVetVerification(request);
-            alert('Verification request submitted! We\'ll review it within 24-48 hours.');
+            addSnackbar('Verification request submitted! We\'ll review it within 24-48 hours.', 'success', 6000);
             onClose();
         } catch (error: any) {
-            alert('Failed to submit verification request: ' + error.message);
+            addSnackbar('Failed to submit verification request: ' + error.message, 'error');
         } finally {
             setLoading(false);
         }

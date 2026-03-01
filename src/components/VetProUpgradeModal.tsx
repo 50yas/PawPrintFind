@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
 import { GlassButton } from './ui/GlassButton';
+import { useSnackbar } from '../contexts/SnackbarContext';
 
 interface VetProUpgradeModalProps {
     onClose: () => void;
@@ -11,6 +12,7 @@ interface VetProUpgradeModalProps {
 
 export const VetProUpgradeModal: React.FC<VetProUpgradeModalProps> = ({ onClose, vetUid, isVerified }) => {
     const { t } = useTranslations();
+    const { addSnackbar } = useSnackbar();
     const [plan, setPlan] = useState<'monthly' | 'yearly'>('monthly');
     const [loading, setLoading] = useState(false);
 
@@ -20,7 +22,7 @@ export const VetProUpgradeModal: React.FC<VetProUpgradeModalProps> = ({ onClose,
             const { url } = await dbService.createVetProCheckout(vetUid, plan);
             window.location.href = url;
         } catch (error) {
-            alert('Failed to create checkout session. Please try again.');
+            addSnackbar('Failed to create checkout session. Please try again.', 'error');
             setLoading(false);
         }
     };

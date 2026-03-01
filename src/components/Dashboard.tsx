@@ -38,7 +38,8 @@ interface DashboardProps {
 
 const QRCodeModal: React.FC<{ pet: PetProfile; onClose: () => void }> = ({ pet, onClose }) => {
     const { t } = useTranslations();
-    const qrData = `https://pawprintfind.com/p/${pet.id}`; 
+    const appBaseUrl = import.meta.env.VITE_PUBLIC_BASE_URL || 'https://pawprint-50.web.app';
+    const qrData = `${appBaseUrl}/p/${pet.id}`;
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}&color=14b8a6`;
 
     return (
@@ -61,7 +62,7 @@ const QRCodeModal: React.FC<{ pet: PetProfile; onClose: () => void }> = ({ pet, 
                     <button className="flex-1 btn btn-primary rounded-xl" onClick={() => window.print()}>{t('printButton')}</button>
                 </div>
                 <button
-                    onClick={() => window.open('https://pawprintfind.com/shop', '_blank')}
+                    onClick={() => window.open('https://pawprint-50.web.app', '_blank')}
                     className="mt-4 w-full text-xs font-bold text-primary hover:text-white transition-colors flex items-center justify-center gap-2 py-3 rounded-xl border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg>
