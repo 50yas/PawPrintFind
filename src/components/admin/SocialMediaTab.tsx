@@ -7,6 +7,9 @@ import { SocialScheduledPost, SocialPlatform, User } from '../../types';
 import { format } from 'date-fns';
 import { SchedulePostModal } from './SchedulePostModal';
 
+/** localStorage key used to persist the dismissed state of the auto-publish warning banner. */
+const SOCIAL_WARNING_DISMISSED_KEY = 'pawprint_social_warning_dismissed';
+
 interface SocialMediaTabProps {
   currentUser?: User;
 }
@@ -21,6 +24,15 @@ export const SocialMediaTab: React.FC<SocialMediaTabProps> = ({ currentUser }) =
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'draft' | 'scheduled' | 'published' | 'failed'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  // Warning banner: read initial dismissed state from localStorage so it stays dismissed on re-mount
+  const [warningDismissed, setWarningDismissed] = useState<boolean>(
+    () => localStorage.getItem(SOCIAL_WARNING_DISMISSED_KEY) === 'true'
+  );
+
+  const handleDismissWarning = () => {
+    localStorage.setItem(SOCIAL_WARNING_DISMISSED_KEY, 'true');
+    setWarningDismissed(true);
+  };
 
   // Subscribe to scheduled posts
   useEffect(() => {
@@ -102,6 +114,28 @@ export const SocialMediaTab: React.FC<SocialMediaTabProps> = ({ currentUser }) =
 
   return (
     <div className="space-y-6">
+      {/* Auto-publish warning banner — dismissible, persisted via localStorage */}
+      {!warningDismissed && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 p-4 rounded-xl border border-yellow-500/40 bg-yellow-500/10 text-yellow-200"
+        >
+          <span className="text-xl flex-shrink-0 mt-0.5" aria-hidden="true">⚠️</span>
+          <p className="text-sm leading-relaxed flex-1">
+            <strong className="font-bold">Social media auto-publishing is not yet active.</strong>{' '}
+            Scheduled posts are saved but will not be published automatically.
+            Manual publishing support is coming soon.
+          </p>
+          <button
+            onClick={handleDismissWarning}
+            aria-label="Dismiss warning"
+            className="flex-shrink-0 text-yellow-400 hover:text-yellow-100 transition-colors text-lg leading-none p-1 -mt-0.5"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
