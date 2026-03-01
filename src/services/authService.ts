@@ -216,28 +216,17 @@ export const authService = {
     },
 
     async verifyAdminKey(keyInput: string): Promise<{ valid: boolean, type: 'GENESIS' | 'ISSUED', keyDocId?: string }> {
+        // SECURITY: All key verification is performed server-side via a Cloud Function.
+        // The genesis hash is no longer stored in the client bundle.
         try {
-            const msgBuffer = new TextEncoder().encode(keyInput);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashHex === '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915') {
-                return { valid: true, type: 'GENESIS' };
-            }
-
-            const q = query(
-                collection(db, 'admin_keys'),
-                where('keyHash', '==', hashHex),
-                where('status', '==', 'active')
+            const { httpsCallable } = await import('firebase/functions');
+            const { functions } = await import('./firebase');
+            const verifyFn = httpsCallable<{ key: string }, { valid: boolean; type: 'GENESIS' | 'ISSUED'; keyDocId?: string }>(
+                functions,
+                'verifyAdminKey'
             );
-            const snapshot = await getDocs(q);
-
-            if (!snapshot.empty) {
-                return { valid: true, type: 'ISSUED', keyDocId: snapshot.docs[0].id };
-            }
-
-            return { valid: false, type: 'GENESIS' };
+            const result = await verifyFn({ key: keyInput });
+            return result.data;
         } catch (error) {
             logger.error("Error verifying admin key:", error);
             throw error;

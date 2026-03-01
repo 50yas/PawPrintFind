@@ -5,6 +5,7 @@ import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
 import { calculateReadingTime } from '../utils/blogUtils';
 import { CinematicImage } from './ui/CinematicImage';
+import { sanitizationService } from '../services/sanitizationService';
 
 interface BlogPostDetailProps {
     post: BlogPost;
@@ -73,7 +74,8 @@ export const BlogPostDetail: React.FC<BlogPostDetailProps> = ({ post, onBack }) 
             {/* Content Area */}
             <div className="prose prose-lg prose-invert prose-teal mx-auto prose-img:rounded-2xl prose-img:shadow-xl prose-headings:font-extrabold">
                 <p className="lead text-xl text-slate-400 font-medium mb-8 border-l-4 border-primary pl-4">{displayPost.summary}</p>
-                <div dangerouslySetInnerHTML={{ __html: displayPost.content }} />
+                {/* SECURITY: blog content is sanitized via DOMPurify before render */}
+                <div dangerouslySetInnerHTML={{ __html: sanitizationService.sanitizeHtml(displayPost.content) }} />
             </div>
 
             {/* Footer */}

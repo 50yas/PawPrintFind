@@ -14,6 +14,7 @@ const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
+const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
 
 /**
  * Resolves the active AI provider and model for a given task.
@@ -92,6 +93,24 @@ export const callOpenRouter = onCall({
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
     const { model, messages, config, task } = request.data;
+
+    // SECURITY: Validate inputs to prevent injection into the OpenRouter request body.
+    if (typeof model !== 'string' || model.length > 200) {
+        throw new HttpsError("invalid-argument", "Invalid model identifier.");
+    }
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+        throw new HttpsError("invalid-argument", "Messages must be a non-empty array (max 50).");
+    }
+    // Only allow a safe subset of config keys to prevent injection
+    const allowedConfigKeys = new Set(['max_tokens', 'temperature', 'top_p', 'response_format']);
+    if (config && typeof config === 'object') {
+        for (const k of Object.keys(config)) {
+            if (!allowedConfigKeys.has(k)) {
+                throw new HttpsError("invalid-argument", `Unsupported config key: ${k}`);
+            }
+        }
+    }
+
     try {
         return await callOpenRouterAI(request.auth.uid, model, messages, config, task, openRouterApiKey.value());
     } catch (error: any) {
@@ -303,6 +322,18 @@ export const blogGeneration = onCall({
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
 
+    // SECURITY: Blog generation is an admin-only capability. Enforce server-side
+    // to prevent any authenticated user from abusing AI quota for blog posts.
+    const token = request.auth.token as Record<string, unknown>;
+    const isAdmin =
+        token.role === 'super_admin' ||
+        token.role === 'admin' ||
+        token.admin === true ||
+        token.super_admin === true;
+    if (!isAdmin) {
+        throw new HttpsError("permission-denied", "Admin access required for blog generation.");
+    }
+
     const { topic } = request.data;
     if (!topic) throw new HttpsError("invalid-argument", "Topic required.");
 
@@ -338,6 +369,54 @@ export const callGemini = onCall({
 
 // Firestore Triggers (re-exported)
 export { onUserCreated, onStripePaymentSuccess, onSubscriptionChange } from './triggers';
+
+// ---------------------------------------------------------------------------
+// ADMIN KEY VERIFICATION — Server-side only (genesis hash never leaves server)
+// ---------------------------------------------------------------------------
+
+/**
+ * Verifies an admin key server-side.
+ * The genesis hash is stored as a Firebase Secret (GENESIS_KEY_HASH) — it is
+ * NOT shipped in the client JS bundle. All issued keys are verified against
+ * the Firestore admin_keys collection using the Admin SDK, which bypasses
+ * client-facing Firestore rules entirely.
+ */
+export const verifyAdminKey = onCall({
+    ...ON_CALL_CONFIG,
+    secrets: [genesisKeyHash],
+}, async (request) => {
+    if (!request.auth) {
+        throw new HttpsError("unauthenticated", "Authentication required.");
+    }
+
+    const { key } = request.data;
+    if (!key || typeof key !== 'string' || key.length > 512) {
+        throw new HttpsError("invalid-argument", "Invalid key format.");
+    }
+
+    // Hash the submitted key server-side using Node's built-in crypto
+    const { createHash } = await import('crypto');
+    const hashHex = createHash('sha256').update(key, 'utf8').digest('hex');
+
+    // 1. Check against genesis key hash (stored only in Firebase Secret)
+    const storedGenesisHash = genesisKeyHash.value();
+    if (storedGenesisHash && hashHex === storedGenesisHash) {
+        return { valid: true, type: 'GENESIS' };
+    }
+
+    // 2. Check against issued keys in Firestore (Admin SDK — bypasses client rules)
+    const snapshot = await admin.firestore()
+        .collection('admin_keys')
+        .where('keyHash', '==', hashHex)
+        .where('status', '==', 'active')
+        .get();
+
+    if (!snapshot.empty) {
+        return { valid: true, type: 'ISSUED', keyDocId: snapshot.docs[0].id };
+    }
+
+    return { valid: false, type: 'GENESIS' };
+});
 
 // ---------------------------------------------------------------------------
 // STRIPE INTEGRATION

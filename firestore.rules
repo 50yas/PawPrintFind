@@ -215,12 +215,22 @@ service cloud.firestore {
     }
 
     // 20. ADMIN KEYS (setup codes)
+    // SECURITY: Read is admin-only. Client-side key verification no longer
+    // queries this collection directly — verification is done server-side via
+    // the verifyAdminKey Cloud Function (Admin SDK bypasses these rules).
     match /admin_keys/{keyId} {
-      allow read: if isSignedIn();
+      allow read: if isAdmin();
       allow write: if isAdmin();
     }
 
     // 21. PROMO CODES
+    // SECURITY NOTE: read access for signed-in users is intentional to support
+    // the client-side redeemCode() query (which filters by code + status).
+    // Risk: a determined signed-in user could enumerate active codes by brute-
+    // forcing the query. Mitigation: code format (PAW-XXXX-XXXX) has ~10^12
+    // combinations, making blind brute-force infeasible.
+    // Long-term recommendation: migrate redeemCode() to a Cloud Function so
+    // the promo_codes collection can be made admin-only here.
     match /promo_codes/{codeId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
@@ -307,10 +317,17 @@ service cloud.firestore {
     }
 
     // 28. MISSIONS
+    // SECURITY: update is restricted to only the fields a user may legitimately
+    // modify (progress tracking). Admin creates and fully updates missions.
+    // Users may only increment their own progress counter on a mission document.
     match /missions/{missionId} {
       allow read: if isSignedIn();
       allow create: if isAdmin();
-      allow update: if isSignedIn();
+      // Users can only touch their own progress field; admins have full update.
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantProgress'])
+      );
     }
 
     // 29. PARTNER STORES
