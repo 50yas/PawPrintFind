@@ -3,8 +3,8 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 
 describe('Global CSS Variables', () => {
-    it('should define Material 3 CSS variables in index.css', () => {
-        const cssPath = path.resolve(process.cwd(), 'index.css');
+    it('should define Material 3 CSS variables in src/index.css', () => {
+        const cssPath = path.resolve(process.cwd(), 'src/index.css');
         const cssContent = fs.readFileSync(cssPath, 'utf-8');
 
         // Check for root definition

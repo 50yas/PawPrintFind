@@ -56,7 +56,20 @@ export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onC
   return (
     <Modal isOpen={true} onClose={onClose} title={t('aiHealthCheckTitle', { petName: pet.name })}>
       {!analysis ? (
-        <form onSubmit={handleAnalyze} className="space-y-4">
+        <form onSubmit={handleAnalyze} className="space-y-4 relative">
+          {isLoading && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl animate-fade-in">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl animate-pulse">🩺</span>
+                </div>
+              </div>
+              <p className="mt-4 text-primary font-black uppercase tracking-[0.2em] text-xs animate-pulse">
+                {t('dashboard:admin.analyzing')}...
+              </p>
+            </div>
+          )}
           <p className="text-slate-400">{t('aiHealthCheckDesc')}</p>
           <div>
             <label htmlFor="symptoms" className="block text-sm font-medium text-slate-400">{t('symptomsLabel')}</label>
@@ -65,24 +78,27 @@ export const AIHealthCheckModal: React.FC<AIHealthCheckModalProps> = ({ pet, onC
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
               rows={4}
-              className="input-base mt-1"
+              className="input-base mt-1 focus:ring-primary/20"
               placeholder={t('symptomsPlaceholder')}
               required
             />
           </div>
-          <button type="submit" disabled={isLoading} className="btn btn-primary w-full flex justify-center">
-            {isLoading ? <LoadingSpinner /> : t('analyzeSymptomsButton')}
+          <button type="submit" disabled={isLoading} className="btn btn-primary w-full flex justify-center py-3 shadow-lg shadow-primary/20">
+            {t('analyzeSymptomsButton')}
           </button>
         </form>
       ) : (
-        <div className="space-y-4">
-          <h4 className="font-bold text-lg text-white">{t('analysisResultTitle')}</h4>
-          <div className="prose prose-sm prose-invert max-w-none text-slate-400 bg-white/5 p-4 rounded-md max-h-60 overflow-y-auto">
+        <div className="space-y-4 animate-fade-in">
+          <h4 className="font-black text-white uppercase tracking-tight flex items-center gap-2">
+            <span className="w-2 h-6 bg-primary rounded-full"></span>
+            {t('analysisResultTitle')}
+          </h4>
+          <div className="prose prose-sm prose-invert max-w-none text-slate-300 bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl max-h-80 overflow-y-auto custom-scrollbar shadow-inner">
             {renderAnalysis(analysis)}
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-             <button onClick={() => onBookAppointment(pet)} className="btn btn-primary flex-grow">{t('bookAppointmentButton')}</button>
-             <button onClick={onClose} className="glass-btn flex-grow">{t('closeButton')}</button>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+             <button onClick={() => onBookAppointment(pet)} className="btn btn-primary flex-grow font-black uppercase tracking-widest text-xs py-3">{t('bookAppointmentButton')}</button>
+             <button onClick={onClose} className="glass-btn flex-grow font-black uppercase tracking-widest text-xs py-3">{t('closeButton')}</button>
           </div>
         </div>
       )}

@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
-import { dbService } from './firebase';
+import { adminService } from './adminService';
 import * as geminiService from './geminiService';
-import { openRouterService } from './openRouterService';
 
-vi.mock('./firebase', () => ({
-  dbService: {
+vi.mock('./adminService', () => ({
+  adminService: {
     getAISettings: vi.fn(),
   },
 }));
@@ -15,51 +14,36 @@ vi.mock('./geminiService', () => ({
   performAIHealthCheck: vi.fn(),
   generateChatSuggestions: vi.fn(),
   comparePets: vi.fn(),
-}));
-
-vi.mock('./openRouterService', () => ({
-  openRouterService: {
-    analyzeImageForDescription: vi.fn(),
-    performAIHealthCheck: vi.fn(),
-    generateChatSuggestions: vi.fn(),
-    comparePets: vi.fn(),
-  }
+  generateMatchExplanation: vi.fn(),
+  chat: vi.fn(),
 }));
 
 describe('aiBridgeService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset internal state of aiBridgeService if possible,
+    // or just ensure we force refresh settings if the service supports it.
   });
 
-  it('should delegate to Gemini when provider is google', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'google' });
-    (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Desc');
+  it('should route through geminiService (which acts as a proxy for Cloud Functions)', async () => {
+    (adminService.getAISettings as any).mockResolvedValue({ provider: 'google' });
+    (geminiService.analyzeImageForDescription as any).mockResolvedValue('AI Response');
 
     const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
 
-    expect(result).toBe('Gemini Desc');
+    expect(result).toBe('AI Response');
     expect(geminiService.analyzeImageForDescription).toHaveBeenCalled();
-    expect(openRouterService.analyzeImageForDescription).not.toHaveBeenCalled();
   });
 
-  it('should delegate to OpenRouter when provider is openrouter', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'openrouter' });
-    (openRouterService.analyzeImageForDescription as any).mockResolvedValue('OpenRouter Desc');
+  it('should initialize settings only once (singleton promise)', async () => {
+    (adminService.getAISettings as any).mockResolvedValue({ provider: 'google' });
 
-    const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
+    // Concurrent calls
+    const p1 = aiBridgeService.init();
+    const p2 = aiBridgeService.init();
 
-    expect(result).toBe('OpenRouter Desc');
-    expect(openRouterService.analyzeImageForDescription).toHaveBeenCalled();
-    expect(geminiService.analyzeImageForDescription).not.toHaveBeenCalled();
-  });
+    await Promise.all([p1, p2]);
 
-  it('should default to Gemini if settings fail', async () => {
-    (dbService.getAISettings as any).mockRejectedValue(new Error('DB Error'));
-    (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Default');
-
-    const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
-
-    expect(result).toBe('Gemini Default');
-    expect(geminiService.analyzeImageForDescription).toHaveBeenCalled();
+    expect(adminService.getAISettings).toHaveBeenCalledTimes(1);
   });
 });

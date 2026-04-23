@@ -18,6 +18,7 @@ vi.mock('../services/firebase', () => ({
     auth: { currentUser: null },
     recordDonation: vi.fn().mockResolvedValue(undefined),
     createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://stripe.com/checkout' }),
+    getPublicStats: vi.fn().mockResolvedValue({ petsProtected: 100, successfulMatches: 50, communityMembers: 200, vetPartners: 10, activeCities: 5, totalDonations: 1000, responseTime: 12 }),
   },
 }));
 

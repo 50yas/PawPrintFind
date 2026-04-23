@@ -36,7 +36,7 @@ describe('useAuthSync Hook', () => {
         expect(result.current.currentUser).toBeNull();
     });
 
-    it('syncs profile but does not redirect when logged in (redirect removed for UX)', async () => {
+    it('syncs profile and redirects when logged in on home page', async () => {
         const mockFbUser = { uid: '123', email: 'test@test.com' } as any;
         const mockProfile = { uid: '123', email: 'test@test.com', activeRole: 'owner' } as any;
         (dbService.syncUserProfile as any).mockResolvedValue(mockProfile);
@@ -50,8 +50,7 @@ describe('useAuthSync Hook', () => {
         expect(dbService.syncUserProfile).toHaveBeenCalledWith(mockFbUser);
         expect(result.current.currentUser).toEqual(mockProfile);
         expect(mockSetIsLoginModalOpen).toHaveBeenCalledWith(false);
-        // We removed redirect logic to allow users to stay on public pages
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith('dashboard');
     });
 
     it('handles super_admin sync correctly', async () => {
@@ -65,7 +64,7 @@ describe('useAuthSync Hook', () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
 
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith('adminDashboard');
     });
 
     it('handles vet sync correctly', async () => {
@@ -79,7 +78,7 @@ describe('useAuthSync Hook', () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
 
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith('vetDashboard');
     });
 
     it('does not redirect if not on home page', async () => {

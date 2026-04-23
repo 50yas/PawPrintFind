@@ -75,9 +75,12 @@ const LostPetCard: React.FC<{
                 </div>
 
                 {explanation && (
-                    <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
-                        <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1">{t('aiMatchReason')}</p>
-                        <p className="text-xs text-slate-100 italic">"{explanation}"</p>
+                    <div className="mt-4 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-inner group-hover:border-primary/30 transition-colors">
+                        <p className="text-[10px] text-primary uppercase font-black tracking-widest mb-1 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
+                            {t('aiMatchReason')}
+                        </p>
+                        <p className="text-xs text-slate-200 italic leading-relaxed">"{explanation}"</p>
                     </div>
                 )}
 

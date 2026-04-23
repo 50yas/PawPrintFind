@@ -57,12 +57,12 @@ const getModel = async (task: string): Promise<string> => {
     const mapped = settings?.modelMapping?.[task as keyof typeof settings.modelMapping];
     // Default models per task if not configured
     const defaults: Record<string, string> = {
-        vision: 'google/gemini-2.5-flash',
-        triage: 'google/gemini-2.5-pro',
-        chat: 'google/gemini-2.5-flash',
-        matching: 'google/gemini-2.5-pro',
+        vision: 'google/gemini-2.0-flash',
+        triage: 'google/gemini-2.0-pro',
+        chat: 'google/gemini-2.0-flash',
+        matching: 'google/gemini-2.0-pro',
     };
-    return mapped || defaults[task] || 'google/gemini-2.5-flash';
+    return mapped || defaults[task] || 'google/gemini-2.0-flash';
 };
 
 /**

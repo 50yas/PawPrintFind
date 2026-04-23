@@ -25,6 +25,19 @@ export const callOpenRouterAI = async (
     task?: string,
     overrideApiKey?: string
 ) => {
+    // RESOLVE DEFAULT MODELS FOR FREE TIER IF GENERIC OR MISSING
+    let targetModel = model;
+    if (!targetModel || targetModel === 'openai/gpt-4o-mini' || targetModel === 'google/gemini-2.0-flash') {
+        const defaults: Record<string, string> = {
+            'visionIdentification': 'google/gemini-2.0-flash-exp:free',
+            'smartSearch': 'mistralai/mistral-7b-instruct:free',
+            'healthAssessment': 'google/gemma-2-9b-it:free',
+            'blogGeneration': 'meta-llama/llama-3.3-70b-instruct:free',
+            'generic': 'google/gemini-2.0-flash-exp:free'
+        };
+        targetModel = defaults[task || 'generic'] || 'google/gemini-2.0-flash-exp:free';
+    }
+
     // Use provided API key for testing, or fetch from config
     const apiKey = overrideApiKey || await getOpenRouterKey();
     if (!apiKey) {
@@ -34,14 +47,14 @@ export const callOpenRouterAI = async (
         );
     }
 
-    // Resolve model if not provided or if it's a task alias
-    let targetModel = model;
+    // Resolve model if not provided or if it's a task alias (Settings override)
     if (task) {
         // Fetch mapping from settings
         try {
             const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
             if (doc.exists) {
-                const mapping = doc.data()?.modelMapping;
+                const data = doc.data();
+                const mapping = data?.modelMapping;
                 if (mapping && mapping[task]) {
                     targetModel = mapping[task];
                 }
