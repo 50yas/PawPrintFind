@@ -6,5 +6,18 @@ automatic_scaling:
   max_instances: 5
 
 handlers:
+  # Static assets with caching
+  - url: /assets
+    static_dir: dist/assets
+    expiration: 30d
+
+  # PWA manifest and icons
+  - url: /(manifest\.webmanifest|favicon\.ico|icon-.*\.png)
+    static_files: dist/\1
+    upload: dist/(manifest\.webmanifest|favicon\.ico|icon-.*\.png)
+    expiration: 1d
+
+  # SPA Routing: All other requests to index.html
   - url: /.*
-    script: auto
+    static_files: dist/index.html
+    upload: dist/index.html

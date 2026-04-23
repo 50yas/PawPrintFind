@@ -169,7 +169,7 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
 
         const response = await callGeminiFunction(
-            'gemini-2.5-pro',
+            'gemini-2.0-pro',
             { parts: [...lostPetPhotoParts, { text: userPrompt }] },
             {
                 systemInstruction,
@@ -198,7 +198,7 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
         const prompt = Prompts.getVideoAnalysisPrompt();
 
         const response = await callGeminiFunction(
-            'gemini-2.5-pro',
+            'gemini-2.0-pro',
             { parts: [videoPart, { text: prompt }] }
         );
         if (onProgress) onProgress(100);
@@ -212,7 +212,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
         const prompt = Prompts.getAudioTranscriptionPrompt();
 
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-flash',
             { parts: [audioPart, { text: prompt }] }
         );
         if (onProgress) onProgress(100);
@@ -223,7 +223,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
 export const findNearbyVets = async (location: Geolocation): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            "gemini-2.5-flash",
+            "gemini-2.0-flash",
             Prompts.getNearbyVetsPrompt(),
             {
                 tools: [{ googleMaps: {} }],
@@ -238,7 +238,7 @@ export const findNearbyVets = async (location: Geolocation): Promise<{ text: str
 export const findVetsByQuery = async (query: string): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            "gemini-2.5-flash",
+            "gemini-2.0-flash",
             Prompts.getVetsByQueryPrompt(query),
             { tools: [{ googleMaps: {} }] }
         );
@@ -250,7 +250,7 @@ export const findVetsByQuery = async (query: string): Promise<{ text: string, pl
 export const findClinicOnGoogleMaps = async (name: string, city: string): Promise<any[]> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            "gemini-2.5-flash",
+            "gemini-2.0-flash",
             Prompts.getFindClinicPrompt(name, city),
             { tools: [{ googleMaps: {} }] }
         );
@@ -274,7 +274,7 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
 export const textToSpeech = async (text: string): Promise<string> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            "gemini-2.5-flash-preview-tts",
+            "gemini-2.0-flash-preview-tts",
             [{ parts: [{ text }] }],
             {
                 responseModalities: [Modality.AUDIO],
@@ -291,7 +291,7 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
     const { systemInstruction, userPrompt } = Prompts.getVetMessageDraftParts(pet, topic);
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-flash',
             userPrompt,
             { systemInstruction }
         );
@@ -303,7 +303,7 @@ export const queryVetPatientData = async (patients: PetProfile[], appointments: 
     const { systemInstruction, userPrompt } = Prompts.getVetDataQueryParts(patients, appointments, query);
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-pro',
+            'gemini-2.0-pro',
             userPrompt,
             {
                 systemInstruction,
@@ -319,7 +319,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-flash',
             userPrompt,
             {
                 systemInstruction,
@@ -408,7 +408,7 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
     const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
+            'gemini-2.0-flash', // Using Flash for speed and lower cost on batch translations
             userPrompt,
             {
                 systemInstruction,
@@ -422,7 +422,7 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
 export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-flash',
             { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
             {
                 responseMimeType: "application/json",
@@ -452,11 +452,32 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
+            'gemini-2.0-flash',
             { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
         );
         return response.text?.trim() || "Matches your preferences.";
     });
 };
 
+/**
+ * Multi-turn chat passthrough.
+ */
+export const chat = async (
+    history: Array<{ role: 'user' | 'assistant'; text: string }>,
+    systemPrompt: string
+): Promise<string> => {
+    return retryWithBackoff(async () => {
+        const contents = history.map(h => ({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: h.text }]
+        }));
+
+        const response = await callGeminiFunction(
+            'gemini-2.0-flash',
+            contents,
+            { systemInstruction: systemPrompt }
+        );
+        return response.text?.trim() || "";
+    });
+};
 

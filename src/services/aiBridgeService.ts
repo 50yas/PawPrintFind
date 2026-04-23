@@ -1,28 +1,33 @@
 import { dbService } from './firebase';
 import * as geminiService from './geminiService';
-import { openRouterService } from './openRouterService';
 import { adminService } from './adminService';
 import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
 
 let cachedSettings: AISettings | null = null;
 let isInitializing = false;
+let initPromise: Promise<AISettings | null> | null = null;
 
 export const aiBridgeService = {
     async init(): Promise<AISettings | null> {
         if (cachedSettings) return cachedSettings;
-        if (isInitializing) return null;
+        if (initPromise) return initPromise;
         
-        isInitializing = true;
-        try {
-            const settings = await adminService.getAISettings();
-            cachedSettings = settings;
-            return settings;
-        } catch (error) {
-            console.error("[AI Bridge] Initialization failed:", error);
-            return null;
-        } finally {
-            isInitializing = false;
-        }
+        initPromise = (async () => {
+            isInitializing = true;
+            try {
+                const settings = await adminService.getAISettings();
+                cachedSettings = settings;
+                return settings;
+            } catch (error) {
+                console.error("[AI Bridge] Initialization failed:", error);
+                return null;
+            } finally {
+                isInitializing = false;
+                initPromise = null;
+            }
+        })();
+
+        return initPromise;
     },
 
     async getSettings(forceRefresh = false): Promise<AISettings | null> {
@@ -37,53 +42,41 @@ export const aiBridgeService = {
         return adminService.testAIConnection(provider, apiKey);
     },
 
+    /**
+     * All methods below now route through geminiService, which proxies calls
+     * to secure Cloud Functions. The backend resolveAIConfig() handles
+     * provider-specific routing (Gemini vs OpenRouter) server-side.
+     */
+
     async analyzeImageForDescription(photo: File): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.analyzeImageForDescription(photo);
-        }
         return geminiService.analyzeImageForDescription(photo);
     },
 
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.performAIHealthCheck(pet, symptoms, locale);
-        }
         return geminiService.performAIHealthCheck(pet, symptoms, locale);
     },
 
     async generateChatSuggestions(session: ChatSession, currentUserEmail: string): Promise<string[]> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.generateChatSuggestions(session, currentUserEmail);
-        }
         return geminiService.generateChatSuggestions(session, currentUserEmail);
     },
 
     async comparePets(foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.comparePets(foundPetDesc, lostPet);
-        }
         return geminiService.comparePets(foundPetDesc, lostPet);
     },
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.generateMatchExplanation(pet, filters);
-        }
         return geminiService.generateMatchExplanation(pet, filters);
     },
 
     /**
-     * Multi-turn chat for LiveAssistant (OpenRouter only — Gemini uses native Live API).
+     * Multi-turn chat for LiveAssistant.
+     * Proxied through Cloud Functions for security.
      */
     async chat(
         history: Array<{ role: 'user' | 'assistant'; text: string }>,
         systemPrompt: string
     ): Promise<string> {
-        return openRouterService.chat(history, systemPrompt);
+        // We use the generic 'chat' task which geminiService can handle
+        return geminiService.chat(history, systemPrompt);
     },
 };

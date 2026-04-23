@@ -221,7 +221,7 @@ export const LiveAssistant: React.FC<LiveAssistantProps> = ({ currentUserRole, t
         }
         const ai = new GoogleGenAI({ apiKey });
         const sessionPromise = ai.live.connect({
-            model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+            model: 'gemini-2.0-flash-native-audio-preview-09-2025',
             callbacks: {
                 onopen: () => setStatus(t('statusReady')),
                 onmessage: async (message: LiveServerMessage) => {

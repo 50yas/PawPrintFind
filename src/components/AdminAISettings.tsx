@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { adminService } from '../services/adminService';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { openRouterService } from '../services/openRouterService';
 import { AISettings, AIProvider, AIModelTask } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -129,9 +128,13 @@ export const AdminAISettings: React.FC = () => {
     const handleRefreshModels = async () => {
         setFetchingModels(true);
         try {
-            const models = await openRouterService.fetchAvailableModels();
-            setAvailableModels(models);
-            addSnackbar(`Fetched ${models.length} models`, 'info');
+            const { httpsCallable } = await import('firebase/functions');
+            const { functions } = await import('../services/firebase');
+            const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+            const result = await fn();
+            const data = result.data as { models: { id: string; name: string }[] };
+            setAvailableModels(data.models || []);
+            addSnackbar(`Fetched ${data.models?.length || 0} models`, 'info');
         } catch (e: any) {
             addSnackbar(t('dashboard:admin.connectionFailed') + ': ' + e.message, 'error');
         } finally {
@@ -235,6 +238,21 @@ export const AdminAISettings: React.FC = () => {
                         );
                     })}
                 </div>
+
+                {settings.provider === 'openrouter' && (
+                    <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                        <div>
+                            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Smart Fallback</h4>
+                            <p className="text-[9px] text-slate-500 font-mono">Use Gemini as secondary provider if OpenRouter fails</p>
+                        </div>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`w-12 h-6 rounded-full transition-all duration-300 relative border ${settings.fallbackToGemini ? 'bg-primary/20 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.2)]' : 'bg-white/5 border-white/10'}`}
+                        >
+                            <div className={`absolute top-1 w-3.5 h-3.5 rounded-full transition-all duration-300 ${settings.fallbackToGemini ? 'right-1 bg-primary' : 'left-1 bg-slate-600'}`}></div>
+                        </button>
+                    </div>
+                )}
             </GlassCard>
 
             {/* API Credentials */}
@@ -382,11 +400,11 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ qwen3-next-80b (chat/reasoning)</option>
-                                                <option value="qwen/qwen3-coder:free">⭐ qwen3-coder (code/matching)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (vision)</option>
-                                                <option value="meta-llama/llama-3.3-70b-instruct:free">llama-3.3-70b-instruct</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">⭐ gemini-2.0-flash (Fastest Free Vision)</option>
+                                                <option value="google/gemma-2-9b-it:free">⭐ gemma-2-9b-it (Efficient Chat)</option>
+                                                <option value="mistralai/mistral-7b-instruct:free">⭐ mistral-7b-instruct (Reliable Triage)</option>
+                                                <option value="meta-llama/llama-3.3-70b-instruct:free">⭐ llama-3.3-70b (High Logic/Matching)</option>
+                                                <option value="qwen/qwen-2-7b-instruct:free">qwen-2-7b-instruct</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}

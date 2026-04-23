@@ -55,14 +55,14 @@ async function resolveAIConfig(task) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.activeProvider || 'google';
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'openai/gpt-4o-mini');
             return { provider, model };
         }
     }
     catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash' };
 }
 async function callAI(userId, featureName, contents, config = {}, taskOverride) {
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);

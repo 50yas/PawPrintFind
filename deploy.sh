@@ -48,6 +48,14 @@ echo ""
 
 # ── 1. Build ─────────────────────────────────────────────────────────────────
 if [ "$SKIP_BUILD" = false ]; then
+  log "Validating environment..."
+  REQUIRED_VARS=("VITE_FIREBASE_API_KEY" "VITE_FIREBASE_PROJECT_ID" "VITE_FIREBASE_APP_ID")
+  for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+      warn "Missing environment variable: $var (Check your .env file)"
+    fi
+  done
+
   log "Building frontend (TypeScript + Vite)..."
   npm run build || err "Build failed — fix TypeScript errors before deploying"
   ok "Build complete"
