@@ -21,6 +21,11 @@ export const useAuthSync = (
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     // Track if previous auth state had a user (to distinguish fresh login from page refresh)
     const hadUserRef = useRef<boolean>(false);
+    const currentViewRef = useRef(currentView);
+
+    useEffect(() => {
+        currentViewRef.current = currentView;
+    }, [currentView]);
 
     useEffect(() => {
         // Handle Magic Link Completion
@@ -51,8 +56,8 @@ export const useAuthSync = (
                     hadUserRef.current = true;
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-                    // Redirect to dashboard if: fresh login OR currently on home page
-                    if (wasLoggedOut || currentView === 'home') {
+                    // Redirect to dashboard ONLY if currently on home page
+                    if (currentViewRef.current === 'home') {
                         const dashView = getDashboardView(profile.activeRole);
                         setCurrentView(dashView);
                     }
