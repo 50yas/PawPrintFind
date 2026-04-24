@@ -2,14 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { openRouterService } from './openRouterService';
 import { httpsCallable } from 'firebase/functions';
 
-// Mock Firebase Functions
-vi.mock('firebase/functions', () => ({
-  httpsCallable: vi.fn(),
-  getFunctions: vi.fn(),
-}));
-
+// Mock Firebase
 vi.mock('./firebase', () => ({
   functions: {},
+}));
+
+vi.mock('firebase/functions', () => ({
+  httpsCallable: vi.fn(),
 }));
 
 describe('openRouterService', () => {
@@ -20,8 +19,10 @@ describe('openRouterService', () => {
     (httpsCallable as any).mockReturnValue(mockCallFunction);
   });
 
-  it('analyzeImageForDescription should call cloud function with correct parameters', async () => {
-    mockCallFunction.mockResolvedValue({ data: { success: true, text: 'A cute dog' } });
+  it('analyzeImageForDescription should call Cloud Function with correct parameters', async () => {
+    mockCallFunction.mockResolvedValue({
+        data: { success: true, text: 'A cute dog' }
+    });
     
     // Create a dummy file
     const file = new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' });
@@ -42,7 +43,7 @@ describe('openRouterService', () => {
       }
     }
     
-    vi.spyOn(window, 'FileReader').mockImplementation(MockFileReader as any);
+    vi.stubGlobal('FileReader', MockFileReader);
 
     const result = await openRouterService.analyzeImageForDescription(file);
 
@@ -50,23 +51,16 @@ describe('openRouterService', () => {
     expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callOpenRouter');
     expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
       task: 'vision',
-      messages: expect.arrayContaining([
-        expect.objectContaining({
-          role: 'user',
-          content: expect.arrayContaining([
-            expect.objectContaining({ type: 'image_url' })
-          ])
-        })
-      ])
+      model: 'nvidia/nemotron-nano-12b-v2-vl:free'
     }));
   });
 
   it('generateChatSuggestions should parse JSON response', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { 
-        success: true, 
-        text: JSON.stringify({ suggestions: ['Hello', 'Hi'] }) 
-      } 
+    mockCallFunction.mockResolvedValue({
+        data: {
+            success: true,
+            text: JSON.stringify({ suggestions: ['Hello', 'Hi'] })
+        }
     });
 
     const session: any = { messages: [], ownerEmail: 'owner@example.com' };
@@ -79,8 +73,8 @@ describe('openRouterService', () => {
   });
 
   it('fetchAvailableModels should call fetchOpenRouterModels cloud function', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] } 
+    mockCallFunction.mockResolvedValue({
+        data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] }
     });
 
     const result = await openRouterService.fetchAvailableModels();

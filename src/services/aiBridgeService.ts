@@ -5,31 +5,41 @@ import { adminService } from './adminService';
 import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
 
 let cachedSettings: AISettings | null = null;
-let isInitializing = false;
+let initPromise: Promise<AISettings | null> | null = null;
 
 export const aiBridgeService = {
+    /**
+     * Initializes or returns the cached AI settings.
+     * Uses a promise-based lock to prevent multiple simultaneous initializations.
+     */
     async init(): Promise<AISettings | null> {
         if (cachedSettings) return cachedSettings;
-        if (isInitializing) return null;
+        if (initPromise) return initPromise;
         
-        isInitializing = true;
-        try {
-            const settings = await adminService.getAISettings();
-            cachedSettings = settings;
-            return settings;
-        } catch (error) {
-            console.error("[AI Bridge] Initialization failed:", error);
-            return null;
-        } finally {
-            isInitializing = false;
-        }
+        initPromise = (async () => {
+            try {
+                const settings = await adminService.getAISettings();
+                cachedSettings = settings;
+                return settings;
+            } catch (error) {
+                console.error("[AI Bridge] Initialization failed:", error);
+                return null;
+            } finally {
+                initPromise = null;
+            }
+        })();
+
+        return initPromise;
     },
 
+    /**
+     * Gets settings, optionally forcing a refresh from the database.
+     */
     async getSettings(forceRefresh = false): Promise<AISettings | null> {
         if (forceRefresh) {
             cachedSettings = null;
+            initPromise = null;
         }
-        if (cachedSettings && !forceRefresh) return cachedSettings;
         return this.init();
     },
 

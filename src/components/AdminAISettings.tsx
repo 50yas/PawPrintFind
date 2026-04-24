@@ -382,11 +382,14 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ qwen3-next-80b (chat/reasoning)</option>
-                                                <option value="qwen/qwen3-coder:free">⭐ qwen3-coder (code/matching)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (vision)</option>
-                                                <option value="meta-llama/llama-3.3-70b-instruct:free">llama-3.3-70b-instruct</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="z-ai/glm-4.5-air:free">⭐ GLM-4.5 Air (Best Reasoning)</option>
+                                                <option value="openai/gpt-oss-120b:free">⭐ GPT-OSS 120B (Large Scale)</option>
+                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ Qwen 3 Next (General Purpose)</option>
+                                                <option value="qwen/qwen3-coder:free">⭐ Qwen 3 Coder (Logic/Matching)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ Nemotron Nano VL (Vision)</option>
+                                                <option value="nvidia/nemotron-3-nano-30b-a3b:free">Nemotron 3 Nano (Efficient)</option>
+                                                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+                                                <option value="mistralai/mistral-7b-instruct:free">Mistral 7B</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}
