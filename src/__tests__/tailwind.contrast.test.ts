@@ -4,6 +4,9 @@ import path from 'path';
 
 // Helper to parse CSS variables from file
 function getCssVariables(filePath: string): { root: Record<string, string>, dark: Record<string, string> } {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
   let css = fs.readFileSync(filePath, 'utf-8');
   // Remove comments
   css = css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -114,7 +117,9 @@ function getContrastRatio(fg: string, bg: string): number {
 }
 
 describe('Accessibility: Color Contrast', () => {
-  const { root, dark } = getCssVariables(path.resolve(__dirname, 'index.css'));
+  // Fix path to index.css
+  const cssPath = path.resolve(process.cwd(), 'src/index.css');
+  const { root, dark } = getCssVariables(cssPath);
 
   // Merge dark variables on top of root for full context
   const darkTheme = { ...root, ...dark };
