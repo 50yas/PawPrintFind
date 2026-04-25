@@ -2,7 +2,7 @@ import { dbService } from './firebase';
 import * as geminiService from './geminiService';
 import { openRouterService } from './openRouterService';
 import { adminService } from './adminService';
-import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { PetProfile, AISettings, ChatSession, AIProvider, BlogPost } from '../types';
 
 let cachedSettings: AISettings | null = null;
 let isInitializing = false;
@@ -45,6 +45,24 @@ export const aiBridgeService = {
         return geminiService.analyzeImageForDescription(photo);
     },
 
+    async identifyBreedFromImage(photo: File, locale: string = 'en'): Promise<string> {
+        const settings = await this.getSettings();
+        if (settings?.provider === 'openrouter') {
+            // Note: identifyBreedFromImage in geminiService also calls a Cloud Function
+            // which handles the provider switching. We can consolidate this.
+            return geminiService.identifyBreedFromImage(photo, locale);
+        }
+        return geminiService.identifyBreedFromImage(photo, locale);
+    },
+
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return geminiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return geminiService.generatePetIdentikit(photo, locale);
+    },
+
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
         const settings = await this.getSettings();
         if (settings?.provider === 'openrouter') {
@@ -75,6 +93,21 @@ export const aiBridgeService = {
             return openRouterService.generateMatchExplanation(pet, filters);
         }
         return geminiService.generateMatchExplanation(pet, filters);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        const settings = await this.getSettings();
+        // Since geminiService.parseSearchQuery now uses 'smartSearch' which is routed
+        // to callAI in Cloud Functions, it will respect the provider setting.
+        return geminiService.parseSearchQuery(query);
+    },
+
+    async generateBlogPost(topic: string): Promise<Partial<BlogPost>> {
+        return geminiService.generateBlogPost(topic);
+    },
+
+    async generateSuccessStory(pet: PetProfile): Promise<Partial<BlogPost>> {
+        return geminiService.generateSuccessStory(pet);
     },
 
     /**

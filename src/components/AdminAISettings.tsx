@@ -382,9 +382,10 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ qwen3-next-80b (chat/reasoning)</option>
-                                                <option value="qwen/qwen3-coder:free">⭐ qwen3-coder (code/matching)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (vision)</option>
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ Qwen 2.5 72B (Free)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ Nemotron Nano 12B VL (Free - Vision)</option>
+                                                <option value="google/gemini-2.0-flash-lite-preview-02-05:free">⭐ Gemini 2.0 Flash Lite (Free)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ DeepSeek R1 (Free)</option>
                                                 <option value="meta-llama/llama-3.3-70b-instruct:free">llama-3.3-70b-instruct</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}

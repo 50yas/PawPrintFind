@@ -283,8 +283,8 @@ export const dbService = {
         await petService.savePet({ ...pet, isLost: false });
 
         try {
-            const { generateSuccessStory } = await import('./geminiService');
-            const story = await generateSuccessStory(pet);
+            const { aiBridgeService } = await import('./aiBridgeService');
+            const story = await aiBridgeService.generateSuccessStory(pet);
 
             if (story.title) {
                 const blogPost: BlogPost = {

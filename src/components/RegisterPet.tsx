@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PetProfile, PhotoWithMarks, UniqueMark, Geolocation, MedicalRecord, Vaccination, User } from '../types';
-import { analyzeVideo, transcribeAudio, identifyBreedFromImage, generatePetIdentikit, autoFillPetDetails } from '../services/geminiService';
+import { analyzeVideo, transcribeAudio } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { dbService } from '../services/firebase';
 import { ImageTagger } from './ImageTagger';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -225,7 +226,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       
       if (photos.filter(p => p).length === 0) {
         setIsIdentifyingBreed(true);
-        identifyBreedFromImage(file, locale).then(suggestedBreed => {
+        aiBridgeService.identifyBreedFromImage(file, locale).then(suggestedBreed => {
             if (suggestedBreed && !breed) {
                 setBreed(suggestedBreed);
             }
@@ -259,7 +260,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
               }
 
               // 2. Call AI
-              const details = await autoFillPetDetails(file, locale);
+              const details = await aiBridgeService.autoFillPetDetails(file, locale);
               
               if (details.breed) setBreed(details.breed);
               if (details.age) setAge(details.age);
@@ -279,7 +280,7 @@ export const RegisterPet: React.FC<RegisterPetProps> = ({ onRegister, goToDashbo
       const validPhotos = photos.filter((p): p is PhotoWithMarks => p !== undefined && p.file !== undefined);
       if (validPhotos.length === 0) return;
       setIsGeneratingIdentity(true);
-      const result = await generatePetIdentikit(validPhotos[0].file!, locale);
+      const result = await aiBridgeService.generatePetIdentikit(validPhotos[0].file!, locale);
       setAiIdentityCode(result.code);
       setAiPhysicalDescription(result.description);
       setIsGeneratingIdentity(false);

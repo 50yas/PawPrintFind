@@ -25,8 +25,11 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            const provider = data?.provider || data?.activeProvider || 'google'; // Handle legacy 'activeProvider'
+            const defaultModel = provider === 'google'
+                ? 'gemini-2.0-flash'
+                : (task === 'vision' ? 'nvidia/nemotron-nano-12b-v2-vl:free' : 'qwen/qwen-2.5-72b-instruct:free');
+            const model = data?.modelMapping?.[task] || defaultModel;
             return { provider, model };
         }
     } catch (e) {
@@ -262,7 +265,7 @@ export const visionIdentification = onCall({
         config.responseSchema = schema;
     }
 
-    return callAI(request.auth.uid, "visionIdentification", contents, config);
+    return callAI(request.auth.uid, "vision", contents, config);
 });
 
 /**
@@ -286,7 +289,7 @@ export const smartSearch = onCall({
 
     return callAI(
         request.auth.uid,
-        "smartSearch",
+        "chat",
         contents,
         { responseMimeType: "application/json" }
     );
@@ -308,7 +311,7 @@ export const healthAssessment = onCall({
 
     return callAI(
         request.auth.uid,
-        "healthAssessment",
+        "triage",
         contents,
         { systemInstruction }
     );
@@ -343,7 +346,7 @@ export const blogGeneration = onCall({
 
     return callAI(
         request.auth.uid,
-        "blogGeneration",
+        "chat",
         contents,
         {
             systemInstruction,
@@ -358,11 +361,11 @@ export const callGemini = onCall({
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
+    const { model, contents, config, task = "chat" } = request.data;
 
     return callAI(
         request.auth.uid,
-        "generic",
+        task,
         contents,
         { ...config, modelOverride: model }
     );
