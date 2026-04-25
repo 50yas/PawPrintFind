@@ -1,13 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
-import { dbService } from './firebase';
 import * as geminiService from './geminiService';
 import { openRouterService } from './openRouterService';
 
 vi.mock('./firebase', () => ({
+  db: {},
   dbService: {
     getAISettings: vi.fn(),
   },
+  functions: {},
+}));
+
+vi.mock('./adminService', () => ({
+    adminService: {
+        getAISettings: vi.fn(),
+    }
 }));
 
 vi.mock('./geminiService', () => ({
@@ -32,7 +39,7 @@ describe('aiBridgeService', () => {
   });
 
   it('should delegate to Gemini when provider is google', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'google' });
+    vi.spyOn(aiBridgeService, 'getSettings').mockResolvedValue({ provider: 'google' } as any);
     (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Desc');
 
     const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
@@ -43,7 +50,7 @@ describe('aiBridgeService', () => {
   });
 
   it('should delegate to OpenRouter when provider is openrouter', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'openrouter' });
+    vi.spyOn(aiBridgeService, 'getSettings').mockResolvedValue({ provider: 'openrouter' } as any);
     (openRouterService.analyzeImageForDescription as any).mockResolvedValue('OpenRouter Desc');
 
     const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
@@ -54,7 +61,7 @@ describe('aiBridgeService', () => {
   });
 
   it('should default to Gemini if settings fail', async () => {
-    (dbService.getAISettings as any).mockRejectedValue(new Error('DB Error'));
+    vi.spyOn(aiBridgeService, 'getSettings').mockResolvedValue(null);
     (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Default');
 
     const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
