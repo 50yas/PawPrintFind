@@ -56,11 +56,12 @@ else
 fi
 
 # ── 2. GitHub ─────────────────────────────────────────────────────────────────
-log "Pushing to GitHub (origin/main)..."
+log "Pushing to GitHub..."
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if git diff --quiet && git diff --cached --quiet; then
   warn "No uncommitted changes — pushing existing commits"
 fi
-git push origin main || err "GitHub push failed"
+git push origin "$CURRENT_BRANCH" || err "GitHub push failed"
 ok "GitHub — https://github.com/50yas/PawPrintFind"
 
 # ── 3. Firebase Firestore Rules ───────────────────────────────────────────────
