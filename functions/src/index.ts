@@ -25,8 +25,24 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            // Prioritize 'provider' as the primary key, fallback to 'activeProvider' for compatibility
+            const provider = data?.provider || data?.activeProvider || 'google';
+
+            let model = data?.modelMapping?.[task];
+            if (!model) {
+                if (provider === 'google') {
+                    model = 'gemini-2.0-flash';
+                } else {
+                    // OpenRouter Free Defaults
+                    const defaults: Record<string, string> = {
+                        visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                        smartSearch: 'qwen/qwen-2.5-72b-instruct:free',
+                        healthAssessment: 'qwen/qwen-2.5-72b-instruct:free',
+                        blogGeneration: 'qwen/qwen-2.5-72b-instruct:free',
+                    };
+                    model = defaults[task] || 'qwen/qwen-2.5-72b-instruct:free';
+                }
+            }
             return { provider, model };
         }
     } catch (e) {
@@ -50,19 +66,33 @@ async function callAI(
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
         let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
+        if (contents && contents.parts) {
+            // Single turn with multiple parts (text/images)
+            const textParts = contents.parts.filter((p: any) => p.text).map((p: any) => p.text).join('\n');
+            const imgParts = contents.parts.filter((p: any) => p.inlineData);
+
+            if (imgParts.length > 0) {
                 messages = [{
                     role: 'user',
                     content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        ...(textParts ? [{ type: 'text' as const, text: textParts }] : []),
+                        ...imgParts.map((img: any) => ({
+                            type: 'image_url' as const,
+                            image_url: { url: `data:${img.inlineData.mimeType};base64,${img.inlineData.data}` }
+                        }))
                     ]
                 }];
+            } else {
+                messages = [{ role: 'user', content: textParts }];
             }
+        } else if (Array.isArray(contents)) {
+            // Multi-turn history
+            messages = contents.map((c: any) => ({
+                role: c.role === 'model' || c.role === 'assistant' ? 'assistant' : 'user',
+                content: Array.isArray(c.parts)
+                    ? c.parts.map((p: any) => p.text || '').join('\n')
+                    : (c.content || '')
+            }));
         }
 
         return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());

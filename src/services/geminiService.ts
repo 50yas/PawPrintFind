@@ -318,19 +318,17 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            userPrompt,
-            {
-                systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: { suggestions: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                    required: ["suggestions"]
+        const response = await retryWithBackoff(async () => {
+            return await callGeminiFunction(
+                'gemini-2.0-flash',
+                userPrompt,
+                {
+                    systemInstruction,
+                    responseMimeType: "application/json",
+                    task: 'chat' // Pass task to help server-side resolution
                 }
-            }
-        );
+            );
+        });
         const parsed = JSON.parse(response.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
@@ -452,8 +450,9 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     return retryWithBackoff(async () => {
         const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
+            'gemini-2.0-flash',
+            { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] },
+            { task: 'matching' }
         );
         return response.text?.trim() || "Matches your preferences.";
     });

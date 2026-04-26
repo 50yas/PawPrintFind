@@ -40,11 +40,23 @@ export const callOpenRouterAI = async (
         // Fetch mapping from settings
         try {
             const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
-            if (doc.exists) {
-                const mapping = doc.data()?.modelMapping;
-                if (mapping && mapping[task]) {
-                    targetModel = mapping[task];
-                }
+            const mapping = doc.exists ? doc.data()?.modelMapping : null;
+
+            if (mapping && mapping[task]) {
+                targetModel = mapping[task];
+            } else if (!targetModel || targetModel === 'auto' || targetModel === task) {
+                // Default free models if no mapping exists
+                const defaults: Record<string, string> = {
+                    vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                    visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                    triage: 'qwen/qwen-2.5-72b-instruct:free',
+                    healthAssessment: 'qwen/qwen-2.5-72b-instruct:free',
+                    chat: 'qwen/qwen-2.5-72b-instruct:free',
+                    smartSearch: 'qwen/qwen-2.5-72b-instruct:free',
+                    matching: 'qwen/qwen-2.5-72b-instruct:free',
+                    blogGeneration: 'qwen/qwen-2.5-72b-instruct:free',
+                };
+                targetModel = defaults[task] || 'qwen/qwen-2.5-72b-instruct:free';
             }
         } catch (e) {
             console.warn("Failed to resolve task model mapping:", e);
