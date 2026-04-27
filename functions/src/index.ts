@@ -25,8 +25,8 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
             return { provider, model };
         }
     } catch (e) {
@@ -182,7 +182,11 @@ async function callGeminiAI(
         });
 
         const response = result.response;
-        const text = response.text();
+        const candidate = response.candidates?.[0];
+
+        // Extract data based on what's returned
+        const text = candidate?.content?.parts?.find(p => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData;
 
         trackUsage(userId, featureName, 'google').catch(err =>
             console.error(`Failed to track usage for ${featureName}:`, err)
@@ -191,7 +195,9 @@ async function callGeminiAI(
         return {
             success: true,
             text,
-            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            mediaData: inlineData?.data,
+            mimeType: inlineData?.mimeType,
+            groundingMetadata: candidate?.groundingMetadata,
         };
     } catch (error: any) {
         console.error(`Gemini API Error [${featureName}]:`, error);
@@ -352,19 +358,21 @@ export const blogGeneration = onCall({
     );
 });
 
-// Legacy generic function (Gen 2)
+// Universal AI Caller (Gen 2) - Supports both Gemini and OpenRouter via task routing
 export const callGemini = onCall({
     ...ON_CALL_CONFIG,
     secrets: [geminiApiKey, openRouterApiKey],
 }, async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
+    const { task, contents, config } = request.data;
+
+    if (!task) throw new HttpsError("invalid-argument", "Task identifier required.");
 
     return callAI(
         request.auth.uid,
-        "generic",
+        task,
         contents,
-        { ...config, modelOverride: model }
+        config
     );
 });
 

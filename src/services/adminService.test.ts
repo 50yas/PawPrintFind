@@ -49,7 +49,12 @@ describe('adminService', () => {
         });
 
         it('should return system stats if authenticated', async () => {
-            (auth.currentUser as any) = { uid: 'admin-123' };
+            (auth.currentUser as any) = {
+                uid: 'admin-123',
+                getIdTokenResult: vi.fn().mockResolvedValue({
+                    claims: { admin: true }
+                })
+            };
             
             // Mock counts
             (getCountFromServer as Mock).mockResolvedValue({ data: () => ({ count: 10 }) });

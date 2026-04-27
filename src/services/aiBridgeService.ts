@@ -1,12 +1,15 @@
-import { dbService } from './firebase';
-import * as geminiService from './geminiService';
-import { openRouterService } from './openRouterService';
-import { adminService } from './adminService';
 import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { adminService } from './adminService';
+import * as aiService from './geminiService';
 
 let cachedSettings: AISettings | null = null;
 let isInitializing = false;
 
+/**
+ * AI Bridge Service — Unified interface for all AI operations.
+ * Routes requests to the appropriate Cloud Functions which handle provider
+ * selection (Gemini vs OpenRouter) server-side for security and quota management.
+ */
 export const aiBridgeService = {
     async init(): Promise<AISettings | null> {
         if (cachedSettings) return cachedSettings;
@@ -38,52 +41,33 @@ export const aiBridgeService = {
     },
 
     async analyzeImageForDescription(photo: File): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.analyzeImageForDescription(photo);
-        }
-        return geminiService.analyzeImageForDescription(photo);
+        return aiService.analyzeImageForDescription(photo);
     },
 
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.performAIHealthCheck(pet, symptoms, locale);
-        }
-        return geminiService.performAIHealthCheck(pet, symptoms, locale);
+        return aiService.performAIHealthCheck(pet, symptoms, locale);
     },
 
     async generateChatSuggestions(session: ChatSession, currentUserEmail: string): Promise<string[]> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.generateChatSuggestions(session, currentUserEmail);
-        }
-        return geminiService.generateChatSuggestions(session, currentUserEmail);
+        return aiService.generateChatSuggestions(session, currentUserEmail);
     },
 
     async comparePets(foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.comparePets(foundPetDesc, lostPet);
-        }
-        return geminiService.comparePets(foundPetDesc, lostPet);
+        return aiService.comparePets(foundPetDesc, lostPet);
     },
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {
-        const settings = await this.getSettings();
-        if (settings?.provider === 'openrouter') {
-            return openRouterService.generateMatchExplanation(pet, filters);
-        }
-        return geminiService.generateMatchExplanation(pet, filters);
+        return aiService.generateMatchExplanation(pet, filters);
     },
 
     /**
-     * Multi-turn chat for LiveAssistant (OpenRouter only — Gemini uses native Live API).
+     * Multi-turn chat for LiveAssistant.
+     * Hits the unified AI caller on the backend.
      */
     async chat(
         history: Array<{ role: 'user' | 'assistant'; text: string }>,
         systemPrompt: string
     ): Promise<string> {
-        return openRouterService.chat(history, systemPrompt);
+        return aiService.chat(history, systemPrompt);
     },
 };
