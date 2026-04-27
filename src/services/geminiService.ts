@@ -34,14 +34,6 @@ const callBlogGenerationAI = async (topic: string) => {
     return result.data as { success: boolean, text: string };
 };
 
-/**
- * Legacy caller for non-migrated features.
- */
-const callGeminiFunction = async (model: string, contents: any, config?: any) => {
-    const callGemini = httpsCallable(functions, 'callGemini');
-    const result = await callGemini({ model, contents, config });
-    return result.data as { success: boolean, text: string };
-};
 
 const checkRateLimitError = (error: any) => {
     if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
@@ -139,13 +131,8 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
     }
 
     return retryWithBackoff(async () => {
-        const settings = await aiBridgeService.getSettings();
-        const model = settings?.modelMapping.vision || 'gemini-2.0-pro-vision';
         const base64 = await fileToBase64(photo);
-        const response = await callGeminiFunction(
-            model,
-            { parts: [{ inlineData: { data: base64, mimeType: photo.type } }, { text: Prompts.getBreedIdentificationPrompt(locale) }] }
-        );
+        const response = await callVisionAI(base64, 'describe', locale); // Reuse describe for general breed ID
         return response.text?.trim() || "Unknown Breed";
     });
 };
@@ -168,10 +155,11 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
         const lostPetPhotoParts = await Promise.all(validPhotos.map(p => fileToGenerativePart(p.file!)));
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
 
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            { parts: [...lostPetPhotoParts, { text: userPrompt }] },
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'matching',
+            contents: { parts: [...lostPetPhotoParts, { text: userPrompt }] },
+            config: {
                 systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -183,12 +171,12 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
                         discrepancies: { type: Type.ARRAY, items: { type: Type.STRING } },
                     },
                     required: ["score", "reasoning", "keyMatches", "discrepancies"],
-                },
-                thinkingConfig: { thinkingBudget: 32768 }
+                }
             }
-        );
+        });
 
-        return JSON.parse(response.text?.trim() || "{}");
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
@@ -197,12 +185,14 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
         const videoPart = await fileToGenerativePart(videoFile, onProgress);
         const prompt = Prompts.getVideoAnalysisPrompt();
 
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            { parts: [videoPart, { text: prompt }] }
-        );
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'vision',
+            contents: { parts: [videoPart, { text: prompt }] }
+        });
+        const data = response.data as { success: boolean, text: string };
         if (onProgress) onProgress(100);
-        return response.text || "";
+        return data.text || "";
     });
 };
 
@@ -211,51 +201,59 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
         const audioPart = await fileToGenerativePart(audioFile, onProgress);
         const prompt = Prompts.getAudioTranscriptionPrompt();
 
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            { parts: [audioPart, { text: prompt }] }
-        );
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: { parts: [audioPart, { text: prompt }] }
+        });
+        const data = response.data as { success: boolean, text: string };
         if (onProgress) onProgress(100);
-        return response.text || "";
+        return data.text || "";
     });
 };
 
 export const findNearbyVets = async (location: Geolocation): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            "gemini-2.5-flash",
-            Prompts.getNearbyVetsPrompt(),
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: Prompts.getNearbyVetsPrompt(),
+            config: {
                 tools: [{ googleMaps: {} }],
                 toolConfig: { retrievalConfig: { latLng: { latitude: location.latitude, longitude: location.longitude } } }
             }
-        );
-        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
-        return { text: response.text || "", places: groundingChunks };
+        });
+        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const groundingChunks = data.groundingMetadata?.groundingChunks || [];
+        return { text: data.text || "", places: groundingChunks };
     });
 };
 
 export const findVetsByQuery = async (query: string): Promise<{ text: string, places: any[] }> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            "gemini-2.5-flash",
-            Prompts.getVetsByQueryPrompt(query),
-            { tools: [{ googleMaps: {} }] }
-        );
-        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
-        return { text: response.text || "", places: groundingChunks };
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: Prompts.getVetsByQueryPrompt(query),
+            config: { tools: [{ googleMaps: {} }] }
+        });
+        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const groundingChunks = data.groundingMetadata?.groundingChunks || [];
+        return { text: data.text || "", places: groundingChunks };
     });
 };
 
 export const findClinicOnGoogleMaps = async (name: string, city: string): Promise<any[]> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            "gemini-2.5-flash",
-            Prompts.getFindClinicPrompt(name, city),
-            { tools: [{ googleMaps: {} }] }
-        );
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: Prompts.getFindClinicPrompt(name, city),
+            config: { tools: [{ googleMaps: {} }] }
+        });
 
-        const groundingChunks = (response as any).groundingMetadata?.groundingChunks || [];
+        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const groundingChunks = data.groundingMetadata?.groundingChunks || [];
         return groundingChunks.map((chunk: any) => {
             if (!chunk.maps) return null;
             return {
@@ -273,15 +271,17 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
 
 export const textToSpeech = async (text: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            "gemini-2.5-flash-preview-tts",
-            [{ parts: [{ text }] }],
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: [{ parts: [{ text }] }],
+            config: {
                 responseModalities: [Modality.AUDIO],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
             }
-        );
-        const base64Audio = (response as any).audioData;
+        });
+        const data = response.data as { success: boolean, mediaData?: string };
+        const base64Audio = data.mediaData;
         if (!base64Audio) throw new Error("No audio data received.");
         return base64Audio;
     });
@@ -290,27 +290,28 @@ export const textToSpeech = async (text: string): Promise<string> => {
 export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetMessageDraftParts(pet, topic);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            userPrompt,
-            { systemInstruction }
-        );
-        return response.text || "";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: { parts: [{ text: userPrompt }] },
+            config: { systemInstruction }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text || "";
     });
 };
 
 export const queryVetPatientData = async (patients: PetProfile[], appointments: Appointment[], query: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetDataQueryParts(patients, appointments, query);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-pro',
-            userPrompt,
-            {
-                systemInstruction,
-                thinkingConfig: { thinkingBudget: 32768 }
-            }
-        );
-        return response.text || "";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: { parts: [{ text: userPrompt }] },
+            config: { systemInstruction }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text || "";
     });
 };
 
@@ -318,10 +319,11 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            userPrompt,
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: { parts: [{ text: userPrompt }] },
+            config: {
                 systemInstruction,
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -330,8 +332,9 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
                     required: ["suggestions"]
                 }
             }
-        );
-        const parsed = JSON.parse(response.text?.trim() || "{}");
+        });
+        const data = response.data as { success: boolean, text: string };
+        const parsed = JSON.parse(data.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
         console.error("Error generating chat suggestions:", e);
@@ -372,13 +375,15 @@ export const parseSearchQuery = async (query: string): Promise<any> => {
 
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-3-pro-image-preview',
-            { parts: [{ text: prompt }] },
-            { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
-        );
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'vision',
+            contents: { parts: [{ text: prompt }] },
+            config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
+        });
 
-        const base64Image = (response as any).audioData; // Reusing the same field for now as it's the first part's inlineData
+        const data = response.data as { success: boolean, mediaData?: string };
+        const base64Image = data.mediaData;
         if (!base64Image) throw new Error("No image data received.");
         return `data:image/png;base64,${base64Image}`;
     });
@@ -407,24 +412,27 @@ export const calculateProfileCompleteness = (pet: PetProfile): number => {
 export const translateContent = async (text: string, targetLangs: string[]): Promise<Record<string, string>> => {
     const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash', // Using Flash for speed and lower cost on batch translations
-            userPrompt,
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            contents: { parts: [{ text: userPrompt }] },
+            config: {
                 systemInstruction,
                 responseMimeType: "application/json",
             }
-        );
-        return JSON.parse(response.text?.trim() || "{}");
+        });
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
 export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
-            {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'triage',
+            contents: { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
+            config: {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.ARRAY,
@@ -439,8 +447,9 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
                     }
                 }
             }
-        );
-        const insights = JSON.parse(response.text?.trim() || "[]");
+        });
+        const data = response.data as { success: boolean, text: string };
+        const insights = JSON.parse(data.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,
             id: Math.random().toString(36).substr(2, 9),
@@ -451,11 +460,37 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
 
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     return retryWithBackoff(async () => {
-        const response = await callGeminiFunction(
-            'gemini-2.5-flash',
-            { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
-        );
-        return response.text?.trim() || "Matches your preferences.";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'matching',
+            contents: { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text?.trim() || "Matches your preferences.";
+    });
+};
+
+/**
+ * Unified Chat Function for multi-turn conversations.
+ */
+export const chat = async (
+    history: Array<{ role: 'user' | 'assistant'; text: string }>,
+    systemPrompt: string
+): Promise<string> => {
+    return retryWithBackoff(async () => {
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'chat',
+            config: { systemInstruction: systemPrompt },
+            contents: {
+                parts: history.map(h => ({
+                    role: h.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: h.text }]
+                }))
+            }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text?.trim() || "";
     });
 };
 

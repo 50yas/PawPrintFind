@@ -1,65 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
-import { dbService } from './firebase';
-import * as geminiService from './geminiService';
-import { openRouterService } from './openRouterService';
-
-vi.mock('./firebase', () => ({
-  dbService: {
-    getAISettings: vi.fn(),
-  },
-}));
+import * as aiService from './geminiService';
+import { adminService } from './adminService';
 
 vi.mock('./geminiService', () => ({
-  analyzeImageForDescription: vi.fn(),
-  performAIHealthCheck: vi.fn(),
-  generateChatSuggestions: vi.fn(),
-  comparePets: vi.fn(),
+    analyzeImageForDescription: vi.fn().mockResolvedValue('AI Desc'),
+    performAIHealthCheck: vi.fn().mockResolvedValue('Health Report'),
+    generateChatSuggestions: vi.fn().mockResolvedValue(['Hey']),
+    comparePets: vi.fn().mockResolvedValue({ score: 100 }),
+    generateMatchExplanation: vi.fn().mockResolvedValue('Match'),
+    chat: vi.fn().mockResolvedValue('Reply')
 }));
 
-vi.mock('./openRouterService', () => ({
-  openRouterService: {
-    analyzeImageForDescription: vi.fn(),
-    performAIHealthCheck: vi.fn(),
-    generateChatSuggestions: vi.fn(),
-    comparePets: vi.fn(),
-  }
+vi.mock('./adminService', () => ({
+    adminService: {
+        getAISettings: vi.fn()
+    }
 }));
 
 describe('aiBridgeService', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Reset cached settings
+        (aiBridgeService as any).cachedSettings = null;
+    });
 
-  it('should delegate to Gemini when provider is google', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'google' });
-    (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Desc');
+    it('should route all requests through unified aiService (via Cloud Functions)', async () => {
+        vi.mocked(adminService.getAISettings).mockResolvedValue({
+            provider: 'openrouter',
+            modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
+            lastUpdated: Date.now(),
+            updatedBy: 'admin'
+        });
 
-    const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
+        const result = await aiBridgeService.analyzeImageForDescription(new File([], 'pet.jpg'));
 
-    expect(result).toBe('Gemini Desc');
-    expect(geminiService.analyzeImageForDescription).toHaveBeenCalled();
-    expect(openRouterService.analyzeImageForDescription).not.toHaveBeenCalled();
-  });
+        expect(result).toBe('AI Desc');
+        expect(aiService.analyzeImageForDescription).toHaveBeenCalled();
+    });
 
-  it('should delegate to OpenRouter when provider is openrouter', async () => {
-    (dbService.getAISettings as any).mockResolvedValue({ provider: 'openrouter' });
-    (openRouterService.analyzeImageForDescription as any).mockResolvedValue('OpenRouter Desc');
+    it('should default to Gemini if settings fail', async () => {
+        vi.mocked(adminService.getAISettings).mockRejectedValue(new Error('Fail'));
 
-    const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
-
-    expect(result).toBe('OpenRouter Desc');
-    expect(openRouterService.analyzeImageForDescription).toHaveBeenCalled();
-    expect(geminiService.analyzeImageForDescription).not.toHaveBeenCalled();
-  });
-
-  it('should default to Gemini if settings fail', async () => {
-    (dbService.getAISettings as any).mockRejectedValue(new Error('DB Error'));
-    (geminiService.analyzeImageForDescription as any).mockResolvedValue('Gemini Default');
-
-    const result = await aiBridgeService.analyzeImageForDescription(new File([], 'test.jpg'));
-
-    expect(result).toBe('Gemini Default');
-    expect(geminiService.analyzeImageForDescription).toHaveBeenCalled();
-  });
+        const result = await aiBridgeService.analyzeImageForDescription(new File([], 'pet.jpg'));
+        expect(result).toBe('AI Desc');
+        expect(aiService.analyzeImageForDescription).toHaveBeenCalled();
+    });
 });

@@ -127,26 +127,26 @@ export const adminService = {
             if (provider === 'openrouter') {
                 const fn = httpsCallable(functions, 'callOpenRouter');
                 const result = await fn({
-                    model: 'openai/gpt-3.5-turbo',
+                    model: 'qwen/qwen-2.5-72b-instruct:free',
                     messages: [{ role: 'user', content: 'Reply with OK' }],
                     config: { max_tokens: 5 },
                     task: 'connection_test',
-                    apiKey
+                    overrideApiKey: apiKey // Cloud function expects overrideApiKey
                 });
                 const data = result.data as { success: boolean, text?: string };
                 if (data.success) return { success: true, message: 'OpenRouter connection verified' };
                 return { success: false, message: 'OpenRouter returned an error' };
             } else {
-                // Google Gemini — test via a lightweight generative call
-                const { GoogleGenAI } = await import('@google/genai');
-                const ai = new GoogleGenAI({ apiKey });
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.0-flash',
-                    contents: 'Reply with OK',
+                // Google Gemini — test via generic AI caller to verify secrets
+                const fn = httpsCallable(functions, 'callGemini');
+                const result = await fn({
+                    task: 'chat',
+                    contents: { parts: [{ text: 'Reply with OK' }] },
                     config: { maxOutputTokens: 5 }
                 });
-                if (response.text) return { success: true, message: 'Gemini connection verified' };
-                return { success: false, message: 'Gemini returned empty response' };
+                const data = result.data as { success: boolean, text?: string };
+                if (data.success) return { success: true, message: 'Gemini connection verified' };
+                return { success: false, message: 'Gemini returned an error' };
             }
         } catch (error: any) {
             logger.error('AI connection test failed:', error);

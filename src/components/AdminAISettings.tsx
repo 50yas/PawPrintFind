@@ -39,6 +39,7 @@ export const AdminAISettings: React.FC = () => {
     const [secrets, setSecrets] = useState<Record<string, string>>({}); // Local state for secrets
     const [originalSettings, setOriginalSettings] = useState<AISettings | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSecretsLoading, setIsSecretsLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [availableModels, setAvailableModels] = useState<{ id: string; name: string }[]>([]);
@@ -69,15 +70,24 @@ export const AdminAISettings: React.FC = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const [publicData, secretData, initStatus] = await Promise.all([
+                const [publicData, initStatus] = await Promise.all([
                     adminService.getAISettings(),
-                    adminService.getAISecrets(),
                     adminService.isSystemInitialized()
                 ]);
                 setSettings(publicData);
-                setSecrets(secretData as Record<string, string>);
                 setIsSystemInit(initStatus);
                 setOriginalSettings(JSON.parse(JSON.stringify(publicData)));
+
+                // Fetch secrets separately to not block UI if rules are tight
+                setIsSecretsLoading(true);
+                try {
+                    const secretData = await adminService.getAISecrets();
+                    setSecrets(secretData as Record<string, string>);
+                } catch (e) {
+                    console.warn("Could not fetch secrets:", e);
+                } finally {
+                    setIsSecretsLoading(false);
+                }
             } catch (e: any) {
                 addSnackbar(t('dashboard:admin.connectionFailed') + ': ' + e.message, 'error');
             } finally {
@@ -299,8 +309,9 @@ export const AdminAISettings: React.FC = () => {
                                             type="password"
                                             value={secrets[field.provider] || ''}
                                             onChange={(e) => setSecrets(prev => ({ ...prev, [field.provider]: e.target.value }))}
-                                            placeholder={field.placeholder}
+                                            placeholder={isSecretsLoading ? "Loading secrets..." : field.placeholder}
                                             className="cyber-input"
+                                            disabled={isSecretsLoading}
                                         />
                                     </div>
                                     <button
@@ -382,10 +393,10 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen3-next-80b-a3b-instruct:free">⭐ qwen3-next-80b (chat/reasoning)</option>
-                                                <option value="qwen/qwen3-coder:free">⭐ qwen3-coder (code/matching)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (vision)</option>
-                                                <option value="meta-llama/llama-3.3-70b-instruct:free">llama-3.3-70b-instruct</option>
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
+                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
