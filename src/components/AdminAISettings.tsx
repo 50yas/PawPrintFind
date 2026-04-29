@@ -245,6 +245,26 @@ export const AdminAISettings: React.FC = () => {
                         );
                     })}
                 </div>
+
+                {/* Fallback Configuration */}
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider">Fallback to Gemini</span>
+                            <span className="text-[8px] font-bold bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/30 uppercase tracking-tighter">Reliability</span>
+                        </div>
+                        <p className="text-[9px] text-slate-500 mt-1 uppercase">Automatically use Gemini 2.0 Flash if OpenRouter providers fail or are overloaded</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer group">
+                        <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={settings.fallbackToGemini}
+                            onChange={(e) => setSettings({ ...settings, fallbackToGemini: e.target.checked })}
+                        />
+                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary peer-checked:after:bg-white group-hover:bg-white/20 transition-colors"></div>
+                    </label>
+                </div>
             </GlassCard>
 
             {/* API Credentials */}
@@ -394,7 +414,8 @@ export const AdminAISettings: React.FC = () => {
                                             <>
                                                 {/* Recommended free models */}
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (Reasoning/Logic)</option>
+                                                <option value="deepseek/deepseek-chat:free">⭐ deepseek-chat (Fast/General)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
                                                 <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
