@@ -122,7 +122,7 @@ export const adminService = {
         }
     },
 
-    async testAIConnection(provider: AIProvider, apiKey: string): Promise<{ success: boolean, message: string }> {
+    async testAIConnection(provider: AIProvider, apiKey: string, task: string = 'chat'): Promise<{ success: boolean, message: string }> {
         try {
             if (provider === 'openrouter') {
                 const fn = httpsCallable(functions, 'callOpenRouter');
@@ -130,22 +130,22 @@ export const adminService = {
                     model: 'qwen/qwen-2.5-72b-instruct:free',
                     messages: [{ role: 'user', content: 'Reply with OK' }],
                     config: { max_tokens: 5 },
-                    task: 'connection_test',
+                    task: task === 'chat' ? 'connection_test' : task,
                     overrideApiKey: apiKey // Cloud function expects overrideApiKey
                 });
                 const data = result.data as { success: boolean, text?: string };
-                if (data.success) return { success: true, message: 'OpenRouter connection verified' };
+                if (data.success) return { success: true, message: `OpenRouter ${task} verified` };
                 return { success: false, message: 'OpenRouter returned an error' };
             } else {
                 // Google Gemini — test via generic AI caller to verify secrets
                 const fn = httpsCallable(functions, 'callGemini');
                 const result = await fn({
-                    task: 'chat',
+                    task: task,
                     contents: { parts: [{ text: 'Reply with OK' }] },
                     config: { maxOutputTokens: 5 }
                 });
                 const data = result.data as { success: boolean, text?: string };
-                if (data.success) return { success: true, message: 'Gemini connection verified' };
+                if (data.success) return { success: true, message: `Gemini ${task} verified` };
                 return { success: false, message: 'Gemini returned an error' };
             }
         } catch (error: any) {

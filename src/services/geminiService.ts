@@ -111,7 +111,19 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'autofill', locale);
-        return JSON.parse(response.text?.trim() || "{}");
+        try {
+            // Some models might wrap JSON in markdown blocks
+            let text = response.text?.trim() || "{}";
+            if (text.startsWith('```json')) {
+                text = text.replace(/```json\n?/, '').replace(/```$/, '').trim();
+            } else if (text.startsWith('```')) {
+                text = text.replace(/```\n?/, '').replace(/```$/, '').trim();
+            }
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse AI response:", response.text);
+            return {};
+        }
     });
 };
 
@@ -141,11 +153,22 @@ export const generatePetIdentikit = async (photo: File, locale: string = 'en'): 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'identikit', locale);
-        const json = JSON.parse(response.text?.trim() || "{}");
-        return {
-            code: json.visualIdentityCode || "UNKNOWN",
-            description: json.physicalDescription || "No description generated."
-        };
+        try {
+            let text = response.text?.trim() || "{}";
+            if (text.startsWith('```json')) {
+                text = text.replace(/```json\n?/, '').replace(/```$/, '').trim();
+            } else if (text.startsWith('```')) {
+                text = text.replace(/```\n?/, '').replace(/```$/, '').trim();
+            }
+            const json = JSON.parse(text);
+            return {
+                code: json.visualIdentityCode || "UNKNOWN",
+                description: json.physicalDescription || "No description generated."
+            };
+        } catch (e) {
+            console.error("Failed to parse Identikit response:", response.text);
+            return { code: "UNKNOWN", description: "Parsing error" };
+        }
     });
 };
 
@@ -369,7 +392,18 @@ export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<Blo
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
         const response = await callSmartSearchAI(query);
-        return JSON.parse(response.text?.trim() || "{}");
+        try {
+            let text = response.text?.trim() || "{}";
+            if (text.startsWith('```json')) {
+                text = text.replace(/```json\n?/, '').replace(/```$/, '').trim();
+            } else if (text.startsWith('```')) {
+                text = text.replace(/```\n?/, '').replace(/```$/, '').trim();
+            }
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse Search response:", response.text);
+            return {};
+        }
     });
 };
 
