@@ -47,27 +47,52 @@ async function callAI(
 ) {
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);
 
-    if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
+    try {
+        if (provider === 'openrouter') {
+            // Convert Gemini contents to OpenRouter messages if needed
+            let messages = contents;
+            if (contents.parts) {
+                // If it's a multi-part content (text + image)
+                const textPart = contents.parts.find((p: any) => p.text);
                 const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+
+                if (textPart && imgPart) {
+                    messages = [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: textPart.text },
+                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        ]
+                    }];
+                } else if (textPart) {
+                    messages = [{ role: 'user', content: textPart.text }];
+                }
+            } else if (Array.isArray(contents)) {
+                // Multi-turn chat history
+                messages = contents.map((c: any) => ({
+                    role: c.role === 'model' ? 'assistant' : 'user',
+                    content: c.parts?.[0]?.text || c.text || ''
+                }));
+            }
+
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } else {
+            return await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        }
+    } catch (error: any) {
+        console.error(`AI Provider [${provider}] failed for ${featureName}. Error:`, error);
+
+        // AUTO-FALLBACK: If OpenRouter fails, try Gemini as a robust secondary
+        if (provider === 'openrouter') {
+            console.warn(`Falling back to Gemini for ${featureName}...`);
+            try {
+                return await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            } catch (fallbackError: any) {
+                console.error("Gemini fallback also failed:", fallbackError);
+                throw fallbackError;
             }
         }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
-    } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        throw error;
     }
 }
 

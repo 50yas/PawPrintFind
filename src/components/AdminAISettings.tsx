@@ -45,7 +45,7 @@ export const AdminAISettings: React.FC = () => {
     const [availableModels, setAvailableModels] = useState<{ id: string; name: string }[]>([]);
     const [fetchingModels, setFetchingModels] = useState(false);
     const [showKeys, setShowKeys] = useState<Record<string, boolean>>({ google: false, openrouter: false });
-    const [testingConnection, setTestingConnection] = useState<AIProvider | null>(null);
+    const [testingConnection, setTestingConnection] = useState<AIProvider | string | null>(null);
     const [connectionStatus, setConnectionStatus] = useState<Record<string, { success: boolean; message: string } | null>>({});
     const [isSystemInit, setIsSystemInit] = useState<boolean>(true);
 
@@ -131,6 +131,31 @@ export const AdminAISettings: React.FC = () => {
         } catch (e: any) {
             setConnectionStatus(prev => ({ ...prev, [provider]: { success: false, message: e.message } }));
             addSnackbar(t('dashboard:admin.connectionFailed'), 'error');
+        } finally {
+            setTestingConnection(null);
+        }
+    };
+
+    const handleTestTask = async (task: AIModelTask) => {
+        setTestingConnection(task);
+        try {
+            let success = false;
+            let message = '';
+
+            if (task === 'vision') {
+                // For vision, we'd need a dummy image, but we can just test if the model is reachable via ping
+                const result = await adminService.testAIConnection(settings?.provider || 'google', secrets[settings?.provider || 'google'] || '', 'vision');
+                success = result.success;
+                message = result.message;
+            } else {
+                const result = await adminService.testAIConnection(settings?.provider || 'google', secrets[settings?.provider || 'google'] || '', task);
+                success = result.success;
+                message = result.message;
+            }
+
+            addSnackbar(`${task.toUpperCase()}: ${message}`, success ? 'success' : 'error');
+        } catch (e: any) {
+            addSnackbar(`${task.toUpperCase()} failed: ${e.message}`, 'error');
         } finally {
             setTestingConnection(null);
         }
@@ -365,11 +390,21 @@ export const AdminAISettings: React.FC = () => {
                                             <p className="text-[8px] font-mono text-slate-600 uppercase">ID: {task.id}</p>
                                         </div>
                                     </div>
-                                    {settings.modelMapping[task.id] && (
-                                        <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[120px] truncate hidden sm:block">
-                                            {settings.modelMapping[task.id]}
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {settings.modelMapping[task.id] && (
+                                            <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[80px] truncate hidden sm:block">
+                                                {settings.modelMapping[task.id]}
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => handleTestTask(task.id)}
+                                            disabled={testingConnection === task.id}
+                                            className={`p-1.5 rounded-lg border transition-all ${testingConnection === task.id ? 'animate-spin border-amber-500/50 text-amber-500' : 'border-white/10 hover:border-primary/50 text-slate-400 hover:text-primary'}`}
+                                            title="Test this specific model"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="relative">
                                     <input
@@ -393,11 +428,14 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                {/* Recommended free models */}
+                                                <option value="deepseek/deepseek-r1:free">⭐ DeepSeek R1 (Best Reasoning)</option>
+                                                <option value="deepseek/deepseek-chat:free">⭐ DeepSeek Chat (Excellent Balance)</option>
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ Qwen 2.5 72B (Powerful All-rounder)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ Nemotron Nano (Best Vision Free)</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Fast)</option>
+                                                <option value="mistralai/mistral-7b-instruct:free">Mistral 7B</option>
+                                                <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}

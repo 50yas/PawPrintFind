@@ -84,7 +84,7 @@ describe('petService', () => {
     });
 
     it('should log an error if fetching fails', async () => {
-        const mockError = new Error('Firestore error');
+        const mockError = { message: 'Firestore error' };
         (getDocs as Mock).mockRejectedValue(mockError);
         await expect(petService.getPets()).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error fetching pets:', mockError);
@@ -105,10 +105,10 @@ describe('petService', () => {
 
     it('should log an error if saving fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
-        const mockError = new Error('Firestore error');
+        const mockError = { message: 'Firestore error' };
         (setDoc as Mock).mockRejectedValue(mockError);
         await expect(petService.savePet(validPet as any)).rejects.toThrow('Firestore error');
-        expect(logger.error).toHaveBeenCalledWith('Error saving pet:', mockError);
+        expect(logger.error).toHaveBeenCalledWith('Error saving pet:', 'Firestore error');
     });
   });
 
@@ -127,7 +127,7 @@ describe('petService', () => {
 
     it('should log an error if deleting fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
-        const mockError = new Error('Firestore error');
+        const mockError = { message: 'Firestore error' };
         (deleteDoc as Mock).mockRejectedValue(mockError);
         await expect(petService.deletePet('pet-id-123')).rejects.toThrow('Firestore error');
         expect(logger.error).toHaveBeenCalledWith('Error deleting pet:', mockError);
@@ -189,7 +189,7 @@ describe('petService', () => {
     it('should log an error if batch write fails', async () => {
         (auth.currentUser as any) = { uid: 'test-user' };
         const updates = [{ id: 'pet-1', isLost: true, lastSeenLocation: { latitude: 0, longitude: 0 } }];
-        const mockError = new Error('Firestore error');
+        const mockError = { message: 'Firestore error' };
         const batch = { update: vi.fn(), commit: vi.fn().mockRejectedValue(mockError) };
         (writeBatch as Mock).mockReturnValue(batch as any);
 
