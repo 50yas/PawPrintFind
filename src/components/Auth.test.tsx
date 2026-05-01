@@ -16,6 +16,7 @@ vi.mock('../services/firebase', () => ({
     registerUser: vi.fn(),
     loginWithEmail: vi.fn(),
     signInWithGoogle: vi.fn(),
+    getPublicStats: vi.fn().mockResolvedValue({ communityMembers: 0, petsProtected: 0 }),
   },
 }));
 
@@ -61,7 +62,8 @@ describe('Auth Component', () => {
     it('handles google login', async () => {
       const { dbService } = await import('../services/firebase');
       render(<Auth />);
-      fireEvent.click(screen.getByText('buttons.syncGoogle'));
+      const googleBtns = screen.getAllByText('buttons.syncGoogle');
+      fireEvent.click(googleBtns[0]);
       await waitFor(() => {
         expect(dbService.signInWithGoogle).toHaveBeenCalled();
       });

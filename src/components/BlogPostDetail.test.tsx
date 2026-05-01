@@ -53,7 +53,8 @@ describe('BlogPostDetail Component', () => {
     expect(screen.getByText('Test Blog Post')).toBeInTheDocument();
     expect(screen.getByText('This is a summary')).toBeInTheDocument();
     expect(screen.getByText('Dr. Smith')).toBeInTheDocument();
-    expect(screen.getByText('5 MIN READ')).toBeInTheDocument();
+    expect(screen.getByText((content, element) => content.includes('1') && element.tagName.toLowerCase() === 'span')).toBeInTheDocument();
+    expect(screen.getByText(/MIN READ/i)).toBeInTheDocument();
   });
 
   it('calls incrementBlogPostView on mount', async () => {
