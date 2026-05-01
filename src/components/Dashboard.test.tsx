@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Dashboard } from './Dashboard';
+import { SnackbarProvider } from '../contexts/SnackbarContext';
 import { User, PetProfile } from '../types';
 import React from 'react';
 
@@ -71,27 +72,27 @@ describe('Dashboard Component', () => {
   });
 
   it('renders welcome message and user pets', () => {
-    render(<Dashboard {...defaultProps} onViewPet={vi.fn()} />);
+    render(<SnackbarProvider><Dashboard {...defaultProps} onViewPet={vi.fn()} /></SnackbarProvider>);
     expect(screen.getByText('dashboardWelcome')).toBeInTheDocument();
     expect(screen.getByText('Buddy')).toBeInTheDocument();
   });
 
   it('calls onRegisterNew when the add button is clicked', () => {
-    render(<Dashboard {...defaultProps} onViewPet={vi.fn()} />);
+    render(<SnackbarProvider><Dashboard {...defaultProps} onViewPet={vi.fn()} /></SnackbarProvider>);
     const addBtns = screen.getAllByText('addNewImprontaButton');
     fireEvent.click(addBtns[0]);
     expect(defaultProps.onRegisterNew).toHaveBeenCalled();
   });
 
   it('opens User Menu and shows logout button', () => {
-    render(<Dashboard {...defaultProps} onViewPet={vi.fn()} />);
+    render(<SnackbarProvider><Dashboard {...defaultProps} onViewPet={vi.fn()} /></SnackbarProvider>);
     const avatarBtn = screen.getByText('T'); // charAt(0)
     fireEvent.click(avatarBtn);
     expect(screen.getByText('logoutButton')).toBeInTheDocument();
   });
 
   it('triggers onEditPet from PetCard action', () => {
-    render(<Dashboard {...defaultProps} onViewPet={vi.fn()} />);
+    render(<SnackbarProvider><Dashboard {...defaultProps} onViewPet={vi.fn()} /></SnackbarProvider>);
     // The edit button has title='editButton' (mocked t returns key)
     const editBtn = screen.getByTitle('editButton');
     fireEvent.click(editBtn);
