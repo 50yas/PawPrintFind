@@ -3,17 +3,35 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: true, data: () => ({ provider: 'google' }) });
+
+// Define mockDoc
+const mockDoc = vi.fn(() => ({
+    set: mockSet,
+    get: mockGet,
+    collection: (name: string) => mockCollectionSpy(name),
+}));
+
+// Define mockCollection
+function mockCollection(name: string) {
+    return {
+        doc: mockDoc,
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        get: mockGet,
+        set: mockSet
+    };
+}
+
+const mockCollectionSpy = vi.fn(mockCollection);
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
   return {
     initializeApp: vi.fn(),
     firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
+        collection: mockCollectionSpy,
         doc: mockDoc,
-        set: mockSet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,11 +48,22 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => 'mock-secret-value'
+        }))
     };
 });
 
@@ -88,7 +117,6 @@ vi.mock('./rateLimit', () => ({
 }));
 
 import { trackUsage } from './usage';
-// @ts-ignore - these won't be exported yet
 import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
 
 describe('trackUsage', () => {
@@ -98,7 +126,7 @@ describe('trackUsage', () => {
 
   it('should increment usage counters', async () => {
     await trackUsage('user1', 'test');
-    expect(mockCollection).toHaveBeenCalledWith('users');
+    expect(mockCollectionSpy).toHaveBeenCalledWith('users');
   });
 });
 
@@ -117,7 +145,8 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await visionIdentification(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollectionSpy).toHaveBeenCalledWith('users');
+        expect(mockCollectionSpy).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ visionIdentification: expect.anything() }),
             { merge: true }
@@ -136,7 +165,7 @@ describe('AI Cloud Functions', () => {
         
         expect(result).toEqual({ success: true, message: "pong" });
         // Should NOT track usage for a ping
-        expect(mockCollection).not.toHaveBeenCalledWith('usageStats');
+        expect(mockCollectionSpy).not.toHaveBeenCalledWith('usageStats');
     });
 
     it('smartSearch should be defined and track usage', async () => {
@@ -149,7 +178,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await smartSearch(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollectionSpy).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ smartSearch: expect.anything() }),
             { merge: true }
@@ -166,7 +195,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await healthAssessment(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollectionSpy).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ healthAssessment: expect.anything() }),
             { merge: true }
@@ -176,14 +205,14 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollectionSpy).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ blogGeneration: expect.anything() }),
             { merge: true }
