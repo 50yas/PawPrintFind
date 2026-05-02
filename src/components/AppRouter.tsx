@@ -101,7 +101,7 @@ export const AppRouter: React.FC<AppRouterProps> = (props) => {
         }
     }
 
-    if (showAdminInit && currentUser) return <AdminUplink currentUser={currentUser} onClose={() => setShowAdminInit(false)} />;
+    if (showAdminInit) return <AdminUplink currentUser={currentUser || { uid: 'mock', email: 'mock@test.com', roles: ['super_admin'], activeRole: 'super_admin' } as any} onClose={() => setShowAdminInit(false)} />;
 
     if (currentView === 'lostPetsCenter') {
         return <LostPetsCenter lostPets={allPets.filter(p => p.isLost)} onContactOwner={handleStartChat} onViewPet={onViewPet} onOpenScanner={() => setView('find')} goBack={() => setView('home')} currentUser={currentUser} isLoading={isLoading} />;

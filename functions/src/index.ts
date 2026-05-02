@@ -38,34 +38,95 @@ async function resolveAIConfig(task: string) {
 /**
  * Universal AI Caller that routes to the active provider.
  */
+/**
+ * Transforms Gemini-formatted contents and config into OpenRouter/OpenAI format.
+ */
+function transformGeminiToOpenRouter(contents: any, config: any) {
+    const messages: any[] = [];
+
+    // 1. Handle System Instruction
+    if (config.systemInstruction) {
+        messages.push({
+            role: 'system',
+            content: typeof config.systemInstruction === 'string'
+                ? config.systemInstruction
+                : (config.systemInstruction.parts?.[0]?.text || '')
+        });
+    }
+
+    // 2. Handle Contents (History or Single Turn)
+    // Gemini contents can be an array or a single object with a parts array
+    const geminiParts = Array.isArray(contents) ? contents : (contents.parts || [contents]);
+
+    for (const item of geminiParts) {
+        // Handle items that are already formatted with a role (multi-turn)
+        if (item.role && item.parts) {
+            const role = item.role === 'model' ? 'assistant' : 'user';
+            const content = item.parts.map((p: any) => {
+                if (p.text) return { type: 'text', text: p.text };
+                if (p.inlineData) return {
+                    type: 'image_url',
+                    image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+                };
+                return null;
+            }).filter(Boolean);
+
+            messages.push({
+                role,
+                content: content.length === 1 && content[0].type === 'text' ? content[0].text : content
+            });
+        }
+        // Handle raw parts (single turn)
+        else if (item.text || item.inlineData) {
+            const content = [];
+            if (item.text) content.push({ type: 'text', text: item.text });
+            if (item.inlineData) content.push({
+                type: 'image_url',
+                image_url: { url: `data:${item.inlineData.mimeType};base64,${item.inlineData.data}` }
+            });
+
+            messages.push({
+                role: 'user',
+                content: content.length === 1 && content[0].type === 'text' ? content[0].text : content
+            });
+        }
+    }
+
+    // 3. Handle Config (JSON Mode)
+    const orConfig: any = { ...config };
+    delete orConfig.systemInstruction;
+    delete orConfig.responseSchema;
+
+    if (config.responseMimeType === 'application/json') {
+        orConfig.response_format = { type: 'json_object' };
+        // Free models sometimes need an explicit nudge in the prompt if they don't support JSON mode perfectly
+        if (messages.length > 0) {
+            const lastMsg = messages[messages.length - 1];
+            const nudge = "\n\nReturn ONLY a valid JSON object.";
+            if (typeof lastMsg.content === 'string') {
+                lastMsg.content += nudge;
+            } else if (Array.isArray(lastMsg.content)) {
+                const textPart = lastMsg.content.find((p: any) => p.type === 'text');
+                if (textPart) textPart.text += nudge;
+            }
+        }
+    }
+
+    return { messages, config: orConfig };
+}
+
 async function callAI(
     userId: string,
     featureName: string,
-    contents: any, // Standardized parts array for Gemini, or messages array for OpenRouter
+    contents: any,
     config: any = {},
     taskOverride?: string
 ) {
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
-            }
-        }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        const { messages, config: orConfig } = transformGeminiToOpenRouter(contents, config);
+        return callOpenRouterAI(userId, model, messages, orConfig, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
