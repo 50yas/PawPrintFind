@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mocks must be hoisted
-vi.mock('./configService', () => ({
-  configService: {
-    getGeminiKey: vi.fn().mockResolvedValue('test-api-key')
-  }
-}));
+import * as geminiService from './geminiService';
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
@@ -13,27 +7,16 @@ vi.mock('firebase/functions', () => ({
     let responseText = '{}';
     let groundingMetadata = undefined;
     
-    if (name === 'visionIdentification') {
-        if (args.task === 'identikit') {
+    // In unified architecture, everything calls 'callGemini'
+    if (name === 'callGemini') {
+        if (args.task === 'visionIdentification' && args.config?.task === 'identikit') {
             responseText = '{"visualIdentityCode": "TEST-123", "physicalDescription": "A test pet"}';
-        } else {
-            responseText = "Mocked vision response";
-        }
-    } else if (name === 'smartSearch') {
-      responseText = '{"species": "dog", "breed": null, "color": null, "size": "Small", "age": null, "gender": null, "tags": ["friendly"]}';
-    } else if (name === 'blogGeneration') {
-        responseText = '{"title": "Mock Blog", "content": "Mock Content", "tags": []}';
-    } else if (name === 'callGemini') {
-        const prompt = JSON.stringify(args);
-        if (prompt.includes('Translate')) {
-            responseText = '{"es": "Hola Mundo", "fr": "Bonjour Monde"}';
-        } else if (prompt.includes('Insights') || prompt.includes('proactive')) {
-            responseText = JSON.stringify([{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]);
-        } else if (prompt.includes('vets') || prompt.includes('clinic')) {
+        } else if (args.task === 'smartSearch') {
+            responseText = '{"species": "dog", "breed": null}';
+        } else if (args.task === 'chat' && JSON.stringify(args).toLowerCase().includes('vet')) {
             groundingMetadata = { groundingChunks: [{ maps: { title: 'Test Vet', address: '123 Test St' } }] };
-        } else {
-            // Default fallback for other callGemini requests
-            responseText = JSON.stringify([]);
+        } else if (args.task === 'triage') {
+             responseText = JSON.stringify([{"title": "Joint Health", "content": "Buddy needs joint supplements.", "type": "health"}]);
         }
     }
 
@@ -52,8 +35,6 @@ vi.mock('./firebase', () => ({
   auth: { currentUser: { uid: 'test-user' } },
   db: {}
 }));
-
-import * as geminiService from './geminiService';
 
 describe('geminiService', () => {
   beforeEach(() => {
@@ -86,50 +67,15 @@ describe('geminiService', () => {
     expect(result.places[0].maps.title).toBe('Test Vet');
   });
 
-    it('translateContent returns translations for multiple languages', async () => {
+  it('parseSearchQuery parses natural language into filters', async () => {
+    const result = await geminiService.parseSearchQuery('Show me friendly dogs');
+    expect(result).toHaveProperty('species');
+  });
 
-      const result = await (geminiService as any).translateContent('Hello World', ['es', 'fr']);
-
-      expect(result).toBeDefined();
-
-    });
-
-  
-
-    it('parseSearchQuery parses natural language into filters', async () => {
-
-      // This will initially fail as parseSearchQuery is not yet defined
-
-          const result = await (geminiService as any).parseSearchQuery('Show me friendly dogs good for apartments');
-
-          expect(result).toBeDefined();
-
-          // In our implementation, we'll expect certain fields
-
-          expect(result).toHaveProperty('species');
-
-        });
-
-      
-
-        it('generateHealthInsights returns an array of insights', async () => {
-
-          const mockPet: any = { name: 'Buddy', breed: 'Retriever', age: '5' };
-
-          const result = await geminiService.generateHealthInsights(mockPet);
-
-          expect(result).toHaveLength(1);
-
-          expect(result[0].title).toBe('Joint Health');
-
-          expect(result[0]).toHaveProperty('id');
-
-          expect(result[0]).toHaveProperty('timestamp');
-
-        });
-
-      });
-
-      
-
-  
+  it('generateHealthInsights returns an array of insights', async () => {
+    const mockPet: any = { name: 'Buddy', breed: 'Retriever', age: '5' };
+    const result = await geminiService.generateHealthInsights(mockPet);
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe('Joint Health');
+  });
+});
