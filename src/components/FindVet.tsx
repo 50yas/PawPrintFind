@@ -122,7 +122,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
     setGoogleVets([]);
     if(location) {
         try {
-            const results = await aiBridgeService.findNearbyVets(location);
+            const results = await aiBridgeService.findNearbyVets(location as any);
             setGoogleVets(results.places);
         } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error'); }
     } else {
@@ -136,7 +136,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
         if (location && hasSearched) {
             setIsLoading(true);
             try {
-                const results = await aiBridgeService.findNearbyVets(location);
+                const results = await aiBridgeService.findNearbyVets(location as any);
                 setGoogleVets(results.places);
             } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error');}
             setIsLoading(false);

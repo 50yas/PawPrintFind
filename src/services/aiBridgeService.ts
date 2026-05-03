@@ -1,4 +1,4 @@
-import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { PetProfile, AISettings, ChatSession, AIProvider, Geolocation, Appointment } from '../types';
 import { adminService } from './adminService';
 import * as aiService from './geminiService';
 

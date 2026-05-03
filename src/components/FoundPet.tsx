@@ -199,7 +199,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
       setStatus(t('statusAnalyzingPhoto'));
       const foundPetDesc = await aiBridgeService.analyzeImageForDescription(photo);
       setStatus(t('statusFindingVets'));
-      const vets = await aiBridgeService.findNearbyVets(location);
+      const vets = await aiBridgeService.findNearbyVets(location as any);
       setNearbyVetsInfo(vets);
       setStatus(t('statusComparing', { count: filteredLostPets.length }));
       
