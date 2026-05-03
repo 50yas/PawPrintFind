@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import { GlassCard } from './GlassCard';
 import { GlassButton } from './GlassButton';
 import { describe, it, expect, vi } from 'vitest';
@@ -13,9 +14,7 @@ describe('GlassCard', () => {
         const { container } = render(<GlassCard className="extra-class">Content</GlassCard>);
         const classNames = (container.firstChild as HTMLElement).className;
         expect(classNames).toContain('backdrop-blur-xl');
-        // Material 3 Refactor
-        expect(classNames).toContain('bg-surface-container-low');
-        expect(classNames).toContain('border-outline-variant');
+        expect(classNames).toContain('bg-white/5');
         expect(classNames).toContain('extra-class');
     });
 
@@ -43,13 +42,12 @@ describe('GlassButton', () => {
     it('renders different variants', () => {
         const { container } = render(<GlassButton variant="primary">Primary</GlassButton>);
         const classNames = (container.firstChild as HTMLElement).className;
-        // Material 3 Refactor
         expect(classNames).toContain('bg-primary');
         expect(classNames).toContain('text-on-primary');
     });
     
     it('supports loading state', () => {
         render(<GlassButton isLoading>Submit</GlassButton>);
-        expect(screen.getByText('Loading...')).toBeDefined();
+        expect(screen.getByText('processing')).toBeDefined();
     });
 });

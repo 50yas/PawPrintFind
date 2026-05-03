@@ -101,7 +101,7 @@ export const aiBridgeService = {
     },
 
     async findNearbyVets(location: Geolocation): Promise<{ text: string, places: any[] }> {
-        return aiService.findNearbyVets(location);
+        return aiService.findNearbyVets(location as any);
     },
 
     async textToSpeech(text: string): Promise<string> {
