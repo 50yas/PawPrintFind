@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { BlogPost, User } from '../types';
-import { generateBlogPost } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -34,7 +34,7 @@ export const BlogPostEditor: React.FC<BlogPostEditorProps> = ({ post, currentUse
         }
         setIsGenerating(true);
         try {
-            const result = await generateBlogPost(topic);
+            const result = await aiBridgeService.generateBlogPost(topic);
             setTitle(result.title || '');
             setSummary(result.summary || '');
             setContent(result.content || '');

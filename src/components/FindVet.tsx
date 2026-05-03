@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { VetClinic } from '../types';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { findNearbyVets, findVetsByQuery } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { useTranslations } from '../hooks/useTranslations';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard } from './ui/GlassCard';
@@ -107,7 +107,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
     setHasSearched(true);
     setGoogleVets([]);
     try {
-        const results = await findVetsByQuery(query);
+        const results = await aiBridgeService.findVetsByQuery(query);
         setGoogleVets(results.places);
     } catch (err) {
         console.error("Failed to fetch vets from Google Maps", err);
@@ -122,7 +122,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
     setGoogleVets([]);
     if(location) {
         try {
-            const results = await findNearbyVets(location);
+            const results = await aiBridgeService.findNearbyVets(location);
             setGoogleVets(results.places);
         } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error'); }
     } else {
@@ -136,7 +136,7 @@ export const FindVet: React.FC<FindVetProps> = ({ partnerVets, goBack, mode, onS
         if (location && hasSearched) {
             setIsLoading(true);
             try {
-                const results = await findNearbyVets(location);
+                const results = await aiBridgeService.findNearbyVets(location);
                 setGoogleVets(results.places);
             } catch (err) { console.error(err); addSnackbar(t('genericError'), 'error');}
             setIsLoading(false);

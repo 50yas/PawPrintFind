@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { VetClinic, Geolocation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { findClinicOnGoogleMaps } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface MyClinicProps {
@@ -40,7 +40,7 @@ export const MyClinic: React.FC<MyClinicProps> = ({ onSave, vetEmail, existingCl
     setIsSearching(true);
     setSearchResult(null);
     try {
-        const results = await findClinicOnGoogleMaps(searchQuery, "");
+        const results = await aiBridgeService.findClinicOnGoogleMaps(searchQuery, "");
         if (results && results.length > 0) {
             setSearchResult(results[0]);
         } else {
