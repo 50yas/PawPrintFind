@@ -5,7 +5,7 @@ import { useTapIntent } from '../hooks/useTapIntent';
 import { CinematicImage } from './ui/CinematicImage';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
-import { calculateProfileCompleteness } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareButton } from './ShareButton';
 
@@ -90,7 +90,7 @@ const OwnerPetCard: React.FC<OwnerPetCardProps> = ({
 }) => {
     const { t } = useTranslations();
     const isLost = pet.isLost;
-    const completeness = calculateProfileCompleteness(pet);
+    const completeness = aiBridgeService.calculateProfileCompleteness(pet);
 
     // 3D Tilt State
     const cardRef = useRef<HTMLDivElement>(null);

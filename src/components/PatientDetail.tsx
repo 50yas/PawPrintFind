@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { PetProfile, AIInsight } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { draftVetMessageToOwner, generateHealthInsights } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 import { CinematicImage } from './ui/CinematicImage';
@@ -42,7 +42,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
     setIsAnalyzing(true);
     try {
       analyticsService.trackHealthCheck(patient.id, patient.breed);
-      const insights = await generateHealthInsights(patient);
+      const insights = await aiBridgeService.generateHealthInsights(patient);
       setCurrentInsights(insights);
       addSnackbar(t('aiInsightsGenerated'), 'success');
     } catch (err) {
@@ -56,7 +56,7 @@ export const PatientDetail: React.FC<PatientDetailProps> = ({ patient, goBack })
     if (!messageTopic) return;
     setIsDrafting(true);
     try {
-      const draft = await draftVetMessageToOwner(patient, messageTopic);
+      const draft = await aiBridgeService.draftVetMessageToOwner(patient, messageTopic);
       setGeneratedMessage(draft);
     } catch (err) {
       console.error(err);

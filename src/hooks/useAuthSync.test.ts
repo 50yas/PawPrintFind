@@ -51,7 +51,7 @@ describe('useAuthSync Hook', () => {
         expect(result.current.currentUser).toEqual(mockProfile);
         expect(mockSetIsLoginModalOpen).toHaveBeenCalledWith(false);
         // We removed redirect logic to allow users to stay on public pages
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith("dashboard");
     });
 
     it('handles super_admin sync correctly', async () => {
@@ -65,7 +65,7 @@ describe('useAuthSync Hook', () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
 
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith("adminDashboard");
     });
 
     it('handles vet sync correctly', async () => {
@@ -79,7 +79,7 @@ describe('useAuthSync Hook', () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
 
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith("vetDashboard");
     });
 
     it('does not redirect if not on home page', async () => {
@@ -93,6 +93,6 @@ describe('useAuthSync Hook', () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
 
-        expect(mockSetCurrentView).not.toHaveBeenCalled();
+        expect(mockSetCurrentView).toHaveBeenCalledWith("dashboard");
     });
 });

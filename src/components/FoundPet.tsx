@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PetProfile, MatchResult, VetClinic, Geolocation } from '../types';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { findNearbyVets, textToSpeech } from '../services/geminiService';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -144,7 +143,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
   const handleSpeak = async (text: string) => {
     try {
         setStatus(t('statusGeneratingAudio'));
-        const audioData = await textToSpeech(text);
+        const audioData = await aiBridgeService.textToSpeech(text);
         setStatus(t('statusPlayingAudio'));
         await playAudio(audioData);
         setStatus(t('statusAudioFinished'));
@@ -200,7 +199,7 @@ export const FoundPet: React.FC<FoundPetProps> = ({ lostPets, partnerVets, onCon
       setStatus(t('statusAnalyzingPhoto'));
       const foundPetDesc = await aiBridgeService.analyzeImageForDescription(photo);
       setStatus(t('statusFindingVets'));
-      const vets = await findNearbyVets(location);
+      const vets = await aiBridgeService.findNearbyVets(location as any);
       setNearbyVetsInfo(vets);
       setStatus(t('statusComparing', { count: filteredLostPets.length }));
       

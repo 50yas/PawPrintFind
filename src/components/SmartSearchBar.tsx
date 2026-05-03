@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
-import { parseSearchQuery } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -21,7 +21,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({ onSearch, classN
 
     setIsParsing(true);
     try {
-      const filters = await parseSearchQuery(query);
+      const filters = await aiBridgeService.parseSearchQuery(query);
       analyticsService.trackAISearch(query, 1); // We track the attempt and successful parse
       onSearch(filters);
     } catch (error) {

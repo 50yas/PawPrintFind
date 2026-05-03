@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { PetProfile, Appointment } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { queryVetPatientData } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface SmartCalendarProps {
@@ -49,7 +49,7 @@ export const SmartCalendar: React.FC<SmartCalendarProps> = ({ vetPatients, appoi
     setIsQuerying(true);
     setAiResponse('');
     try {
-        const response = await queryVetPatientData(vetPatients, appointments, aiQuery);
+        const response = await aiBridgeService.queryVetPatientData(vetPatients, appointments, aiQuery);
         setAiResponse(response);
     } catch(err) {
         console.error(err);

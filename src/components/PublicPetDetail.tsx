@@ -3,7 +3,7 @@ import { PetProfile, User, Sighting } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { ShareButton } from './ShareButton';
-import { generateMatchExplanation } from '../services/geminiService';
+import { aiBridgeService } from '../services/aiBridgeService';
 import { analyticsService } from '../services/analyticsService';
 
 interface PublicPetDetailProps {
@@ -26,7 +26,7 @@ export const PublicPetDetail: React.FC<PublicPetDetailProps> = ({
         const fetchAiInsight = async () => {
             if (pet.status === 'forAdoption') {
                 try {
-                    const explanation = await generateMatchExplanation(pet, {});
+                    const explanation = await aiBridgeService.generateMatchExplanation(pet, {});
                     setAiExplanation(explanation);
                 } catch (e) {
                     console.error("AI Insight failed:", e);

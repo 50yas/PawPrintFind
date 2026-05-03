@@ -203,10 +203,27 @@ export const AdminAISettings: React.FC = () => {
 
             {/* Provider Selection */}
             <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="status-pulse-green"></span>
-                    {t('dashboard:admin.activeProvider')}
-                </h3>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="status-pulse-green"></span>
+                        {t('dashboard:admin.activeProvider')}
+                    </h3>
+
+                    {/* Fallback Toggle */}
+                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Fallback to Gemini</span>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                            />
+                        </button>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
@@ -393,6 +410,7 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (Reasoning/Thinking)</option>
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
                                                 <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>

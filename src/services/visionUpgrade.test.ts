@@ -20,10 +20,10 @@ vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
   httpsCallable: vi.fn((_fns, name) => (args: any) => {
       let text = "Golden Retriever";
-      if (name === 'visionIdentification') {
-          if (args.task === 'autofill') {
+      if (name === 'callGemini') {
+          if (args.config?.task === 'autofill') {
               text = '{"breed": "Golden Retriever", "color": "Golden", "size": "Large"}';
-          } else if (args.task === 'identikit') {
+          } else if (args.config?.task === 'identikit') {
               text = '{"visualIdentityCode": "MARK-123", "physicalDescription": "Test desc"}';
           }
       }
@@ -46,24 +46,24 @@ describe('Vision Model Upgrade', () => {
     vi.clearAllMocks();
   });
 
-  it('identifyBreedFromImage should use legacy callGemini', async () => {
+  it('identifyBreedFromImage should use callGemini', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await identifyBreedFromImage(mockFile);
     
     expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
   });
 
-  it('autoFillPetDetails should use visionIdentification', async () => {
+  it('autoFillPetDetails should use callGemini', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await autoFillPetDetails(mockFile);
     
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
   });
 
-  it('generatePetIdentikit should use visionIdentification', async () => {
+  it('generatePetIdentikit should use callGemini', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await generatePetIdentikit(mockFile);
     
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
   });
 });

@@ -1,39 +1,11 @@
 
-import { GoogleGenAI, Type, GenerateContentResponse, Modality } from "@google/genai";
+import { Type, Modality } from "@google/genai";
 import { httpsCallable } from 'firebase/functions';
 import { functions } from './firebase';
-import { PetProfile, Geolocation, PhotoWithMarks, Appointment, ChatSession, HealthCheck, BlogPost, AIInsight } from '../types';
+import { PetProfile, Geolocation, Appointment, ChatSession, BlogPost, AIInsight } from '../types';
 import * as Prompts from './prompts';
 import { captureError } from './monitoringService';
 import { identifyBreedLocally } from './localInferenceService';
-import { aiBridgeService } from './aiBridgeService';
-
-// --- SPECIALIZED CLOUD FUNCTION CALLERS ---
-
-const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
-    const fn = httpsCallable(functions, 'visionIdentification');
-    const result = await fn({ image, task, locale });
-    return result.data as { success: boolean, text: string };
-};
-
-const callSmartSearchAI = async (query: string) => {
-    const fn = httpsCallable(functions, 'smartSearch');
-    const result = await fn({ query });
-    return result.data as { success: boolean, text: string };
-};
-
-const callHealthAssessmentAI = async (pet: PetProfile, symptoms: string, locale: string = 'en') => {
-    const fn = httpsCallable(functions, 'healthAssessment');
-    const result = await fn({ pet, symptoms, locale });
-    return result.data as { success: boolean, text: string };
-};
-
-const callBlogGenerationAI = async (topic: string) => {
-    const fn = httpsCallable(functions, 'blogGeneration');
-    const result = await fn({ topic });
-    return result.data as { success: boolean, text: string };
-};
-
 
 const checkRateLimitError = (error: any) => {
     if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
@@ -110,16 +82,41 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'autofill', locale);
-        return JSON.parse(response.text?.trim() || "{}");
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: {
+                parts: [
+                    { inlineData: { data: base64, mimeType: photo.type || "image/jpeg" } },
+                    { text: Prompts.getAutoFillPetDetailsPrompt(locale) }
+                ]
+            },
+            config: {
+                task: 'autofill',
+                locale: locale
+            }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
 export const analyzeImageForDescription = async (photo: File): Promise<string> => {
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'describe');
-        return response.text || "No description generated.";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: {
+                parts: [
+                    { inlineData: { data: base64, mimeType: photo.type || "image/jpeg" } },
+                    { text: "Describe this pet in detail." }
+                ]
+            },
+            config: { task: 'describe' }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text || "No description generated.";
     });
 };
 
@@ -132,16 +129,38 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'describe', locale); // Reuse describe for general breed ID
-        return response.text?.trim() || "Unknown Breed";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: {
+                parts: [
+                    { inlineData: { data: base64, mimeType: photo.type || "image/jpeg" } },
+                    { text: "Identify the breed of this pet." }
+                ]
+            },
+            config: { task: 'describe', locale }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text?.trim() || "Unknown Breed";
     });
 };
 
 export const generatePetIdentikit = async (photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'identikit', locale);
-        const json = JSON.parse(response.text?.trim() || "{}");
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: {
+                parts: [
+                    { inlineData: { data: base64, mimeType: photo.type || "image/jpeg" } },
+                    { text: Prompts.getPetIdentikitPrompt(locale) }
+                ]
+            },
+            config: { task: 'identikit', locale }
+        });
+        const data = response.data as { success: boolean, text: string };
+        const json = JSON.parse(data.text?.trim() || "{}");
         return {
             code: json.visualIdentityCode || "UNKNOWN",
             description: json.physicalDescription || "No description generated."
@@ -344,32 +363,55 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
 
 export const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
     return retryWithBackoff(async () => {
-        const response = await callHealthAssessmentAI(pet, symptoms, locale);
-        return response.text || "Analysis unavailable.";
+        const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'healthAssessment',
+            contents: { parts: [{ text: userPrompt }] },
+            config: { systemInstruction }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text || "Analysis unavailable.";
     });
 };
 
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
     return retryWithBackoff(async () => {
-        const response = await callBlogGenerationAI(topic);
-        return JSON.parse(response.text?.trim() || "{}");
+        const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'blogGeneration',
+            contents: { parts: [{ text: userPrompt }] },
+            config: { systemInstruction }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
 export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<BlogPost>> => {
     return retryWithBackoff(async () => {
-        // Success story is a special type of blog generation
-        const fn = httpsCallable(functions, 'blogGeneration');
-        const result = await fn({ topic: `Success story for ${pet.name} (${pet.breed}) being reunited with owner.` });
-        const response = result.data as { success: boolean, text: string };
-        return JSON.parse(response.text?.trim() || "{}");
+        const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(`Success story for ${pet.name} (${pet.breed}) being reunited with owner.`);
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'blogGeneration',
+            contents: { parts: [{ text: userPrompt }] },
+            config: { systemInstruction }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
-        const response = await callSmartSearchAI(query);
-        return JSON.parse(response.text?.trim() || "{}");
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'smartSearch',
+            contents: { parts: [{ text: Prompts.getSearchParsingPrompt(query) }] }
+        });
+        const data = response.data as { success: boolean, text: string };
+        return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
