@@ -230,6 +230,20 @@ export const AdminAISettings: React.FC = () => {
                                             {isActive && <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 uppercase">Active</span>}
                                         </div>
                                         <p className="text-[10px] text-slate-500 mt-1">{p.desc}</p>
+                                        {p.id === 'openrouter' && (
+                                            <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="sr-only peer"
+                                                        checked={settings.fallbackToGemini ?? true}
+                                                        onChange={(e) => setSettings({ ...settings, fallbackToGemini: e.target.checked })}
+                                                    />
+                                                    <div className="w-7 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+                                                </label>
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Fallback to Gemini</span>
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-2 mt-3">
                                             <span className={`w-2 h-2 rounded-full ${hasKey ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]'}`}></span>
                                             <span className="text-[9px] font-mono text-slate-500">{hasKey ? t('dashboard:admin.keyPresent') : t('dashboard:admin.keyMissing')}</span>
@@ -366,8 +380,8 @@ export const AdminAISettings: React.FC = () => {
                                         </div>
                                     </div>
                                     {settings.modelMapping[task.id] && (
-                                        <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[120px] truncate hidden sm:block">
-                                            {settings.modelMapping[task.id]}
+                                        <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[120px] truncate hidden sm:block" title={settings.modelMapping[task.id]}>
+                                            {settings.modelMapping[task.id].includes('/') ? settings.modelMapping[task.id].split('/').pop() : settings.modelMapping[task.id]}
                                         </span>
                                     )}
                                 </div>
@@ -398,6 +412,7 @@ export const AdminAISettings: React.FC = () => {
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
                                                 <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="deepseek/deepseek-r1:free">deepseek-r1 (Reasoning)</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}

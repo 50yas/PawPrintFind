@@ -27,12 +27,13 @@ async function resolveAIConfig(task: string) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
             const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini !== false; // Default to true
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.5-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,7 +46,7 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
@@ -65,7 +66,35 @@ async function callAI(
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        try {
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error: any) {
+            if (fallbackToGemini) {
+                console.warn(`[AI Fallback] OpenRouter failed, retrying with Gemini for task: ${featureName}`, error.message);
+                // Standardize contents for Gemini if they were messages
+                let geminiContents = contents;
+                if (Array.isArray(messages)) {
+                    geminiContents = {
+                        parts: messages.map(m => {
+                           if (typeof m.content === 'string') return { text: m.content };
+                           if (Array.isArray(m.content)) {
+                               return m.content.map((c: any) => {
+                                   if (c.type === 'text') return { text: c.text };
+                                   if (c.type === 'image_url' && c.image_url?.url?.startsWith('data:')) {
+                                       const [mime, data] = c.image_url.url.split(';base64,');
+                                       return { inlineData: { data, mimeType: mime.replace('data:', '') } };
+                                   }
+                                   return null;
+                               }).filter(Boolean);
+                           }
+                           return null;
+                        }).flat().filter(Boolean)
+                    };
+                }
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', geminiContents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
@@ -185,8 +214,8 @@ async function callGeminiAI(
         const candidate = response.candidates?.[0];
 
         // Extract data based on what's returned
-        const text = candidate?.content?.parts?.find(p => p.text)?.text || "";
-        const inlineData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData;
+        const text = candidate?.content?.parts?.find((p: any) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
         trackUsage(userId, featureName, 'google').catch(err =>
             console.error(`Failed to track usage for ${featureName}:`, err)
