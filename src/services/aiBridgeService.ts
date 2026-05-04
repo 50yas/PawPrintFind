@@ -40,8 +40,20 @@ export const aiBridgeService = {
         return adminService.testAIConnection(provider, apiKey);
     },
 
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
     async analyzeImageForDescription(photo: File): Promise<string> {
         return aiService.analyzeImageForDescription(photo);
+    },
+
+    async identifyBreedFromImage(photo: File, locale: string = 'en'): Promise<string> {
+        return aiService.identifyBreedFromImage(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
     },
 
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
@@ -54,6 +66,66 @@ export const aiBridgeService = {
 
     async comparePets(foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> {
         return aiService.comparePets(foundPetDesc, lostPet);
+    },
+
+    async analyzeVideo(videoFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.analyzeVideo(videoFile, onProgress);
+    },
+
+    async transcribeAudio(audioFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.transcribeAudio(audioFile, onProgress);
+    },
+
+    async findNearbyVets(location: any): Promise<{ text: string, places: any[] }> {
+        return aiService.findNearbyVets(location);
+    },
+
+    async findVetsByQuery(query: string): Promise<{ text: string, places: any[] }> {
+        return aiService.findVetsByQuery(query);
+    },
+
+    async findClinicOnGoogleMaps(name: string, city: string): Promise<any[]> {
+        return aiService.findClinicOnGoogleMaps(name, city);
+    },
+
+    async textToSpeech(text: string): Promise<string> {
+        return aiService.textToSpeech(text);
+    },
+
+    async draftVetMessageToOwner(pet: PetProfile, topic: string): Promise<string> {
+        return aiService.draftVetMessageToOwner(pet, topic);
+    },
+
+    async queryVetPatientData(patients: PetProfile[], appointments: any[], query: string): Promise<string> {
+        return aiService.queryVetPatientData(patients, appointments, query);
+    },
+
+    async generateBlogPost(topic: string): Promise<any> {
+        return aiService.generateBlogPost(topic);
+    },
+
+    async generateSuccessStory(pet: PetProfile): Promise<any> {
+        return aiService.generateSuccessStory(pet);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
+    async generateImage(prompt: string): Promise<string> {
+        return aiService.generateImage(prompt);
+    },
+
+    calculateProfileCompleteness(pet: PetProfile): number {
+        return aiService.calculateProfileCompleteness(pet);
+    },
+
+    async translateContent(text: string, targetLangs: string[]): Promise<Record<string, string>> {
+        return aiService.translateContent(text, targetLangs);
+    },
+
+    async generateHealthInsights(pet: PetProfile): Promise<any[]> {
+        return aiService.generateHealthInsights(pet);
     },
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {

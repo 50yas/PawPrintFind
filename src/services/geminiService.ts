@@ -36,9 +36,17 @@ const callBlogGenerationAI = async (topic: string) => {
 
 
 const checkRateLimitError = (error: any) => {
-    if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
+    const message = error.message?.toLowerCase() || "";
+    if (
+        error.code === 'functions/resource-exhausted' ||
+        message.includes("quota") ||
+        message.includes("exceeded") ||
+        message.includes("429") ||
+        message.includes("rate limit") ||
+        message.includes("overloaded")
+    ) {
         window.dispatchEvent(new CustomEvent('pawprint_rate_limit', {
-            detail: { message: error.message || "Daily AI limit reached." }
+            detail: { message: error.message || "Daily AI limit reached or provider overloaded." }
         }));
         return true;
     }
