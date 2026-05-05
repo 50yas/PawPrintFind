@@ -203,10 +203,27 @@ export const AdminAISettings: React.FC = () => {
 
             {/* Provider Selection */}
             <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="status-pulse-green"></span>
-                    {t('dashboard:admin.activeProvider')}
-                </h3>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="status-pulse-green"></span>
+                        {t('dashboard:admin.activeProvider')}
+                    </h3>
+
+                    {/* Fallback Toggle */}
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider">Fallback to Gemini</span>
+                            <span className="text-[8px] text-slate-500 font-mono uppercase">Auto-recovery on failure</span>
+                        </div>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`w-10 h-5 rounded-full relative transition-all duration-300 ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                        >
+                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all duration-300 ${settings.fallbackToGemini ? 'left-6' : 'left-1'}`}></div>
+                        </button>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
@@ -394,6 +411,7 @@ export const AdminAISettings: React.FC = () => {
                                             <>
                                                 {/* Recommended free models */}
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ DeepSeek R1 (Reasoning)</option>
                                                 <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
                                                 <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
