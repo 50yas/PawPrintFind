@@ -18,6 +18,75 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
 
 /**
+ * Converts Gemini-formatted content (parts, history, vision) to OpenRouter/OpenAI message format.
+ */
+function transformGeminiToOpenRouter(contents: any, config: any = {}) {
+    let messages: any[] = [];
+
+    // 1. Handle System Instruction
+    if (config.systemInstruction) {
+        messages.push({
+            role: 'system',
+            content: typeof config.systemInstruction === 'string'
+                ? config.systemInstruction
+                : (config.systemInstruction.parts?.[0]?.text || config.systemInstruction.text || '')
+        });
+    }
+
+    // 2. Handle Multi-turn History or Single Prompt
+    if (Array.isArray(contents)) {
+        // Multi-turn history format
+        contents.forEach(turn => {
+            const role = turn.role === 'model' ? 'assistant' : 'user';
+            const textPart = turn.parts?.find((p: any) => p.text);
+            const imgPart = turn.parts?.find((p: any) => p.inlineData);
+
+            if (imgPart) {
+                messages.push({
+                    role,
+                    content: [
+                        { type: 'text', text: textPart?.text || '' },
+                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                    ]
+                });
+            } else {
+                messages.push({ role, content: textPart?.text || '' });
+            }
+        });
+    } else if (contents.parts) {
+        // Single prompt with parts
+        const textPart = contents.parts.find((p: any) => p.text);
+        const imgPart = contents.parts.find((p: any) => p.inlineData);
+
+        if (imgPart) {
+            messages.push({
+                role: 'user',
+                content: [
+                    { type: 'text', text: textPart?.text || '' },
+                    { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                ]
+            });
+        } else {
+            messages.push({ role: 'user', content: textPart?.text || '' });
+        }
+    } else if (typeof contents === 'string') {
+        messages.push({ role: 'user', content: contents });
+    }
+
+    // 3. Handle JSON Mode mapping
+    if (config.responseMimeType === 'application/json') {
+        config.response_format = { type: 'json_object' };
+        // Ensure prompt mentions JSON if not already present
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && typeof lastMsg.content === 'string' && !lastMsg.content.toLowerCase().includes('json')) {
+            lastMsg.content += " (Respond in JSON format)";
+        }
+    }
+
+    return messages;
+}
+
+/**
  * Resolves the active AI provider and model for a given task.
  */
 async function resolveAIConfig(task: string) {
@@ -27,12 +96,13 @@ async function resolveAIConfig(task: string) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
             const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,27 +115,20 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+        try {
+            const messages = transformGeminiToOpenRouter(contents, config);
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error: any) {
+            console.error(`[AI Bridge] OpenRouter failed for ${featureName}:`, error.message);
+            if (fallbackToGemini) {
+                console.log(`[AI Bridge] Falling back to Gemini 2.0 Flash for ${featureName}...`);
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
             }
+            throw error;
         }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
@@ -176,9 +239,19 @@ async function callGeminiAI(
     try {
         const model = (client as any).getGenerativeModel(modelParams);
 
+        // Standardize contents for SDK: must be an array of Content objects
+        let finalContents = contents;
+        if (!Array.isArray(contents)) {
+            if (contents.parts) {
+                finalContents = [contents];
+            } else {
+                finalContents = [{ role: 'user', parts: [{ text: contents }] }];
+            }
+        }
+
         const result = await model.generateContent({
-            contents,
-            config: generationConfig
+            contents: finalContents,
+            generationConfig: generationConfig
         });
 
         const response = result.response;
