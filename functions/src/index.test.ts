@@ -23,11 +23,23 @@ vi.mock('firebase-admin', () => {
   };
 });
 
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => `mock-value-for-${name}`
+        }))
+    };
+});
+
 // Mock firebase-functions/v2
 vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             return typeof config === 'function' ? config : handler;
         }),
         HttpsError: class HttpsError extends Error {
@@ -176,7 +188,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
