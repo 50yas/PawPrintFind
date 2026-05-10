@@ -132,8 +132,16 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'describe', locale); // Reuse describe for general breed ID
-        return response.text?.trim() || "Unknown Breed";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: [
+                { inlineData: { data: base64, mimeType: "image/jpeg" } },
+                { text: `Identify the breed of the pet in this image. Language: ${locale}` }
+            ]
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text?.trim() || "Unknown Breed";
     });
 };
 
@@ -158,7 +166,7 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'matching',
-            contents: { parts: [...lostPetPhotoParts, { text: userPrompt }] },
+            contents: [...lostPetPhotoParts, { text: userPrompt }],
             config: {
                 systemInstruction,
                 responseMimeType: "application/json",
@@ -188,7 +196,7 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'vision',
-            contents: { parts: [videoPart, { text: prompt }] }
+            contents: [videoPart, { text: prompt }]
         });
         const data = response.data as { success: boolean, text: string };
         if (onProgress) onProgress(100);
@@ -204,7 +212,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'chat',
-            contents: { parts: [audioPart, { text: prompt }] }
+            contents: [audioPart, { text: prompt }]
         });
         const data = response.data as { success: boolean, text: string };
         if (onProgress) onProgress(100);
@@ -293,7 +301,7 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
+            contents: [{ text: userPrompt }],
             config: { systemInstruction }
         });
         const data = response.data as { success: boolean, text: string };
@@ -307,7 +315,7 @@ export const queryVetPatientData = async (patients: PetProfile[], appointments: 
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
+            contents: [{ text: userPrompt }],
             config: { systemInstruction }
         });
         const data = response.data as { success: boolean, text: string };
@@ -322,7 +330,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
+            contents: [{ text: userPrompt }],
             config: {
                 systemInstruction,
                 responseMimeType: "application/json",
@@ -378,7 +386,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'vision',
-            contents: { parts: [{ text: prompt }] },
+            contents: [{ text: prompt }],
             config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
         });
 
@@ -415,7 +423,7 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
+            contents: [{ text: userPrompt }],
             config: {
                 systemInstruction,
                 responseMimeType: "application/json",
@@ -431,7 +439,7 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'triage',
-            contents: { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
+            contents: [{ text: Prompts.getHealthInsightsPrompt(pet) }],
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -463,7 +471,7 @@ export const generateMatchExplanation = async (pet: PetProfile, filters: any): P
         const fn = httpsCallable(functions, 'callGemini');
         const response = await fn({
             task: 'matching',
-            contents: { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
+            contents: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }]
         });
         const data = response.data as { success: boolean, text: string };
         return data.text?.trim() || "Matches your preferences.";
@@ -477,21 +485,7 @@ export const chat = async (
     history: Array<{ role: 'user' | 'assistant'; text: string }>,
     systemPrompt: string
 ): Promise<string> => {
-    return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            config: { systemInstruction: systemPrompt },
-            contents: {
-                parts: history.map(h => ({
-                    role: h.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: h.text }]
-                }))
-            }
-        });
-        const data = response.data as { success: boolean, text: string };
-        return data.text?.trim() || "";
-    });
+    return aiBridgeService.chat(history, systemPrompt);
 };
 
 
