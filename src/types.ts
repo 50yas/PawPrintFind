@@ -897,6 +897,7 @@ export interface AISettings {
   lastUpdated: number;
   updatedBy: string;
   apiKeys?: Record<string, string>;
+  fallbackToGemini?: boolean;
 }
 
 export const AISecretsSchema = z.object({
@@ -914,7 +915,8 @@ export const AISettingsSchema = z.object({
     matching: z.string()
   }),
   lastUpdated: z.number(),
-  updatedBy: z.string().email()
+  updatedBy: z.string().email(),
+  fallbackToGemini: z.boolean().optional().default(true)
 });
 
 // =============================================================================

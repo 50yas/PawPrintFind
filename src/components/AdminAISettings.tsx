@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { adminService } from '../services/adminService';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { openRouterService } from '../services/openRouterService';
 import { AISettings, AIProvider, AIModelTask } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -139,7 +138,7 @@ export const AdminAISettings: React.FC = () => {
     const handleRefreshModels = async () => {
         setFetchingModels(true);
         try {
-            const models = await openRouterService.fetchAvailableModels();
+            const models = await aiBridgeService.fetchAvailableModels();
             setAvailableModels(models);
             addSnackbar(`Fetched ${models.length} models`, 'info');
         } catch (e: any) {
@@ -244,6 +243,23 @@ export const AdminAISettings: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+
+                {/* Fallback Toggle */}
+                <div className="mt-8 p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl">🛡️</div>
+                        <div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-wider">Auto-Fallback to Gemini 2.0</p>
+                            <p className="text-[9px] text-slate-500 mt-0.5 uppercase font-mono">Ensures uptime if OpenRouter free models are rate-limited</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                 </div>
             </GlassCard>
 
@@ -393,12 +409,13 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
-                                                {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (FREE - High Intelligence)</option>
+                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (FREE - Logic/Code)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (FREE - Reasoning)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (FREE - Vision)</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (FREE)</option>
+                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct (FREE)</option>
+                                                {availableModels.map(m => <option key={m.id} value={m.id}>{m.name + (m.id.endsWith(':free') ? ' (FREE)' : '')}</option>)}
                                             </>
                                         )}
                                     </datalist>
