@@ -108,22 +108,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         setIsRefreshing(false);
     };
 
-    const tabs = useMemo(() => [
-        { id: 'overview' as AdminTab, label: t('dashboard:admin.tabs.overview'), icon: '📊' },
-        { id: 'users' as AdminTab, label: t('dashboard:admin.tabs.users'), icon: '👥' },
+    const [expandedCategories, setExpandedCategories] = useState<string[]>(['operations', 'community', 'system']);
+
+    const toggleCategory = (categoryId: string) => {
+        setExpandedCategories(prev =>
+            prev.includes(categoryId)
+                ? prev.filter(id => id !== categoryId)
+                : [...prev, categoryId]
+        );
+    };
+
+    const categories = useMemo(() => [
         {
-            id: 'operations' as AdminTab,
-            label: 'Operations',
-            icon: '🐾',
-            count: pendingRequests.length > 0 ? pendingRequests.length : undefined
+            id: 'operations',
+            label: t('dashboard:admin.categoryOperations'),
+            tabs: [
+                { id: 'overview' as AdminTab, label: t('dashboard:admin.tabs.overview'), icon: '📊' },
+                { id: 'users' as AdminTab, label: t('dashboard:admin.tabs.users'), icon: '👥' },
+                {
+                    id: 'operations' as AdminTab,
+                    label: 'Operations',
+                    icon: '🐾',
+                    count: pendingRequests.length > 0 ? pendingRequests.length : undefined
+                },
+            ]
         },
-        { id: 'finance' as AdminTab, label: 'Finance', icon: '💰' },
-        { id: 'community' as AdminTab, label: 'Community', icon: '🏆' },
-        { id: 'ai' as AdminTab, label: t('dashboard:admin.tabs.ai'), icon: '🧠' },
-        { id: 'system' as AdminTab, label: 'System', icon: '⚙️' },
+        {
+            id: 'community',
+            label: t('dashboard:admin.categoryCommunity'),
+            tabs: [
+                { id: 'finance' as AdminTab, label: 'Finance', icon: '💰' },
+                { id: 'community' as AdminTab, label: 'Community', icon: '🏆' },
+            ]
+        },
+        {
+            id: 'system',
+            label: t('dashboard:admin.categorySystem'),
+            tabs: [
+                { id: 'ai' as AdminTab, label: t('dashboard:admin.tabs.ai'), icon: '🧠' },
+                { id: 'system' as AdminTab, label: 'System', icon: '⚙️' },
+            ]
+        }
     ], [t, pendingRequests.length]);
 
-    const SidebarItem = ({ tab }: { tab: typeof tabs[0] }) => (
+    const SidebarItem = ({ tab }: { tab: any }) => (
         <button
             onClick={() => setActiveTab(tab.id)}
             title={tab.label}
@@ -173,9 +201,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
-                    {tabs.map(tab => (
-                        <SidebarItem key={tab.id} tab={tab} />
+                <nav className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar">
+                    {categories.map(category => (
+                        <div key={category.id} className="space-y-2">
+                            {!sidebarCollapsed && (
+                                <button
+                                    onClick={() => toggleCategory(category.id)}
+                                    className="w-full flex items-center justify-between px-4 mb-2 group"
+                                >
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] group-hover:text-slate-300 transition-colors">
+                                        {category.label}
+                                    </span>
+                                    <span className={`text-[8px] text-slate-600 transition-transform duration-300 ${expandedCategories.includes(category.id) ? 'rotate-180' : ''}`}>
+                                        ▼
+                                    </span>
+                                </button>
+                            )}
+
+                            {(expandedCategories.includes(category.id) || sidebarCollapsed) && (
+                                <div className="space-y-1">
+                                    {category.tabs.map(tab => (
+                                        <SidebarItem key={tab.id} tab={tab} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </nav>
 
@@ -243,7 +293,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
 
                     {/* Mobile Horizontal Tabs */}
                     <div className="md:hidden flex gap-3 pb-4 overflow-x-auto scrollbar-hide mb-4">
-                        {tabs.map((tab) => (
+                        {categories.flatMap(c => c.tabs).map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}

@@ -132,8 +132,16 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'describe', locale); // Reuse describe for general breed ID
-        return response.text?.trim() || "Unknown Breed";
+        const fn = httpsCallable(functions, 'callGemini');
+        const response = await fn({
+            task: 'visionIdentification',
+            contents: [
+                { inlineData: { data: base64, mimeType: "image/jpeg" } },
+                { text: `Identify the breed of the pet in this image. Language: ${locale}` }
+            ]
+        });
+        const data = response.data as { success: boolean, text: string };
+        return data.text?.trim() || "Unknown Breed";
     });
 };
 
