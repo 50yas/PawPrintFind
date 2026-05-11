@@ -2,9 +2,31 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
+const mockGet = vi.fn().mockResolvedValue({
+    exists: true,
+    data: () => ({
+        provider: 'google',
+        fallbackToGemini: true,
+        modelMapping: {
+            vision: 'gemini-2.0-flash',
+            smartSearch: 'gemini-2.0-flash',
+            healthAssessment: 'gemini-2.0-flash',
+            blogGeneration: 'gemini-2.0-flash'
+        }
+    })
+});
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockDoc = vi.fn(() => ({
+    get: mockGet,
+    set: mockSet,
+    collection: mockCollection
+}));
+const mockCollection = vi.fn(() => ({
+    doc: mockDoc,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] })
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +35,6 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,11 +51,22 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: vi.fn(() => `mock-secret-for-${name}`)
+        }))
     };
 });
 
@@ -176,7 +208,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
