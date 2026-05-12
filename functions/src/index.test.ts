@@ -3,8 +3,34 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockDoc = vi.fn();
+const mockCollection = vi.fn();
+
+mockDoc.mockImplementation(() => ({
+    set: mockSet,
+    collection: mockCollection,
+    doc: mockDoc,
+    get: vi.fn().mockResolvedValue({
+        exists: true,
+        data: () => ({
+            provider: 'google',
+            modelMapping: {
+                visionIdentification: 'gemini-1.5-flash',
+                smartSearch: 'gemini-1.5-flash',
+                healthAssessment: 'gemini-1.5-flash',
+                blogGeneration: 'gemini-1.5-flash'
+            }
+        })
+    })
+}));
+
+mockCollection.mockImplementation((name) => ({
+    doc: mockDoc,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
+    collection: mockCollection // Allow recursion for nested collections
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +39,6 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,11 +55,21 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(() => ({})),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => `mock-value-for-${name}`
+        }))
     };
 });
 
@@ -117,6 +152,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await visionIdentification(request);
         
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ visionIdentification: expect.anything() }),
@@ -149,6 +185,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await smartSearch(request);
         
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ smartSearch: expect.anything() }),
@@ -166,6 +203,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await healthAssessment(request);
         
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ healthAssessment: expect.anything() }),
@@ -176,13 +214,17 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ blogGeneration: expect.anything() }),
