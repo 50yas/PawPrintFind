@@ -36,7 +36,14 @@ const callBlogGenerationAI = async (topic: string) => {
 
 
 const checkRateLimitError = (error: any) => {
-    if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
+    const message = error.message?.toLowerCase() || "";
+    if (
+        error.code === 'functions/resource-exhausted' ||
+        message.includes("quota") ||
+        message.includes("exceeded") ||
+        message.includes("429") ||
+        message.includes("rate limit")
+    ) {
         window.dispatchEvent(new CustomEvent('pawprint_rate_limit', {
             detail: { message: error.message || "Daily AI limit reached." }
         }));
@@ -57,16 +64,23 @@ async function retryWithBackoff<T>(
     } catch (error: any) {
         if (checkRateLimitError(error)) throw error; // Don't retry rate limits
 
+        const message = error.message || "";
+
         // If the request fails with "Requested entity was not found", it indicates an issue with the current key selection.
-        if (error.message?.includes("Requested entity was not found.")) {
-            window.dispatchEvent(new CustomEvent('pawprint_api_error', { detail: { message: error.message } }));
+        if (message.includes("Requested entity was not found.") || message.includes("OpenRouter API Error: 401")) {
+            window.dispatchEvent(new CustomEvent('pawprint_api_error', { detail: { message: "AI Configuration error. Please check your API keys in the Admin panel." } }));
+        }
+
+        // Handle OpenRouter specifically if fallback didn't catch it on backend or if we want extra client-side telemetry
+        if (message.includes("OpenRouter API Error: 502") || message.includes("OpenRouter API Error: 503")) {
+             console.warn("[AI Bridge] OpenRouter upstream error, should have triggered fallback if enabled.");
         }
 
         if (retries === 0 || error.status === 400) { // Don't retry Bad Requests
-            captureError(error, { context: "Gemini AI Request Final Failure", retries });
+            captureError(error, { context: "AI Request Final Failure", retries });
             throw error;
         }
-        console.warn(`AI Request failed. Retrying in ${delay}ms... (${retries} attempts left). Error: ${error.message}`);
+        console.warn(`AI Request failed. Retrying in ${delay}ms... (${retries} attempts left). Error: ${message}`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return retryWithBackoff(operation, retries - 1, delay * factor, factor);
     }

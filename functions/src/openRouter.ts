@@ -58,7 +58,7 @@ export const callOpenRouterAI = async (
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://pawprint.ai", // Required by OpenRouter
-                "X-Title": "Paw Print"
+                "X-Title": "PawPrintFind"
             },
             body: JSON.stringify({
                 model: targetModel,

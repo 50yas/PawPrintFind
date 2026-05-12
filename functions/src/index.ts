@@ -20,23 +20,94 @@ const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
 /**
  * Resolves the active AI provider and model for a given task.
  */
+/**
+ * Resolves the active AI provider and model for a given task.
+ * Standardizes task names and provides sensible defaults for free tiers.
+ */
 async function resolveAIConfig(task: string) {
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
-        if (doc.exists) {
-            const data = doc.data();
-            const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+        const data = doc.exists ? doc.data() : {};
+
+        const provider = data?.provider || data?.activeProvider || 'google';
+        const fallbackToGemini = data?.fallbackToGemini ?? true;
+
+        // Map feature names to standardized task keys if needed
+        const taskMap: Record<string, string> = {
+            'visionIdentification': 'vision',
+            'healthAssessment': 'triage',
+            'smartSearch': 'chat',
+            'blogGeneration': 'chat'
+        };
+        const taskKey = taskMap[task] || task;
+
+        let model = data?.modelMapping?.[taskKey];
+
+        if (!model) {
+            if (provider === 'google') {
+                model = 'gemini-2.0-flash';
+            } else {
+                // sensible OpenRouter free defaults
+                if (taskKey === 'vision') {
+                    model = 'nvidia/nemotron-nano-12b-v2-vl:free';
+                } else if (taskKey === 'triage' || taskKey === 'chat' || taskKey === 'matching') {
+                    model = 'qwen/qwen-2.5-72b-instruct:free';
+                } else {
+                    model = 'qwen/qwen-2.5-72b-instruct:free';
+                }
+            }
         }
+
+        return { provider, model, fallbackToGemini };
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
+}
+
+/**
+ * Transforms Gemini-style 'contents' into OpenRouter-style 'messages'.
+ */
+function transformGeminiToOpenRouter(contents: any, config: any = {}) {
+    if (Array.isArray(contents)) {
+        // Multi-turn history
+        return contents.map((turn: any) => ({
+            role: turn.role === 'model' ? 'assistant' : 'user',
+            content: turn.parts.map((p: any) => p.text).join('\n')
+        }));
+    }
+
+    if (contents.parts) {
+        const messages: any[] = [];
+
+        // Handle System Instruction if present in config
+        if (config.systemInstruction) {
+            messages.push({ role: 'system', content: typeof config.systemInstruction === 'string' ? config.systemInstruction : config.systemInstruction.parts?.[0]?.text });
+        }
+
+        const textPart = contents.parts.find((p: any) => p.text);
+        const imgPart = contents.parts.find((p: any) => p.inlineData);
+
+        if (imgPart) {
+            messages.push({
+                role: 'user',
+                content: [
+                    { type: 'text', text: textPart?.text || "Analyze this image." },
+                    { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                ]
+            });
+        } else {
+            messages.push({ role: 'user', content: textPart?.text || "" });
+        }
+        return messages;
+    }
+
+    return contents; // Already in messages format or unknown
 }
 
 /**
  * Universal AI Caller that routes to the active provider.
+ * Implements fallback logic from OpenRouter to Gemini.
  */
 async function callAI(
     userId: string,
@@ -45,27 +116,20 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+        try {
+            const messages = transformGeminiToOpenRouter(contents, config);
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error: any) {
+            console.error(`[AI Fallback] OpenRouter failed for ${featureName}. Fallback enabled: ${fallbackToGemini}`, error);
+            if (fallbackToGemini) {
+                console.log(`[AI Fallback] Attempting Gemini fallback for ${featureName}`);
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
             }
+            throw error;
         }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
@@ -374,6 +438,13 @@ export const callGemini = onCall({
         contents,
         config
     );
+});
+
+/**
+ * Health check endpoint for Google Cloud Platform.
+ */
+export const ping = onRequest({ region: "us-central1" }, (req, res) => {
+    res.status(200).send("OK");
 });
 
 // Firestore Triggers (re-exported)
