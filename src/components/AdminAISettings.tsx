@@ -13,6 +13,8 @@ const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor:
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    blogGeneration: { icon: '✍️', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -157,6 +159,8 @@ export const AdminAISettings: React.FC = () => {
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearch') || 'Smart Search' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGeneration') || 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];

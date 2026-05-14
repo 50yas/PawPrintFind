@@ -894,7 +894,14 @@ export interface AISettings {
   provider: AIProvider;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
   fallbackToGemini?: boolean;      // Automatically use Gemini if OpenRouter fails
-  modelMapping: Record<AIModelTask, string>;
+  modelMapping: {
+    vision: string;
+    triage: string;
+    chat: string;
+    matching: string;
+    smartSearch?: string;
+    blogGeneration?: string;
+  };
   lastUpdated: number;
   updatedBy: string;
   apiKeys?: Record<string, string>;
