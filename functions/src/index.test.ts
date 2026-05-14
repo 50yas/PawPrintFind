@@ -3,18 +3,36 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+const mockCollectionInner = {
+    doc: vi.fn(),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
+    add: vi.fn().mockResolvedValue({ id: 'mock-id' }),
+};
+
+const mockDocInner = {
+    set: mockSet,
+    get: mockGet,
+    collection: vi.fn(() => mockCollectionInner),
+    delete: vi.fn().mockResolvedValue({}),
+    update: vi.fn().mockResolvedValue({}),
+};
+
+mockCollectionInner.doc.mockReturnValue(mockDocInner);
+
+const mockFirestore = {
+    collection: vi.fn(() => mockCollectionInner),
+    doc: vi.fn(() => mockDocInner),
+};
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
   return {
     initializeApp: vi.fn(),
-    firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
-    })), {
+    firestore: Object.assign(vi.fn(() => mockFirestore), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -30,6 +48,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -38,11 +57,21 @@ vi.mock('firebase-functions/v2/https', () => {
     };
 });
 
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => name === 'GEMINI_API_KEY' ? 'test-api-key' : 'test-secret-value'
+        }))
+    };
+});
+
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
     return {
         https: {
             onCall: vi.fn((fn) => fn),
+            onRequest: vi.fn(),
             HttpsError: class HttpsError extends Error {
                 constructor(public code: string, message: string) {
                     super(message);
@@ -98,7 +127,7 @@ describe('trackUsage', () => {
 
   it('should increment usage counters', async () => {
     await trackUsage('user1', 'test');
-    expect(mockCollection).toHaveBeenCalledWith('users');
+    expect(mockFirestore.collection).toHaveBeenCalledWith('users');
   });
 });
 
@@ -117,7 +146,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await visionIdentification(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockFirestore.collection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ visionIdentification: expect.anything() }),
             { merge: true }
@@ -135,8 +164,11 @@ describe('AI Cloud Functions', () => {
         const result = await smartSearch(request);
         
         expect(result).toEqual({ success: true, message: "pong" });
-        // Should NOT track usage for a ping
-        expect(mockCollection).not.toHaveBeenCalledWith('usageStats');
+        // Should NOT track usage for a ping (at least not in users collection)
+        const usageStatsCalled = mockFirestore.collection.mock.calls.some(call => call[0] === 'usageStats' || call[0] === 'users');
+        // Actually, it might be called for system_config. Let's just check 'users'
+        const usersCalled = mockFirestore.collection.mock.calls.some(call => call[0] === 'users');
+        expect(usersCalled).toBe(false);
     });
 
     it('smartSearch should be defined and track usage', async () => {
@@ -149,7 +181,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await smartSearch(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockFirestore.collection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ smartSearch: expect.anything() }),
             { merge: true }
@@ -166,7 +198,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await healthAssessment(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockFirestore.collection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ healthAssessment: expect.anything() }),
             { merge: true }
@@ -176,14 +208,17 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockFirestore.collection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ blogGeneration: expect.anything() }),
             { merge: true }
