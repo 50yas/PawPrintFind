@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+functions/lib
 *.local
 
 # Environment — never commit real API keys

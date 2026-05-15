@@ -162,6 +162,11 @@ export const AdminAISettings: React.FC = () => {
     const activeKey = secrets[settings.provider];
     const modelCount = Object.values(settings.modelMapping).filter(Boolean).length;
 
+    const shortenModelId = (id: string) => {
+        if (!id) return '';
+        return id.includes('/') ? id.split('/').slice(1).join('/') : id;
+    };
+
     return (
         <div className="space-y-8 animate-fade-in max-w-5xl mx-auto pb-28">
             {/* Header */}
@@ -186,10 +191,11 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
                     { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'READY' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-green' : '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -203,10 +209,21 @@ export const AdminAISettings: React.FC = () => {
 
             {/* Provider Selection */}
             <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="status-pulse-green"></span>
-                    {t('dashboard:admin.activeProvider')}
-                </h3>
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="status-pulse-green"></span>
+                        {t('dashboard:admin.activeProvider')}
+                    </h3>
+                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fallback to Gemini</label>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                        >
+                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
@@ -366,8 +383,8 @@ export const AdminAISettings: React.FC = () => {
                                         </div>
                                     </div>
                                     {settings.modelMapping[task.id] && (
-                                        <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[120px] truncate hidden sm:block">
-                                            {settings.modelMapping[task.id]}
+                                        <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[150px] truncate hidden sm:block" title={settings.modelMapping[task.id]}>
+                                            {shortenModelId(settings.modelMapping[task.id])}
                                         </span>
                                     )}
                                 </div>
