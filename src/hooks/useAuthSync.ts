@@ -51,8 +51,10 @@ export const useAuthSync = (
                     hadUserRef.current = true;
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-                    // Redirect to dashboard if: fresh login OR currently on home page
-                    if (wasLoggedOut || currentView === 'home') {
+                    // Redirect to dashboard ONLY if currently on home page
+                    // SKIP redirect if currently in admin browsing mode or deep-linking
+                    const isDeepLinking = window.location.pathname.startsWith('/pet/') || window.location.pathname === '/donors';
+                    if (currentView === 'home' && !isDeepLinking) {
                         const dashView = getDashboardView(profile.activeRole);
                         setCurrentView(dashView);
                     }

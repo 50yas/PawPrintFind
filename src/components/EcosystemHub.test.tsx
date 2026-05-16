@@ -1,14 +1,26 @@
-
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
-// Mock dependencies
+// Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+        const translations: Record<string, string> = {
+            'ecosystemHub.sections.intelligence': 'Core Intelligence',
+            'ecosystemHub.sections.safety': 'Safety Grid',
+            'ecosystemHub.sections.external': 'External Intel',
+            'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+            'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+            'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+            'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+            'ecosystemHub.backToBase': '← Back to Base',
+            'ecosystemHub.title': 'Ecosystem Hub'
+        };
+        return translations[key] || key;
+    },
   }),
 }));
 
@@ -35,7 +47,7 @@ describe('EcosystemHub', () => {
         const onNavigate = vi.fn();
         render(<EcosystemHub onNavigate={onNavigate} />);
         
-        const smartSearchNode = screen.getByText('Smart Search').closest('div[role="button"]') || screen.getByText('Smart Search').parentElement;
+        const smartSearchNode = screen.getByText('Smart Search').closest('div[role="button"]');
         if (smartSearchNode) fireEvent.click(smartSearchNode);
         
         expect(onNavigate).toHaveBeenCalledWith('adoptionCenter');
