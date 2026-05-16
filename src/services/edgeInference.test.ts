@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { identifyBreedFromImage } from './geminiService';
+import { identifyBreedFromImage } from './aiService';
 import * as localInference from './localInferenceService';
 
 // Mock configService

@@ -3,10 +3,12 @@ runtime: nodejs22
 instance_class: F1
 
 automatic_scaling:
-  max_instances: 5
+  max_instances: 10
+  min_instances: 0
+  target_cpu_utilization: 0.65
 
 handlers:
-  # Static assets with caching
+  # Static assets with aggressive caching
   - url: /assets
     static_dir: dist/assets
     expiration: "30d"
@@ -27,7 +29,8 @@ handlers:
     static_files: dist/manifest.webmanifest
     upload: dist/manifest.webmanifest
 
-  # Catch-all for SPA routing
+  # catch-all for SPA routing
   - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
+    secure: always

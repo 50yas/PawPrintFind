@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { VetClinic } from '../types';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { findNearbyVets, findVetsByQuery } from '../services/geminiService';
+import { findNearbyVets, findVetsByQuery } from '../services/aiService';
 import { useTranslations } from '../hooks/useTranslations';
 import { LoadingSpinner } from './LoadingSpinner';
 import { GlassCard } from './ui/GlassCard';

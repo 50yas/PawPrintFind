@@ -15,7 +15,7 @@ vi.mock('../hooks/useTranslations', () => ({
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({ addSnackbar: vi.fn() }),
 }));
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/aiService', () => ({
   performAIHealthCheck: vi.fn().mockResolvedValue('Analysis result'),
 }));
 vi.mock('./Modal', () => ({
@@ -39,7 +39,7 @@ describe('AIHealthCheckModal', () => {
   });
 
   it('submits symptoms and shows analysis', async () => {
-    const { performAIHealthCheck } = await import('../services/geminiService');
+    const { performAIHealthCheck } = await import('../services/aiService');
     render(<AIHealthCheckModal pet={mockPet} onClose={mockOnClose} onComplete={mockOnComplete} onBookAppointment={mockOnBookAppointment} />);
     
     fireEvent.change(screen.getByPlaceholderText('symptomsPlaceholder'), { target: { value: 'coughing' } });

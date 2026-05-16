@@ -43,7 +43,9 @@ export const getAutoFillPetDetailsPrompt = (locale: string = 'en'): string => {
       "gender": "string ('Male', 'Female', 'Unknown')"
     }
     
-    **Notes:**
+    **Constraints:**
+    - Respond ONLY with a valid JSON object.
+    - DO NOT include any preamble, markdown code blocks, or explanations.
     - If specific details (like exact age) are hard to determine, provide a best estimate based on visual cues (e.g., grey muzzle = Senior).
     - If unsure, provide the most likely option.
     `;
@@ -81,9 +83,10 @@ export const getSearchParsingPrompt = (query: string): string => {
     - tags: (an array of strings representing personality or situation, e.g., ["friendly", "good for apartments", "house trained"])
 
     **Rules:**
+    - Respond ONLY with valid JSON.
+    - DO NOT include markdown formatting or "json" labels.
     - If a parameter is not mentioned, return null for that field.
     - Be intelligent with 'tags'. If the user says "good for kids", add "kid-friendly" to tags.
-    - Return the result in JSON format ONLY.
     `;
 };
 
