@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { VetClinic, Geolocation } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { findClinicOnGoogleMaps } from '../services/geminiService';
+import { findClinicOnGoogleMaps } from '../services/aiService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface MyClinicProps {

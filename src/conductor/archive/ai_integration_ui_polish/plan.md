@@ -8,7 +8,7 @@
 
 ## Phase 2: Smart Search
 - [x] Task: Backend Logic [abc7525]
-    - [x] Sub-task: Create `geminiService.parseSearchQuery(query: string)`.
+    - [x] Sub-task: Create `aiService.parseSearchQuery(query: string)`.
     - [x] Sub-task: Define the JSON schema for the AI response (filters object).
 - [x] Task: Frontend Integration [6bd81a2]
     - [x] Sub-task: Create a `SmartSearchBar` component.
@@ -16,7 +16,7 @@
 
 ## Phase 3: Proactive Health Alerts
 - [x] Task: AI Analysis Integration [1f9cf4c]
-    - [x] Sub-task: Create `geminiService.generateHealthInsights(petData: Pet)`.
+    - [x] Sub-task: Create `aiService.generateHealthInsights(petData: Pet)`.
     - [x] Sub-task: Add an `aiInsights` array field to the `Pet` Firestore model.
 - [x] Task: UI Display [72022be]
     - [x] Sub-task: Create an `AIInsightCard` component on the `PatientDetail` or `MyClinic` page.

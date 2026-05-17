@@ -14,7 +14,7 @@
     - [ ] Sub-task: Create `BlogPostEditor` component with a rich text editor.
     - [ ] Sub-task: Add form fields for Title, Tags, and Cover Image.
 - [x] Task: Auto-Translation Integration [c9c9a88]
-    - [ ] Sub-task: Update `geminiService.ts` with `translateContent(text: string, targetLangs: string[])`.
+    - [ ] Sub-task: Update `aiService.ts` with `translateContent(text: string, targetLangs: string[])`.
     - [ ] Sub-task: Implement the "Save & Translate" flow in `contentService.createBlogPost()`.
     - [ ] Sub-task: Update `BlogPost` type definition to support localized content.
 - [x] Task: Public Blog Update [25f412c]

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { PetProfile, AIInsight } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { draftVetMessageToOwner, generateHealthInsights } from '../services/geminiService';
+import { draftVetMessageToOwner, generateHealthInsights } from '../services/aiService';
 import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 import { CinematicImage } from './ui/CinematicImage';

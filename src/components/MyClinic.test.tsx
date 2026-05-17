@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MyClinic } from './MyClinic';
-import { findClinicOnGoogleMaps } from '../services/geminiService';
+import { findClinicOnGoogleMaps } from '../services/aiService';
 import React from 'react';
 
 // Mock translations
@@ -13,8 +13,8 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
-// Mock geminiService
-vi.mock('../services/geminiService', () => ({
+// Mock aiService
+vi.mock('../services/aiService', () => ({
   findClinicOnGoogleMaps: vi.fn(),
 }));
 

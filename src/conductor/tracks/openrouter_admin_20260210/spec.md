@@ -24,7 +24,7 @@ Implement OpenRouter as an alternative AI provider to Google Gemini. Refactor th
     - A manual text override for custom/new model IDs.
 
 ### 2. AI Bridge Architecture
-- Refactor `services/geminiService.ts` into a unified `services/aiService.ts`.
+- Refactor `services/aiService.ts` into a unified `services/aiService.ts`.
 - The new service must detect the active provider from Firestore configuration.
 - Standardize the input/output formats so features work seamlessly regardless of the provider.
 

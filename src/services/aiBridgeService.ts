@@ -1,6 +1,6 @@
 import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
 import { adminService } from './adminService';
-import * as aiService from './geminiService';
+import * as aiService from './aiService';
 
 let cachedSettings: AISettings | null = null;
 let isInitializing = false;
