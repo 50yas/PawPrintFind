@@ -39,7 +39,7 @@ vi.mock('./firebase', () => ({
   db: {}
 }));
 
-import { identifyBreedFromImage, autoFillPetDetails, generatePetIdentikit } from './geminiService';
+import { identifyBreedFromImage, autoFillPetDetails, generatePetIdentikit } from './aiService';
 
 describe('Vision Model Upgrade', () => {
   beforeEach(() => {

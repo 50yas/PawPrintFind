@@ -19,7 +19,7 @@ vi.mock('../contexts/SnackbarContext', () => ({
   }),
 }));
 
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/aiService', () => ({
   draftVetMessageToOwner: vi.fn(),
   generateHealthInsights: vi.fn().mockResolvedValue([
     { id: '1', title: 'Test Insight', content: 'Test Content', type: 'health', timestamp: Date.now() }

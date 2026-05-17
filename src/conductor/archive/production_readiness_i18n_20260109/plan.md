@@ -48,7 +48,7 @@ Goal: Detect hardcoded strings and fill translation gaps using Gemini AI.
     - [x] Sub-task: Scan all components for hardcoded UI strings.
     - [x] Sub-task: Move all strings to `en` locale files and replace with `t('key')` calls.
 - [x] Task: AI-Powered Translation Gap Filling
-    - [x] Sub-task: Use Gemini (via `geminiService.ts`) to identify missing keys in other locales (es, fr, de, zh, ar, it).
+    - [x] Sub-task: Use Gemini (via `aiService.ts`) to identify missing keys in other locales (es, fr, de, zh, ar, it).
     - [x] Sub-task: Generate contextually accurate, gender-neutral, and plural-aware translations for all missing keys.
 - [x] Task: Verify RTL Support
     - [x] Sub-task: Perform a UI audit for the `ar` (Arabic) locale to ensure correct layout and alignment.

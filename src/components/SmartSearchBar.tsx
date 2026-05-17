@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
-import { parseSearchQuery } from '../services/geminiService';
+import { parseSearchQuery } from '../services/aiService';
 import { analyticsService } from '../services/analyticsService';
 import { LoadingSpinner } from './LoadingSpinner';
 

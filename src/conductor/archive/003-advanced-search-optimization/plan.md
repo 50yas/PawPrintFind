@@ -5,7 +5,7 @@
 ### Core Logic
 - [x] **OptunaOptimizer Service:** Create `services/optimizationService.ts`. Implement the TPE-like logic for parameter sampling and trial management.
 - [x] **Firestore Schema:** Define the `optimization_trials` and `search_config` collections in `types.ts` and `services/firebase.ts`.
-- [x] **Search Service Integration:** Refactor `geminiService.ts` or `searchService.ts` to fetch and apply the dynamic weights from `search_config` before executing a query.
+- [x] **Search Service Integration:** Refactor `aiService.ts` or `searchService.ts` to fetch and apply the dynamic weights from `search_config` before executing a query.
 
 ### Feedback Loop
 - [x] **Event Tracking:** Create a `recordSearchInteraction` function to log successful user actions (clicks/conversions) associated with the specific search parameters used.

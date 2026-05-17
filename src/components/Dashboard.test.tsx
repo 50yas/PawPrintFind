@@ -20,8 +20,8 @@ vi.mock('../services/searchService', () => ({
     },
 }));
 
-// Mock geminiService
-vi.mock('../services/geminiService', () => ({
+// Mock aiService
+vi.mock('../services/aiService', () => ({
   calculateProfileCompleteness: vi.fn().mockReturnValue(80),
 }));
 

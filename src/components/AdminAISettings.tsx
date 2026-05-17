@@ -171,9 +171,17 @@ export const AdminAISettings: React.FC = () => {
                         <span className="text-3xl">🧠</span>
                         <span>{t('dashboard:admin.aiControlCenter')}</span>
                     </h2>
-                    <p className="text-xs text-slate-500 mt-1 font-mono uppercase tracking-wider">
-                        {t('dashboard:admin.providerStatus')}: <span className={activeKey ? 'text-green-400' : 'text-red-400'}>{activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.connectionInactive')}</span>
-                    </p>
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
+                        <p className="text-xs text-slate-500 font-mono uppercase tracking-wider">
+                            {t('dashboard:admin.providerStatus')}: <span className={activeKey ? 'text-green-400' : 'text-red-400'}>{activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.connectionInactive')}</span>
+                        </p>
+                        {settings.fallbackToGemini && (
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                                <span className="text-[8px] font-black text-cyan-400 uppercase tracking-widest">FALLBACK READY</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {!isSystemInit && (
                     <button
@@ -203,10 +211,26 @@ export const AdminAISettings: React.FC = () => {
 
             {/* Provider Selection */}
             <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="status-pulse-green"></span>
-                    {t('dashboard:admin.activeProvider')}
-                </h3>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="status-pulse-green"></span>
+                        {t('dashboard:admin.activeProvider')}
+                    </h3>
+
+                    {/* Fallback Toggle */}
+                    <div className="flex items-center gap-3 p-2 px-4 rounded-xl bg-white/5 border border-white/10 group hover:border-cyan-500/30 transition-all">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-white uppercase tracking-wider">Fallback to Gemini</span>
+                            <span className="text-[7px] text-slate-500 font-mono uppercase">Auto-retry on failure</span>
+                        </div>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-300 ${settings.fallbackToGemini ? 'bg-cyan-500' : 'bg-slate-700'}`}
+                        >
+                            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform duration-300 ${settings.fallbackToGemini ? 'translate-x-[22px]' : 'translate-x-1'}`} />
+                        </button>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
@@ -367,7 +391,7 @@ export const AdminAISettings: React.FC = () => {
                                     </div>
                                     {settings.modelMapping[task.id] && (
                                         <span className="text-[8px] font-mono bg-white/5 text-slate-400 px-2 py-1 rounded-lg border border-white/5 max-w-[120px] truncate hidden sm:block">
-                                            {settings.modelMapping[task.id]}
+                                            {settings.modelMapping[task.id].includes('/') ? settings.modelMapping[task.id].split('/').pop() : settings.modelMapping[task.id]}
                                         </span>
                                     )}
                                 </div>

@@ -24,7 +24,7 @@ import { GlassCard, GlassButton } from '../ui';
 import { LoadingSpinner } from '../LoadingSpinner';
 import { format } from 'date-fns';
 
-// Lazy-load the BlogPostEditor so its heavy deps (geminiService etc.) are code-split
+// Lazy-load the BlogPostEditor so its heavy deps (aiService etc.) are code-split
 const BlogPostEditor = React.lazy(() =>
     import('../BlogPostEditor').then(m => ({ default: m.BlogPostEditor }))
 );
