@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -31,14 +30,26 @@ vi.mock('../contexts/ThemeContext', () => ({
 const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
-  on: vi.fn(),
+  on: vi.fn().mockReturnThis(),
+  off: vi.fn().mockReturnThis(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(13),
+  getBounds: vi.fn().mockReturnValue({
+    getWest: () => 9,
+    getSouth: () => 9,
+    getEast: () => 11,
+    getNorth: () => 11,
+    getNorthWest: () => ({ lng: 9, lat: 11 }),
+    getSouthEast: () => ({ lng: 11, lat: 9 })
+  }),
 };
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn().mockReturnThis(),
+  off: vi.fn().mockReturnThis(),
 };
 
 const mockGroup = {
@@ -74,13 +85,9 @@ describe('MissingPetsMap', () => {
       />
     );
     
-    // Check if container is rendered
-    // The component returns a GlassCard which we assume renders a div
-    // We can look for the HUD controls which are hardcoded text
     expect(screen.getByText('mapStreet')).toBeInTheDocument();
     expect(screen.getByText('mapSatellite')).toBeInTheDocument();
 
-    // Verify map initialization
     expect(global.L.map).toHaveBeenCalled();
     expect(global.L.tileLayer).toHaveBeenCalled();
   });
@@ -93,11 +100,11 @@ const mockPets: PetProfile[] = [
         breed: 'Golden Retriever',
         age: '2y',
         photos: [{ id: '1', url: 'img.jpg', marks: [], description: 'buddy' }],
-        status: 'stray',
+        status: 'stray' as const,
         isLost: true,
         ownerEmail: 'test@test.com',
         guardianEmails: [],
-        vetLinkStatus: 'unlinked',
+        vetLinkStatus: 'unlinked' as const,
         weight: '20kg',
         behavior: 'Friendly',
         homeLocations: [],

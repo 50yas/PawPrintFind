@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { openRouterService } from './openRouterService';
+import { aiService } from './aiService';
 import { httpsCallable } from 'firebase/functions';
 
 // Mock Firebase Functions
@@ -12,7 +12,7 @@ vi.mock('./firebase', () => ({
   functions: {},
 }));
 
-describe('openRouterService', () => {
+describe('aiService', () => {
   const mockCallFunction = vi.fn();
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('openRouterService', () => {
     
     vi.spyOn(window, 'FileReader').mockImplementation(MockFileReader as any);
 
-    const result = await openRouterService.analyzeImageForDescription(file);
+    const result = await aiService.analyzeImageForDescription(file);
 
     expect(result).toBe('A cute dog');
     expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callOpenRouter');
@@ -70,7 +70,7 @@ describe('openRouterService', () => {
     });
 
     const session: any = { messages: [], ownerEmail: 'owner@example.com' };
-    const result = await openRouterService.generateChatSuggestions(session, 'owner@example.com');
+    const result = await aiService.generateChatSuggestions(session, 'owner@example.com');
 
     expect(result).toEqual(['Hello', 'Hi']);
     expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
@@ -83,7 +83,7 @@ describe('openRouterService', () => {
       data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] } 
     });
 
-    const result = await openRouterService.fetchAvailableModels();
+    const result = await aiService.fetchAvailableModels();
 
     expect(result).toEqual([{ id: 'gpt-4', name: 'GPT-4' }]);
     expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'fetchOpenRouterModels');
@@ -92,7 +92,7 @@ describe('openRouterService', () => {
   it('should handle errors gracefully', async () => {
     mockCallFunction.mockRejectedValue(new Error('API Error'));
 
-    const result = await openRouterService.performAIHealthCheck({} as any, 'cough');
+    const result = await aiService.performAIHealthCheck({} as any, 'cough');
 
     expect(result).toBe('Health analysis failed.');
   });

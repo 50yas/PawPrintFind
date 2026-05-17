@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -15,9 +14,14 @@ vi.mock('../hooks/useTranslations', () => ({
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({ addSnackbar: vi.fn() }),
 }));
-vi.mock('../services/geminiService', () => ({
-  performAIHealthCheck: vi.fn().mockResolvedValue('Analysis result'),
+
+// Use a proper mock for aiService object
+vi.mock('../services/aiService', () => ({
+  aiService: {
+    performAIHealthCheck: vi.fn().mockResolvedValue('Analysis result')
+  }
 }));
+
 vi.mock('./Modal', () => ({
   Modal: ({ children, isOpen }: any) => isOpen ? <div data-testid="modal">{children}</div> : null,
 }));
@@ -39,14 +43,14 @@ describe('AIHealthCheckModal', () => {
   });
 
   it('submits symptoms and shows analysis', async () => {
-    const { performAIHealthCheck } = await import('../services/geminiService');
+    const { aiService } = await import('../services/aiService');
     render(<AIHealthCheckModal pet={mockPet} onClose={mockOnClose} onComplete={mockOnComplete} onBookAppointment={mockOnBookAppointment} />);
     
     fireEvent.change(screen.getByPlaceholderText('symptomsPlaceholder'), { target: { value: 'coughing' } });
     fireEvent.click(screen.getByText('analyzeSymptomsButton'));
 
     await waitFor(() => {
-      expect(performAIHealthCheck).toHaveBeenCalledWith(mockPet, 'coughing', 'en');
+      expect(aiService.performAIHealthCheck).toHaveBeenCalledWith(mockPet, 'coughing', 'en');
       expect(screen.getByText('Analysis result')).toBeInTheDocument();
     });
 

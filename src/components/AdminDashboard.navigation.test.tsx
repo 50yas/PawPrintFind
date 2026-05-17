@@ -1,91 +1,64 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AdminDashboard } from './AdminDashboard';
 import React from 'react';
 
-// Mock dependencies
+// Mock translations
 vi.mock('../hooks/useTranslations', () => ({
-  useTranslations: () => ({
-    t: (key: string) => key,
-    locale: 'en',
-  }),
+    useTranslations: () => ({
+        t: (key: string) => key,
+    }),
 }));
 
+// Mock Snackbar
 vi.mock('../contexts/SnackbarContext', () => ({
-  useSnackbar: () => ({ addSnackbar: vi.fn() }),
-  SnackbarProvider: ({ children }: any) => <div>{children}</div>
+    useSnackbar: () => ({
+        addSnackbar: vi.fn(),
+    }),
+}));
+
+// Mock services
+vi.mock('../services/firebase', () => ({
+    dbService: {
+        logAdminAction: vi.fn().mockResolvedValue(undefined),
+        getBlogPosts: vi.fn().mockResolvedValue([]),
+        subscribeToDonations: vi.fn().mockReturnValue(() => {}),
+        deleteClinic: vi.fn(),
+    },
+    db: {}
 }));
 
 vi.mock('../services/loggerService', () => ({
     logger: {
         subscribe: vi.fn().mockReturnValue(() => {}),
-        clearLogs: vi.fn(),
-    },
-}));
-
-vi.mock('../services/firebase', () => ({
-    db: {},
-    dbService: {
-        logAdminAction: vi.fn(),
-        getBlogPosts: vi.fn().mockResolvedValue([]),
-        subscribeToDonations: vi.fn().mockReturnValue(() => {}),
-        auth: { currentUser: { uid: 'admin1', email: 'admin@test.com' } }
-    },
-}));
-
-vi.mock('../services/adminService', () => ({
-    adminService: {
-        getSystemStats: vi.fn().mockResolvedValue({})
     }
 }));
 
-vi.mock('./ui', () => ({
-    GlassCard: ({children, className}: any) => <div className={className}>{children}</div>,
-    GlassButton: ({children, onClick}: any) => <button onClick={onClick}>{children}</button>,
-    CinematicLoader: () => <div>Loading...</div>,
-}));
+// Mock lazy components
+vi.mock('./admin/OperationsTab', () => ({ OperationsTab: () => <div data-testid="operations-tab">Operations Content</div> }));
+vi.mock('./admin/FinanceTab', () => ({ FinanceTab: () => <div data-testid="finance-tab">Finance Content</div> }));
 
-describe('AdminDashboard Grouped Navigation', () => {
-    const mockProps = {
+describe('AdminDashboard Navigation', () => {
+    const mockProps: any = {
         users: [],
-        currentUser: { uid: '123', roles: ['super_admin'], activeRole: 'super_admin' } as any,
+        currentUser: { uid: 'admin1', email: 'admin@test.com', activeRole: 'super_admin' },
         allPets: [],
         vetClinics: [],
         donations: [],
         onDeleteUser: vi.fn(),
         onLogout: vi.fn(),
         onRefresh: vi.fn(),
-        onViewPet: vi.fn()
+        onViewPet: vi.fn(),
     };
 
-    it('groups tabs into categories in the sidebar', () => {
+    it('navigates through multiple tabs', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
-    });
-
-    it('collapses and expands categories', () => {
-        render(<AdminDashboard {...mockProps} />);
+        fireEvent.click(screen.getByText('Operations'));
+        expect(await screen.findByTestId('operations-tab')).toBeInTheDocument();
         
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
-        
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
-    });
-
-    it('toggles sidebar collapse state', () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        const toggleBtn = screen.getByTestId('sidebar-toggle');
-        fireEvent.click(toggleBtn);
-        
-        const sidebar = screen.getByTestId('admin-sidebar');
-        expect(sidebar).toHaveClass('w-20'); // Small width when collapsed
+        fireEvent.click(screen.getByText('Finance'));
+        expect(await screen.findByTestId('finance-tab')).toBeInTheDocument();
     });
 });

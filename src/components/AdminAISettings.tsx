@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { adminService } from '../services/adminService';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { openRouterService } from '../services/openRouterService';
+import { aiService } from '../services/aiService';
 import { AISettings, AIProvider, AIModelTask } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -139,7 +139,7 @@ export const AdminAISettings: React.FC = () => {
     const handleRefreshModels = async () => {
         setFetchingModels(true);
         try {
-            const models = await openRouterService.fetchAvailableModels();
+            const models = await aiService.fetchAvailableModels();
             setAvailableModels(models);
             addSnackbar(`Fetched ${models.length} models`, 'info');
         } catch (e: any) {
@@ -186,9 +186,10 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
+                    { label: 'FALLBACK STATUS', value: 'READY', icon: '🛡️', glow: 'neon-glow-green' },
                     { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
@@ -394,10 +395,10 @@ export const AdminAISettings: React.FC = () => {
                                             <>
                                                 {/* Recommended free models */}
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (Reasoning)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="google/gemini-2.0-flash:free">gemini-2.0-flash (Speed/Vision)</option>
+                                                <option value="mistralai/pixtral-12b:free">pixtral-12b (Multi-modal)</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}

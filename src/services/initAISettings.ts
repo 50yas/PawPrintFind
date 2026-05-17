@@ -15,21 +15,20 @@ export const initializeAISettings = async () => {
           openrouter: ''
         },
         modelMapping: {
-          vision: 'gemini-2.0-flash-exp',
-          triage: 'gemini-2.0-flash-exp',
-          chat: 'gemini-2.0-flash-exp',
-          matching: 'gemini-2.0-flash-exp'
+          vision: 'gemini-2.0-flash',
+          triage: 'gemini-2.0-flash',
+          chat: 'gemini-2.0-flash',
+          matching: 'gemini-2.0-flash'
         },
         lastUpdated: Date.now(),
         updatedBy: 'system_init@pawprint.ai'
       };
 
       // Validate against schema just in case
-      // This throws if invalid
       AISettingsSchema.parse(defaultSettings);
 
-      await setDoc(settingsRef, defaultSettings);
-      console.log('Initialized default AI settings.');
+      await setDoc(settingsRef, defaultSettings, { merge: true });
+      console.log('Initialized default AI settings (Gemini 2.0 Flash).');
     } else {
       console.log('AI settings already exist.');
     }

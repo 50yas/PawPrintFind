@@ -53,9 +53,9 @@ vi.mock('./firebase', () => ({
   db: {}
 }));
 
-import * as geminiService from './geminiService';
+import * as aiService from './aiService';
 
-describe('geminiService', () => {
+describe('aiService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -68,27 +68,27 @@ describe('geminiService', () => {
       medicalRecord: { vaccinations: ['Rabies'] }
     };
 
-    const score = geminiService.calculateProfileCompleteness(mockPet);
+    const score = aiService.calculateProfileCompleteness(mockPet);
     expect(score).toBe(40);
   });
 
   it('generatePetIdentikit parses JSON correctly', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
-    const result = await geminiService.generatePetIdentikit(mockFile);
+    const result = await aiService.generatePetIdentikit(mockFile);
     
     expect(result.code).toBe('TEST-123');
     expect(result.description).toBe('A test pet');
   });
 
   it('findNearbyVets returns grounded places', async () => {
-    const result = await geminiService.findNearbyVets({ latitude: 10, longitude: 10 });
+    const result = await aiService.findNearbyVets({ latitude: 10, longitude: 10 });
     expect(result.places).toHaveLength(1);
     expect(result.places[0].maps.title).toBe('Test Vet');
   });
 
     it('translateContent returns translations for multiple languages', async () => {
 
-      const result = await (geminiService as any).translateContent('Hello World', ['es', 'fr']);
+      const result = await (aiService as any).translateContent('Hello World', ['es', 'fr']);
 
       expect(result).toBeDefined();
 
@@ -100,7 +100,7 @@ describe('geminiService', () => {
 
       // This will initially fail as parseSearchQuery is not yet defined
 
-          const result = await (geminiService as any).parseSearchQuery('Show me friendly dogs good for apartments');
+          const result = await (aiService as any).parseSearchQuery('Show me friendly dogs good for apartments');
 
           expect(result).toBeDefined();
 
@@ -116,7 +116,7 @@ describe('geminiService', () => {
 
           const mockPet: any = { name: 'Buddy', breed: 'Retriever', age: '5' };
 
-          const result = await geminiService.generateHealthInsights(mockPet);
+          const result = await aiService.generateHealthInsights(mockPet);
 
           expect(result).toHaveLength(1);
 

@@ -1,15 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
-import * as aiService from './geminiService';
+import { aiService } from './aiService';
 import { adminService } from './adminService';
 
-vi.mock('./geminiService', () => ({
-    analyzeImageForDescription: vi.fn().mockResolvedValue('AI Desc'),
-    performAIHealthCheck: vi.fn().mockResolvedValue('Health Report'),
-    generateChatSuggestions: vi.fn().mockResolvedValue(['Hey']),
-    comparePets: vi.fn().mockResolvedValue({ score: 100 }),
-    generateMatchExplanation: vi.fn().mockResolvedValue('Match'),
-    chat: vi.fn().mockResolvedValue('Reply')
+vi.mock('./aiService', () => ({
+    aiService: {
+        analyzeImageForDescription: vi.fn().mockResolvedValue('AI Desc'),
+        performAIHealthCheck: vi.fn().mockResolvedValue('Health Report'),
+        generateChatSuggestions: vi.fn().mockResolvedValue(['Hey']),
+        comparePets: vi.fn().mockResolvedValue({ score: 100 }),
+        generateMatchExplanation: vi.fn().mockResolvedValue('Match'),
+        chat: vi.fn().mockResolvedValue('Reply')
+    }
 }));
 
 vi.mock('./adminService', () => ({
@@ -25,7 +27,7 @@ describe('aiBridgeService', () => {
         (aiBridgeService as any).cachedSettings = null;
     });
 
-    it('should route all requests through unified aiService (via Cloud Functions)', async () => {
+    it('should route all requests through unified aiService', async () => {
         vi.mocked(adminService.getAISettings).mockResolvedValue({
             provider: 'openrouter',
             modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
@@ -39,7 +41,7 @@ describe('aiBridgeService', () => {
         expect(aiService.analyzeImageForDescription).toHaveBeenCalled();
     });
 
-    it('should default to Gemini if settings fail', async () => {
+    it('should handle settings failures gracefully', async () => {
         vi.mocked(adminService.getAISettings).mockRejectedValue(new Error('Fail'));
 
         const result = await aiBridgeService.analyzeImageForDescription(new File([], 'pet.jpg'));
