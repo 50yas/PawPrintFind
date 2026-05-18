@@ -13,25 +13,33 @@ import { aiBridgeService } from './aiBridgeService';
 const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
     const fn = httpsCallable(functions, 'visionIdentification');
     const result = await fn({ image, task, locale });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text?: string, error?: string };
+    if (!data.success) throw new Error(data.error || 'Vision AI failed');
+    return data as { success: true, text: string };
 };
 
 const callSmartSearchAI = async (query: string) => {
     const fn = httpsCallable(functions, 'smartSearch');
     const result = await fn({ query });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text?: string, error?: string };
+    if (!data.success) throw new Error(data.error || 'Smart Search failed');
+    return data as { success: true, text: string };
 };
 
 const callHealthAssessmentAI = async (pet: PetProfile, symptoms: string, locale: string = 'en') => {
     const fn = httpsCallable(functions, 'healthAssessment');
     const result = await fn({ pet, symptoms, locale });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text?: string, error?: string };
+    if (!data.success) throw new Error(data.error || 'Health Assessment failed');
+    return data as { success: true, text: string };
 };
 
 const callBlogGenerationAI = async (topic: string) => {
     const fn = httpsCallable(functions, 'blogGeneration');
     const result = await fn({ topic });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text?: string, error?: string };
+    if (!data.success) throw new Error(data.error || 'Blog Generation failed');
+    return data as { success: true, text: string };
 };
 
 
@@ -175,7 +183,8 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
             }
         });
 
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Comparison failed');
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
@@ -190,7 +199,8 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
             task: 'vision',
             contents: { parts: [videoPart, { text: prompt }] }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Video analysis failed');
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -206,7 +216,8 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
             task: 'chat',
             contents: { parts: [audioPart, { text: prompt }] }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Audio transcription failed');
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -223,7 +234,8 @@ export const findNearbyVets = async (location: Geolocation): Promise<{ text: str
                 toolConfig: { retrievalConfig: { latLng: { latitude: location.latitude, longitude: location.longitude } } }
             }
         });
-        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const data = response.data as { success: boolean, text?: string, error?: string, groundingMetadata?: any };
+        if (!data.success) throw new Error(data.error || 'Find vets failed');
         const groundingChunks = data.groundingMetadata?.groundingChunks || [];
         return { text: data.text || "", places: groundingChunks };
     });
@@ -237,7 +249,8 @@ export const findVetsByQuery = async (query: string): Promise<{ text: string, pl
             contents: Prompts.getVetsByQueryPrompt(query),
             config: { tools: [{ googleMaps: {} }] }
         });
-        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const data = response.data as { success: boolean, text?: string, error?: string, groundingMetadata?: any };
+        if (!data.success) throw new Error(data.error || 'Find vets by query failed');
         const groundingChunks = data.groundingMetadata?.groundingChunks || [];
         return { text: data.text || "", places: groundingChunks };
     });
@@ -252,7 +265,8 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
             config: { tools: [{ googleMaps: {} }] }
         });
 
-        const data = response.data as { success: boolean, text: string, groundingMetadata?: any };
+        const data = response.data as { success: boolean, text?: string, error?: string, groundingMetadata?: any };
+        if (!data.success) throw new Error(data.error || 'Find clinic failed');
         const groundingChunks = data.groundingMetadata?.groundingChunks || [];
         return groundingChunks.map((chunk: any) => {
             if (!chunk.maps) return null;
@@ -280,7 +294,8 @@ export const textToSpeech = async (text: string): Promise<string> => {
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
             }
         });
-        const data = response.data as { success: boolean, mediaData?: string };
+        const data = response.data as { success: boolean, mediaData?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'TTS failed');
         const base64Audio = data.mediaData;
         if (!base64Audio) throw new Error("No audio data received.");
         return base64Audio;
@@ -296,7 +311,8 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
             contents: { parts: [{ text: userPrompt }] },
             config: { systemInstruction }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Draft message failed');
         return data.text || "";
     });
 };
@@ -310,7 +326,8 @@ export const queryVetPatientData = async (patients: PetProfile[], appointments: 
             contents: { parts: [{ text: userPrompt }] },
             config: { systemInstruction }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Query patient data failed');
         return data.text || "";
     });
 };
@@ -333,7 +350,8 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
                 }
             }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Suggestions failed');
         const parsed = JSON.parse(data.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
@@ -373,6 +391,15 @@ export const parseSearchQuery = async (query: string): Promise<any> => {
     });
 };
 
+export const fetchAvailableModels = async (): Promise<{ id: string; name: string }[]> => {
+    return retryWithBackoff(async () => {
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const result = await fn();
+        const data = result.data as { models: { id: string, name: string }[] };
+        return data.models || [];
+    });
+};
+
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
         const fn = httpsCallable(functions, 'callGemini');
@@ -382,7 +409,8 @@ export const generateImage = async (prompt: string): Promise<string> => {
             config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
         });
 
-        const data = response.data as { success: boolean, mediaData?: string };
+        const data = response.data as { success: boolean, mediaData?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Image generation failed');
         const base64Image = data.mediaData;
         if (!base64Image) throw new Error("No image data received.");
         return `data:image/png;base64,${base64Image}`;
@@ -421,7 +449,8 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
                 responseMimeType: "application/json",
             }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Translation failed');
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
@@ -448,7 +477,8 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
                 }
             }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Health insights failed');
         const insights = JSON.parse(data.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,
@@ -465,7 +495,8 @@ export const generateMatchExplanation = async (pet: PetProfile, filters: any): P
             task: 'matching',
             contents: { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Match explanation failed');
         return data.text?.trim() || "Matches your preferences.";
     });
 };
@@ -489,7 +520,8 @@ export const chat = async (
                 }))
             }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text?: string, error?: string };
+        if (!data.success) throw new Error(data.error || 'Chat failed');
         return data.text?.trim() || "";
     });
 };

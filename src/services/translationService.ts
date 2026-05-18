@@ -1,6 +1,6 @@
 
 import { dbService } from './firebase';
-import { translateContent } from './geminiService';
+import { translateContent } from './aiService';
 import { translations as allTranslations } from '../translations';
 
 export interface I18nHealth {

@@ -13,7 +13,7 @@ vi.mock('../services/firebase', () => ({
   },
 }));
 
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/aiService', () => ({
   generateBlogPost: vi.fn(),
 }));
 

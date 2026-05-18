@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { adminService } from '../services/adminService';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { openRouterService } from '../services/openRouterService';
+import * as aiService from '../services/aiService';
 import { AISettings, AIProvider, AIModelTask } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -139,7 +139,7 @@ export const AdminAISettings: React.FC = () => {
     const handleRefreshModels = async () => {
         setFetchingModels(true);
         try {
-            const models = await openRouterService.fetchAvailableModels();
+            const models = await aiService.fetchAvailableModels();
             setAvailableModels(models);
             addSnackbar(`Fetched ${models.length} models`, 'info');
         } catch (e: any) {
@@ -189,7 +189,14 @@ export const AdminAISettings: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    {
+                        label: 'FALLBACK STATUS',
+                        value: settings.fallbackToGemini
+                            ? (secrets.google ? 'READY (GEMINI)' : 'MISSING KEY')
+                            : 'DISABLED',
+                        icon: '🛡️',
+                        glow: (settings.fallbackToGemini && secrets.google) ? 'neon-glow-green' : (settings.fallbackToGemini ? 'neon-glow-red' : '')
+                    },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -230,6 +237,22 @@ export const AdminAISettings: React.FC = () => {
                                             {isActive && <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 uppercase">Active</span>}
                                         </div>
                                         <p className="text-[10px] text-slate-500 mt-1">{p.desc}</p>
+                                        {p.id === 'openrouter' && (
+                                            <div className="mt-3 p-2 rounded-lg bg-white/5 border border-white/10" onClick={(e) => e.stopPropagation()}>
+                                                <label className="flex items-center justify-between cursor-pointer group">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[9px] font-black text-white uppercase tracking-widest">Auto-Fallback</span>
+                                                        <span className="text-[8px] text-slate-500 uppercase">Use Gemini if OpenRouter fails</span>
+                                                    </div>
+                                                    <div
+                                                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                                                        className={`w-8 h-4 rounded-full p-0.5 transition-colors duration-300 ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                                                    >
+                                                        <div className={`w-3 h-3 bg-white rounded-full transition-transform duration-300 ${settings.fallbackToGemini ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-2 mt-3">
                                             <span className={`w-2 h-2 rounded-full ${hasKey ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]'}`}></span>
                                             <span className="text-[9px] font-mono text-slate-500">{hasKey ? t('dashboard:admin.keyPresent') : t('dashboard:admin.keyMissing')}</span>
@@ -394,6 +417,7 @@ export const AdminAISettings: React.FC = () => {
                                             <>
                                                 {/* Recommended free models */}
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (Reasoning/Logic)</option>
                                                 <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
                                                 <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>

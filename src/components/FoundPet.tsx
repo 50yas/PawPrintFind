@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PetProfile, MatchResult, VetClinic, Geolocation } from '../types';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { findNearbyVets, textToSpeech } from '../services/geminiService';
+import { findNearbyVets, textToSpeech } from '../services/aiService';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { LoadingSpinner } from './LoadingSpinner';
