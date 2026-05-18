@@ -28,7 +28,7 @@ This track focuses on elevating the administrative capabilities of Paw Print. We
 
 ## 3. Technical Constraints
 - **State Management:** Use `onSnapshot` for real-time updates in the dashboard.
-- **Translation:** Use `geminiService.ts` for content translation. Ensure `responseMimeType: "application/json"` is used to get structured translated objects.
+- **Translation:** Use `aiService.ts` for content translation. Ensure `responseMimeType: "application/json"` is used to get structured translated objects.
 - **Validation:** Use Zod schemas for all admin actions.
 
 ## 4. User Experience

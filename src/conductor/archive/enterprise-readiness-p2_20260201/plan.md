@@ -40,7 +40,7 @@ This plan outlines the steps to secure the Paw Print infrastructure, migrate sen
     - [x] Initialize App Check in the React app (`services/firebase.ts`).
     - [x] Enforce App Check protection on Cloud Functions and Firestore (via Console).
 - [x] Task: Frontend Service Refactor [bd6029d]
-    - [x] Refactor `services/geminiService.ts` to call the new Cloud Functions.
+    - [x] Refactor `services/aiService.ts` to call the new Cloud Functions.
     - [x] Handle rate limit errors in the UI (e.g., show a toast/notification).
 - [x] Task: Security Audit [38f49a7]
     - [x] Verify no secrets remain in the client bundle.

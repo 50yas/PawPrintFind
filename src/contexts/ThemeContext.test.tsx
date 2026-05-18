@@ -56,7 +56,8 @@ describe('ThemeContext', () => {
         
         expect(screen.getByTestId('theme')).toHaveTextContent('system');
         expect(screen.getByTestId('is-dark')).toHaveTextContent('false');
-        expect(screen.getByTestId('primary-color')).toHaveTextContent('#008080');
+        // Primary color for #008080 seed in light mode is #006a6a per index.css
+        expect(screen.getByTestId('primary-color')).toHaveTextContent('#006a6a');
     });
 
     it('allows changing theme to dark', () => {

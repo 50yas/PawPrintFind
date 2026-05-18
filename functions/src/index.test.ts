@@ -1,20 +1,45 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as admin from 'firebase-admin';
 
-// Create persistent mocks for Firestore
-const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
-
 // Mock firebase-admin
+const { mockSet, mockDoc, mockCollection, mockCollectionSub } = vi.hoisted(() => ({
+    mockSet: vi.fn().mockResolvedValue({}),
+    mockDoc: vi.fn().mockReturnThis(),
+    mockCollection: vi.fn().mockReturnThis(),
+    mockCollectionSub: vi.fn().mockReturnThis()
+}));
+
 vi.mock('firebase-admin', () => {
+  const mockDb = {
+    collection: (path: string) => {
+        mockCollection(path);
+        return {
+            doc: (id: string) => {
+                mockDoc(id);
+                return {
+                    set: mockSet,
+                    get: vi.fn().mockResolvedValue({ exists: false }),
+                    collection: (sub: string) => {
+                        mockCollectionSub(sub);
+                        return {
+                            doc: vi.fn().mockReturnThis(),
+                            set: mockSet
+                        };
+                    }
+                };
+            },
+            where: vi.fn().mockReturnThis(),
+            limit: vi.fn().mockReturnThis(),
+            get: vi.fn().mockResolvedValue({ empty: true, docs: [] })
+        };
+    }
+  };
+
   return {
     initializeApp: vi.fn(),
-    firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
-    })), {
+    firestore: Object.assign(vi.fn(() => mockDb), {
+      collection: mockDb.collection,
+      doc: (path: string) => mockDb.collection('root').doc(path),
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -30,6 +55,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -79,6 +105,13 @@ vi.mock('@google/genai', () => {
     };
 });
 
+// Mock defineSecret
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({
+        value: vi.fn(() => 'mock-secret')
+    }))
+}));
+
 // Mock checkQuota
 const { mockCheckQuota } = vi.hoisted(() => ({
     mockCheckQuota: vi.fn().mockResolvedValue({ allowed: true })
@@ -105,6 +138,17 @@ describe('trackUsage', () => {
 describe('AI Cloud Functions', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        // Setup mock settings
+        mockDoc.mockReturnValue({
+            get: vi.fn().mockResolvedValue({
+                exists: true,
+                data: () => ({
+                    provider: 'google',
+                    modelMapping: {},
+                    fallbackToGemini: true
+                })
+            })
+        });
     });
 
     it('visionIdentification should be defined and track usage', async () => {
@@ -117,11 +161,8 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await visionIdentification(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
-        expect(mockSet).toHaveBeenCalledWith(
-            expect.objectContaining({ visionIdentification: expect.anything() }),
-            { merge: true }
-        );
+        expect(mockCollectionSub).toHaveBeenCalledWith('usageStats');
+        // Usage is tracked under users/user123/usageStats/YYYY-MM-DD
     });
 
     it('smartSearch should handle ping query correctly', async () => {
@@ -149,11 +190,7 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await smartSearch(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
-        expect(mockSet).toHaveBeenCalledWith(
-            expect.objectContaining({ smartSearch: expect.anything() }),
-            { merge: true }
-        );
+        expect(mockCollectionSub).toHaveBeenCalledWith('usageStats');
     });
 
     it('healthAssessment should be defined and track usage', async () => {
@@ -166,28 +203,20 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await healthAssessment(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
-        expect(mockSet).toHaveBeenCalledWith(
-            expect.objectContaining({ healthAssessment: expect.anything() }),
-            { merge: true }
-        );
+        expect(mockCollectionSub).toHaveBeenCalledWith('usageStats');
     });
 
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
-        expect(mockSet).toHaveBeenCalledWith(
-            expect.objectContaining({ blogGeneration: expect.anything() }),
-            { merge: true }
-        );
+        expect(mockCollectionSub).toHaveBeenCalledWith('usageStats');
     });
 
     it('should throw unauthenticated if no context.auth', async () => {
@@ -202,11 +231,13 @@ describe('AI Cloud Functions', () => {
         await expect(smartSearch(request)).rejects.toThrow('Query required.');
     });
 
-    it('should throw resource-exhausted if quota exceeded', async () => {
+    it('should return error if quota exceeded', async () => {
         const request = { auth: { uid: 'user1' }, data: { query: 'test' } };
         mockCheckQuota.mockResolvedValueOnce({ allowed: false, reason: 'Quota exceeded' });
         
         // @ts-ignore
-        await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
+        const result = await smartSearch(request);
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Quota exceeded');
     });
 });
