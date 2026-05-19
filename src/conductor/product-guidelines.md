@@ -30,7 +30,7 @@ This document outlines the design and communication principles for the Paw Print
 
 - **Color Palette:**
 
-    - **Primary Seed:** "Paw Print Teal" (`#008080`).
+    - **Primary Seed:** "Paw Print Teal" (`#006a6a`).
 
     - **Dynamic Tokens:** System-wide use of `primary`, `secondary`, `tertiary`, `surface-container`, and `error` tokens.
 

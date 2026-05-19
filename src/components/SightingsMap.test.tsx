@@ -10,7 +10,7 @@ import { PetProfile } from '../types';
 vi.mock('../contexts/ThemeContext', () => ({
   useTheme: () => ({
     colors: {
-      primary: '#008080',
+      primary: '#006a6a',
       error: '#EF4444',
     }
   }),

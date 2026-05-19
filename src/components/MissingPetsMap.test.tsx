@@ -19,7 +19,7 @@ vi.mock('../hooks/useTranslations', () => ({
 vi.mock('../contexts/ThemeContext', () => ({
   useTheme: () => ({
     colors: {
-      primary: '#008080',
+      primary: '#006a6a',
       error: '#EF4444',
       surfaceContainer: '#FFFFFF',
       surfaceContainerLow: '#F0F0F0'

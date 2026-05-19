@@ -22,8 +22,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [isDark, setIsDark] = useState(false);
 
-  // We use the same seed color as defined in the plan: "Paw Print Teal" (#008080)
-  const themePalette = useMemo(() => generateTheme('#008080'), []);
+  // We use the same seed color as defined in the plan: "Paw Print Teal" (#006a6a)
+  const themePalette = useMemo(() => generateTheme('#006a6a'), []);
 
   useEffect(() => {
     const root = window.document.documentElement;

@@ -4,7 +4,7 @@ import { argbFromHex, hexFromArgb } from '@material/material-color-utilities';
 
 describe('Theme Generator', () => {
   it('should generate a theme based on the "Paw Print Teal" seed color', () => {
-    const seedColor = '#008080';
+    const seedColor = '#006a6a';
     const theme = generateTheme(seedColor);
 
     // Verify structure
@@ -27,7 +27,7 @@ describe('Theme Generator', () => {
   });
 
   it('should generate distinct light and dark themes', () => {
-    const seedColor = '#008080';
+    const seedColor = '#006a6a';
     const theme = generateTheme(seedColor);
 
     expect(theme.light.surface).not.toBe(theme.dark.surface);

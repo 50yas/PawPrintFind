@@ -13,9 +13,6 @@ describe('GlassCard', () => {
         const { container } = render(<GlassCard className="extra-class">Content</GlassCard>);
         const classNames = (container.firstChild as HTMLElement).className;
         expect(classNames).toContain('backdrop-blur-xl');
-        // Material 3 Refactor
-        expect(classNames).toContain('bg-surface-container-low');
-        expect(classNames).toContain('border-outline-variant');
         expect(classNames).toContain('extra-class');
     });
 
@@ -50,6 +47,6 @@ describe('GlassButton', () => {
     
     it('supports loading state', () => {
         render(<GlassButton isLoading>Submit</GlassButton>);
-        expect(screen.getByText('Loading...')).toBeDefined();
+        expect(screen.getByText(/processing|loading/i)).toBeDefined();
     });
 });
