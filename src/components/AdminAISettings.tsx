@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { adminService } from '../services/adminService';
 import { aiBridgeService } from '../services/aiBridgeService';
-import { openRouterService } from '../services/openRouterService';
+import * as aiService from '../services/aiService';
 import { AISettings, AIProvider, AIModelTask } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
@@ -139,7 +139,7 @@ export const AdminAISettings: React.FC = () => {
     const handleRefreshModels = async () => {
         setFetchingModels(true);
         try {
-            const models = await openRouterService.fetchAvailableModels();
+            const models = await aiService.fetchAvailableModels();
             setAvailableModels(models);
             addSnackbar(`Fetched ${models.length} models`, 'info');
         } catch (e: any) {
@@ -189,7 +189,7 @@ export const AdminAISettings: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-green' : '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -207,7 +207,7 @@ export const AdminAISettings: React.FC = () => {
                     <span className="status-pulse-green"></span>
                     {t('dashboard:admin.activeProvider')}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
                         { id: 'openrouter' as AIProvider, name: t('dashboard:admin.providerOpenRouter'), desc: t('dashboard:admin.providerOpenRouterDesc'), icon: '🚀' },
@@ -244,6 +244,24 @@ export const AdminAISettings: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${settings.fallbackToGemini ? 'bg-green-500/20 text-green-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-wider">Fallback to Gemini 2.0</p>
+                            <p className="text-[9px] text-slate-500 uppercase">Automatically use Gemini if OpenRouter request fails</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                        className={`w-12 h-6 rounded-full transition-all duration-300 relative ${settings.fallbackToGemini ? 'bg-primary shadow-[0_0_10px_rgba(20,184,166,0.5)]' : 'bg-slate-700'}`}
+                    >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${settings.fallbackToGemini ? 'left-7' : 'left-1'}`}></div>
+                    </button>
                 </div>
             </GlassCard>
 

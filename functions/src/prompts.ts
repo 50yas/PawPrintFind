@@ -34,7 +34,7 @@ export const getAutoFillPetDetailsPrompt = (locale: string = 'en'): string => {
     **Language:**
     Provide all string values (like breed, color) in "${locale}".
 
-    **Output Schema (JSON ONLY):**
+    **Output Schema (JSON ONLY, no markdown formatting):**
     {
       "breed": "string (e.g., 'Golden Retriever', 'Siamese Mix')",
       "color": "string (e.g., 'Golden', 'Black & White')",
@@ -60,7 +60,11 @@ export const getPetIdentikitPrompt = (locale: string = 'en'): string => {
     **Language:**
     Write the Physical Description in "${locale}".
 
-    Output JSON.
+    **Output JSON ONLY:**
+    {
+      "visualIdentityCode": "string",
+      "physicalDescription": "string"
+    }
     `;
 };
 
@@ -83,7 +87,7 @@ export const getSearchParsingPrompt = (query: string): string => {
     **Rules:**
     - If a parameter is not mentioned, return null for that field.
     - Be intelligent with 'tags'. If the user says "good for kids", add "kid-friendly" to tags.
-    - Return the result in JSON format ONLY.
+    - Return the result in JSON format ONLY, without any markdown code blocks or extra text.
     `;
 };
 
@@ -139,7 +143,7 @@ export const getBlogGenerationParts = (topic: string): { systemInstruction: stri
     5.  **SEO Description:** A meta description (under 160 chars).
     6.  **Tags:** A list of 3-5 relevant tags.
 
-    Return the result in JSON format ONLY with the following schema:
+    Return the result in JSON format ONLY (no markdown code blocks) with the following schema:
     {
       "title": "string",
       "summary": "string",
