@@ -33,7 +33,7 @@ vi.mock('../contexts/ThemeContext', () => ({
   useTheme: () => ({
     isDark: true,
     colors: {
-      primary: '#008080',
+      primary: '#006a6a',
       secondary: '#FFB02E',
       background: '#0B1120'
     }

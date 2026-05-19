@@ -42,6 +42,7 @@ export const adminService = {
             // Return default settings if none exist
             return {
                 provider: 'google',
+                fallbackToGemini: true,
                 modelMapping: {
                     vision: 'gemini-pro-vision',
                     triage: 'gemini-pro',
@@ -58,6 +59,7 @@ export const adminService = {
             if (error.code === 'permission-denied') {
                 return {
                     provider: 'google',
+                    fallbackToGemini: true,
                     modelMapping: {
                         vision: 'gemini-pro-vision',
                         triage: 'gemini-pro',

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { BlogPost, User } from '../types';
-import { generateBlogPost } from '../services/geminiService';
+import { generateBlogPost } from '../services/aiService';
 import { dbService } from '../services/firebase';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';

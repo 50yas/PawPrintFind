@@ -494,4 +494,18 @@ export const chat = async (
     });
 };
 
+/**
+ * Fetch available models from OpenRouter via backend Cloud Function.
+ */
+export const fetchAvailableModels = async (): Promise<{ id: string; name: string }[]> => {
+    try {
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const result = await fn();
+        const data = result.data as { models: { id: string; name: string }[] };
+        return data.models || [];
+    } catch (error) {
+        console.error("Error fetching models:", error);
+        return [];
+    }
+};
 
