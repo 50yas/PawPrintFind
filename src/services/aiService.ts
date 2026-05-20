@@ -111,8 +111,29 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'autofill', locale);
-        return JSON.parse(response.text?.trim() || "{}");
+        try {
+            return JSON.parse(response.text?.trim() || "{}");
+        } catch (e) {
+            console.error("[AI Service] Failed to parse autofill JSON:", response.text);
+            throw new Error("Invalid response format from AI.");
+        }
     });
+};
+
+/**
+ * Fetch available models from OpenRouter via Cloud Function.
+ * This is better than direct client-side fetch as it respects project config.
+ */
+export const fetchAvailableModels = async (): Promise<{ id: string; name: string }[]> => {
+    try {
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const result = await fn();
+        const data = result.data as { models: { id: string, name: string }[] };
+        return data.models || [];
+    } catch (error) {
+        console.error("[AI Service] Failed to fetch models:", error);
+        return [];
+    }
 };
 
 export const analyzeImageForDescription = async (photo: File): Promise<string> => {

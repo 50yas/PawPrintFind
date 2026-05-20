@@ -5,8 +5,8 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { SmartSearchBar } from './SmartSearchBar';
 
-// Mock geminiService
-vi.mock('../services/geminiService', () => ({
+// Mock aiService
+vi.mock('../services/aiService', () => ({
   parseSearchQuery: vi.fn().mockResolvedValue({
     species: 'dog',
     size: 'Small',

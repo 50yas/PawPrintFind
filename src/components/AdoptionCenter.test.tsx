@@ -27,7 +27,7 @@ vi.mock('../services/analyticsService', () => ({
   },
 }));
 
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/aiService', () => ({
     generateMatchExplanation: vi.fn().mockResolvedValue('Matches perfectly!'),
 }));
 

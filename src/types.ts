@@ -892,6 +892,7 @@ export interface AISecrets {
 
 export interface AISettings {
   provider: AIProvider;
+  fallbackToGemini: boolean;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
   modelMapping: Record<AIModelTask, string>;
   lastUpdated: number;
@@ -906,6 +907,7 @@ export const AISecretsSchema = z.object({
 
 export const AISettingsSchema = z.object({
   provider: z.enum(['google', 'openrouter']),
+  fallbackToGemini: z.boolean().default(true),
   publicLiveAssistantKey: z.string().optional(),
   modelMapping: z.object({
     vision: z.string(),

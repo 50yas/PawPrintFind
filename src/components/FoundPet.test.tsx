@@ -27,7 +27,7 @@ vi.mock('../hooks/useGeolocation', () => ({
 }));
 
 // Mock services
-vi.mock('../services/geminiService', () => ({
+vi.mock('../services/aiService', () => ({
   analyzeImageForDescription: vi.fn().mockResolvedValue('A brown dog'),
   comparePets: vi.fn().mockResolvedValue({ score: 90, reasoning: 'Match', keyMatches: ['color'], discrepancies: [] }),
   findNearbyVets: vi.fn().mockResolvedValue({ text: 'Nearby vets', places: [] }),
@@ -74,7 +74,7 @@ describe('FoundPet Component', () => {
   });
 
   it('performs search when photo is uploaded and button is clicked', async () => {
-    const { analyzeImageForDescription, comparePets } = await import('../services/geminiService');
+    const { analyzeImageForDescription, comparePets } = await import('../services/aiService');
     
     render(<FoundPet lostPets={mockLostPets} partnerVets={[]} onContactOwner={mockOnContactOwner} onViewPet={vi.fn()} />);
     
