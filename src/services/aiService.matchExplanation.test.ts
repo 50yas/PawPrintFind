@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { generateMatchExplanation } from './geminiService';
+import { generateMatchExplanation } from './aiService';
 import { PetProfile } from '../types';
 
 // Mock dependencies
@@ -39,7 +39,7 @@ const mockPet: PetProfile = {
     isLost: false,
 };
 
-describe('geminiService.generateMatchExplanation', () => {
+describe('aiService.generateMatchExplanation', () => {
     it('should generate an explanation', async () => {
         const result = await generateMatchExplanation(mockPet, { breed: 'Golden Retriever', lifestyle: 'Active' });
         expect(result).toBe("This pet matches because...");

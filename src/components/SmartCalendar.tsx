@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { PetProfile, Appointment } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { queryVetPatientData } from '../services/geminiService';
+import { queryVetPatientData } from '../services/aiService';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface SmartCalendarProps {

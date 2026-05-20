@@ -11,7 +11,7 @@
 - [x] Task: Create AI Service Bridge (`services/aiBridgeService.ts`)
     - [x] Implement a class/module that reads from `AISettings`.
     - [x] Implement methods for `analyzeImage`, `generateHealthCheck`, `getChatResponse`, and `rankPets`.
-    - [x] These methods should delegate to either `geminiService.ts` or a new `openRouterService.ts`.
+    - [x] These methods should delegate to either `aiService.ts` or a new `openRouterService.ts`.
 - [x] Task: Conductor - User Manual Verification 'Foundation & Data Layer' (Protocol in workflow.md)
 
 ## Phase 2: OpenRouter Integration
