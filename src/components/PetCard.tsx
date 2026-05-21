@@ -5,7 +5,7 @@ import { useTapIntent } from '../hooks/useTapIntent';
 import { CinematicImage } from './ui/CinematicImage';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
-import { calculateProfileCompleteness } from '../services/geminiService';
+import { calculateProfileCompleteness } from '../services/aiService';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareButton } from './ShareButton';
 

@@ -31,7 +31,7 @@ vi.mock('firebase/auth', () => ({
   signInAnonymously: vi.fn().mockResolvedValue({ user: { uid: 'anon123' } })
 }));
 
-vi.mock('./geminiService', () => ({
+vi.mock('./aiService', () => ({
   translateContent: vi.fn().mockImplementation(async (text, langs) => {
     const res: any = {};
     langs.forEach((l: string) => res[l] = `Translated ${text} to ${l}`);
