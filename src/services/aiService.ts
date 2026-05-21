@@ -373,6 +373,15 @@ export const parseSearchQuery = async (query: string): Promise<any> => {
     });
 };
 
+export const fetchOpenRouterModels = async (): Promise<{ id: string; name: string }[]> => {
+    return retryWithBackoff(async () => {
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const result = await fn();
+        const data = result.data as { models: { id: string, name: string }[] };
+        return data.models || [];
+    });
+};
+
 export const generateImage = async (prompt: string): Promise<string> => {
     return retryWithBackoff(async () => {
         const fn = httpsCallable(functions, 'callGemini');
@@ -482,12 +491,10 @@ export const chat = async (
         const response = await fn({
             task: 'chat',
             config: { systemInstruction: systemPrompt },
-            contents: {
-                parts: history.map(h => ({
-                    role: h.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: h.text }]
-                }))
-            }
+            contents: history.map(h => ({
+                role: h.role === 'user' ? 'user' : 'model',
+                parts: [{ text: h.text }]
+            }))
         });
         const data = response.data as { success: boolean, text: string };
         return data.text?.trim() || "";

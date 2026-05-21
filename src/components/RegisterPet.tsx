@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { PetProfile, PhotoWithMarks, UniqueMark, Geolocation, MedicalRecord, Vaccination, User } from '../types';
-import { analyzeVideo, transcribeAudio, identifyBreedFromImage, generatePetIdentikit, autoFillPetDetails } from '../services/geminiService';
+import { analyzeVideo, transcribeAudio, identifyBreedFromImage, generatePetIdentikit, autoFillPetDetails } from '../services/aiService';
 import { dbService } from '../services/firebase';
 import { ImageTagger } from './ImageTagger';
 import { LoadingSpinner } from './LoadingSpinner';

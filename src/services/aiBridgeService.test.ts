@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { aiBridgeService } from './aiBridgeService';
-import * as aiService from './geminiService';
+import * as aiService from './aiService';
 import { adminService } from './adminService';
 
-vi.mock('./geminiService', () => ({
+vi.mock('./aiService', () => ({
     analyzeImageForDescription: vi.fn().mockResolvedValue('AI Desc'),
     performAIHealthCheck: vi.fn().mockResolvedValue('Health Report'),
     generateChatSuggestions: vi.fn().mockResolvedValue(['Hey']),
@@ -28,6 +28,7 @@ describe('aiBridgeService', () => {
     it('should route all requests through unified aiService (via Cloud Functions)', async () => {
         vi.mocked(adminService.getAISettings).mockResolvedValue({
             provider: 'openrouter',
+            fallbackToGemini: true,
             modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
             lastUpdated: Date.now(),
             updatedBy: 'admin'

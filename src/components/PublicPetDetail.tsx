@@ -3,7 +3,7 @@ import { PetProfile, User, Sighting } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
 import { CinematicImage, GlassCard, GlassButton } from './ui';
 import { ShareButton } from './ShareButton';
-import { generateMatchExplanation } from '../services/geminiService';
+import { generateMatchExplanation } from '../services/aiService';
 import { analyticsService } from '../services/analyticsService';
 
 interface PublicPetDetailProps {

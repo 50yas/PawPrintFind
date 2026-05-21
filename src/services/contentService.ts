@@ -4,7 +4,7 @@ import {
 } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import { db, auth } from './firebase';
-import { translateContent } from './geminiService';
+import { translateContent } from './aiService';
 import { ChatSession, ChatMessage, Donation, BlogPost, ChatSessionSchema, ChatMessageSchema, DonationSchema, BlogPostSchema } from '../types';
 import { logger } from './loggerService';
 import { validationService } from './validationService';
