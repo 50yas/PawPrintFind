@@ -4,6 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { VetPremiumModal } from './VetPremiumModal';
 import { subscriptionService } from '../services/subscriptionService';
+import { SnackbarProvider } from '../contexts/SnackbarContext';
 import React from 'react';
 
 // Mock translations
@@ -46,16 +47,24 @@ describe('VetPremiumModal Component', () => {
     vi.clearAllMocks();
   });
 
+  const renderWithProviders = (ui: React.ReactElement) => {
+    return render(
+      <SnackbarProvider>
+        {ui}
+      </SnackbarProvider>
+    );
+  };
+
   it('renders correctly when open', () => {
-    render(<VetPremiumModal {...defaultProps} />);
-    expect(screen.getByText('Upgrade to Vet Pro 🏥')).toBeInTheDocument();
-    expect(screen.getByText('Vet Pro')).toBeInTheDocument();
+    renderWithProviders(<VetPremiumModal {...defaultProps} />);
+    expect(screen.getByText('dashboard:vet.upgradeTitle')).toBeInTheDocument();
+    expect(screen.getByText('dashboard:vet.vetPro')).toBeInTheDocument();
     expect(screen.getByText('€18.00')).toBeInTheDocument();
   });
 
   it('calls subscribeToPlan when Upgrade Now is clicked', async () => {
-    render(<VetPremiumModal {...defaultProps} />);
-    const upgradeBtn = screen.getByText('Upgrade Now');
+    renderWithProviders(<VetPremiumModal {...defaultProps} />);
+    const upgradeBtn = screen.getByText('dashboard:vet.upgradeNow');
     fireEvent.click(upgradeBtn);
     expect(subscriptionService.subscribeToPlan).toHaveBeenCalledWith(expect.stringContaining('price_'));
   });
@@ -64,8 +73,8 @@ describe('VetPremiumModal Component', () => {
     // Make it stay in loading state by providing a promise that doesn't resolve immediately
     (subscriptionService.subscribeToPlan as any).mockReturnValue(new Promise(() => {}));
     
-    render(<VetPremiumModal {...defaultProps} />);
-    const upgradeBtn = screen.getByText('Upgrade Now');
+    renderWithProviders(<VetPremiumModal {...defaultProps} />);
+    const upgradeBtn = screen.getByText('dashboard:vet.upgradeNow');
     fireEvent.click(upgradeBtn);
     
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
@@ -73,7 +82,7 @@ describe('VetPremiumModal Component', () => {
   });
 
   it('does not render when closed', () => {
-    render(<VetPremiumModal {...defaultProps} isOpen={false} />);
+    renderWithProviders(<VetPremiumModal {...defaultProps} isOpen={false} />);
     expect(screen.queryByText('Upgrade to Vet Pro 🏥')).not.toBeInTheDocument();
   });
 });

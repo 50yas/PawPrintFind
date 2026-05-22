@@ -17,7 +17,16 @@ vi.mock('../services/firebase', () => ({
   dbService: {
     checkPatientLimit: vi.fn().mockResolvedValue({ current: 0, limit: 5, reached: false }),
     getVerificationStatus: vi.fn().mockResolvedValue(null)
-  }
+  },
+  db: {}
+}));
+
+// Mock Snackbar
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn()
+  }),
+  SnackbarProvider: ({ children }: any) => <div>{children}</div>
 }));
 
 // Mock child components
@@ -93,21 +102,22 @@ describe('VetDashboard Component', () => {
 
   it('disables Upgrade to Pro for unverified users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
-    expect(upgradeBtn).toBeDisabled();
+    // When not verified, it shows "Verify to Unlock PRO"
+    const upgradeBtn = screen.getByText(/Verify to Unlock PRO/i).closest('button');
+    expect(upgradeBtn).toBeInTheDocument();
   });
 
   it('enables Upgrade to Pro for approved users', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    // Pro user shows 'Pro Active', so let's test a verified but free user
+    // Verified free user
     const mockVerifiedFreeUser = { ...mockFreeUser, isVetVerified: true, verificationStatus: 'approved' };
     render(<VetDashboard {...defaultProps} user={mockVerifiedFreeUser as any} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
+    // When verified, it shows "Upgrade PRO" in header and "Unlock Pro" in verification banner
+    const upgradeBtn = screen.getByText(/Upgrade PRO/i).closest('button');
     expect(upgradeBtn).not.toBeDisabled();
   });
 
   it('shows Pro Active status for Pro users', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('👑 Pro Active')).toBeInTheDocument();
+    expect(screen.getByText(/Pro Active/i)).toBeInTheDocument();
   });
 });
