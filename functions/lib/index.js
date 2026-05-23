@@ -49,39 +49,95 @@ const openRouterApiKey = (0, params_1.defineSecret)("OPENROUTER_API_KEY");
 const stripeSecretKey = (0, params_1.defineSecret)("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = (0, params_1.defineSecret)("STRIPE_WEBHOOK_SECRET");
 const genesisKeyHash = (0, params_1.defineSecret)("GENESIS_KEY_HASH");
+function transformGeminiToOpenRouter(contents, config = {}) {
+    let messages = [];
+    if (config.systemInstruction) {
+        const sysText = typeof config.systemInstruction === 'string'
+            ? config.systemInstruction
+            : (Array.isArray(config.systemInstruction.parts) ? config.systemInstruction.parts[0]?.text : config.systemInstruction.text);
+        if (sysText) {
+            messages.push({ role: 'system', content: sysText });
+        }
+    }
+    let turns = [];
+    if (Array.isArray(contents)) {
+        turns = contents;
+    }
+    else if (contents.parts && Array.isArray(contents.parts) && contents.parts[0]?.role) {
+        turns = contents.parts;
+    }
+    else if (contents.parts) {
+        turns = [{ role: 'user', parts: contents.parts }];
+    }
+    else if (contents.text) {
+        turns = [{ role: 'user', parts: [{ text: contents.text }] }];
+    }
+    else {
+        turns = [{ role: 'user', parts: [contents] }];
+    }
+    turns.forEach((turn) => {
+        const role = turn.role === 'model' ? 'assistant' : (turn.role || 'user');
+        const parts = Array.isArray(turn.parts) ? turn.parts : [turn];
+        const content = parts.map((part) => {
+            if (part.text)
+                return { type: 'text', text: part.text };
+            if (part.inlineData) {
+                return {
+                    type: 'image_url',
+                    image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
+                };
+            }
+            return null;
+        }).filter(Boolean);
+        if (content.length > 0) {
+            const finalContent = (content.length === 1 && content[0].type === 'text')
+                ? content[0].text
+                : content;
+            messages.push({ role, content: finalContent });
+        }
+    });
+    return messages;
+}
 async function resolveAIConfig(task) {
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google';
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
-            return { provider, model };
+            const provider = data?.provider || data?.activeProvider || 'google';
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+            return { provider, model, fallbackToGemini };
         }
     }
     catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 async function callAI(userId, featureName, contents, config = {}, taskOverride) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
     if (provider === 'openrouter') {
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            if (contents.parts.find((p) => p.inlineData)) {
-                const imgPart = contents.parts.find((p) => p.inlineData);
-                messages = [{
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: contents.parts.find((p) => p.text).text },
-                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                        ]
-                    }];
+        try {
+            const messages = transformGeminiToOpenRouter(contents, config);
+            const openRouterConfig = {};
+            if (config.temperature !== undefined)
+                openRouterConfig.temperature = config.temperature;
+            if (config.maxOutputTokens !== undefined)
+                openRouterConfig.max_tokens = config.maxOutputTokens;
+            if (config.topP !== undefined)
+                openRouterConfig.top_p = config.topP;
+            if (config.responseMimeType === 'application/json' || config.response_format?.type === 'json_object') {
+                openRouterConfig.response_format = { type: 'json_object' };
             }
+            return await (0, openRouter_1.callOpenRouterAI)(userId, model, messages, openRouterConfig, featureName, openRouterApiKey.value());
         }
-        return (0, openRouter_1.callOpenRouterAI)(userId, model, messages, config, featureName, openRouterApiKey.value());
+        catch (error) {
+            if (fallbackToGemini) {
+                console.warn(`[AI Fallback] OpenRouter failed, falling back to Gemini 2.0 Flash:`, error.message);
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     }
     else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
@@ -162,19 +218,38 @@ async function callGeminiAI(userId, featureName, modelName, contents, config = {
     delete generationConfig.systemInstruction;
     delete generationConfig.tools;
     delete generationConfig.toolConfig;
+    let standardizedContents = contents;
+    if (!Array.isArray(contents)) {
+        if (contents.parts && !contents.role) {
+            standardizedContents = [{ role: 'user', parts: contents.parts }];
+        }
+        else if (contents.parts && contents.role) {
+            standardizedContents = [contents];
+        }
+        else if (contents.text) {
+            standardizedContents = [{ role: 'user', parts: [{ text: contents.text }] }];
+        }
+        else {
+            standardizedContents = [{ role: 'user', parts: [contents] }];
+        }
+    }
     try {
         const model = client.getGenerativeModel(modelParams);
         const result = await model.generateContent({
-            contents,
-            config: generationConfig
+            contents: standardizedContents,
+            generationConfig: generationConfig
         });
         const response = result.response;
-        const text = response.text();
+        const candidate = response.candidates?.[0];
+        const text = candidate?.content?.parts?.find((p) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p) => p.inlineData)?.inlineData;
         (0, usage_1.trackUsage)(userId, featureName, 'google').catch(err => console.error(`Failed to track usage for ${featureName}:`, err));
         return {
             success: true,
             text,
-            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            mediaData: inlineData?.data,
+            mimeType: inlineData?.mimeType,
+            groundingMetadata: candidate?.groundingMetadata,
         };
     }
     catch (error) {
@@ -295,8 +370,10 @@ exports.callGemini = (0, https_1.onCall)({
 }, async (request) => {
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
-    return callAI(request.auth.uid, "generic", contents, { ...config, modelOverride: model });
+    const { task, contents, config } = request.data;
+    if (!task)
+        throw new https_1.HttpsError("invalid-argument", "Task identifier required.");
+    return callAI(request.auth.uid, task, contents, config);
 });
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
