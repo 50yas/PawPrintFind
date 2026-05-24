@@ -62,6 +62,7 @@ vi.mock('../services/firebase', () => {
       addFavorite: vi.fn().mockResolvedValue(undefined),
       removeFavorite: vi.fn().mockResolvedValue(undefined),
       recordDonation: vi.fn().mockResolvedValue(undefined),
+      getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 1000, totalPetsHelped: 50 }),
       createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://checkout.test' }),
       auth: authMock
     },

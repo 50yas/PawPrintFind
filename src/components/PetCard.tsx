@@ -374,7 +374,6 @@ const AdoptionPetCard: React.FC<AdoptionPetCardProps> = ({ pet, onViewDetail, on
 
     return (
         <GlassCard
-            variant="interactive"
             className={`flex ${mode === 'list' ? 'flex-row h-48' : 'flex-col h-full'} border-white/10 bg-white/10 backdrop-blur-2xl overflow-hidden group shadow-2xl relative cursor-pointer active:scale-95 transition-transform`}
             {...tapHandlers}
         >
