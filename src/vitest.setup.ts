@@ -30,29 +30,29 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(),
   initializeFirestore: vi.fn(),
-  collection: vi.fn((_db, path) => ({ // Mock collection to return an object
+  collection: vi.fn((_db, path) => ({
     id: path,
     type: 'collection',
-    _is_firebase_collection: true, // Marker for checking in tests if needed
+    _is_firebase_collection: true,
   })),
-  doc: vi.fn((_dbOrCollection, path) => ({ // Mock doc to return an object
+  doc: vi.fn((_dbOrCollection, path) => ({
     id: path,
     type: 'doc',
-    _is_firebase_doc: true, // Marker
-    // Add other properties if needed, like parent, path, etc.
+    _is_firebase_doc: true,
   })),
-  getDoc: vi.fn(),
+  getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => ({}) }),
   setDoc: vi.fn(),
   updateDoc: vi.fn(),
   query: vi.fn(),
   where: vi.fn(),
-  getDocs: vi.fn(),
+  getDocs: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
   arrayUnion: vi.fn(),
   increment: vi.fn(),
   addDoc: vi.fn(),
   orderBy: vi.fn(),
   limit: vi.fn(),
-  onSnapshot: vi.fn(() => () => { }), // Mock unsubscribe
+  onSnapshot: vi.fn(() => () => { }),
+  serverTimestamp: vi.fn(),
 }));
 
 vi.mock('firebase/storage', () => ({
@@ -72,7 +72,7 @@ vi.mock('firebase/performance', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: {} })),
 }));
 
 vi.mock('firebase/remote-config', () => ({
@@ -137,6 +137,53 @@ class IntersectionObserverMock {
 }
 
 vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // Deprecated
+    removeListener: vi.fn(), // Deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock Leaflet for MissingPetsMap and others
+vi.mock('leaflet', () => ({
+  default: {
+    map: vi.fn(() => ({
+      setView: vi.fn().mockReturnThis(),
+      on: vi.fn().mockReturnThis(),
+      off: vi.fn().mockReturnThis(),
+      remove: vi.fn().mockReturnThis(),
+      getZoom: vi.fn(() => 13),
+      getCenter: vi.fn(() => ({ lat: 0, lng: 0 })),
+      addLayer: vi.fn().mockReturnThis(),
+      removeLayer: vi.fn().mockReturnThis(),
+    })),
+    icon: vi.fn(() => ({})),
+    marker: vi.fn(() => ({
+      addTo: vi.fn().mockReturnThis(),
+      on: vi.fn().mockReturnThis(),
+      bindPopup: vi.fn().mockReturnThis(),
+    })),
+    tileLayer: vi.fn(() => ({
+      addTo: vi.fn().mockReturnThis(),
+    })),
+    featureGroup: vi.fn(() => ({
+      addTo: vi.fn().mockReturnThis(),
+      clearLayers: vi.fn().mockReturnThis(),
+      addLayer: vi.fn().mockReturnThis(),
+      getLayers: vi.fn(() => []),
+    })),
+    divIcon: vi.fn(() => ({})),
+  }
+}));
 
 // Stub jest global for jest-canvas-mock
 vi.stubGlobal('jest', vi);

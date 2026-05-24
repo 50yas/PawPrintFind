@@ -33,7 +33,7 @@ describe('GamificationService', () => {
     });
 
     it('should not award badge if already owned', () => {
-        const userWithBadge = { ...baseUser, badges: ['Sightings Scout'] };
+        const userWithBadge = { ...baseUser, badges: ['First Eyes', 'Sightings Scout'] };
         const stats = { sightingsReported: 6, reunionsSupported: 0 };
         const newBadges = checkBadgeEligibility(userWithBadge, stats);
         expect(newBadges).not.toContain('Sightings Scout'); // Should return only NEW badges
