@@ -44,6 +44,18 @@ export const aiBridgeService = {
         return aiService.analyzeImageForDescription(photo);
     },
 
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
         return aiService.performAIHealthCheck(pet, symptoms, locale);
     },
