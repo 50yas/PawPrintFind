@@ -245,7 +245,7 @@ export const Auth: React.FC<AuthProps> = ({ onLogin, isFullScreen, onClose }) =>
     ];
 
     const content = (
-        <div className="flex flex-col h-[100dvh] lg:h-auto justify-center lg:block w-full">
+        <div data-testid="auth-content-internal" className={`flex flex-col h-[100dvh] lg:h-auto justify-center lg:block w-full ${isFullScreen ? 'cinematic-split' : ''}`}>
             <div data-testid="auth-form-card" className={`glass-card-premium p-5 sm:p-10 rounded-none sm:rounded-3xl shadow-none sm:shadow-2xl border-x-0 border-y-0 sm:border border-white/10 text-center relative overflow-y-auto sm:overflow-visible bg-transparent sm:bg-slate-950/40 backdrop-blur-none sm:backdrop-blur-3xl w-full max-w-md mx-auto animate-fade-in-up flex flex-col justify-center flex-grow`}>
                 {isFullScreen && onClose && (
                     <button onClick={onClose} className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white/40 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all z-20">
