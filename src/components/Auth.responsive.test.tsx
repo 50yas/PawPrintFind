@@ -53,7 +53,7 @@ describe('Auth Responsive Layout', () => {
     setViewport(375);
     render(<Auth isFullScreen={true} />);
     
-    const container = screen.getByTestId('auth-container');
+    const container = screen.getByTestId('auth-content-internal');
     // On mobile it should be a single column (default grid)
     expect(container).not.toHaveClass('lg:grid-cols-2');
   });

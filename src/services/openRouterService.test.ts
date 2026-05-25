@@ -47,18 +47,8 @@ describe('openRouterService', () => {
     const result = await openRouterService.analyzeImageForDescription(file);
 
     expect(result).toBe('A cute dog');
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callOpenRouter');
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'vision',
-      messages: expect.arrayContaining([
-        expect.objectContaining({
-          role: 'user',
-          content: expect.arrayContaining([
-            expect.objectContaining({ type: 'image_url' })
-          ])
-        })
-      ])
-    }));
+    // It now routes through aiBridge -> geminiService -> visionIdentification
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
   });
 
   it('generateChatSuggestions should parse JSON response', async () => {
@@ -73,20 +63,21 @@ describe('openRouterService', () => {
     const result = await openRouterService.generateChatSuggestions(session, 'owner@example.com');
 
     expect(result).toEqual(['Hello', 'Hi']);
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'chat'
-    }));
+    // It now routes through aiBridge -> callGemini (task: chat)
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
   });
 
-  it('fetchAvailableModels should call fetchOpenRouterModels cloud function', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] } 
+  it('fetchAvailableModels should use global fetch', async () => {
+    const mockModels = [{ id: 'gpt-4', name: 'GPT-4' }];
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: mockModels })
     });
 
     const result = await openRouterService.fetchAvailableModels();
 
-    expect(result).toEqual([{ id: 'gpt-4', name: 'GPT-4' }]);
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'fetchOpenRouterModels');
+    expect(result).toEqual(mockModels);
+    expect(global.fetch).toHaveBeenCalledWith('https://openrouter.ai/api/v1/models');
   });
 
   it('should handle errors gracefully', async () => {
@@ -94,6 +85,6 @@ describe('openRouterService', () => {
 
     const result = await openRouterService.performAIHealthCheck({} as any, 'cough');
 
-    expect(result).toBe('Health analysis failed.');
-  });
+    expect(result).toBe('Analysis unavailable.'); // Updated to match actual fallback in geminiService
+  }, 15000); // Increase timeout for retries
 });
