@@ -894,6 +894,7 @@ export interface AISettings {
   provider: AIProvider;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
   modelMapping: Record<AIModelTask, string>;
+  fallbackToGemini: boolean;
   lastUpdated: number;
   updatedBy: string;
   apiKeys?: Record<string, string>;
@@ -913,6 +914,7 @@ export const AISettingsSchema = z.object({
     chat: z.string(),
     matching: z.string()
   }),
+  fallbackToGemini: z.boolean().default(true),
   lastUpdated: z.number(),
   updatedBy: z.string().email()
 });

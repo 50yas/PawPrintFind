@@ -2,6 +2,47 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { trackUsage } from "./usage";
 
+/**
+ * Transforms Gemini-formatted content to OpenRouter (OpenAI-compatible) messages.
+ */
+export const transformGeminiToOpenRouter = (contents: any): any[] => {
+    // If it's already an array, assume it's already in message format
+    if (Array.isArray(contents)) {
+        return contents.map(item => {
+            if (item.role && item.parts) {
+                // Gemini multi-turn format
+                const role = item.role === 'model' ? 'assistant' : 'user';
+                const text = item.parts.find((p: any) => p.text)?.text || "";
+                return { role, content: text };
+            }
+            return item;
+        });
+    }
+
+    // Gemini parts format
+    if (contents.parts) {
+        const messages: any[] = [];
+        const textPart = contents.parts.find((p: any) => p.text);
+        const imgPart = contents.parts.find((p: any) => p.inlineData);
+
+        if (imgPart) {
+            messages.push({
+                role: 'user',
+                content: [
+                    { type: 'text', text: textPart?.text || "Describe this image." },
+                    { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                ]
+            });
+        } else if (textPart) {
+            messages.push({ role: 'user', content: textPart.text });
+        }
+
+        return messages;
+    }
+
+    return [];
+};
+
 const getOpenRouterKey = async () => {
     // Try to get from Firestore system_config
     try {
