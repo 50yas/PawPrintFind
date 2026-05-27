@@ -33,10 +33,42 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchOpenRouterModels = exports.callOpenRouterAI = void 0;
+exports.fetchOpenRouterModels = exports.callOpenRouterAI = exports.transformGeminiToOpenRouter = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const usage_1 = require("./usage");
+const transformGeminiToOpenRouter = (contents) => {
+    if (Array.isArray(contents)) {
+        return contents.map(item => {
+            if (item.role && item.parts) {
+                const role = item.role === 'model' ? 'assistant' : 'user';
+                const text = item.parts.find((p) => p.text)?.text || "";
+                return { role, content: text };
+            }
+            return item;
+        });
+    }
+    if (contents.parts) {
+        const messages = [];
+        const textPart = contents.parts.find((p) => p.text);
+        const imgPart = contents.parts.find((p) => p.inlineData);
+        if (imgPart) {
+            messages.push({
+                role: 'user',
+                content: [
+                    { type: 'text', text: textPart?.text || "Describe this image." },
+                    { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                ]
+            });
+        }
+        else if (textPart) {
+            messages.push({ role: 'user', content: textPart.text });
+        }
+        return messages;
+    }
+    return [];
+};
+exports.transformGeminiToOpenRouter = transformGeminiToOpenRouter;
 const getOpenRouterKey = async () => {
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();

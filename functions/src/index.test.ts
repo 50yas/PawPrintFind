@@ -5,6 +5,7 @@ import * as admin from 'firebase-admin';
 const mockSet = vi.fn().mockResolvedValue({});
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false });
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +14,8 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
+        set: mockSet,
+        get: mockGet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -28,6 +30,9 @@ vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             return typeof config === 'function' ? config : handler;
         }),
         HttpsError: class HttpsError extends Error {
@@ -79,6 +84,13 @@ vi.mock('@google/genai', () => {
     };
 });
 
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({
+        value: vi.fn(() => 'mock-secret')
+    }))
+}));
+
 // Mock checkQuota
 const { mockCheckQuota } = vi.hoisted(() => ({
     mockCheckQuota: vi.fn().mockResolvedValue({ allowed: true })
@@ -89,7 +101,7 @@ vi.mock('./rateLimit', () => ({
 
 import { trackUsage } from './usage';
 // @ts-ignore - these won't be exported yet
-import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
+import * as Main from './index';
 
 describe('trackUsage', () => {
   beforeEach(() => {
@@ -108,14 +120,14 @@ describe('AI Cloud Functions', () => {
     });
 
     it('visionIdentification should be defined and track usage', async () => {
-        expect(visionIdentification).toBeDefined();
+        expect(Main.visionIdentification).toBeDefined();
         const request = { 
             auth: { uid: 'user123' }, 
             data: { image: 'base64data', task: 'identify' } 
         };
         
         // @ts-ignore
-        await visionIdentification(request);
+        await Main.visionIdentification(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -125,14 +137,14 @@ describe('AI Cloud Functions', () => {
     });
 
     it('smartSearch should handle ping query correctly', async () => {
-        expect(smartSearch).toBeDefined();
+        expect(Main.smartSearch).toBeDefined();
         const request = { 
             auth: { uid: 'user123' }, 
             data: { query: 'ping' } 
         };
         
         // @ts-ignore
-        const result = await smartSearch(request);
+        const result = await Main.smartSearch(request);
         
         expect(result).toEqual({ success: true, message: "pong" });
         // Should NOT track usage for a ping
@@ -140,14 +152,14 @@ describe('AI Cloud Functions', () => {
     });
 
     it('smartSearch should be defined and track usage', async () => {
-        expect(smartSearch).toBeDefined();
+        expect(Main.smartSearch).toBeDefined();
         const request = { 
             auth: { uid: 'user123' }, 
             data: { query: 'lost dog' } 
         };
         
         // @ts-ignore
-        await smartSearch(request);
+        await Main.smartSearch(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -157,14 +169,14 @@ describe('AI Cloud Functions', () => {
     });
 
     it('healthAssessment should be defined and track usage', async () => {
-        expect(healthAssessment).toBeDefined();
+        expect(Main.healthAssessment).toBeDefined();
         const request = { 
             auth: { uid: 'user123' }, 
             data: { pet: { name: 'Buddy' }, symptoms: 'coughing' } 
         };
         
         // @ts-ignore
-        await healthAssessment(request);
+        await Main.healthAssessment(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -174,14 +186,14 @@ describe('AI Cloud Functions', () => {
     });
 
     it('blogGeneration should be defined and track usage', async () => {
-        expect(blogGeneration).toBeDefined();
+        expect(Main.blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
-        await blogGeneration(request);
+        await Main.blogGeneration(request);
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
@@ -193,13 +205,13 @@ describe('AI Cloud Functions', () => {
     it('should throw unauthenticated if no context.auth', async () => {
         const request = { data: { query: 'test' } };
         // @ts-ignore
-        await expect(smartSearch(request)).rejects.toThrow('Auth required.');
+        await expect(Main.smartSearch(request)).rejects.toThrow('Auth required.');
     });
 
     it('should throw invalid-argument if missing data', async () => {
         const request = { auth: { uid: 'user1' }, data: {} };
         // @ts-ignore
-        await expect(smartSearch(request)).rejects.toThrow('Query required.');
+        await expect(Main.smartSearch(request)).rejects.toThrow('Query required.');
     });
 
     it('should throw resource-exhausted if quota exceeded', async () => {
@@ -207,6 +219,32 @@ describe('AI Cloud Functions', () => {
         mockCheckQuota.mockResolvedValueOnce({ allowed: false, reason: 'Quota exceeded' });
         
         // @ts-ignore
-        await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
+        await expect(Main.smartSearch(request)).rejects.toThrow('Quota exceeded');
+    });
+
+    it('callAI should fallback to Gemini if OpenRouter fails and fallbackToGemini is true', async () => {
+        // Mock Firestore to return OpenRouter with fallback enabled
+        mockGet.mockResolvedValueOnce({
+            exists: true,
+            data: () => ({
+                provider: 'openrouter',
+                modelMapping: { test: 'qwen/qwen-2.5-72b-instruct:free' },
+                fallbackToGemini: true
+            })
+        });
+        mockDoc.mockReturnValue({ get: mockGet });
+
+        // Mock fetch to fail for OpenRouter
+        const globalFetch = global.fetch;
+        global.fetch = vi.fn().mockRejectedValue(new Error('OpenRouter error'));
+
+        // Mock GoogleGenAI is already mocked to return 'Mocked AI Response'
+
+        const result = await (Main as any).callAI('user1', 'test', { parts: [{ text: 'hello' }] });
+
+        expect(result.success).toBe(true);
+        expect(result.text).toBe('Mocked AI Response');
+
+        global.fetch = globalFetch;
     });
 });

@@ -1,6 +1,5 @@
-import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { PetProfile, AISettings, ChatSession, AIProvider, Geolocation } from '../types';
 import { adminService } from './adminService';
-import * as aiService from './geminiService';
 
 let cachedSettings: AISettings | null = null;
 let isInitializing = false;
@@ -41,23 +40,48 @@ export const aiBridgeService = {
     },
 
     async analyzeImageForDescription(photo: File): Promise<string> {
-        return aiService.analyzeImageForDescription(photo);
+        const { analyzeImageForDescription } = await import('./geminiService');
+        return analyzeImageForDescription(photo);
     },
 
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
-        return aiService.performAIHealthCheck(pet, symptoms, locale);
+        const { performAIHealthCheck } = await import('./geminiService');
+        return performAIHealthCheck(pet, symptoms, locale);
     },
 
     async generateChatSuggestions(session: ChatSession, currentUserEmail: string): Promise<string[]> {
-        return aiService.generateChatSuggestions(session, currentUserEmail);
+        const { generateChatSuggestions } = await import('./geminiService');
+        return generateChatSuggestions(session, currentUserEmail);
     },
 
     async comparePets(foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> {
-        return aiService.comparePets(foundPetDesc, lostPet);
+        const { comparePets } = await import('./geminiService');
+        return comparePets(foundPetDesc, lostPet);
     },
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {
-        return aiService.generateMatchExplanation(pet, filters);
+        const { generateMatchExplanation } = await import('./geminiService');
+        return generateMatchExplanation(pet, filters);
+    },
+
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        const { autoFillPetDetails } = await import('./geminiService');
+        return autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        const { generatePetIdentikit } = await import('./geminiService');
+        return generatePetIdentikit(photo, locale);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        const { parseSearchQuery } = await import('./geminiService');
+        return parseSearchQuery(query);
+    },
+
+    async findNearbyVets(location: Geolocation): Promise<{ text: string, places: any[] }> {
+        const { findNearbyVets } = await import('./geminiService');
+        return findNearbyVets(location);
     },
 
     /**
@@ -68,6 +92,7 @@ export const aiBridgeService = {
         history: Array<{ role: 'user' | 'assistant'; text: string }>,
         systemPrompt: string
     ): Promise<string> {
-        return aiService.chat(history, systemPrompt);
+        const { chat } = await import('./geminiService');
+        return chat(history, systemPrompt);
     },
 };

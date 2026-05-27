@@ -143,7 +143,7 @@ export const AdminAISettings: React.FC = () => {
             setAvailableModels(models);
             addSnackbar(`Fetched ${models.length} models`, 'info');
         } catch (e: any) {
-            addSnackbar(t('dashboard:admin.connectionFailed') + ': ' + e.message, 'error');
+            addSnackbar(t('dashboard:admin.connectionFailed') + ': ' + (e.message || 'Error'), 'error');
         } finally {
             setFetchingModels(false);
         }
@@ -186,10 +186,11 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
                     { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-green' : '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -244,6 +245,19 @@ export const AdminAISettings: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div>
+                        <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Resilience: Fallback to Gemini</h4>
+                        <p className="text-[9px] text-slate-500 mt-1 uppercase">Automatically use Gemini if OpenRouter fails or hits rate limits.</p>
+                    </div>
+                    <button
+                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                 </div>
             </GlassCard>
 

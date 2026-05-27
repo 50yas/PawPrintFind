@@ -29,6 +29,7 @@ describe('aiBridgeService', () => {
         vi.mocked(adminService.getAISettings).mockResolvedValue({
             provider: 'openrouter',
             modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
+            fallbackToGemini: true,
             lastUpdated: Date.now(),
             updatedBy: 'admin'
         });
