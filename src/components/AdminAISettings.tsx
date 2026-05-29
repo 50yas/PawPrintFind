@@ -13,6 +13,10 @@ const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor:
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    visionIdentification: { icon: '🔍', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
+    smartSearch: { icon: '⚡', color: 'text-yellow-400', borderColor: 'border-l-yellow-500' },
+    healthAssessment: { icon: '🏥', color: 'text-green-400', borderColor: 'border-l-green-500' },
+    blogGeneration: { icon: '✍️', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -157,6 +161,10 @@ export const AdminAISettings: React.FC = () => {
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'visionIdentification', label: 'Vision ID' },
+        { id: 'smartSearch', label: 'Smart Search' },
+        { id: 'healthAssessment', label: 'Health Check' },
+        { id: 'blogGeneration', label: 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,12 +194,13 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'READY' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-teal' : '' },
                 ].map((stat, i) => (
                     <div key={i} className={`p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition-all duration-300 hover:bg-white/10 ${stat.glow}`}>
                         <span className="text-xl">{stat.icon}</span>
@@ -330,6 +339,29 @@ export const AdminAISettings: React.FC = () => {
                             </div>
                         );
                     })}
+                </div>
+            </GlassCard>
+
+            {/* Failover & Reliability */}
+            <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
+                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    FAILOVER & RELIABILITY
+                </h3>
+                <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                    <div className="flex-1">
+                        <h4 className="text-[11px] font-black text-white uppercase tracking-wider">Fallback to Gemini 2.0 Flash</h4>
+                        <p className="text-[9px] text-slate-500 mt-1 font-mono uppercase">Automatically reroutes failed OpenRouter requests to Google's tier-1 infrastructure.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={settings.fallbackToGemini}
+                            onChange={(e) => setSettings({ ...settings, fallbackToGemini: e.target.checked })}
+                        />
+                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
                 </div>
             </GlassCard>
 
