@@ -21,18 +21,31 @@ const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
  * Resolves the active AI provider and model for a given task.
  */
 async function resolveAIConfig(task: string) {
+    // Map feature-specific tasks to core protocol tasks
+    const taskAliases: Record<string, string> = {
+        'visionIdentification': 'vision',
+        'healthAssessment': 'triage',
+        'smartSearch': 'chat',
+        'blogGeneration': 'chat',
+        'chat': 'chat',
+        'matching': 'matching'
+    };
+
+    const coreTask = taskAliases[task] || task;
+
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const model = data?.modelMapping?.[coreTask] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -44,28 +57,36 @@ async function callAI(
     contents: any, // Standardized parts array for Gemini, or messages array for OpenRouter
     config: any = {},
     taskOverride?: string
-) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+): Promise<any> {
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
+        try {
+            // Convert Gemini contents to OpenRouter messages if needed
+            let messages = contents;
+            if (contents.parts) {
+                messages = [{ role: 'user', content: contents.parts[0].text }];
+                // Handle image if present
                 const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+                if (imgPart) {
+                    messages = [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: contents.parts.find((p: any) => p.text).text },
+                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        ]
+                    }];
+                }
             }
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error) {
+            console.error(`[AI Bridge] OpenRouter failed for ${featureName}. Fallback enabled: ${fallbackToGemini}`, error);
+            if (fallbackToGemini) {
+                console.info(`[AI Bridge] Retrying ${featureName} with Gemini 2.0 Flash fallback...`);
+                return await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
         }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
