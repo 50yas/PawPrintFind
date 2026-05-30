@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
 
@@ -13,7 +14,8 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
+        set: mockSet,
+        get: mockGet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -28,6 +30,9 @@ vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             return typeof config === 'function' ? config : handler;
         }),
         HttpsError: class HttpsError extends Error {
@@ -58,6 +63,13 @@ vi.mock('firebase-functions/v1', () => {
         }
     };
 });
+
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn((name) => ({
+        value: () => `mock-${name}-value`
+    }))
+}));
 
 // Mock GoogleGenAI
 vi.mock('@google/genai', () => {
@@ -176,7 +188,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
