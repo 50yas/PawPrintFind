@@ -22,10 +22,10 @@
     "stripe": "^20.3.1"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.8",
     "firebase-functions-test": "^3.1.0",
     "typescript": "^5.2.2",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.8"
   },
   "private": true
 }
