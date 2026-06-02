@@ -10,6 +10,7 @@ export const initializeAISettings = async () => {
     if (!settingsSnap.exists()) {
       const defaultSettings: AISettings = {
         provider: 'google',
+        fallbackToGemini: true,
         apiKeys: {
           google: '',
           openrouter: ''
