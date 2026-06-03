@@ -3,18 +3,30 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+// Recursive mock function to handle deep chaining
+const createFirestoreMock = () => {
+    const mock: any = {
+        get: mockGet,
+        set: mockSet,
+        collection: vi.fn(() => mock),
+        doc: vi.fn(() => mock),
+        where: vi.fn(() => mock),
+        limit: vi.fn(() => mock),
+    };
+    return mock;
+};
+
+const firestoreInstance = createFirestoreMock();
+const mockCollection = vi.spyOn(firestoreInstance, 'collection');
+const mockDoc = vi.spyOn(firestoreInstance, 'doc');
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
   return {
     initializeApp: vi.fn(),
-    firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
-    })), {
+    firestore: Object.assign(vi.fn(() => firestoreInstance), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -30,11 +42,23 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => `mock-${name}-value`
+        }))
     };
 });
 
@@ -176,7 +200,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         

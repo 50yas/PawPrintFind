@@ -1,6 +1,7 @@
 import { PetProfile, ChatSession, AISettings } from '../types';
 import * as Prompts from './prompts';
-import { dbService } from './firebase';
+import { dbService, functions } from './firebase';
+import { httpsCallable } from 'firebase/functions';
 
 // =============================================================================
 // OPENROUTER CLIENT — Direct HTTP calls (no Cloud Functions needed)
@@ -206,16 +207,25 @@ const chat = async (
 };
 
 /**
- * Fetch available models from OpenRouter (public endpoint, no auth needed).
+ * Fetch available models from OpenRouter (via backend Cloud Function).
  */
 const fetchAvailableModels = async (): Promise<{ id: string; name: string }[]> => {
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/models');
-        if (!response.ok) return [];
-        const data = await response.json();
-        return (data.data || []).map((m: { id: string; name: string }) => ({ id: m.id, name: m.name }));
-    } catch {
-        return [];
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const result = await fn();
+        const data = result.data as { models: Array<{ id: string; name: string }> };
+        return data.models || [];
+    } catch (e) {
+        console.error("Failed to fetch OpenRouter models via Cloud Function:", e);
+        // Fallback to basic public list if Cloud Function fails or is not accessible
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/models');
+            if (!response.ok) return [];
+            const data = await response.json();
+            return (data.data || []).map((m: { id: string; name: string }) => ({ id: m.id, name: m.name }));
+        } catch {
+            return [];
+        }
     }
 };
 
