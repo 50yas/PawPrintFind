@@ -60,6 +60,18 @@ export const aiBridgeService = {
         return aiService.generateMatchExplanation(pet, filters);
     },
 
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
     /**
      * Multi-turn chat for LiveAssistant.
      * Hits the unified AI caller on the backend.

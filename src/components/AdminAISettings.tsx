@@ -13,6 +13,7 @@ const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor:
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    blogGeneration: { icon: '📝', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -157,6 +158,7 @@ export const AdminAISettings: React.FC = () => {
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'blogGeneration', label: 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,10 +188,11 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/5`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-green' : 'neon-glow-red' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -244,6 +247,25 @@ export const AdminAISettings: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+
+                {/* Fallback Toggle */}
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div>
+                        <h4 className="text-[11px] font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            <span className="text-lg">🛡️</span>
+                            RESILIENCE MODE: FALLBACK TO GEMINI
+                        </h4>
+                        <p className="text-[10px] text-slate-500 mt-1 max-w-xl">
+                            Automatically use <span className="text-cyan-400 font-mono">gemini-2.0-flash</span> if the primary provider (e.g. OpenRouter Free) fails or rate-limits.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                 </div>
             </GlassCard>
 
@@ -394,9 +416,10 @@ export const AdminAISettings: React.FC = () => {
                                             <>
                                                 {/* Recommended free models */}
                                                 <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
+                                                <option value="deepseek/deepseek-r1:free">⭐ deepseek-r1 (Reasoning)</option>
                                                 <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
                                                 <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
+                                                <option value="google/gemini-2.0-flash:free">gemini-2.0-flash (Stable)</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
