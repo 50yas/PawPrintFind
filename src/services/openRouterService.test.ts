@@ -1,11 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { openRouterService } from './openRouterService';
+import { aiBridgeService } from './aiBridgeService';
 import { httpsCallable } from 'firebase/functions';
 
-// Mock Firebase Functions
+// Mock aiBridgeService
+vi.mock('./aiBridgeService', () => ({
+  aiBridgeService: {
+    analyzeImageForDescription: vi.fn(),
+    performAIHealthCheck: vi.fn(),
+    generateChatSuggestions: vi.fn(),
+    comparePets: vi.fn(),
+    generateMatchExplanation: vi.fn(),
+    chat: vi.fn(),
+  }
+}));
+
+// Mock Firebase Functions for fetchAvailableModels
 vi.mock('firebase/functions', () => ({
   httpsCallable: vi.fn(),
-  getFunctions: vi.fn(),
 }));
 
 vi.mock('./firebase', () => ({
@@ -13,75 +25,34 @@ vi.mock('./firebase', () => ({
 }));
 
 describe('openRouterService', () => {
-  const mockCallFunction = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-    (httpsCallable as any).mockReturnValue(mockCallFunction);
   });
 
-  it('analyzeImageForDescription should call cloud function with correct parameters', async () => {
-    mockCallFunction.mockResolvedValue({ data: { success: true, text: 'A cute dog' } });
+  it('analyzeImageForDescription should delegate to aiBridgeService', async () => {
+    vi.mocked(aiBridgeService.analyzeImageForDescription).mockResolvedValue('A cute dog');
+    const file = new File([], 'test.jpg');
     
-    // Create a dummy file
-    const file = new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' });
-    
-    // Mock FileReader class
-    class MockFileReader {
-      readAsDataURL = vi.fn();
-      onloadend = vi.fn();
-      result = 'data:image/jpeg;base64,BASE64_CONTENT';
-      
-      constructor() {
-        this.readAsDataURL.mockImplementation(() => {
-           // Simulate async behavior
-           setTimeout(() => {
-             if (this.onloadend) this.onloadend();
-           }, 0);
-        });
-      }
-    }
-    
-    vi.spyOn(window, 'FileReader').mockImplementation(MockFileReader as any);
-
     const result = await openRouterService.analyzeImageForDescription(file);
 
     expect(result).toBe('A cute dog');
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callOpenRouter');
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'vision',
-      messages: expect.arrayContaining([
-        expect.objectContaining({
-          role: 'user',
-          content: expect.arrayContaining([
-            expect.objectContaining({ type: 'image_url' })
-          ])
-        })
-      ])
-    }));
+    expect(aiBridgeService.analyzeImageForDescription).toHaveBeenCalledWith(file);
   });
 
-  it('generateChatSuggestions should parse JSON response', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { 
-        success: true, 
-        text: JSON.stringify({ suggestions: ['Hello', 'Hi'] }) 
-      } 
-    });
+  it('generateChatSuggestions should delegate to aiBridgeService', async () => {
+    vi.mocked(aiBridgeService.generateChatSuggestions).mockResolvedValue(['Hello']);
 
-    const session: any = { messages: [], ownerEmail: 'owner@example.com' };
-    const result = await openRouterService.generateChatSuggestions(session, 'owner@example.com');
+    const result = await openRouterService.generateChatSuggestions({}, 'test@example.com');
 
-    expect(result).toEqual(['Hello', 'Hi']);
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'chat'
-    }));
+    expect(result).toEqual(['Hello']);
+    expect(aiBridgeService.generateChatSuggestions).toHaveBeenCalled();
   });
 
   it('fetchAvailableModels should call fetchOpenRouterModels cloud function', async () => {
-    mockCallFunction.mockResolvedValue({ 
+    const mockCall = vi.fn().mockResolvedValue({
       data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] } 
     });
+    vi.mocked(httpsCallable).mockReturnValue(mockCall as any);
 
     const result = await openRouterService.fetchAvailableModels();
 
@@ -89,11 +60,9 @@ describe('openRouterService', () => {
     expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'fetchOpenRouterModels');
   });
 
-  it('should handle errors gracefully', async () => {
-    mockCallFunction.mockRejectedValue(new Error('API Error'));
+  it('should handle errors gracefully by delegating and letting bridge handle it', async () => {
+    vi.mocked(aiBridgeService.performAIHealthCheck).mockRejectedValue(new Error('Fail'));
 
-    const result = await openRouterService.performAIHealthCheck({} as any, 'cough');
-
-    expect(result).toBe('Health analysis failed.');
+    await expect(openRouterService.performAIHealthCheck({} as any, 'cough', 'en')).rejects.toThrow('Fail');
   });
 });
