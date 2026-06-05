@@ -42,11 +42,13 @@ export const adminService = {
             // Return default settings if none exist
             return {
                 provider: 'google',
+                fallbackToGemini: true,
                 modelMapping: {
                     vision: 'gemini-pro-vision',
                     triage: 'gemini-pro',
                     chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    matching: 'gemini-pro',
+                    blogGeneration: 'gemini-pro'
                 },
                 lastUpdated: Date.now(),
                 updatedBy: 'system@pawprintfind.com'
@@ -58,11 +60,13 @@ export const adminService = {
             if (error.code === 'permission-denied') {
                 return {
                     provider: 'google',
+                    fallbackToGemini: true,
                     modelMapping: {
                         vision: 'gemini-pro-vision',
                         triage: 'gemini-pro',
                         chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        matching: 'gemini-pro',
+                        blogGeneration: 'gemini-pro'
                     },
                     lastUpdated: Date.now(),
                     updatedBy: 'system@pawprintfind.com'
