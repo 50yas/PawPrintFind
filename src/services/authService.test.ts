@@ -245,7 +245,7 @@ describe('authService error handling and authentication', () => {
     });
 
     it('should return valid true for genesis key', async () => {
-      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } }));
+      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } }) as any);
       const result = await authService.verifyAdminKey(TEST_KEY_INPUT);
       expect(result).toEqual({ valid: true, type: 'GENESIS' });
       expect(logger.error).not.toHaveBeenCalled();
@@ -258,20 +258,20 @@ describe('authService error handling and authentication', () => {
       };
       (getDocs as Mock).mockResolvedValue(mockSnapshot);
 
-      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } }));
+      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } }) as any);
       const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT'); // will produce a generic hash
       expect(result).toEqual({ valid: true, type: 'ISSUED', keyDocId: 'key123' });
     });
 
     it('should return valid false for an invalid key', async () => {
-      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: false, type: 'GENESIS' } }));
+      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockResolvedValue({ data: { valid: false, type: 'GENESIS' } }) as any);
       const result = await authService.verifyAdminKey('INVALID_KEY_INPUT');
       expect(result).toEqual({ valid: false, type: 'GENESIS' }); // Falls back to GENESIS type if not found
     });
 
     it('should log error and re-throw on failure', async () => {
       const mockError = new Error('Key verification failed');
-      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockRejectedValue(mockError));
+      vi.mocked(httpsCallable).mockReturnValueOnce(vi.fn().mockRejectedValue(mockError) as any);
       await expect(authService.verifyAdminKey('ANY_KEY')).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', mockError);
     });
