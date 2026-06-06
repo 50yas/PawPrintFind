@@ -10,6 +10,9 @@ vi.mock('firebase/functions', () => ({
 
 vi.mock('./firebase', () => ({
   functions: {},
+  dbService: {
+    getAISettings: vi.fn()
+  }
 }));
 
 describe('openRouterService', () => {
@@ -42,7 +45,7 @@ describe('openRouterService', () => {
       }
     }
     
-    vi.spyOn(window, 'FileReader').mockImplementation(MockFileReader as any);
+    vi.stubGlobal('FileReader', MockFileReader);
 
     const result = await openRouterService.analyzeImageForDescription(file);
 

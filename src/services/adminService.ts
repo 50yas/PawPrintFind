@@ -36,17 +36,19 @@ export const adminService = {
 
             if (snap.exists()) {
                 const data = snap.data();
-                return validationService.validate(AISettingsSchema, data, 'getAISettings');
+                return validationService.validate(AISettingsSchema, data, 'getAISettings') as AISettings;
             }
 
             // Return default settings if none exist
             return {
                 provider: 'google',
+                fallbackToGemini: true,
                 modelMapping: {
-                    vision: 'gemini-pro-vision',
-                    triage: 'gemini-pro',
-                    chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    vision: 'gemini-2.0-flash',
+                    triage: 'gemini-2.0-flash',
+                    chat: 'gemini-2.0-flash',
+                    matching: 'gemini-2.0-flash',
+                    blogGeneration: 'gemini-2.0-flash'
                 },
                 lastUpdated: Date.now(),
                 updatedBy: 'system@pawprintfind.com'
@@ -58,11 +60,13 @@ export const adminService = {
             if (error.code === 'permission-denied') {
                 return {
                     provider: 'google',
+                    fallbackToGemini: true,
                     modelMapping: {
-                        vision: 'gemini-pro-vision',
-                        triage: 'gemini-pro',
-                        chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        vision: 'gemini-2.0-flash',
+                        triage: 'gemini-2.0-flash',
+                        chat: 'gemini-2.0-flash',
+                        matching: 'gemini-2.0-flash',
+                        blogGeneration: 'gemini-2.0-flash'
                     },
                     lastUpdated: Date.now(),
                     updatedBy: 'system@pawprintfind.com'

@@ -3,18 +3,33 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+// Helper to create a chained mock
+const createChainedMock = () => {
+    const m: any = {
+        get: mockGet,
+        set: mockSet,
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        collection: vi.fn(),
+        doc: vi.fn(),
+        data: vi.fn(),
+    };
+    m.collection.mockReturnValue(m);
+    m.doc.mockReturnValue(m);
+    return m;
+};
+
+const mockFirestore = createChainedMock();
+const mockCollection = mockFirestore.collection;
+const mockDoc = mockFirestore.doc;
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
   return {
     initializeApp: vi.fn(),
-    firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
-    })), {
+    firestore: Object.assign(vi.fn(() => mockFirestore), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -30,11 +45,20 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn(() => ({
+            value: vi.fn().mockReturnValue('mock-secret-value')
+        }))
     };
 });
 
@@ -87,9 +111,18 @@ vi.mock('./rateLimit', () => ({
     checkQuota: mockCheckQuota
 }));
 
+// Mock OpenRouter
+const { mockCallOpenRouterAI } = vi.hoisted(() => ({
+    mockCallOpenRouterAI: vi.fn().mockResolvedValue({ success: true, text: 'OpenRouter Response' })
+}));
+vi.mock('./openRouter', () => ({
+    callOpenRouterAI: mockCallOpenRouterAI,
+    fetchOpenRouterModels: vi.fn()
+}));
+
 import { trackUsage } from './usage';
 // @ts-ignore - these won't be exported yet
-import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
+import { visionIdentification, smartSearch, healthAssessment, blogGeneration, callGemini } from './index';
 
 describe('trackUsage', () => {
   beforeEach(() => {
@@ -176,7 +209,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
@@ -208,5 +244,31 @@ describe('AI Cloud Functions', () => {
         
         // @ts-ignore
         await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
+    });
+
+    it('should fallback to Gemini if OpenRouter fails and fallbackToGemini is true', async () => {
+        // Setup config to use OpenRouter with fallback enabled
+        mockGet.mockResolvedValueOnce({
+            exists: true,
+            data: () => ({
+                provider: 'openrouter',
+                fallbackToGemini: true,
+                modelMapping: { chat: 'some-model' }
+            })
+        });
+
+        // Mock OpenRouter failure
+        mockCallOpenRouterAI.mockRejectedValueOnce(new Error('OpenRouter Down'));
+
+        const request = {
+            auth: { uid: 'user123' },
+            data: { task: 'chat', query: 'hello', contents: { parts: [{ text: 'hello' }] } }
+        };
+
+        // @ts-ignore
+        const result = await callGemini(request);
+
+        expect(result.success).toBe(true);
+        expect(result.text).toBe('Mocked AI Response'); // From callGeminiAI
     });
 });

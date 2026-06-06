@@ -50,7 +50,7 @@ describe('Vision Model Upgrade', () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await identifyBreedFromImage(mockFile);
     
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
   });
 
   it('autoFillPetDetails should use visionIdentification', async () => {
