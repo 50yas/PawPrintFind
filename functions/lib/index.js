@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onSightingEventCreated = exports.stripeWebhook = exports.createDonationCheckout = exports.verifyAdminKey = exports.onSubscriptionChange = exports.onStripePaymentSuccess = exports.onUserCreated = exports.callGemini = exports.blogGeneration = exports.healthAssessment = exports.smartSearch = exports.visionIdentification = exports.fetchOpenRouterModels = exports.callOpenRouter = void 0;
+exports.callAI = callAI;
 const firestore_1 = require("firebase-functions/v2/firestore");
 const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
@@ -49,39 +50,72 @@ const openRouterApiKey = (0, params_1.defineSecret)("OPENROUTER_API_KEY");
 const stripeSecretKey = (0, params_1.defineSecret)("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = (0, params_1.defineSecret)("STRIPE_WEBHOOK_SECRET");
 const genesisKeyHash = (0, params_1.defineSecret)("GENESIS_KEY_HASH");
-async function resolveAIConfig(task) {
+async function resolveAIConfig(taskOrModel) {
+    const isModelId = taskOrModel.includes('/') || taskOrModel.startsWith('gemini-');
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google';
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
-            return { provider, model };
+            const provider = data?.provider || data?.activeProvider || 'google';
+            const fallbackToGemini = data?.fallbackToGemini !== false;
+            let model = isModelId ? taskOrModel : data?.modelMapping?.[taskOrModel];
+            if (!model) {
+                model = provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free';
+            }
+            return { provider, model, fallbackToGemini };
         }
     }
     catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return {
+        provider: 'google',
+        model: isModelId ? taskOrModel : 'gemini-2.0-flash',
+        fallbackToGemini: true
+    };
 }
 async function callAI(userId, featureName, contents, config = {}, taskOverride) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
     if (provider === 'openrouter') {
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            if (contents.parts.find((p) => p.inlineData)) {
-                const imgPart = contents.parts.find((p) => p.inlineData);
-                messages = [{
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: contents.parts.find((p) => p.text).text },
-                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                        ]
-                    }];
+        try {
+            let messages = contents;
+            if (contents.parts || Array.isArray(contents)) {
+                messages = [];
+                if (config.systemInstruction) {
+                    messages.push({ role: 'system', content: typeof config.systemInstruction === 'string' ? config.systemInstruction : config.systemInstruction.parts?.[0]?.text });
+                }
+                const turns = Array.isArray(contents) ? contents : [contents];
+                for (const turn of turns) {
+                    const role = turn.role === 'model' ? 'assistant' : (turn.role || 'user');
+                    const parts = turn.parts || [];
+                    let msgContent = "";
+                    const textParts = parts.filter((p) => p.text).map((p) => p.text).join("\n");
+                    const imgParts = parts.filter((p) => p.inlineData).map((p) => ({
+                        type: 'image_url',
+                        image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+                    }));
+                    if (imgParts.length > 0) {
+                        msgContent = [
+                            { type: 'text', text: textParts || "Analyze this image." },
+                            ...imgParts
+                        ];
+                    }
+                    else {
+                        msgContent = textParts;
+                    }
+                    messages.push({ role, content: msgContent });
+                }
             }
+            return await (0, openRouter_1.callOpenRouterAI)(userId, model, messages, config, featureName, openRouterApiKey.value());
         }
-        return (0, openRouter_1.callOpenRouterAI)(userId, model, messages, config, featureName, openRouterApiKey.value());
+        catch (error) {
+            console.error(`[AI Router] OpenRouter failed for ${featureName}, fallbackToGemini=${fallbackToGemini}:`, error);
+            if (fallbackToGemini) {
+                console.log(`[AI Router] Falling back to Gemini for ${featureName}`);
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     }
     else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
@@ -169,12 +203,16 @@ async function callGeminiAI(userId, featureName, modelName, contents, config = {
             config: generationConfig
         });
         const response = result.response;
-        const text = response.text();
+        const candidate = response.candidates?.[0];
+        const text = candidate?.content?.parts?.find((p) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p) => p.inlineData)?.inlineData;
         (0, usage_1.trackUsage)(userId, featureName, 'google').catch(err => console.error(`Failed to track usage for ${featureName}:`, err));
         return {
             success: true,
             text,
-            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            mediaData: inlineData?.data,
+            mimeType: inlineData?.mimeType,
+            groundingMetadata: candidate?.groundingMetadata,
         };
     }
     catch (error) {
@@ -295,8 +333,10 @@ exports.callGemini = (0, https_1.onCall)({
 }, async (request) => {
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
-    return callAI(request.auth.uid, "generic", contents, { ...config, modelOverride: model });
+    const { task, model, contents, config } = request.data;
+    if (!task && !model)
+        throw new https_1.HttpsError("invalid-argument", "Task or model identifier required.");
+    return callAI(request.auth.uid, task || model, contents, config);
 });
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
@@ -342,7 +382,7 @@ exports.createDonationCheckout = (0, https_1.onCall)({
     }
     try {
         const Stripe = (await Promise.resolve().then(() => __importStar(require('stripe')))).default;
-        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' });
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-02-25.clover' });
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'payment',
@@ -390,7 +430,7 @@ exports.stripeWebhook = (0, https_1.onRequest)({
     }
     try {
         const Stripe = (await Promise.resolve().then(() => __importStar(require('stripe')))).default;
-        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' });
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-02-25.clover' });
         const event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret.value());
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
