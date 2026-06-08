@@ -3,6 +3,14 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
+const mockGet = vi.fn().mockResolvedValue({
+    exists: true,
+    data: () => ({
+        provider: 'google',
+        modelMapping: {},
+        fallbackToGemini: true
+    })
+});
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
 
@@ -13,7 +21,8 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
+        set: mockSet,
+        get: mockGet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,11 +39,20 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn(() => ({
+            value: vi.fn().mockReturnValue('mock-secret-value')
+        }))
     };
 });
 
@@ -89,7 +107,13 @@ vi.mock('./rateLimit', () => ({
 
 import { trackUsage } from './usage';
 // @ts-ignore - these won't be exported yet
-import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
+import { visionIdentification, smartSearch, healthAssessment, blogGeneration, callAI } from './index';
+import { callOpenRouterAI } from './openRouter';
+
+vi.mock('./openRouter', () => ({
+    callOpenRouterAI: vi.fn(),
+    fetchOpenRouterModels: vi.fn()
+}));
 
 describe('trackUsage', () => {
   beforeEach(() => {
@@ -176,7 +200,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
@@ -208,5 +235,52 @@ describe('AI Cloud Functions', () => {
         
         // @ts-ignore
         await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
+    });
+});
+
+describe('callAI Fallback Logic', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('should fallback to Gemini if OpenRouter fails and fallbackToGemini is true', async () => {
+        // Setup config to use OpenRouter with fallback enabled
+        mockGet.mockResolvedValueOnce({
+            exists: true,
+            data: () => ({
+                provider: 'openrouter',
+                modelMapping: { test_task: 'openrouter/model' },
+                fallbackToGemini: true
+            })
+        });
+
+        // Mock OpenRouter to fail
+        (callOpenRouterAI as any).mockRejectedValueOnce(new Error('OpenRouter Down'));
+
+        const result = await callAI('user1', 'test_task', { parts: [{ text: 'hello' }] });
+
+        expect(callOpenRouterAI).toHaveBeenCalled();
+        expect(result.success).toBe(true);
+        expect(result.text).toBe('Mocked AI Response'); // From Gemini mock
+    });
+
+    it('should NOT fallback to Gemini if OpenRouter fails and fallbackToGemini is false', async () => {
+        // Setup config to use OpenRouter with fallback DISABLED
+        mockGet.mockResolvedValueOnce({
+            exists: true,
+            data: () => ({
+                provider: 'openrouter',
+                modelMapping: { test_task: 'openrouter/model' },
+                fallbackToGemini: false
+            })
+        });
+
+        // Mock OpenRouter to fail
+        (callOpenRouterAI as any).mockRejectedValueOnce(new Error('OpenRouter Down'));
+
+        await expect(callAI('user1', 'test_task', { parts: [{ text: 'hello' }] }))
+            .rejects.toThrow('OpenRouter Down');
+
+        expect(callOpenRouterAI).toHaveBeenCalled();
     });
 });

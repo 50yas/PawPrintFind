@@ -3,7 +3,7 @@ import { adminService } from './adminService';
 import { logger } from './loggerService';
 import { auth } from './firebase';
 import type { Mock } from 'vitest';
-import { getDocs, setDoc, deleteDoc, addDoc, getCountFromServer, getAggregateFromServer, sum } from 'firebase/firestore';
+import { getDocs, setDoc, deleteDoc, addDoc, getCountFromServer, getAggregateFromServer, sum, getDoc } from 'firebase/firestore';
 
 // Mock dependencies
 vi.mock('./loggerService');
@@ -21,6 +21,7 @@ vi.mock('./firebase', () => ({
 vi.mock('firebase/firestore', () => {
     return {
         getDocs: vi.fn(),
+        getDoc: vi.fn(),
         setDoc: vi.fn(),
         deleteDoc: vi.fn(),
         addDoc: vi.fn(),
@@ -353,6 +354,40 @@ describe('adminService', () => {
                     targetId: 'user-123'
                 })
             );
+        });
+    });
+
+    describe('getAISettings', () => {
+        it('should return default settings if doc does not exist', async () => {
+            (getDoc as Mock).mockResolvedValue({ exists: () => false });
+            const settings = await adminService.getAISettings();
+            expect(settings.provider).toBe('google');
+            expect(settings.fallbackToGemini).toBe(true);
+            expect(settings.modelMapping.vision).toBe('gemini-2.0-flash');
+        });
+
+        it('should return stored settings if doc exists', async () => {
+            const mockData = {
+                provider: 'openrouter',
+                fallbackToGemini: false,
+                modelMapping: {
+                    vision: 'model-1',
+                    triage: 'model-2',
+                    chat: 'model-3',
+                    matching: 'model-4'
+                },
+                lastUpdated: 123,
+                updatedBy: 'admin@test.com'
+            };
+            (getDoc as Mock).mockResolvedValue({
+                exists: () => true,
+                data: () => mockData
+            });
+
+            const settings = await adminService.getAISettings();
+            expect(settings.provider).toBe('openrouter');
+            expect(settings.fallbackToGemini).toBe(false);
+            expect(settings.modelMapping.vision).toBe('model-1');
         });
     });
 
