@@ -20,6 +20,8 @@ const getAutoFillPetDetailsPrompt = (locale = 'en') => {
       "gender": "string ('Male', 'Female', 'Unknown')"
     }
     
+    **CRITICAL:** Output valid JSON ONLY. No markdown formatting, no code blocks, no preamble.
+
     **Notes:**
     - If specific details (like exact age) are hard to determine, provide a best estimate based on visual cues (e.g., grey muzzle = Senior).
     - If unsure, provide the most likely option.
@@ -37,7 +39,7 @@ const getPetIdentikitPrompt = (locale = 'en') => {
     **Language:**
     Write the Physical Description in "${locale}".
 
-    Output JSON.
+    **CRITICAL:** Output valid JSON ONLY. No markdown formatting, no code blocks, no preamble.
     `;
 };
 exports.getPetIdentikitPrompt = getPetIdentikitPrompt;
@@ -60,7 +62,7 @@ const getSearchParsingPrompt = (query) => {
     **Rules:**
     - If a parameter is not mentioned, return null for that field.
     - Be intelligent with 'tags'. If the user says "good for kids", add "kid-friendly" to tags.
-    - Return the result in JSON format ONLY.
+    - Output valid JSON ONLY. No markdown formatting, no code blocks, no preamble.
     `;
 };
 exports.getSearchParsingPrompt = getSearchParsingPrompt;
@@ -114,7 +116,9 @@ const getBlogGenerationParts = (topic) => {
     5.  **SEO Description:** A meta description (under 160 chars).
     6.  **Tags:** A list of 3-5 relevant tags.
 
-    Return the result in JSON format ONLY with the following schema:
+    Return the result in valid JSON format ONLY with the following schema.
+    CRITICAL: No markdown formatting, no code blocks, no preamble.
+
     {
       "title": "string",
       "summary": "string",
