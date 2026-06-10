@@ -3,8 +3,32 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+// Recursive mock function to handle multiple .collection().doc() calls
+const createMockDoc = () => {
+  const mockDocObj: any = {
+    set: mockSet,
+    get: mockGet,
+  };
+  mockDocObj.collection = vi.fn().mockImplementation(() => ({
+    doc: vi.fn().mockImplementation(createMockDoc),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] })
+  }));
+  return mockDocObj;
+};
+
+const mockDoc = vi.fn().mockImplementation(createMockDoc);
+
+const mockCollection = vi.fn().mockImplementation(() => ({
+    doc: mockDoc,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
+    collection: vi.fn().mockReturnThis()
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +37,6 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,11 +53,23 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
             }
         }
+    };
+});
+
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => `mock-value-for-${name}`
+        }))
     };
 });
 
@@ -117,7 +152,8 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await visionIdentification(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('system_config');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ visionIdentification: expect.anything() }),
             { merge: true }
@@ -149,7 +185,8 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await smartSearch(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('system_config');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ smartSearch: expect.anything() }),
             { merge: true }
@@ -166,7 +203,8 @@ describe('AI Cloud Functions', () => {
         // @ts-ignore
         await healthAssessment(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('system_config');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ healthAssessment: expect.anything() }),
             { merge: true }
@@ -176,14 +214,15 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('system_config');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ blogGeneration: expect.anything() }),
             { merge: true }
