@@ -44,6 +44,21 @@ const rateLimit_1 = require("./rateLimit");
 const Prompts = __importStar(require("./prompts"));
 const openRouter_1 = require("./openRouter");
 admin.initializeApp();
+function parseAIJSON(text) {
+    if (!text)
+        return null;
+    let clean = text.trim();
+    if (clean.startsWith('```')) {
+        clean = clean.replace(/^```[a-z]*\n/i, '').replace(/\n```$/g, '').trim();
+    }
+    try {
+        return JSON.parse(clean);
+    }
+    catch (e) {
+        console.error("Failed to parse AI JSON response:", text);
+        return null;
+    }
+}
 const geminiApiKey = (0, params_1.defineSecret)("GEMINI_API_KEY");
 const openRouterApiKey = (0, params_1.defineSecret)("OPENROUTER_API_KEY");
 const stripeSecretKey = (0, params_1.defineSecret)("STRIPE_SECRET_KEY");
@@ -54,34 +69,51 @@ async function resolveAIConfig(task) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google';
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            const provider = data?.provider || data?.activeProvider || 'google';
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
             return { provider, model };
         }
     }
     catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash' };
 }
 async function callAI(userId, featureName, contents, config = {}, taskOverride) {
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);
     if (provider === 'openrouter') {
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            if (contents.parts.find((p) => p.inlineData)) {
-                const imgPart = contents.parts.find((p) => p.inlineData);
-                messages = [{
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: contents.parts.find((p) => p.text).text },
-                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                        ]
-                    }];
-            }
+        let messages = [];
+        if (config.systemInstruction) {
+            messages.push({ role: 'system', content: config.systemInstruction });
         }
-        return (0, openRouter_1.callOpenRouterAI)(userId, model, messages, config, featureName, openRouterApiKey.value());
+        if (Array.isArray(contents)) {
+            contents.forEach(turn => {
+                const role = turn.role === 'model' ? 'assistant' : 'user';
+                const content = turn.parts.map((p) => p.text).join('\n');
+                messages.push({ role, content });
+            });
+        }
+        else if (contents.parts) {
+            const userContent = [];
+            contents.parts.forEach((p) => {
+                if (p.text) {
+                    userContent.push({ type: 'text', text: p.text });
+                }
+                else if (p.inlineData) {
+                    userContent.push({
+                        type: 'image_url',
+                        image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+                    });
+                }
+            });
+            messages.push({ role: 'user', content: userContent });
+        }
+        else {
+            messages.push({ role: 'user', content: typeof contents === 'string' ? contents : JSON.stringify(contents) });
+        }
+        const openRouterConfig = { ...config };
+        delete openRouterConfig.systemInstruction;
+        return (0, openRouter_1.callOpenRouterAI)(userId, model, messages, openRouterConfig, featureName, openRouterApiKey.value());
     }
     else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
@@ -169,12 +201,16 @@ async function callGeminiAI(userId, featureName, modelName, contents, config = {
             config: generationConfig
         });
         const response = result.response;
-        const text = response.text();
+        const candidate = response.candidates?.[0];
+        const text = candidate?.content?.parts?.find((p) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p) => p.inlineData)?.inlineData;
         (0, usage_1.trackUsage)(userId, featureName, 'google').catch(err => console.error(`Failed to track usage for ${featureName}:`, err));
         return {
             success: true,
             text,
-            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            mediaData: inlineData?.data,
+            mimeType: inlineData?.mimeType,
+            groundingMetadata: candidate?.groundingMetadata,
         };
     }
     catch (error) {
@@ -234,7 +270,13 @@ exports.visionIdentification = (0, https_1.onCall)({
         config.responseMimeType = "application/json";
         config.responseSchema = schema;
     }
-    return callAI(request.auth.uid, "visionIdentification", contents, config);
+    const response = await callAI(request.auth.uid, "visionIdentification", contents, config);
+    if (response.success && response.text) {
+        if (schema) {
+            return { ...response, parsed: parseAIJSON(response.text) };
+        }
+    }
+    return response;
 });
 exports.smartSearch = (0, https_1.onCall)({
     ...ON_CALL_CONFIG,
@@ -250,7 +292,11 @@ exports.smartSearch = (0, https_1.onCall)({
     }
     const prompt = Prompts.getSearchParsingPrompt(query);
     const contents = { parts: [{ text: prompt }] };
-    return callAI(request.auth.uid, "smartSearch", contents, { responseMimeType: "application/json" });
+    const response = await callAI(request.auth.uid, "smartSearch", contents, { responseMimeType: "application/json" });
+    if (response.success && response.text) {
+        return { ...response, parsed: parseAIJSON(response.text) };
+    }
+    return response;
 });
 exports.healthAssessment = (0, https_1.onCall)({
     ...ON_CALL_CONFIG,
@@ -284,10 +330,14 @@ exports.blogGeneration = (0, https_1.onCall)({
         throw new https_1.HttpsError("invalid-argument", "Topic required.");
     const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
     const contents = { parts: [{ text: userPrompt }] };
-    return callAI(request.auth.uid, "blogGeneration", contents, {
+    const response = await callAI(request.auth.uid, "blogGeneration", contents, {
         systemInstruction,
         responseMimeType: "application/json"
     });
+    if (response.success && response.text) {
+        return { ...response, parsed: parseAIJSON(response.text) };
+    }
+    return response;
 });
 exports.callGemini = (0, https_1.onCall)({
     ...ON_CALL_CONFIG,
@@ -295,8 +345,10 @@ exports.callGemini = (0, https_1.onCall)({
 }, async (request) => {
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
-    return callAI(request.auth.uid, "generic", contents, { ...config, modelOverride: model });
+    const { task, contents, config } = request.data;
+    if (!task)
+        throw new https_1.HttpsError("invalid-argument", "Task identifier required.");
+    return callAI(request.auth.uid, task, contents, config);
 });
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });

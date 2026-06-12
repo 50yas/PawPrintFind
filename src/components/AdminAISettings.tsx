@@ -13,6 +13,10 @@ const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor:
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    healthAssessment: { icon: '🩺', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
+    blogGeneration: { icon: '📝', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
+    visionIdentification: { icon: '🖼', color: 'text-indigo-400', borderColor: 'border-l-indigo-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -157,6 +161,10 @@ export const AdminAISettings: React.FC = () => {
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: 'Smart Search Parsing' },
+        { id: 'healthAssessment', label: 'AI Health Assessment' },
+        { id: 'blogGeneration', label: 'AI Blog Generation' },
+        { id: 'visionIdentification', label: 'Pet Registration Vision' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -189,7 +197,7 @@ export const AdminAISettings: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -393,11 +401,12 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (General High-IQ)</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">⭐ gemini-2.0-flash (Fast & Multimodal)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision/OCR)</option>
+                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">qwen-2.5-coder-32b (Logic)</option>
                                                 <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="microsoft/phi-3-medium-128k-instruct:free">phi-3-medium</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}
