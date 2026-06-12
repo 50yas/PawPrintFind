@@ -7,7 +7,7 @@ import React from 'react';
 // Mock theme utility
 vi.mock('../src/utils/theme', () => ({
     generateTheme: vi.fn().mockReturnValue({
-        light: { primary: '#008080' },
+        light: { primary: '#006a6a' },
         dark: { primary: '#4cdada' }
     })
 }));
@@ -56,7 +56,7 @@ describe('ThemeContext', () => {
         
         expect(screen.getByTestId('theme')).toHaveTextContent('system');
         expect(screen.getByTestId('is-dark')).toHaveTextContent('false');
-        expect(screen.getByTestId('primary-color')).toHaveTextContent('#008080');
+        expect(screen.getByTestId('primary-color')).toHaveTextContent('#006a6a');
     });
 
     it('allows changing theme to dark', () => {
