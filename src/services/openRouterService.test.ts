@@ -90,10 +90,9 @@ describe('openRouterService', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    mockCallFunction.mockRejectedValue(new Error('API Error'));
+    // In the new implementation, it should throw or handle depending on the method
+    mockCallFunction.mockResolvedValue({ data: { success: false, error: 'API Error' } });
 
-    const result = await openRouterService.performAIHealthCheck({} as any, 'cough');
-
-    expect(result).toBe('Health analysis failed.');
+    await expect(openRouterService.performAIHealthCheck({} as any, 'cough')).rejects.toThrow('API Error');
   });
 });

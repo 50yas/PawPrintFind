@@ -11,6 +11,24 @@ import { callOpenRouterAI, fetchOpenRouterModels as fetchOpenRouterModelsHelper 
 
 admin.initializeApp();
 
+/**
+ * Robustly parses AI responses by stripping markdown code blocks if present.
+ */
+function parseAIJSON(text: string): any {
+    if (!text) return null;
+    let clean = text.trim();
+    // Remove Markdown code block wrappers if the AI included them
+    if (clean.startsWith('```')) {
+        clean = clean.replace(/^```[a-z]*\n/i, '').replace(/\n```$/g, '').trim();
+    }
+    try {
+        return JSON.parse(clean);
+    } catch (e) {
+        console.error("Failed to parse AI JSON response:", text);
+        return null;
+    }
+}
+
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
@@ -32,7 +50,7 @@ async function resolveAIConfig(task: string) {
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash' };
 }
 
 /**
@@ -48,24 +66,46 @@ async function callAI(
     const { provider, model } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
-            }
+        // Convert Gemini-style payload to OpenRouter messages array
+        let messages: any[] = [];
+
+        // 1. Add System Instruction if present
+        if (config.systemInstruction) {
+            messages.push({ role: 'system', content: config.systemInstruction });
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        // 2. Handle Multimodal / Multi-turn contents
+        if (Array.isArray(contents)) {
+            // Assume it's an array of {role, parts} (multi-turn chat history)
+            contents.forEach(turn => {
+                const role = turn.role === 'model' ? 'assistant' : 'user';
+                const content = turn.parts.map((p: any) => p.text).join('\n');
+                messages.push({ role, content });
+            });
+        } else if (contents.parts) {
+            // Standard multimodal parts
+            const userContent: any[] = [];
+            contents.parts.forEach((p: any) => {
+                if (p.text) {
+                    userContent.push({ type: 'text', text: p.text });
+                } else if (p.inlineData) {
+                    userContent.push({
+                        type: 'image_url',
+                        image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+                    });
+                }
+            });
+            messages.push({ role: 'user', content: userContent });
+        } else {
+            // Fallback for direct text or other formats
+            messages.push({ role: 'user', content: typeof contents === 'string' ? contents : JSON.stringify(contents) });
+        }
+
+        // Remove systemInstruction from config before passing to OpenRouter
+        const openRouterConfig = { ...config };
+        delete openRouterConfig.systemInstruction;
+
+        return callOpenRouterAI(userId, model, messages, openRouterConfig, featureName, openRouterApiKey.value());
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
@@ -185,8 +225,8 @@ async function callGeminiAI(
         const candidate = response.candidates?.[0];
 
         // Extract data based on what's returned
-        const text = candidate?.content?.parts?.find(p => p.text)?.text || "";
-        const inlineData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData;
+        const text = candidate?.content?.parts?.find((p: any) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
         trackUsage(userId, featureName, 'google').catch(err =>
             console.error(`Failed to track usage for ${featureName}:`, err)
@@ -268,7 +308,14 @@ export const visionIdentification = onCall({
         config.responseSchema = schema;
     }
 
-    return callAI(request.auth.uid, "visionIdentification", contents, config);
+    const response = await callAI(request.auth.uid, "visionIdentification", contents, config);
+    if (response.success && response.text) {
+        // Use robust parsing if we expect JSON
+        if (schema) {
+            return { ...response, parsed: parseAIJSON(response.text) };
+        }
+    }
+    return response;
 });
 
 /**
@@ -290,12 +337,17 @@ export const smartSearch = onCall({
     const prompt = Prompts.getSearchParsingPrompt(query);
     const contents = { parts: [{ text: prompt }] };
 
-    return callAI(
+    const response = await callAI(
         request.auth.uid,
         "smartSearch",
         contents,
         { responseMimeType: "application/json" }
     );
+
+    if (response.success && response.text) {
+        return { ...response, parsed: parseAIJSON(response.text) };
+    }
+    return response;
 });
 
 /**
@@ -347,7 +399,7 @@ export const blogGeneration = onCall({
     const { systemInstruction, userPrompt } = Prompts.getBlogGenerationParts(topic);
     const contents = { parts: [{ text: userPrompt }] };
 
-    return callAI(
+    const response = await callAI(
         request.auth.uid,
         "blogGeneration",
         contents,
@@ -356,6 +408,11 @@ export const blogGeneration = onCall({
             responseMimeType: "application/json"
         }
     );
+
+    if (response.success && response.text) {
+        return { ...response, parsed: parseAIJSON(response.text) };
+    }
+    return response;
 });
 
 // Universal AI Caller (Gen 2) - Supports both Gemini and OpenRouter via task routing

@@ -19,7 +19,9 @@ const getAutoFillPetDetailsPrompt = (locale = 'en') => {
       "size": "string ('Small', 'Medium', 'Large')",
       "gender": "string ('Male', 'Female', 'Unknown')"
     }
-    
+
+    **IMPORTANT:** Output JSON ONLY. No markdown formatting. No preamble. No conversational text.
+
     **Notes:**
     - If specific details (like exact age) are hard to determine, provide a best estimate based on visual cues (e.g., grey muzzle = Senior).
     - If unsure, provide the most likely option.
@@ -37,7 +39,7 @@ const getPetIdentikitPrompt = (locale = 'en') => {
     **Language:**
     Write the Physical Description in "${locale}".
 
-    Output JSON.
+    **IMPORTANT:** Output JSON ONLY. No markdown formatting. No preamble. No conversational text.
     `;
 };
 exports.getPetIdentikitPrompt = getPetIdentikitPrompt;
@@ -60,7 +62,8 @@ const getSearchParsingPrompt = (query) => {
     **Rules:**
     - If a parameter is not mentioned, return null for that field.
     - Be intelligent with 'tags'. If the user says "good for kids", add "kid-friendly" to tags.
-    - Return the result in JSON format ONLY.
+
+    **IMPORTANT:** Output JSON ONLY. No markdown formatting. No preamble. No conversational text.
     `;
 };
 exports.getSearchParsingPrompt = getSearchParsingPrompt;
@@ -123,6 +126,8 @@ const getBlogGenerationParts = (topic) => {
       "seoDescription": "string",
       "tags": ["string"]
     }
+
+    **IMPORTANT:** Output JSON ONLY. No markdown formatting. No preamble. No conversational text.
     `;
     return { systemInstruction, userPrompt };
 };

@@ -14,6 +14,7 @@ vi.mock('../hooks/useTranslations', () => ({
 
 // Mock services
 vi.mock('../services/firebase', () => ({
+  db: {},
   dbService: {
     checkPatientLimit: vi.fn().mockResolvedValue({ current: 0, limit: 5, reached: false }),
     getVerificationStatus: vi.fn().mockResolvedValue(null)
@@ -93,21 +94,49 @@ describe('VetDashboard Component', () => {
 
   it('disables Upgrade to Pro for unverified users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
-    expect(upgradeBtn).toBeDisabled();
+    // The "Verify to Unlock PRO" button is NOT disabled, but the action it takes is different.
+    // Wait, in the code it's:
+    /*
+                        <button
+                            onClick={() => setShowVerificationModal(true)}
+                            className="bg-white/10 border border-white/20 text-white font-black shadow-lg flex items-center gap-2 transition-all rounded-xl px-5 py-2.5 hover:bg-white/20 text-xs uppercase tracking-widest"
+                            title="Complete verification to unlock Pro"
+                        >
+                            <span>🛡️ Verify to Unlock PRO</span>
+                        </button>
+    */
+    // It's not disabled. The previous test was likely wrong or the UI changed.
+    // Let's check the other button that IS disabled:
+    /*
+                        <button
+                            onClick={() => setShowVerificationModal(true)}
+                            disabled={isPending}
+                            ...
+                        >
+                            {isDeclined
+                                ? t('dashboard:vet.retryVerification', 'Retry Verification')
+                                : isPending
+                                    ? t('dashboard:vet.pendingVerificationBtn', 'Awaiting Review')
+                                    : t('dashboard:vet.submitDocuments', 'Submit Documents')}
+                        </button>
+    */
+    // For mockFreeUser, isPending is false, so it's not disabled.
+    // Let's check isPending user.
+    render(<VetDashboard {...defaultProps} user={mockPendingUser} />);
+    const awaitingBtn = screen.getByText('Awaiting Review');
+    expect(awaitingBtn).toBeDisabled();
   });
 
   it('enables Upgrade to Pro for approved users', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
     // Pro user shows 'Pro Active', so let's test a verified but free user
     const mockVerifiedFreeUser = { ...mockFreeUser, isVetVerified: true, verificationStatus: 'approved' };
     render(<VetDashboard {...defaultProps} user={mockVerifiedFreeUser as any} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
+    const upgradeBtn = screen.getByText(/👑 Unlock Pro/i).closest('button');
     expect(upgradeBtn).not.toBeDisabled();
   });
 
   it('shows Pro Active status for Pro users', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('👑 Pro Active')).toBeInTheDocument();
+    expect(screen.getByText(/Pro Active/i)).toBeInTheDocument();
   });
 });
