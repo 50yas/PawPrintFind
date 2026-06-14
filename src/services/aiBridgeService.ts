@@ -70,4 +70,24 @@ export const aiBridgeService = {
     ): Promise<string> {
         return aiService.chat(history, systemPrompt);
     },
+
+    async translateContent(text: string, targetLangs: string[]): Promise<Record<string, string>> {
+        return aiService.translateContent(text, targetLangs);
+    },
+
+    async generateHealthInsights(pet: PetProfile): Promise<any[]> {
+        return aiService.generateHealthInsights(pet);
+    },
+
+    async analyzeVideo(videoFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.analyzeVideo(videoFile, onProgress);
+    },
+
+    async transcribeAudio(audioFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.transcribeAudio(audioFile, onProgress);
+    },
+
+    async generateBlogPost(topic: string): Promise<any> {
+        return aiService.generateBlogPost(topic);
+    },
 };
