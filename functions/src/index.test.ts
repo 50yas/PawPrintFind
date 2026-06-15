@@ -3,8 +3,19 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+const mockDoc = vi.fn().mockImplementation(() => ({
+    set: mockSet,
+    get: mockGet,
+    collection: mockCollection,
+    doc: mockDoc
+}));
+
+const mockCollection = vi.fn().mockImplementation(() => ({
+    doc: mockDoc,
+    collection: mockCollection
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +24,6 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,6 +40,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -85,6 +96,10 @@ const { mockCheckQuota } = vi.hoisted(() => ({
 }));
 vi.mock('./rateLimit', () => ({
     checkQuota: mockCheckQuota
+}));
+
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({ value: () => 'mock-secret' }))
 }));
 
 import { trackUsage } from './usage';
@@ -176,7 +191,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
