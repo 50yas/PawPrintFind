@@ -883,7 +883,15 @@ export const NotificationConfigSchema = z.object({
 });
 
 export type AIProvider = 'google' | 'openrouter';
-export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching';
+export type AIModelTask =
+  | 'vision'
+  | 'visionIdentification'
+  | 'triage'
+  | 'chat'
+  | 'matching'
+  | 'smartSearch'
+  | 'healthAssessment'
+  | 'blogGeneration';
 
 export interface AISecrets {
   google?: string;
@@ -892,6 +900,7 @@ export interface AISecrets {
 
 export interface AISettings {
   provider: AIProvider;
+  fallbackToGemini: boolean;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
   modelMapping: Record<AIModelTask, string>;
   lastUpdated: number;
@@ -906,12 +915,17 @@ export const AISecretsSchema = z.object({
 
 export const AISettingsSchema = z.object({
   provider: z.enum(['google', 'openrouter']),
+  fallbackToGemini: z.boolean().default(true),
   publicLiveAssistantKey: z.string().optional(),
   modelMapping: z.object({
     vision: z.string(),
+    visionIdentification: z.string(),
     triage: z.string(),
     chat: z.string(),
-    matching: z.string()
+    matching: z.string(),
+    smartSearch: z.string(),
+    healthAssessment: z.string(),
+    blogGeneration: z.string()
   }),
   lastUpdated: z.number(),
   updatedBy: z.string().email()
