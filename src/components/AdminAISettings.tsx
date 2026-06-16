@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    healthAssessment: { icon: '🩺', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
+    blogGeneration: { icon: '📄', color: 'text-pink-400', borderColor: 'border-l-pink-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -166,7 +174,7 @@ export const AdminAISettings: React.FC = () => {
         <div className="space-y-8 animate-fade-in max-w-5xl mx-auto pb-28">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
-                <div>
+                <div className="flex-1">
                     <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                         <span className="text-3xl">🧠</span>
                         <span>{t('dashboard:admin.aiControlCenter')}</span>
@@ -175,21 +183,39 @@ export const AdminAISettings: React.FC = () => {
                         {t('dashboard:admin.providerStatus')}: <span className={activeKey ? 'text-green-400' : 'text-red-400'}>{activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.connectionInactive')}</span>
                     </p>
                 </div>
-                {!isSystemInit && (
-                    <button
-                        onClick={handleInitializeSystem}
-                        className="bg-amber-500 text-black px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:scale-105 transition-all"
-                    >
-                        Initialize System Core
-                    </button>
-                )}
+
+                <div className="flex flex-wrap items-center gap-4">
+                    {/* Fallback Toggle */}
+                    <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+                        <div className="text-right">
+                            <p className="text-[9px] font-black text-white uppercase tracking-widest">{t('dashboard:admin.fallbackToGemini')}</p>
+                            <p className="text-[8px] text-slate-500 font-mono uppercase">{t('dashboard:admin.fallbackDesc')}</p>
+                        </div>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                        >
+                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${settings.fallbackToGemini ? 'left-6' : 'left-1'}`}></div>
+                        </button>
+                    </div>
+
+                    {!isSystemInit && (
+                        <button
+                            onClick={handleInitializeSystem}
+                            className="bg-amber-500 text-black px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:scale-105 transition-all"
+                        >
+                            Initialize System Core
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-blue' : '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
