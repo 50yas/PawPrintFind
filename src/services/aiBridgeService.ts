@@ -1,4 +1,4 @@
-import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { PetProfile, AISettings, ChatSession, AIProvider, AIInsight, BlogPost } from '../types';
 import { adminService } from './adminService';
 import * as aiService from './geminiService';
 
@@ -58,6 +58,38 @@ export const aiBridgeService = {
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {
         return aiService.generateMatchExplanation(pet, filters);
+    },
+
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
+    async generateBlogPost(topic: string): Promise<Partial<BlogPost>> {
+        return aiService.generateBlogPost(topic);
+    },
+
+    async generateHealthInsights(pet: PetProfile): Promise<AIInsight[]> {
+        return aiService.generateHealthInsights(pet);
+    },
+
+    async translateContent(text: string, targetLangs: string[]): Promise<Record<string, string>> {
+        return aiService.translateContent(text, targetLangs);
+    },
+
+    async analyzeVideo(videoFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.analyzeVideo(videoFile, onProgress);
+    },
+
+    async transcribeAudio(audioFile: File, onProgress?: (percent: number) => void): Promise<string> {
+        return aiService.transcribeAudio(audioFile, onProgress);
     },
 
     /**
