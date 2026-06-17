@@ -27,12 +27,13 @@ async function resolveAIConfig(task: string) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
             const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,7 +46,7 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
@@ -65,7 +66,16 @@ async function callAI(
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        try {
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error) {
+            if (fallbackToGemini) {
+                console.warn(`OpenRouter failed for ${featureName}, falling back to Gemini...`, error);
+                // Ensure contents is in Gemini format
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
@@ -374,6 +384,15 @@ export const callGemini = onCall({
         contents,
         config
     );
+});
+
+/**
+ * Health check endpoint for GCP / Cloud Run / App Engine.
+ */
+export const ping = onRequest({
+    region: "us-central1",
+}, (req, res) => {
+    res.status(200).send("pong");
 });
 
 // Firestore Triggers (re-exported)
