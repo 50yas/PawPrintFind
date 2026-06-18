@@ -10,24 +10,30 @@ handlers:
   - url: /assets
     static_dir: dist/assets
     expiration: "30d"
+    secure: always
 
   - url: /locales
     static_dir: dist/locales
     expiration: "1d"
+    secure: always
 
   - url: /images
     static_dir: dist/images
     expiration: "7d"
+    secure: always
 
   - url: /favicon.ico
     static_files: dist/favicon.ico
     upload: dist/favicon.ico
+    secure: always
 
   - url: /manifest.webmanifest
     static_files: dist/manifest.webmanifest
     upload: dist/manifest.webmanifest
+    secure: always
 
   # Catch-all for SPA routing
   - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
+    secure: always
