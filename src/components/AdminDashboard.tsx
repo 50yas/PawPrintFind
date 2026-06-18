@@ -115,12 +115,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             id: 'operations' as AdminTab,
             label: 'Operations',
             icon: '🐾',
+            category: t('dashboard:admin.categoryOperations'),
             count: pendingRequests.length > 0 ? pendingRequests.length : undefined
         },
-        { id: 'finance' as AdminTab, label: 'Finance', icon: '💰' },
-        { id: 'community' as AdminTab, label: 'Community', icon: '🏆' },
-        { id: 'ai' as AdminTab, label: t('dashboard:admin.tabs.ai'), icon: '🧠' },
-        { id: 'system' as AdminTab, label: 'System', icon: '⚙️' },
+        { id: 'finance' as AdminTab, label: 'Finance', icon: '💰', category: t('dashboard:admin.categoryOperations') },
+        { id: 'community' as AdminTab, label: 'Community', icon: '🏆', category: t('dashboard:admin.categoryCommunity') },
+        { id: 'ai' as AdminTab, label: t('dashboard:admin.tabs.ai'), icon: '🧠', category: t('dashboard:admin.categorySystem') },
+        { id: 'system' as AdminTab, label: 'System', icon: '⚙️', category: t('dashboard:admin.categorySystem') },
     ], [t, pendingRequests.length]);
 
     const SidebarItem = ({ tab }: { tab: typeof tabs[0] }) => (
@@ -173,9 +174,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
-                    {tabs.map(tab => (
-                        <SidebarItem key={tab.id} tab={tab} />
+                <nav className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar">
+                    {/* Main Tabs */}
+                    <div className="space-y-2">
+                        {tabs.filter(t => !t.category).map(tab => (
+                            <SidebarItem key={tab.id} tab={tab} />
+                        ))}
+                    </div>
+
+                    {/* Categorized Tabs */}
+                    {Array.from(new Set(tabs.filter(t => t.category).map(t => t.category))).map(category => (
+                        <div key={category} className="space-y-2">
+                            {!sidebarCollapsed && (
+                                <div className="px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">
+                                    {category}
+                                </div>
+                            )}
+                            {tabs.filter(t => t.category === category).map(tab => (
+                                <SidebarItem key={tab.id} tab={tab} />
+                            ))}
+                        </div>
                     ))}
                 </nav>
 

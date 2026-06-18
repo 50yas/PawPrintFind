@@ -18,9 +18,10 @@ const EcosystemNode = memo(({ title, description, icon, view, onNavigate, status
     const { t } = useTranslations();
     return (
         <GlassCard 
-            variant="interactive" 
             onClick={() => view && onNavigate(view)}
-            className="p-6 flex flex-col h-full border-white/10 hover:border-primary/40 group relative overflow-hidden"
+            className={`p-6 flex flex-col h-full border-white/10 hover:border-primary/40 group relative overflow-hidden ${view ? 'hover:scale-[1.02] hover:bg-surface-container transition-all duration-300 cursor-pointer hover:shadow-2xl hover:shadow-primary/10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950' : ''}`}
+            role={view ? 'button' : undefined}
+            tabIndex={view ? 0 : undefined}
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
