@@ -32,13 +32,26 @@ const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
   on: vi.fn(),
+  off: vi.fn(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(13),
+  getBounds: vi.fn().mockReturnValue({
+    getNorthEast: () => ({ lat: 10.1, lng: 10.1 }),
+    getSouthWest: () => ({ lat: 9.9, lng: 9.9 }),
+    getWest: () => 9.9,
+    getSouth: () => 9.9,
+    getEast: () => 10.1,
+    getNorth: () => 10.1,
+    toBBoxString: () => '9.9,9.9,10.1,10.1'
+  }),
 };
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn(),
+  off: vi.fn(),
 };
 
 const mockGroup = {

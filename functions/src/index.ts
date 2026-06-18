@@ -26,13 +26,28 @@ async function resolveAIConfig(task: string) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+
+            // Task-specific default models for OpenRouter (preferring free models)
+            const openRouterDefaults: Record<string, string> = {
+                vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                smartSearch: 'qwen/qwen-2.5-72b-instruct:free',
+                healthAssessment: 'qwen/qwen-2.5-72b-instruct:free',
+                blogGeneration: 'qwen/qwen-2.5-72b-instruct:free',
+                chat: 'qwen/qwen-2.5-72b-instruct:free',
+                triage: 'qwen/qwen-2.5-72b-instruct:free',
+                matching: 'qwen/qwen-2.5-72b-instruct:free'
+            };
+
+            const model = data?.modelMapping?.[task] ||
+                          (provider === 'google' ? 'gemini-2.0-flash' : (openRouterDefaults[task] || 'qwen/qwen-2.5-72b-instruct:free'));
+
             return { provider, model };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash' };
 }
 
 /**
@@ -50,19 +65,35 @@ async function callAI(
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
         let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
+
+        // Handle Gemini-formatted single-turn content with parts
+        if (contents.parts && Array.isArray(contents.parts)) {
+            const textPart = contents.parts.find((p: any) => p.text);
+            const imagePart = contents.parts.find((p: any) => p.inlineData);
+
+            if (imagePart) {
                 messages = [{
                     role: 'user',
                     content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        { type: 'text', text: textPart?.text || "Describe this image." },
+                        { type: 'image_url', image_url: { url: `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}` } }
                     ]
                 }];
+            } else {
+                messages = [{ role: 'user', content: textPart?.text || "" }];
             }
+        }
+        // Handle Gemini-formatted multi-turn history
+        else if (Array.isArray(contents) && contents.length > 0 && contents[0].role) {
+            messages = contents.map((turn: any) => ({
+                role: turn.role === 'model' ? 'assistant' : 'user',
+                content: turn.parts?.[0]?.text || ""
+            }));
+        }
+
+        // Inject system instruction if provided in config (Gemini style)
+        if (config.systemInstruction && typeof config.systemInstruction === 'string') {
+            messages = [{ role: 'system', content: config.systemInstruction }, ...messages];
         }
 
         return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
