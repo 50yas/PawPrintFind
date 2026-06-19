@@ -34,6 +34,12 @@ const callBlogGenerationAI = async (topic: string) => {
     return result.data as { success: boolean, text: string };
 };
 
+const callGenericAI = async (task: string, contents: any, config: any = {}) => {
+    const fn = httpsCallable(functions, 'callGemini'); // Backend maps this to callAI
+    const result = await fn({ task, contents, config });
+    return result.data as { success: boolean, text: string, mediaData?: string };
+};
+
 
 const checkRateLimitError = (error: any) => {
     if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
@@ -155,27 +161,21 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
         const lostPetPhotoParts = await Promise.all(validPhotos.map(p => fileToGenerativePart(p.file!)));
         const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
 
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'matching',
-            contents: { parts: [...lostPetPhotoParts, { text: userPrompt }] },
-            config: {
-                systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        score: { type: Type.NUMBER },
-                        reasoning: { type: Type.STRING },
-                        keyMatches: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        discrepancies: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    },
-                    required: ["score", "reasoning", "keyMatches", "discrepancies"],
-                }
+        const data = await callGenericAI('matching', { parts: [...lostPetPhotoParts, { text: userPrompt }] }, {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    score: { type: Type.NUMBER },
+                    reasoning: { type: Type.STRING },
+                    keyMatches: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    discrepancies: { type: Type.ARRAY, items: { type: Type.STRING } },
+                },
+                required: ["score", "reasoning", "keyMatches", "discrepancies"],
             }
         });
 
-        const data = response.data as { success: boolean, text: string };
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
@@ -185,12 +185,7 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
         const videoPart = await fileToGenerativePart(videoFile, onProgress);
         const prompt = Prompts.getVideoAnalysisPrompt();
 
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'vision',
-            contents: { parts: [videoPart, { text: prompt }] }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('vision', { parts: [videoPart, { text: prompt }] });
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -201,12 +196,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
         const audioPart = await fileToGenerativePart(audioFile, onProgress);
         const prompt = Prompts.getAudioTranscriptionPrompt();
 
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: { parts: [audioPart, { text: prompt }] }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('chat', { parts: [audioPart, { text: prompt }] });
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -271,16 +261,10 @@ export const findClinicOnGoogleMaps = async (name: string, city: string): Promis
 
 export const textToSpeech = async (text: string): Promise<string> => {
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: [{ parts: [{ text }] }],
-            config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
-            }
+        const data = await callGenericAI('chat', [{ parts: [{ text }] }], {
+            responseModalities: [Modality.AUDIO],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } } },
         });
-        const data = response.data as { success: boolean, mediaData?: string };
         const base64Audio = data.mediaData;
         if (!base64Audio) throw new Error("No audio data received.");
         return base64Audio;
@@ -290,13 +274,7 @@ export const textToSpeech = async (text: string): Promise<string> => {
 export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetMessageDraftParts(pet, topic);
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
-            config: { systemInstruction }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('chat', { parts: [{ text: userPrompt }] }, { systemInstruction });
         return data.text || "";
     });
 };
@@ -304,13 +282,7 @@ export const draftVetMessageToOwner = async (pet: PetProfile, topic: string): Pr
 export const queryVetPatientData = async (patients: PetProfile[], appointments: Appointment[], query: string): Promise<string> => {
     const { systemInstruction, userPrompt } = Prompts.getVetDataQueryParts(patients, appointments, query);
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
-            config: { systemInstruction }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('chat', { parts: [{ text: userPrompt }] }, { systemInstruction });
         return data.text || "";
     });
 };
@@ -319,21 +291,15 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
     const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
     const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
     try {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
-            config: {
-                systemInstruction,
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: { suggestions: { type: Type.ARRAY, items: { type: Type.STRING } } },
-                    required: ["suggestions"]
-                }
+        const data = await callGenericAI('chat', { parts: [{ text: userPrompt }] }, {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: { suggestions: { type: Type.ARRAY, items: { type: Type.STRING } } },
+                required: ["suggestions"]
             }
         });
-        const data = response.data as { success: boolean, text: string };
         const parsed = JSON.parse(data.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
@@ -412,43 +378,31 @@ export const calculateProfileCompleteness = (pet: PetProfile): number => {
 export const translateContent = async (text: string, targetLangs: string[]): Promise<Record<string, string>> => {
     const { systemInstruction, userPrompt } = Prompts.getTranslationPrompt(text, targetLangs);
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            contents: { parts: [{ text: userPrompt }] },
-            config: {
-                systemInstruction,
-                responseMimeType: "application/json",
-            }
+        const data = await callGenericAI('chat', { parts: [{ text: userPrompt }] }, {
+            systemInstruction,
+            responseMimeType: "application/json",
         });
-        const data = response.data as { success: boolean, text: string };
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
 
 export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight[]> => {
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'triage',
-            contents: { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] },
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            title: { type: Type.STRING },
-                            content: { type: Type.STRING },
-                            type: { type: Type.STRING }
-                        },
-                        required: ["title", "content", "type"]
-                    }
+        const data = await callGenericAI('triage', { parts: [{ text: Prompts.getHealthInsightsPrompt(pet) }] }, {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        title: { type: Type.STRING },
+                        content: { type: Type.STRING },
+                        type: { type: Type.STRING }
+                    },
+                    required: ["title", "content", "type"]
                 }
             }
         });
-        const data = response.data as { success: boolean, text: string };
         const insights = JSON.parse(data.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,
@@ -460,12 +414,7 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
 
 export const generateMatchExplanation = async (pet: PetProfile, filters: any): Promise<string> => {
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'matching',
-            contents: { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('matching', { parts: [{ text: Prompts.getMatchExplanationPrompt(pet, filters) }] });
         return data.text?.trim() || "Matches your preferences.";
     });
 };
@@ -478,18 +427,12 @@ export const chat = async (
     systemPrompt: string
 ): Promise<string> => {
     return retryWithBackoff(async () => {
-        const fn = httpsCallable(functions, 'callGemini');
-        const response = await fn({
-            task: 'chat',
-            config: { systemInstruction: systemPrompt },
-            contents: {
-                parts: history.map(h => ({
-                    role: h.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: h.text }]
-                }))
-            }
-        });
-        const data = response.data as { success: boolean, text: string };
+        const data = await callGenericAI('chat', {
+            parts: history.map(h => ({
+                role: h.role === 'user' ? 'user' : 'model',
+                parts: [{ text: h.text }]
+            }))
+        }, { systemInstruction: systemPrompt });
         return data.text?.trim() || "";
     });
 };
