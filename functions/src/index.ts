@@ -26,13 +26,39 @@ async function resolveAIConfig(task: string) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+
+            let model = data?.modelMapping?.[task];
+            if (!model) {
+                if (provider === 'google') {
+                    model = 'gemini-2.0-flash';
+                } else {
+                    // OpenRouter Free Defaults
+                    if (task === 'vision' || task === 'visionIdentification') {
+                        model = 'nvidia/nemotron-nano-12b-v2-vl:free';
+                    } else {
+                        model = 'qwen/qwen-2.5-72b-instruct:free';
+                    }
+                }
+            }
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
+}
+
+/**
+ * Helper to clean AI JSON responses that might be wrapped in Markdown blocks.
+ */
+function parseAIJSON(text: string): string {
+    if (!text) return "{}";
+    let cleaned = text.trim();
+    if (cleaned.startsWith("```")) {
+        cleaned = cleaned.replace(/^```[a-z]*\n/i, "").replace(/\n```$/i, "").trim();
+    }
+    return cleaned;
 }
 
 /**
@@ -45,29 +71,45 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
         let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
+        if (contents && contents.parts) {
+            messages = [{ role: 'user', content: contents.parts.find((p: any) => p.text)?.text || "" }];
             // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
+            const imgPart = contents.parts.find((p: any) => p.inlineData);
+            if (imgPart) {
                 messages = [{
                     role: 'user',
                     content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
+                        { type: 'text', text: contents.parts.find((p: any) => p.text)?.text || "" },
                         { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
                     ]
                 }];
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        try {
+            const result = await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+            if (result.success && result.text) {
+                result.text = parseAIJSON(result.text);
+            }
+            return result;
+        } catch (error) {
+            console.warn(`OpenRouter failed for ${featureName}, fallbackToGemini=${fallbackToGemini}:`, error);
+            if (fallbackToGemini) {
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        const result = await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        if (result.success && result.text) {
+            result.text = parseAIJSON(result.text);
+        }
+        return result;
     }
 }
 
