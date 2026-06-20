@@ -110,8 +110,8 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'autofill', locale);
-        return JSON.parse(response.text?.trim() || "{}");
+        const response = await callVisionAI(base64, 'autofill', locale) as any;
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
@@ -140,8 +140,8 @@ export const identifyBreedFromImage = async (photo: File, locale: string = 'en')
 export const generatePetIdentikit = async (photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> => {
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
-        const response = await callVisionAI(base64, 'identikit', locale);
-        const json = JSON.parse(response.text?.trim() || "{}");
+        const response = await callVisionAI(base64, 'identikit', locale) as any;
+        const json = response.parsed || JSON.parse(response.text?.trim() || "{}");
         return {
             code: json.visualIdentityCode || "UNKNOWN",
             description: json.physicalDescription || "No description generated."
@@ -175,8 +175,8 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
             }
         });
 
-        const data = response.data as { success: boolean, text: string };
-        return JSON.parse(data.text?.trim() || "{}");
+        const data = response.data as { success: boolean, text: string, parsed?: any };
+        return data.parsed || JSON.parse(data.text?.trim() || "{}");
     });
 };
 
@@ -190,7 +190,7 @@ export const analyzeVideo = async (videoFile: File, onProgress?: (percent: numbe
             task: 'vision',
             contents: { parts: [videoPart, { text: prompt }] }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text: string, parsed?: any };
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -206,7 +206,7 @@ export const transcribeAudio = async (audioFile: File, onProgress?: (percent: nu
             task: 'chat',
             contents: { parts: [audioPart, { text: prompt }] }
         });
-        const data = response.data as { success: boolean, text: string };
+        const data = response.data as { success: boolean, text: string, parsed?: any };
         if (onProgress) onProgress(100);
         return data.text || "";
     });
@@ -333,8 +333,8 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
                 }
             }
         });
-        const data = response.data as { success: boolean, text: string };
-        const parsed = JSON.parse(data.text?.trim() || "{}");
+        const data = response.data as { success: boolean, text: string, parsed?: any };
+        const parsed = data.parsed || JSON.parse(data.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
         console.error("Error generating chat suggestions:", e);
@@ -351,8 +351,8 @@ export const performAIHealthCheck = async (pet: PetProfile, symptoms: string, lo
 
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
     return retryWithBackoff(async () => {
-        const response = await callBlogGenerationAI(topic);
-        return JSON.parse(response.text?.trim() || "{}");
+        const response = await callBlogGenerationAI(topic) as any;
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
@@ -361,15 +361,15 @@ export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<Blo
         // Success story is a special type of blog generation
         const fn = httpsCallable(functions, 'blogGeneration');
         const result = await fn({ topic: `Success story for ${pet.name} (${pet.breed}) being reunited with owner.` });
-        const response = result.data as { success: boolean, text: string };
-        return JSON.parse(response.text?.trim() || "{}");
+        const response = result.data as { success: boolean, text: string, parsed?: any };
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
-        const response = await callSmartSearchAI(query);
-        return JSON.parse(response.text?.trim() || "{}");
+        const response = await callSmartSearchAI(query) as any;
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
@@ -421,8 +421,8 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
                 responseMimeType: "application/json",
             }
         });
-        const data = response.data as { success: boolean, text: string };
-        return JSON.parse(data.text?.trim() || "{}");
+        const data = response.data as { success: boolean, text: string, parsed?: any };
+        return data.parsed || JSON.parse(data.text?.trim() || "{}");
     });
 };
 
@@ -448,8 +448,8 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
                 }
             }
         });
-        const data = response.data as { success: boolean, text: string };
-        const insights = JSON.parse(data.text?.trim() || "[]");
+        const data = response.data as { success: boolean, text: string, parsed?: any };
+        const insights = data.parsed || JSON.parse(data.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,
             id: Math.random().toString(36).substr(2, 9),
