@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
+    healthAssessment: { icon: '🏥', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-indigo-400', borderColor: 'border-l-indigo-500' },
+    blogGeneration: { icon: '✍️', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Vision ID Protocol' },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') || 'Health Assessment' },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') || 'Smart Search Protocol' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') || 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,12 +194,13 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
+                    { label: 'FALLBACK STATUS', value: settings.provider === 'openrouter' ? 'READY' : 'N/A', icon: '🛡️', glow: settings.provider === 'openrouter' ? 'neon-glow-indigo' : '' },
                 ].map((stat, i) => (
                     <div key={i} className={`p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition-all duration-300 hover:bg-white/10 ${stat.glow}`}>
                         <span className="text-xl">{stat.icon}</span>
@@ -393,11 +402,12 @@ export const AdminAISettings: React.FC = () => {
                                         ) : (
                                             <>
                                                 {/* Recommended free models */}
-                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (High Intelligence)</option>
-                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Code)</option>
-                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision)</option>
-                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Experimental)</option>
-                                                <option value="mistralai/mistral-7b-instruct:free">mistral-7b-instruct</option>
+                                                <option value="qwen/qwen-2.5-72b-instruct:free">⭐ qwen-2.5-72b (General Purpose)</option>
+                                                <option value="qwen/qwen-2.5-coder-32b-instruct:free">⭐ qwen-2.5-coder-32b (Logic/Coding)</option>
+                                                <option value="nvidia/nemotron-nano-12b-v2-vl:free">⭐ nemotron-nano-12b-vl (Vision/OCR)</option>
+                                                <option value="mistralai/mistral-small-24b-instruct-2501:free">⭐ mistral-small (Fast/Concise)</option>
+                                                <option value="google/gemini-2.0-flash-lite-preview-02-05:free">gemini-2.0-flash-lite (Ultra Fast)</option>
+                                                <option value="google/gemini-2.0-flash-exp:free">gemini-2.0-flash-exp (Feature Rich)</option>
                                                 {availableModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                             </>
                                         )}

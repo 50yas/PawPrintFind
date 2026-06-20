@@ -883,7 +883,7 @@ export const NotificationConfigSchema = z.object({
 });
 
 export type AIProvider = 'google' | 'openrouter';
-export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching';
+export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching' | 'smartSearch' | 'healthAssessment' | 'blogGeneration' | 'visionIdentification';
 
 export interface AISecrets {
   google?: string;
@@ -911,7 +911,11 @@ export const AISettingsSchema = z.object({
     vision: z.string(),
     triage: z.string(),
     chat: z.string(),
-    matching: z.string()
+    matching: z.string(),
+    smartSearch: z.string(),
+    healthAssessment: z.string(),
+    blogGeneration: z.string(),
+    visionIdentification: z.string()
   }),
   lastUpdated: z.number(),
   updatedBy: z.string().email()
