@@ -27,16 +27,18 @@ async function resolveAIConfig(task: string) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
             const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini ?? true;
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
  * Universal AI Caller that routes to the active provider.
+ * Implements automatic fallback from OpenRouter to Gemini if enabled.
  */
 async function callAI(
     userId: string,
@@ -45,27 +47,57 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
-            }
-        }
+        try {
+            // Convert Gemini contents to OpenRouter messages
+            let messages = contents;
+            if (contents) {
+                // If contents is multi-turn Gemini format (array of roles)
+                if (Array.isArray(contents)) {
+                    messages = contents.map((turn: any) => ({
+                        role: turn.role === 'model' ? 'assistant' : 'user',
+                        content: turn.parts[0]?.text || ""
+                    }));
+                } else if (contents.parts) {
+                    // Single turn Gemini parts
+                    const textPart = contents.parts.find((p: any) => p.text);
+                    const imgPart = contents.parts.find((p: any) => p.inlineData);
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+                    if (imgPart) {
+                        messages = [{
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: textPart?.text || "Analyze this image." },
+                                { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                            ]
+                        }];
+                    } else {
+                        messages = [{ role: 'user', content: textPart?.text || "" }];
+                    }
+                }
+            }
+
+            // Handle system instruction for OpenRouter
+            const openRouterConfig = { ...config };
+            if (config.systemInstruction) {
+                messages = [
+                    { role: 'system', content: typeof config.systemInstruction === 'string' ? config.systemInstruction : (config.systemInstruction.parts?.[0]?.text || "") },
+                    ...messages
+                ];
+                delete openRouterConfig.systemInstruction;
+            }
+
+            return await callOpenRouterAI(userId, model, messages, openRouterConfig, featureName, openRouterApiKey.value());
+        } catch (error) {
+            console.error(`[AI Bridge] OpenRouter failed for ${featureName}, fallbackToGemini=${fallbackToGemini}:`, error);
+            if (fallbackToGemini) {
+                console.log(`[AI Bridge] Falling back to Gemini for task: ${featureName}`);
+                return callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
