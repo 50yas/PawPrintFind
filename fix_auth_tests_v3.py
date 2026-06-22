@@ -1,4 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import os
+
+filepath = 'src/hooks/useAuthSync.test.ts'
+# Rewrite the whole file to ensure correctness
+content = """import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useAuthSync } from './useAuthSync';
 import { dbService } from '../services/firebase';
@@ -28,7 +32,7 @@ describe('useAuthSync Hook', () => {
 
     it('sets currentUser to null when logged out', async () => {
         const { result } = renderHook(() => useAuthSync('home', mockSetCurrentView, mockSetIsLoginModalOpen));
-        
+
         act(() => {
             onAuthStateChangedCallback(null);
         });
@@ -42,7 +46,7 @@ describe('useAuthSync Hook', () => {
         (dbService.syncUserProfile as any).mockResolvedValue(mockProfile);
 
         const { result } = renderHook(() => useAuthSync('home', mockSetCurrentView, mockSetIsLoginModalOpen));
-        
+
         await act(async () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
@@ -59,7 +63,7 @@ describe('useAuthSync Hook', () => {
         (dbService.syncUserProfile as any).mockResolvedValue(mockProfile);
 
         renderHook(() => useAuthSync('home', mockSetCurrentView, mockSetIsLoginModalOpen));
-        
+
         await act(async () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
@@ -73,7 +77,7 @@ describe('useAuthSync Hook', () => {
         (dbService.syncUserProfile as any).mockResolvedValue(mockProfile);
 
         renderHook(() => useAuthSync('home', mockSetCurrentView, mockSetIsLoginModalOpen));
-        
+
         await act(async () => {
             await onAuthStateChangedCallback(mockFbUser);
         });
@@ -89,7 +93,7 @@ describe('useAuthSync Hook', () => {
         // We need to simulate that it wasn't wasLoggedOut.
         // The hook uses a ref hadUserRef.
         // If we call onAuthStateChanged multiple times, wasLoggedOut becomes false.
-        
+
         const { result } = renderHook(() => useAuthSync('find', mockSetCurrentView, mockSetIsLoginModalOpen));
 
         // 1st call to set hadUserRef.current = true
@@ -106,4 +110,7 @@ describe('useAuthSync Hook', () => {
 
         expect(mockSetCurrentView).not.toHaveBeenCalled();
     });
-});
+});"""
+with open(filepath, 'w') as f:
+    f.write(content)
+print("Updated " + filepath)
