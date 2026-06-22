@@ -3,8 +3,21 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+
+const mockDoc = vi.fn().mockImplementation(() => ({
+    set: mockSet,
+    get: mockGet,
+    collection: mockCollection,
+    update: vi.fn().mockResolvedValue({})
+}));
+
+const mockCollection = vi.fn().mockImplementation(() => ({
+    doc: mockDoc,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({ empty: true, docs: [] })
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -12,8 +25,7 @@ vi.mock('firebase-admin', () => {
     initializeApp: vi.fn(),
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
+        doc: mockDoc
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -30,6 +42,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(() => vi.fn()),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -37,6 +50,16 @@ vi.mock('firebase-functions/v2/https', () => {
         }
     };
 });
+
+vi.mock('firebase-functions/v2/firestore', () => ({
+    onDocumentCreated: vi.fn(() => vi.fn())
+}));
+
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({
+        value: vi.fn().mockReturnValue('test-secret')
+    }))
+}));
 
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
@@ -119,7 +142,7 @@ describe('AI Cloud Functions', () => {
         
         expect(mockCollection).toHaveBeenCalledWith('usageStats');
         expect(mockSet).toHaveBeenCalledWith(
-            expect.objectContaining({ visionIdentification: expect.anything() }),
+            expect.objectContaining({ totalAIRequests: expect.anything() }),
             { merge: true }
         );
     });
@@ -176,7 +199,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'super_admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
