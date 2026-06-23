@@ -1,4 +1,4 @@
-import { PetProfile, AISettings, ChatSession, AIProvider } from '../types';
+import { PetProfile, AISettings, ChatSession, AIProvider, BlogPost } from '../types';
 import { adminService } from './adminService';
 import * as aiService from './geminiService';
 
@@ -44,12 +44,28 @@ export const aiBridgeService = {
         return aiService.analyzeImageForDescription(photo);
     },
 
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
         return aiService.performAIHealthCheck(pet, symptoms, locale);
     },
 
     async generateChatSuggestions(session: ChatSession, currentUserEmail: string): Promise<string[]> {
         return aiService.generateChatSuggestions(session, currentUserEmail);
+    },
+
+    async generateBlogPost(topic: string): Promise<Partial<BlogPost>> {
+        return aiService.generateBlogPost(topic);
     },
 
     async comparePets(foundPetDesc: string, lostPet: PetProfile): Promise<{ score: number, reasoning: string, keyMatches: string[], discrepancies: string[] }> {

@@ -32,13 +32,35 @@ const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
   on: vi.fn(),
+  off: vi.fn(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(13),
+  getBounds: vi.fn().mockReturnValue({
+    getWest: () => 0,
+    getSouth: () => 0,
+    getEast: () => 0,
+    getNorth: () => 0,
+  }),
 };
+
+// Mock Supercluster
+const mockGetClusters = vi.fn().mockReturnValue([]);
+vi.mock('supercluster', () => {
+    return {
+        default: vi.fn().mockImplementation(function() {
+            return {
+                load: vi.fn(),
+                getClusters: mockGetClusters,
+            };
+        }),
+    };
+});
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn().mockReturnThis(),
 };
 
 const mockGroup = {
@@ -86,7 +108,13 @@ describe('MissingPetsMap', () => {
   });
 
   it('should render lost pets markers', () => {
-const mockPets: PetProfile[] = [
+    mockGetClusters.mockReturnValue([{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [10, 10] },
+        properties: { petId: '1', cluster: false }
+    }]);
+
+    const mockPets: PetProfile[] = [
     {
         id: '1',
         name: 'Buddy',

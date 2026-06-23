@@ -18,6 +18,14 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
 
 /**
+ * Utility to strip Markdown code block markers from AI-generated JSON.
+ */
+function parseAIJSON(text: string): string {
+    if (!text) return "";
+    return text.replace(/```json\n?|```\n?/g, "").trim();
+}
+
+/**
  * Resolves the active AI provider and model for a given task.
  */
 async function resolveAIConfig(task: string) {
@@ -25,14 +33,26 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const provider = data?.provider || data?.activeProvider || 'google';
+            const fallbackToGemini = data?.fallbackToGemini !== false;
+
+            // Default free models for OpenRouter tasks
+            const openRouterDefaults: Record<string, string> = {
+                vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                blogGeneration: 'qwen/qwen-2.5-coder-32b-instruct:free',
+                default: 'qwen/qwen-2.5-72b-instruct:free'
+            };
+
+            const model = data?.modelMapping?.[task] ||
+                         (provider === 'google' ? 'gemini-2.0-flash' : (openRouterDefaults[task] || openRouterDefaults.default));
+
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,29 +65,65 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
-    if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+    try {
+        let result;
+        if (provider === 'openrouter') {
+            // Convert Gemini contents to OpenRouter messages if needed
+            let messages = contents;
+            if (contents.parts) {
+                // If it's a simple text prompt
+                if (contents.parts.length === 1 && contents.parts[0].text) {
+                    messages = [{ role: 'user', content: contents.parts[0].text }];
+                } else {
+                    // Handle complex parts (multimodal)
+                    const textPart = contents.parts.find((p: any) => p.text);
+                    const imgPart = contents.parts.find((p: any) => p.inlineData);
+
+                    if (imgPart) {
+                        messages = [{
+                            role: 'user',
+                            content: [
+                                { type: 'text', text: textPart?.text || "" },
+                                { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                            ]
+                        }];
+                    } else {
+                        messages = contents.parts.map((p: any) => ({
+                            role: p.role === 'model' ? 'assistant' : 'user',
+                            content: p.text || (p.parts ? p.parts[0].text : "")
+                        }));
+                    }
+                }
             }
+
+            result = await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } else {
+            result = await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
-    } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        // Apply JSON parsing if requested
+        if (result.success && config.responseMimeType === 'application/json') {
+            result.text = parseAIJSON(result.text);
+        }
+
+        return result;
+
+    } catch (error: any) {
+        console.error(`AI call failed [${provider}/${model}]:`, error);
+
+        // Fallback to Gemini if OpenRouter fails and fallback is enabled
+        if (provider === 'openrouter' && fallbackToGemini) {
+            console.warn(`Falling back to Gemini for task: ${featureName}`);
+            const fallbackResult = await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            if (fallbackResult.success && config.responseMimeType === 'application/json') {
+                fallbackResult.text = parseAIJSON(fallbackResult.text);
+            }
+            return fallbackResult;
+        }
+
+        throw error;
     }
 }
 

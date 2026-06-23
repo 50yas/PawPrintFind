@@ -13,30 +13,39 @@ import { aiBridgeService } from './aiBridgeService';
 const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
     const fn = httpsCallable(functions, 'visionIdentification');
     const result = await fn({ image, task, locale });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text: string };
+    if (!data.success) throw new Error(data.text || "Vision AI Failed");
+    return data;
 };
 
 const callSmartSearchAI = async (query: string) => {
     const fn = httpsCallable(functions, 'smartSearch');
     const result = await fn({ query });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text: string };
+    if (!data.success) throw new Error(data.text || "Smart Search Failed");
+    return data;
 };
 
 const callHealthAssessmentAI = async (pet: PetProfile, symptoms: string, locale: string = 'en') => {
     const fn = httpsCallable(functions, 'healthAssessment');
     const result = await fn({ pet, symptoms, locale });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text: string };
+    if (!data.success) throw new Error(data.text || "Health Assessment Failed");
+    return data;
 };
 
 const callBlogGenerationAI = async (topic: string) => {
     const fn = httpsCallable(functions, 'blogGeneration');
     const result = await fn({ topic });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text: string };
+    if (!data.success) throw new Error(data.text || "Blog Generation Failed");
+    return data;
 };
 
 
 const checkRateLimitError = (error: any) => {
-    if (error.code === 'functions/resource-exhausted' || error.message?.includes("quota") || error.message?.includes("exceeded")) {
+    const msg = error.message?.toLowerCase() || "";
+    if (error.code === 'functions/resource-exhausted' || msg.includes("quota") || msg.includes("exceeded") || msg.includes("429") || msg.includes("rate limit")) {
         window.dispatchEvent(new CustomEvent('pawprint_rate_limit', {
             detail: { message: error.message || "Daily AI limit reached." }
         }));
@@ -176,6 +185,7 @@ export const comparePets = async (foundPetDesc: string, lostPet: PetProfile): Pr
         });
 
         const data = response.data as { success: boolean, text: string };
+        if (!data.success) throw new Error(data.text || "Matching AI Failed");
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
@@ -334,6 +344,7 @@ export const generateChatSuggestions = async (session: ChatSession, currentUserE
             }
         });
         const data = response.data as { success: boolean, text: string };
+        if (!data.success) throw new Error(data.text || "Chat Suggestions AI Failed");
         const parsed = JSON.parse(data.text?.trim() || "{}");
         return parsed.suggestions || [];
     } catch (e) {
@@ -422,6 +433,7 @@ export const translateContent = async (text: string, targetLangs: string[]): Pro
             }
         });
         const data = response.data as { success: boolean, text: string };
+        if (!data.success) throw new Error(data.text || "Translation AI Failed");
         return JSON.parse(data.text?.trim() || "{}");
     });
 };
@@ -449,6 +461,7 @@ export const generateHealthInsights = async (pet: PetProfile): Promise<AIInsight
             }
         });
         const data = response.data as { success: boolean, text: string };
+        if (!data.success) throw new Error(data.text || "Health Insights AI Failed");
         const insights = JSON.parse(data.text?.trim() || "[]");
         return insights.map((insight: any) => ({
             ...insight,
@@ -490,6 +503,7 @@ export const chat = async (
             }
         });
         const data = response.data as { success: boolean, text: string };
+        if (!data.success) throw new Error(data.text || "Neural Chat Failed");
         return data.text?.trim() || "";
     });
 };

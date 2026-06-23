@@ -5,6 +5,10 @@ import * as admin from 'firebase-admin';
 const mockSet = vi.fn().mockResolvedValue({});
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({
+    exists: true,
+    data: () => ({ provider: 'google', fallbackToGemini: true })
+});
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,6 +17,7 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
+        get: mockGet,
         set: mockSet
     })), {
       FieldValue: {
@@ -30,6 +35,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -37,6 +43,13 @@ vi.mock('firebase-functions/v2/https', () => {
         }
     };
 });
+
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn((name) => ({
+        name,
+        value: () => 'mock-api-key'
+    }))
+}));
 
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
@@ -75,7 +88,13 @@ vi.mock('@google/genai', () => {
                     generateContent: generateContentMock
                 }))
             };
-        })
+        }),
+        Type: {
+            OBJECT: 'OBJECT',
+            STRING: 'STRING',
+            NUMBER: 'NUMBER',
+            ARRAY: 'ARRAY'
+        }
     };
 });
 
@@ -176,7 +195,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
