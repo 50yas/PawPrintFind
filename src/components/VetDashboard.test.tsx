@@ -13,7 +13,7 @@ vi.mock('../hooks/useTranslations', () => ({
 }));
 
 // Mock services
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     checkPatientLimit: vi.fn().mockResolvedValue({ current: 0, limit: 5, reached: false }),
     getVerificationStatus: vi.fn().mockResolvedValue(null)

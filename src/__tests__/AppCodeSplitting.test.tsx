@@ -7,7 +7,7 @@ import App from '../App';
 // --- Mocks ---
 
 // Mock Firebase
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
     dbService: {
         logout: vi.fn(),
         auth: { currentUser: null },

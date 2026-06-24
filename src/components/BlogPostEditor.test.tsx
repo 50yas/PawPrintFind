@@ -7,7 +7,7 @@ import { SnackbarProvider } from '../contexts/SnackbarContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 
 // Mock dependencies
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     saveBlogPost: vi.fn(),
   },

@@ -32,13 +32,26 @@ const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
   on: vi.fn(),
+  off: vi.fn(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(13),
+  getBounds: vi.fn().mockReturnValue({
+    getSouthWest: () => ({ lat: 0, lng: 0 }),
+    getNorthEast: () => ({ lat: 1, lng: 1 }),
+    getWest: () => 0,
+    getSouth: () => 0,
+    getEast: () => 1,
+    getNorth: () => 1,
+    toBBoxString: () => '0,0,1,1'
+  }),
 };
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn().mockReturnThis(),
+  off: vi.fn().mockReturnThis(),
 };
 
 const mockGroup = {
@@ -60,6 +73,24 @@ global.L = {
     zoom: vi.fn().mockReturnValue({ addTo: vi.fn() })
   }
 } as any;
+
+// Mock supercluster
+vi.mock('supercluster', () => {
+  class MockSupercluster {
+    load = vi.fn().mockReturnThis();
+    getClusters = vi.fn().mockImplementation((_bbox, _zoom) => [
+      {
+        id: '1',
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [10, 10] },
+        properties: { cluster: false, petId: '1', petName: 'Buddy' }
+      }
+    ]);
+  }
+  return {
+    default: MockSupercluster
+  };
+});
 
 describe('MissingPetsMap', () => {
   beforeEach(() => {
