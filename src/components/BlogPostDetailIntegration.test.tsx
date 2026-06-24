@@ -14,7 +14,7 @@ vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => mockTranslations,
 }));
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     incrementBlogPostView: vi.fn(),
   },

@@ -13,11 +13,12 @@ vi.mock('../hooks/useTranslations', () => ({
 }));
 
 // Mock dbService
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     auth: { currentUser: null },
     recordDonation: vi.fn().mockResolvedValue(undefined),
     createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://stripe.com/checkout' }),
+    getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 1000 }),
   },
 }));
 

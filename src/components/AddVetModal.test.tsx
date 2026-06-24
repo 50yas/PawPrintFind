@@ -6,7 +6,7 @@ import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     registerUser: vi.fn().mockResolvedValue(undefined),
     logAdminAction: vi.fn().mockResolvedValue(undefined),

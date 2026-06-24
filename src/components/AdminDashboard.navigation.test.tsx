@@ -25,7 +25,7 @@ vi.mock('../services/loggerService', () => ({
     },
 }));
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
     db: {},
     dbService: {
         logAdminAction: vi.fn(),

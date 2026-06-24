@@ -34,7 +34,7 @@ vi.mock('../contexts/SnackbarContext', () => ({
 }));
 
 // Mock services
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
     dbService: {
         loginWithEmail: vi.fn(),
         verifyAdminSecret: vi.fn(),

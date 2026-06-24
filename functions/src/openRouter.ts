@@ -36,19 +36,29 @@ export const callOpenRouterAI = async (
 
     // Resolve model if not provided or if it's a task alias
     let targetModel = model;
-    if (task) {
+
+    // Detect if model is actually a task name (no slashes and no gemini- prefix)
+    const isTaskAlias = model && !model.includes('/') && !model.startsWith('gemini-');
+
+    if (isTaskAlias || task) {
+        const lookupTask = isTaskAlias ? model : task;
         // Fetch mapping from settings
         try {
             const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
             if (doc.exists) {
                 const mapping = doc.data()?.modelMapping;
-                if (mapping && mapping[task]) {
-                    targetModel = mapping[task];
+                if (mapping && mapping[lookupTask]) {
+                    targetModel = mapping[lookupTask];
                 }
             }
         } catch (e) {
             console.warn("Failed to resolve task model mapping:", e);
         }
+    }
+
+    // Default if still unresolved or not a valid provider/model string
+    if (!targetModel || (!targetModel.includes('/') && !targetModel.startsWith('gemini-'))) {
+        targetModel = 'qwen/qwen-2.5-72b-instruct:free';
     }
 
     try {

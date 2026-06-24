@@ -6,7 +6,7 @@ import React from 'react';
 import { dbService } from '../services/firebase';
 
 // Mock everything
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
     dbService: {
         logout: vi.fn().mockResolvedValue(undefined),
         savePet: vi.fn().mockResolvedValue(undefined),

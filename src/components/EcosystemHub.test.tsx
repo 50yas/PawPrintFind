@@ -8,7 +8,20 @@ import React from 'react';
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'ecosystemHub.sections.intelligence': 'Core Intelligence',
+        'ecosystemHub.sections.safety': 'Safety Grid',
+        'ecosystemHub.sections.external': 'External Intel',
+        'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+        'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+        'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+        'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+        'ecosystemHub.backToBase': '← Back to Base',
+        'ecosystemHub.title': 'System Ecosystem'
+      };
+      return translations[key] || key;
+    },
   }),
 }));
 
@@ -36,7 +49,7 @@ describe('EcosystemHub', () => {
         render(<EcosystemHub onNavigate={onNavigate} />);
         
         const smartSearchNode = screen.getByText('Smart Search').closest('div[role="button"]') || screen.getByText('Smart Search').parentElement;
-        if (smartSearchNode) fireEvent.click(smartSearchNode);
+        if (smartSearchNode) fireEvent.click(smartSearchNode!);
         
         expect(onNavigate).toHaveBeenCalledWith('adoptionCenter');
     });

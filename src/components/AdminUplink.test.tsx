@@ -5,7 +5,7 @@ import { AdminUplink } from './AdminUplink';
 import { dbService } from '../services/firebase';
 import { LanguageProvider } from '../contexts/LanguageContext';
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     verifyAdminKey: vi.fn(),
     elevateUserRole: vi.fn(),

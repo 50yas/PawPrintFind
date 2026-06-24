@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FavoriteButton } from './FavoriteButton';
 import { dbService } from '../services/firebase';
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     addFavorite: vi.fn(),
     removeFavorite: vi.fn(),

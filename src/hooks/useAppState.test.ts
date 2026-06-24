@@ -4,7 +4,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useAppState } from './useAppState';
 import { dbService } from '../services/firebase';
 
-vi.mock('../services/firebase', () => ({
+vi.mock('../services/firebase', () => ({ db: {}, auth: { onAuthStateChanged: vi.fn() }, functions: {}, storage: {},
   dbService: {
     subscribeToPets: vi.fn(() => vi.fn()),
     subscribeToDonations: vi.fn(() => vi.fn()),
