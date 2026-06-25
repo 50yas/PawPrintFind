@@ -10,15 +10,20 @@ export const initializeAISettings = async () => {
     if (!settingsSnap.exists()) {
       const defaultSettings: AISettings = {
         provider: 'google',
+        fallbackToGemini: true,
         apiKeys: {
           google: '',
           openrouter: ''
         },
         modelMapping: {
-          vision: 'gemini-2.0-flash-exp',
-          triage: 'gemini-2.0-flash-exp',
-          chat: 'gemini-2.0-flash-exp',
-          matching: 'gemini-2.0-flash-exp'
+          vision: 'gemini-2.0-flash',
+          visionIdentification: 'gemini-2.0-flash',
+          triage: 'gemini-2.0-flash',
+          chat: 'gemini-2.0-flash',
+          matching: 'gemini-2.0-flash',
+          smartSearch: 'gemini-2.0-flash',
+          healthAssessment: 'gemini-2.0-flash',
+          blogGeneration: 'gemini-2.0-flash'
         },
         lastUpdated: Date.now(),
         updatedBy: 'system_init@pawprint.ai'

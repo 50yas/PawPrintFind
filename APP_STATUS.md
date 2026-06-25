@@ -91,7 +91,7 @@ React 18 + TypeScript + Vite
 | Smart search | OpenRouter | qwen/qwen3-next-80b-a3b-instruct:free | ✅ |
 | Health assessment | OpenRouter | qwen/qwen3-next-80b-a3b-instruct:free | ✅ |
 | Blog generation | OpenRouter | qwen/qwen3-coder:free | ✅ |
-| Fallback provider | Google Gemini | gemini-2.5-flash | ✅ |
+| Fallback provider | Google Gemini | gemini-2.0-flash | ✅ |
 | AI settings admin | Admin > AI tab | Live model switching | ✅ |
 
 ### Admin Dashboard (7 tabs, 22 sub-sections)
