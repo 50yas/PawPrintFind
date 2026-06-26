@@ -42,11 +42,16 @@ export const adminService = {
             // Return default settings if none exist
             return {
                 provider: 'google',
+                fallbackToGemini: true,
                 modelMapping: {
-                    vision: 'gemini-pro-vision',
-                    triage: 'gemini-pro',
-                    chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    vision: 'gemini-2.0-flash',
+                    visionIdentification: 'gemini-2.0-flash',
+                    triage: 'gemini-2.0-flash',
+                    chat: 'gemini-2.0-flash',
+                    matching: 'gemini-2.0-flash',
+                    smartSearch: 'gemini-2.0-flash',
+                    healthAssessment: 'gemini-2.0-flash',
+                    blogGeneration: 'gemini-2.0-flash'
                 },
                 lastUpdated: Date.now(),
                 updatedBy: 'system@pawprintfind.com'
@@ -58,11 +63,16 @@ export const adminService = {
             if (error.code === 'permission-denied') {
                 return {
                     provider: 'google',
+                    fallbackToGemini: true,
                     modelMapping: {
-                        vision: 'gemini-pro-vision',
-                        triage: 'gemini-pro',
-                        chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        vision: 'gemini-2.0-flash',
+                        visionIdentification: 'gemini-2.0-flash',
+                        triage: 'gemini-2.0-flash',
+                        chat: 'gemini-2.0-flash',
+                        matching: 'gemini-2.0-flash',
+                        smartSearch: 'gemini-2.0-flash',
+                        healthAssessment: 'gemini-2.0-flash',
+                        blogGeneration: 'gemini-2.0-flash'
                     },
                     lastUpdated: Date.now(),
                     updatedBy: 'system@pawprintfind.com'
@@ -130,7 +140,7 @@ export const adminService = {
                     model: 'qwen/qwen-2.5-72b-instruct:free',
                     messages: [{ role: 'user', content: 'Reply with OK' }],
                     config: { max_tokens: 5 },
-                    task: 'connection_test',
+                    task: 'chat', // Use a valid task
                     overrideApiKey: apiKey // Cloud function expects overrideApiKey
                 });
                 const data = result.data as { success: boolean, text?: string };

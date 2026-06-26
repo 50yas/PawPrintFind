@@ -9,7 +9,12 @@ vi.mock('./geminiService', () => ({
     generateChatSuggestions: vi.fn().mockResolvedValue(['Hey']),
     comparePets: vi.fn().mockResolvedValue({ score: 100 }),
     generateMatchExplanation: vi.fn().mockResolvedValue('Match'),
-    chat: vi.fn().mockResolvedValue('Reply')
+    chat: vi.fn().mockResolvedValue('Reply'),
+    translateContent: vi.fn().mockResolvedValue({}),
+    generateHealthInsights: vi.fn().mockResolvedValue([]),
+    analyzeVideo: vi.fn().mockResolvedValue('Video Analysis'),
+    transcribeAudio: vi.fn().mockResolvedValue('Transcription'),
+    generateBlogPost: vi.fn().mockResolvedValue({}),
 }));
 
 vi.mock('./adminService', () => ({
@@ -28,7 +33,16 @@ describe('aiBridgeService', () => {
     it('should route all requests through unified aiService (via Cloud Functions)', async () => {
         vi.mocked(adminService.getAISettings).mockResolvedValue({
             provider: 'openrouter',
-            modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
+            modelMapping: {
+                vision: 'model',
+                visionIdentification: 'model',
+                triage: 'model',
+                chat: 'model',
+                matching: 'model',
+                smartSearch: 'model',
+                healthAssessment: 'model',
+                blogGeneration: 'model'
+            },
             lastUpdated: Date.now(),
             updatedBy: 'admin'
         });
