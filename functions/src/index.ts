@@ -8,6 +8,7 @@ import { trackUsage } from "./usage";
 import { checkQuota } from "./rateLimit";
 import * as Prompts from "./prompts";
 import { callOpenRouterAI, fetchOpenRouterModels as fetchOpenRouterModelsHelper } from "./openRouter";
+import { parseAIJSON } from "./utils";
 
 admin.initializeApp();
 
@@ -26,13 +27,28 @@ async function resolveAIConfig(task: string) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const model = data?.modelMapping?.[task];
+
+            if (model) {
+                return { provider, model, fallbackToGemini: data?.fallbackToGemini ?? true };
+            }
+
+            // Task-specific free model defaults for OpenRouter
+            let defaultModel = provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free';
+            if (provider === 'openrouter') {
+                if (task === 'vision' || task === 'visionIdentification') {
+                    defaultModel = 'nvidia/nemotron-nano-12b-v2-vl:free';
+                } else if (task === 'blogGeneration') {
+                    defaultModel = 'qwen/qwen-2.5-coder-32b-instruct:free';
+                }
+            }
+
+            return { provider, model: defaultModel, fallbackToGemini: data?.fallbackToGemini ?? true };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,29 +61,44 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
-    if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
-                const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+    try {
+        if (provider === 'openrouter') {
+            // Convert Gemini contents to OpenRouter messages if needed
+            let messages = contents;
+            if (contents.parts) {
+                messages = [{ role: 'user', content: contents.parts[0].text }];
+                // Handle image if present
+                if (contents.parts.find((p: any) => p.inlineData)) {
+                    const imgPart = contents.parts.find((p: any) => p.inlineData);
+                    messages = [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: contents.parts.find((p: any) => p.text).text },
+                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        ]
+                    }];
+                }
+            }
+
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } else {
+            return await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        }
+    } catch (error: any) {
+        // AI Fallback Logic: If primary provider fails and fallback is enabled, try Gemini
+        if (provider === 'openrouter' && fallbackToGemini) {
+            console.warn(`[AI Fallback] ${provider} failed for ${featureName}, retrying with Gemini:`, error.message);
+            try {
+                // contents is already in Gemini format
+                return await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            } catch (fallbackError: any) {
+                console.error(`[AI Fallback] Gemini recovery also failed:`, fallbackError.message);
+                throw fallbackError;
             }
         }
-
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
-    } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        throw error;
     }
 }
 
@@ -185,7 +216,12 @@ async function callGeminiAI(
         const candidate = response.candidates?.[0];
 
         // Extract data based on what's returned
-        const text = candidate?.content?.parts?.find(p => p.text)?.text || "";
+        let text = candidate?.content?.parts?.find(p => p.text)?.text || "";
+
+        // Auto-clean JSON if expected
+        if (config.responseMimeType === 'application/json') {
+            text = parseAIJSON(text);
+        }
         const inlineData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData;
 
         trackUsage(userId, featureName, 'google').catch(err =>
@@ -452,7 +488,7 @@ export const createDonationCheckout = onCall({
 
     try {
         const Stripe = (await import('stripe')).default;
-        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' as const });
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2025-01-27.clover' as const });
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -510,7 +546,7 @@ export const stripeWebhook = onRequest({
 
     try {
         const Stripe = (await import('stripe')).default;
-        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2026-01-28.clover' as const });
+        const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: '2025-01-27.clover' as const });
         const event = stripe.webhooks.constructEvent(req.rawBody, sig, stripeWebhookSecret.value());
 
         if (event.type === 'checkout.session.completed') {
