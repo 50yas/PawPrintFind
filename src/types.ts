@@ -893,7 +893,16 @@ export interface AISecrets {
 export interface AISettings {
   provider: AIProvider;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
-  modelMapping: Record<AIModelTask, string>;
+  modelMapping: {
+    vision: string;
+    triage: string;
+    chat: string;
+    matching: string;
+    visionIdentification?: string;
+    smartSearch?: string;
+    healthAssessment?: string;
+    blogGeneration?: string;
+  };
   fallbackToGemini: boolean;
   lastUpdated: number;
   updatedBy: string;
