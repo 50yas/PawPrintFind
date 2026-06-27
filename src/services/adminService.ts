@@ -45,10 +45,10 @@ export const adminService = {
                 fallbackToGemini: true,
                 modelMapping: {
                     vision: 'gemini-2.0-flash',
-                    visionIdentification: 'gemini-2.0-flash',
                     triage: 'gemini-2.0-flash',
                     chat: 'gemini-2.0-flash',
                     matching: 'gemini-2.0-flash',
+                    visionIdentification: 'gemini-2.0-flash',
                     smartSearch: 'gemini-2.0-flash',
                     healthAssessment: 'gemini-2.0-flash',
                     blogGeneration: 'gemini-2.0-flash'
@@ -66,10 +66,10 @@ export const adminService = {
                     fallbackToGemini: true,
                     modelMapping: {
                         vision: 'gemini-2.0-flash',
-                        visionIdentification: 'gemini-2.0-flash',
                         triage: 'gemini-2.0-flash',
                         chat: 'gemini-2.0-flash',
                         matching: 'gemini-2.0-flash',
+                        visionIdentification: 'gemini-2.0-flash',
                         smartSearch: 'gemini-2.0-flash',
                         healthAssessment: 'gemini-2.0-flash',
                         blogGeneration: 'gemini-2.0-flash'

@@ -898,10 +898,10 @@ export interface AISettings {
     triage: string;
     chat: string;
     matching: string;
-    visionIdentification?: string;
-    smartSearch?: string;
-    healthAssessment?: string;
-    blogGeneration?: string;
+    visionIdentification: string;
+    smartSearch: string;
+    healthAssessment: string;
+    blogGeneration: string;
   };
   fallbackToGemini: boolean;
   lastUpdated: number;
@@ -920,13 +920,13 @@ export const AISettingsSchema = z.object({
   fallbackToGemini: z.boolean().default(true),
   modelMapping: z.object({
     vision: z.string(),
-    visionIdentification: z.string().optional(),
     triage: z.string(),
     chat: z.string(),
     matching: z.string(),
-    smartSearch: z.string().optional(),
-    healthAssessment: z.string().optional(),
-    blogGeneration: z.string().optional()
+    visionIdentification: z.string().default('gemini-2.0-flash'),
+    smartSearch: z.string().default('gemini-2.0-flash'),
+    healthAssessment: z.string().default('gemini-2.0-flash'),
+    blogGeneration: z.string().default('gemini-2.0-flash')
   }),
   lastUpdated: z.number(),
   updatedBy: z.string().email()
