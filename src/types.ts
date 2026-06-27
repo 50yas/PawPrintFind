@@ -883,7 +883,7 @@ export const NotificationConfigSchema = z.object({
 });
 
 export type AIProvider = 'google' | 'openrouter';
-export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching';
+export type AIModelTask = 'vision' | 'visionIdentification' | 'triage' | 'chat' | 'matching' | 'smartSearch' | 'healthAssessment' | 'blogGeneration';
 
 export interface AISecrets {
   google?: string;
@@ -893,7 +893,17 @@ export interface AISecrets {
 export interface AISettings {
   provider: AIProvider;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
-  modelMapping: Record<AIModelTask, string>;
+  modelMapping: {
+    vision: string;
+    triage: string;
+    chat: string;
+    matching: string;
+    visionIdentification: string;
+    smartSearch: string;
+    healthAssessment: string;
+    blogGeneration: string;
+  };
+  fallbackToGemini: boolean;
   lastUpdated: number;
   updatedBy: string;
   apiKeys?: Record<string, string>;
@@ -907,11 +917,16 @@ export const AISecretsSchema = z.object({
 export const AISettingsSchema = z.object({
   provider: z.enum(['google', 'openrouter']),
   publicLiveAssistantKey: z.string().optional(),
+  fallbackToGemini: z.boolean().default(true),
   modelMapping: z.object({
     vision: z.string(),
     triage: z.string(),
     chat: z.string(),
-    matching: z.string()
+    matching: z.string(),
+    visionIdentification: z.string().default('gemini-2.0-flash'),
+    smartSearch: z.string().default('gemini-2.0-flash'),
+    healthAssessment: z.string().default('gemini-2.0-flash'),
+    blogGeneration: z.string().default('gemini-2.0-flash')
   }),
   lastUpdated: z.number(),
   updatedBy: z.string().email()

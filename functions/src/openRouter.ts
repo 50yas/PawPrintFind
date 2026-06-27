@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { trackUsage } from "./usage";
+import { parseAIJSON } from "./utils";
 
 const getOpenRouterKey = async () => {
     // Try to get from Firestore system_config
@@ -73,13 +74,19 @@ export const callOpenRouterAI = async (
         }
 
         const data = await response.json();
-        
+        let text = data.choices?.[0]?.message?.content || "";
+
+        // Auto-clean JSON if expected
+        if (config.response_format?.type === 'json_object' || config.responseMimeType === 'application/json') {
+            text = parseAIJSON(text);
+        }
+
         // Track usage
         trackUsage(userId, task || 'openrouter_generic', 'openrouter').catch(console.error);
 
         return {
             success: true,
-            text: data.choices?.[0]?.message?.content || "",
+            text: text,
             data: data
         };
     } catch (error: any) {
