@@ -69,7 +69,14 @@ export const callOpenRouterAI = async (
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`OpenRouter API Error: ${response.status} ${errorText}`);
+            let errorMessage = `OpenRouter API Error: ${response.status}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage += ` - ${errorJson.error?.message || errorText}`;
+            } catch (e) {
+                errorMessage += ` - ${errorText}`;
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
