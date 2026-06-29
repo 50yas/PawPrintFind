@@ -13,25 +13,25 @@ import { aiBridgeService } from './aiBridgeService';
 const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
     const fn = httpsCallable(functions, 'visionIdentification');
     const result = await fn({ image, task, locale });
-    return result.data as { success: boolean, text: string };
+    return result.data as { success: boolean, text: string, parsed?: any };
 };
 
 const callSmartSearchAI = async (query: string) => {
     const fn = httpsCallable(functions, 'smartSearch');
     const result = await fn({ query });
-    return result.data as { success: boolean, text: string };
+    return result.data as { success: boolean, text: string, parsed?: any };
 };
 
 const callHealthAssessmentAI = async (pet: PetProfile, symptoms: string, locale: string = 'en') => {
     const fn = httpsCallable(functions, 'healthAssessment');
     const result = await fn({ pet, symptoms, locale });
-    return result.data as { success: boolean, text: string };
+    return result.data as { success: boolean, text: string, parsed?: any };
 };
 
 const callBlogGenerationAI = async (topic: string) => {
     const fn = httpsCallable(functions, 'blogGeneration');
     const result = await fn({ topic });
-    return result.data as { success: boolean, text: string };
+    return result.data as { success: boolean, text: string, parsed?: any };
 };
 
 
@@ -111,7 +111,7 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'autofill', locale);
-        return JSON.parse(response.text?.trim() || "{}");
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
@@ -141,7 +141,7 @@ export const generatePetIdentikit = async (photo: File, locale: string = 'en'): 
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'identikit', locale);
-        const json = JSON.parse(response.text?.trim() || "{}");
+        const json = response.parsed || JSON.parse(response.text?.trim() || "{}");
         return {
             code: json.visualIdentityCode || "UNKNOWN",
             description: json.physicalDescription || "No description generated."
@@ -352,7 +352,7 @@ export const performAIHealthCheck = async (pet: PetProfile, symptoms: string, lo
 export const generateBlogPost = async (topic: string): Promise<Partial<BlogPost>> => {
     return retryWithBackoff(async () => {
         const response = await callBlogGenerationAI(topic);
-        return JSON.parse(response.text?.trim() || "{}");
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
@@ -361,15 +361,15 @@ export const generateSuccessStory = async (pet: PetProfile): Promise<Partial<Blo
         // Success story is a special type of blog generation
         const fn = httpsCallable(functions, 'blogGeneration');
         const result = await fn({ topic: `Success story for ${pet.name} (${pet.breed}) being reunited with owner.` });
-        const response = result.data as { success: boolean, text: string };
-        return JSON.parse(response.text?.trim() || "{}");
+        const response = result.data as { success: boolean, text: string, parsed?: any };
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
 export const parseSearchQuery = async (query: string): Promise<any> => {
     return retryWithBackoff(async () => {
         const response = await callSmartSearchAI(query);
-        return JSON.parse(response.text?.trim() || "{}");
+        return response.parsed || JSON.parse(response.text?.trim() || "{}");
     });
 };
 
