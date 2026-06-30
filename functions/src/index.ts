@@ -8,6 +8,7 @@ import { trackUsage } from "./usage";
 import { checkQuota } from "./rateLimit";
 import * as Prompts from "./prompts";
 import { callOpenRouterAI, fetchOpenRouterModels as fetchOpenRouterModelsHelper } from "./openRouter";
+import { parseAIJSON } from "./utils";
 
 admin.initializeApp();
 
@@ -26,7 +27,23 @@ async function resolveAIConfig(task: string) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+            let model = data?.modelMapping?.[task];
+
+            if (!model) {
+                if (provider === 'google') {
+                    model = 'gemini-2.0-flash';
+                } else {
+                    // Task-specific default free models for OpenRouter
+                    const defaults: Record<string, string> = {
+                        vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                        visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                        blogGeneration: 'qwen/qwen-2.5-coder-32b-instruct:free',
+                        // Generic fallback for others
+                        default: 'qwen/qwen-2.5-72b-instruct:free'
+                    };
+                    model = defaults[task] || defaults.default;
+                }
+            }
             return { provider, model };
         }
     } catch (e) {
@@ -65,9 +82,29 @@ async function callAI(
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        const result = await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+
+        // Centralized JSON parsing if requested
+        if (config.responseMimeType === 'application/json' && result.text) {
+            try {
+                return { ...result, parsed: parseAIJSON(result.text) };
+            } catch (e) {
+                console.warn("[callAI] OpenRouter JSON parse failed, returning raw text.");
+            }
+        }
+        return result;
     } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        const result = await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+
+        // Centralized JSON parsing if requested for Gemini too (though usually it handles it via schema)
+        if (config.responseMimeType === 'application/json' && result.text) {
+            try {
+                return { ...result, parsed: parseAIJSON(result.text) };
+            } catch (e) {
+                console.warn("[callAI] Gemini JSON parse failed, returning raw text.");
+            }
+        }
+        return result;
     }
 }
 

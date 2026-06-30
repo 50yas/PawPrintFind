@@ -44,6 +44,14 @@ export const aiBridgeService = {
         return aiService.analyzeImageForDescription(photo);
     },
 
+    async autoFillPetDetails(photo: File, locale: string = 'en'): Promise<any> {
+        return aiService.autoFillPetDetails(photo, locale);
+    },
+
+    async generatePetIdentikit(photo: File, locale: string = 'en'): Promise<{ code: string, description: string }> {
+        return aiService.generatePetIdentikit(photo, locale);
+    },
+
     async performAIHealthCheck(pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> {
         return aiService.performAIHealthCheck(pet, symptoms, locale);
     },
@@ -58,6 +66,14 @@ export const aiBridgeService = {
 
     async generateMatchExplanation(pet: PetProfile, filters: Record<string, unknown>): Promise<string> {
         return aiService.generateMatchExplanation(pet, filters);
+    },
+
+    async parseSearchQuery(query: string): Promise<any> {
+        return aiService.parseSearchQuery(query);
+    },
+
+    async generateBlogPost(topic: string): Promise<any> {
+        return aiService.generateBlogPost(topic);
     },
 
     /**
