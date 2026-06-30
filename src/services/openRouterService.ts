@@ -1,9 +1,8 @@
 import { PetProfile, ChatSession, AISettings } from '../types';
-import * as Prompts from './prompts';
-import { dbService } from './firebase';
+import { aiBridgeService } from './aiBridgeService';
 
 // =============================================================================
-// OPENROUTER CLIENT — Direct HTTP calls (no Cloud Functions needed)
+// OPENROUTER CLIENT — DEPRECATED (Routing via aiBridgeService -> Cloud Functions)
 // =============================================================================
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -37,7 +36,7 @@ const getSettings = async (): Promise<AISettings | null> => {
         return cachedSettings;
     }
     try {
-        cachedSettings = await dbService.getAISettings();
+        cachedSettings = await aiBridgeService.getSettings();
         settingsCacheTime = Date.now();
         return cachedSettings;
     } catch {
@@ -125,67 +124,26 @@ const fileToBase64 = (file: File): Promise<string> =>
 // =============================================================================
 
 const analyzeImageForDescription = async (photo: File): Promise<string> => {
-    const base64 = await fileToBase64(photo);
-    const messages: OpenRouterMessage[] = [{
-        role: 'user',
-        content: [
-            { type: 'text', text: Prompts.getImageDescriptionPrompt() },
-            { type: 'image_url', image_url: { url: `data:${photo.type};base64,${base64}` } },
-        ],
-    }];
-    return callOpenRouter('vision', messages);
+    return aiBridgeService.analyzeImageForDescription(photo);
 };
 
 const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    return callOpenRouter('triage', messages);
+    return aiBridgeService.performAIHealthCheck(pet, symptoms, locale);
 };
 
 const generateChatSuggestions = async (session: ChatSession, currentUserEmail: string): Promise<string[]> => {
-    const userRole = session.ownerEmail === currentUserEmail ? 'owner' : 'finder';
-    const { systemInstruction, userPrompt } = Prompts.getChatSuggestionParts(session.messages, userRole);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    try {
-        const text = await callOpenRouter('chat', messages, { responseFormat: { type: 'json_object' } });
-        const parsed = JSON.parse(text.trim());
-        return parsed.suggestions || [];
-    } catch {
-        return ["I'm on my way.", "Can you describe the collar?", "Is the pet friendly?"];
-    }
+    return aiBridgeService.generateChatSuggestions(session, currentUserEmail);
 };
 
 const comparePets = async (
     foundPetDesc: string,
     lostPet: PetProfile
 ): Promise<{ score: number; reasoning: string; keyMatches: string[]; discrepancies: string[] }> => {
-    const { systemInstruction, userPrompt } = Prompts.getPetComparisonParts(foundPetDesc, lostPet);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    try {
-        const text = await callOpenRouter('matching', messages, { responseFormat: { type: 'json_object' } });
-        return JSON.parse(text.trim());
-    } catch {
-        return { score: 0, reasoning: 'Comparison failed.', keyMatches: [], discrepancies: [] };
-    }
+    return aiBridgeService.comparePets(foundPetDesc, lostPet);
 };
 
 const generateMatchExplanation = async (pet: PetProfile, filters: Record<string, unknown>): Promise<string> => {
-    const userPrompt = Prompts.getMatchExplanationPrompt(pet, filters);
-    const messages: OpenRouterMessage[] = [{ role: 'user', content: userPrompt }];
-    try {
-        return await callOpenRouter('chat', messages);
-    } catch {
-        return 'Matches your preferences.';
-    }
+    return aiBridgeService.generateMatchExplanation(pet, filters);
 };
 
 /**
@@ -195,14 +153,7 @@ const chat = async (
     history: Array<{ role: 'user' | 'assistant'; text: string }>,
     systemPrompt: string
 ): Promise<string> => {
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemPrompt },
-        ...history.map(h => ({
-            role: h.role as 'user' | 'assistant',
-            content: h.text,
-        })),
-    ];
-    return callOpenRouter('chat', messages, { temperature: 0.7 });
+    return aiBridgeService.chat(history, systemPrompt);
 };
 
 /**

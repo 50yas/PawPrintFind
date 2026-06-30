@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    healthAssessment: { icon: '🏥', color: 'text-red-400', borderColor: 'border-l-red-500' },
+    blogGeneration: { icon: '📝', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -189,7 +197,7 @@ export const AdminAISettings: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
