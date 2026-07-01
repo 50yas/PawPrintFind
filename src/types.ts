@@ -894,7 +894,12 @@ export interface AISettings {
   provider: AIProvider;
   fallbackToGemini: boolean;
   publicLiveAssistantKey?: string; // Client-side key for Realtime Voice/Video Assistant
-  modelMapping: Record<AIModelTask, string>;
+  modelMapping: Partial<Record<AIModelTask, string>> & {
+    vision: string;
+    triage: string;
+    chat: string;
+    matching: string;
+  };
   lastUpdated: number;
   updatedBy: string;
   apiKeys?: Record<string, string>;
