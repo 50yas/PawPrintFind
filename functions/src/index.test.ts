@@ -30,6 +30,9 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -37,6 +40,11 @@ vi.mock('firebase-functions/v2/https', () => {
         }
     };
 });
+
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({ value: () => 'test-secret' }))
+}));
 
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
@@ -176,7 +184,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { admin: true } },
             data: { topic: 'Pet safety' } 
         };
         
