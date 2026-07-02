@@ -8,6 +8,7 @@ import { trackUsage } from "./usage";
 import { checkQuota } from "./rateLimit";
 import * as Prompts from "./prompts";
 import { callOpenRouterAI, fetchOpenRouterModels as fetchOpenRouterModelsHelper } from "./openRouter";
+import { parseAIJSON } from "./utils";
 
 admin.initializeApp();
 
@@ -25,14 +26,26 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const provider = data?.provider || 'google';
+            const fallbackToGemini = data?.fallbackToGemini !== false;
+
+            // Smart defaults for free models on OpenRouter
+            const taskDefaults: Record<string, string> = {
+                vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                blogGeneration: 'qwen/qwen-2.5-coder-32b-instruct:free',
+                smartSearch: 'qwen/qwen-2.5-72b-instruct:free',
+            };
+
+            const model = data?.modelMapping?.[task] ||
+                (provider === 'google' ? 'gemini-2.0-flash' : (taskDefaults[task] || 'qwen/qwen-2.5-72b-instruct:free'));
+
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.0-flash', fallbackToGemini: true };
 }
 
 /**
@@ -41,33 +54,86 @@ async function resolveAIConfig(task: string) {
 async function callAI(
     userId: string,
     featureName: string,
-    contents: any, // Standardized parts array for Gemini, or messages array for OpenRouter
+    contents: any,
     config: any = {},
     taskOverride?: string
-) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+): Promise<any> {
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
-    if (provider === 'openrouter') {
-        // Convert Gemini contents to OpenRouter messages if needed
-        let messages = contents;
-        if (contents.parts) {
-            messages = [{ role: 'user', content: contents.parts[0].text }];
-            // Handle image if present
-            if (contents.parts.find((p: any) => p.inlineData)) {
+    try {
+        if (provider === 'openrouter') {
+            // 1. Prepare messages (converting from Gemini parts format if necessary)
+            let messages = contents;
+            if (contents.parts && !Array.isArray(contents)) {
+                const textPart = contents.parts.find((p: any) => p.text)?.text || "";
                 const imgPart = contents.parts.find((p: any) => p.inlineData);
-                messages = [{
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: contents.parts.find((p: any) => p.text).text },
-                        { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
-                    ]
-                }];
+
+                if (imgPart) {
+                    messages = [{
+                        role: 'user',
+                        content: [
+                            { type: 'text', text: textPart },
+                            { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
+                        ]
+                    }];
+                } else {
+                    messages = [{ role: 'user', content: textPart }];
+                }
+            } else if (Array.isArray(contents)) {
+                // Multi-turn history conversion
+                messages = contents.map((c: any) => ({
+                    role: c.role === 'model' ? 'assistant' : 'user',
+                    content: c.parts[0].text
+                }));
+            }
+
+            // 2. Prepare OpenRouter specific config
+            const orConfig: any = {
+                temperature: config.temperature ?? 0.7,
+                max_tokens: config.maxOutputTokens ?? config.max_tokens,
+            };
+            if (config.responseMimeType === 'application/json') {
+                orConfig.response_format = { type: 'json_object' };
+            }
+            if (config.systemInstruction) {
+                messages.unshift({ role: 'system', content: typeof config.systemInstruction === 'string' ? config.systemInstruction : config.systemInstruction.parts[0].text });
+            }
+
+            const result = await callOpenRouterAI(userId, model, messages, orConfig, featureName, openRouterApiKey.value());
+
+            // 3. Post-process JSON if required
+            if (config.responseMimeType === 'application/json' && result.text) {
+                return { ...result, parsed: parseAIJSON(result.text) };
+            }
+            return result;
+
+        } else {
+            // Google Gemini Path
+            const result = await callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+            if (config.responseMimeType === 'application/json' && result.text) {
+                return { ...result, parsed: parseAIJSON(result.text) };
+            }
+            return result;
+        }
+    } catch (error: any) {
+        console.error(`[callAI] Primary provider (${provider}) failed for ${featureName}:`, error.message);
+
+        // FALLBACK LOGIC: If primary (OpenRouter) fails and fallback is enabled, try Gemini
+        if (provider === 'openrouter' && fallbackToGemini) {
+            console.log(`[callAI] Attempting fallback to Google/Gemini-2.0-flash for ${featureName}`);
+            try {
+                const result = await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+                if (config.responseMimeType === 'application/json' && result.text) {
+                    return { ...result, parsed: parseAIJSON(result.text), fallbackTriggered: true };
+                }
+                return { ...result, fallbackTriggered: true };
+            } catch (fallbackError: any) {
+                console.error(`[callAI] Fallback also failed:`, fallbackError.message);
+                throw fallbackError;
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
-    } else {
-        return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
+        throw error;
     }
 }
 
@@ -265,6 +331,7 @@ export const visionIdentification = onCall({
     const config: any = {};
     if (schema) {
         config.responseMimeType = "application/json";
+        // OpenRouter doesn't support responseSchema in the same way, but we pass it for Gemini
         config.responseSchema = schema;
     }
 
