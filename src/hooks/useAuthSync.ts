@@ -47,12 +47,14 @@ export const useAuthSync = (
                 if (fbUser.isAnonymous) return;
                 try {
                     const profile = await dbService.syncUserProfile(fbUser);
-                    const wasLoggedOut = !hadUserRef.current;
                     hadUserRef.current = true;
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-                    // Redirect to dashboard if: fresh login OR currently on home page
-                    if (wasLoggedOut || currentView === 'home') {
+
+                    // Redirect to dashboard ONLY if currently on home page.
+                    // This allows users to log in from other pages (like pet details)
+                    // and stay where they are, avoiding disruptive redirects.
+                    if (currentView === 'home') {
                         const dashView = getDashboardView(profile.activeRole);
                         setCurrentView(dashView);
                     }

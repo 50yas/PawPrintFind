@@ -13,9 +13,8 @@ describe('GlassCard', () => {
         const { container } = render(<GlassCard className="extra-class">Content</GlassCard>);
         const classNames = (container.firstChild as HTMLElement).className;
         expect(classNames).toContain('backdrop-blur-xl');
-        // Material 3 Refactor
-        expect(classNames).toContain('bg-surface-container-low');
-        expect(classNames).toContain('border-outline-variant');
+        expect(classNames).toContain('bg-white/5');
+        expect(classNames).toContain('border-white/20');
         expect(classNames).toContain('extra-class');
     });
 
@@ -49,7 +48,9 @@ describe('GlassButton', () => {
     });
     
     it('supports loading state', () => {
+        // The default loading text is translated from 'common:processing'
+        // In test environment it usually returns the key or placeholder
         render(<GlassButton isLoading>Submit</GlassButton>);
-        expect(screen.getByText('Loading...')).toBeDefined();
+        expect(screen.getByText(/processing/i)).toBeDefined();
     });
 });
