@@ -140,3 +140,15 @@ vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
 
 // Stub jest global for jest-canvas-mock
 vi.stubGlobal('jest', vi);
+
+// Mock window.matchMedia
+vi.stubGlobal('matchMedia', vi.fn().mockImplementation(query => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+})));
