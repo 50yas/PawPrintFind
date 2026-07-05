@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-teal-400', borderColor: 'border-l-teal-500' },
+    healthAssessment: { icon: '🩺', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    blogGeneration: { icon: '✍️', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Vision ID' },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearch') || 'Smart Search' },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessment') || 'Health Assessment' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGeneration') || 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,10 +194,11 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
+                    { label: 'FALLBACK STATUS', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-teal' : '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -203,10 +212,21 @@ export const AdminAISettings: React.FC = () => {
 
             {/* Provider Selection */}
             <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
-                <h3 className="text-xs font-black text-primary uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="status-pulse-green"></span>
-                    {t('dashboard:admin.activeProvider')}
-                </h3>
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="status-pulse-green"></span>
+                        {t('dashboard:admin.activeProvider')}
+                    </h3>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('dashboard:admin.fallbackToGemini') || 'Fallback to Gemini'}</span>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.fallbackToGemini ? 'bg-primary' : 'bg-white/10'}`}
+                        >
+                            <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-300 ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                        </button>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
