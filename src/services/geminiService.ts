@@ -13,7 +13,9 @@ import { aiBridgeService } from './aiBridgeService';
 const callVisionAI = async (image: string, task: 'autofill' | 'identikit' | 'describe', locale: string = 'en') => {
     const fn = httpsCallable(functions, 'visionIdentification');
     const result = await fn({ image, task, locale });
-    return result.data as { success: boolean, text: string };
+    const data = result.data as { success: boolean, text: string };
+    // Backend now sanitizes JSON blocks, so we don't need to do it here
+    return data;
 };
 
 const callSmartSearchAI = async (query: string) => {
@@ -111,6 +113,7 @@ export const autoFillPetDetails = async (photo: File, locale: string = 'en'): Pr
     return retryWithBackoff(async () => {
         const base64 = await fileToBase64(photo);
         const response = await callVisionAI(base64, 'autofill', locale);
+        // Note: Backend now sanitizes JSON blocks, so we just parse
         return JSON.parse(response.text?.trim() || "{}");
     });
 };
