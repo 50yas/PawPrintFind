@@ -80,6 +80,7 @@ export const callOpenRouterAI = async (
         return {
             success: true,
             text: data.choices?.[0]?.message?.content || "",
+            parsed: config.response_format?.type === 'json_object' ? JSON.parse(data.choices?.[0]?.message?.content || "{}") : undefined,
             data: data
         };
     } catch (error: any) {
