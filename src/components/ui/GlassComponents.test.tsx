@@ -50,6 +50,7 @@ describe('GlassButton', () => {
     
     it('supports loading state', () => {
         render(<GlassButton isLoading>Submit</GlassButton>);
-        expect(screen.getByText('Loading...')).toBeDefined();
+        // t('processing') translates to 'processing' in mocks
+        expect(screen.getByText('processing')).toBeDefined();
     });
 });
