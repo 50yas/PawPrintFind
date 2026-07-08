@@ -5,16 +5,22 @@ import * as admin from 'firebase-admin';
 const mockSet = vi.fn().mockResolvedValue({});
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, empty: true, docs: [] });
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
+  const mockFirestore = vi.fn(() => ({
+    collection: mockCollection,
+    doc: mockDoc,
+    set: mockSet,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: mockGet
+  }));
+
   return {
     initializeApp: vi.fn(),
-    firestore: Object.assign(vi.fn(() => ({
-        collection: mockCollection,
-        doc: mockDoc,
-        set: mockSet
-    })), {
+    firestore: Object.assign(mockFirestore, {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
@@ -30,6 +36,9 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn((config, handler) => {
+            return typeof config === 'function' ? config : handler;
+        }),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -37,6 +46,10 @@ vi.mock('firebase-functions/v2/https', () => {
         }
     };
 });
+
+vi.mock('firebase-functions/v2/firestore', () => ({
+    onDocumentCreated: vi.fn()
+}));
 
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
@@ -58,6 +71,10 @@ vi.mock('firebase-functions/v1', () => {
         }
     };
 });
+
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({ value: () => 'mock-secret' }))
+}));
 
 // Mock GoogleGenAI
 vi.mock('@google/genai', () => {
@@ -88,7 +105,6 @@ vi.mock('./rateLimit', () => ({
 }));
 
 import { trackUsage } from './usage';
-// @ts-ignore - these won't be exported yet
 import { visionIdentification, smartSearch, healthAssessment, blogGeneration } from './index';
 
 describe('trackUsage', () => {
@@ -176,7 +192,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
@@ -206,6 +222,12 @@ describe('AI Cloud Functions', () => {
         const request = { auth: { uid: 'user1' }, data: { query: 'test' } };
         mockCheckQuota.mockResolvedValueOnce({ allowed: false, reason: 'Quota exceeded' });
         
+        // Mock firestore to return fallbackToGemini: false so we actually throw
+        mockGet.mockResolvedValueOnce({
+            exists: true,
+            data: () => ({ fallbackToGemini: false })
+        });
+
         // @ts-ignore
         await expect(smartSearch(request)).rejects.toThrow('Quota exceeded');
     });
