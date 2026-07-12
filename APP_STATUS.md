@@ -87,12 +87,12 @@ React 18 + TypeScript + Vite
 
 | Feature | Provider | Model (default) | Status |
 |---|---|---|---|
-| Pet vision / autofill | OpenRouter | nvidia/nemotron-nano-12b-v2-vl:free | ✅ |
-| Smart search | OpenRouter | qwen/qwen3-next-80b-a3b-instruct:free | ✅ |
-| Health assessment | OpenRouter | qwen/qwen3-next-80b-a3b-instruct:free | ✅ |
-| Blog generation | OpenRouter | qwen/qwen3-coder:free | ✅ |
-| Fallback provider | Google Gemini | gemini-2.5-flash | ✅ |
-| AI settings admin | Admin > AI tab | Live model switching | ✅ |
+| Pet vision / Identikit | OpenRouter | nvidia/nemotron-nano-12b-v2-vl:free | ✅ |
+| Smart search (NLP) | OpenRouter | qwen/qwen-2.5-72b-instruct:free | ✅ |
+| Health assessment | OpenRouter | qwen/qwen-2.5-72b-instruct:free | ✅ |
+| Blog generation | OpenRouter | qwen/qwen-2.5-coder-32b-instruct:free | ✅ |
+| Fallback provider | Google Gemini | gemini-2.0-flash | ✅ |
+| AI settings admin | Admin > AI tab | 8-task mapping + Fallback | ✅ |
 
 ### Admin Dashboard (7 tabs, 22 sub-sections)
 
