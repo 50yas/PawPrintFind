@@ -73,13 +73,28 @@ export const callOpenRouterAI = async (
         }
 
         const data = await response.json();
+
+        if (data.error) {
+            throw new Error(`OpenRouter Error: ${data.error.message || JSON.stringify(data.error)}`);
+        }
+
+        const text = data.choices?.[0]?.message?.content || "";
+        let parsed = null;
+        if (config.response_format?.type === 'json_object' || (typeof text === 'string' && text.trim().startsWith('{'))) {
+            try {
+                parsed = JSON.parse(text);
+            } catch (e) {
+                console.warn("Failed to parse OpenRouter response as JSON:", e);
+            }
+        }
         
         // Track usage
         trackUsage(userId, task || 'openrouter_generic', 'openrouter').catch(console.error);
 
         return {
             success: true,
-            text: data.choices?.[0]?.message?.content || "",
+            text,
+            parsed,
             data: data
         };
     } catch (error: any) {

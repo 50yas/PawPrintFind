@@ -13,6 +13,9 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        get: vi.fn().mockResolvedValue({ exists: false }),
         set: mockSet
     })), {
       FieldValue: {
@@ -30,6 +33,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -55,6 +59,11 @@ vi.mock('firebase-functions/v1', () => {
                 onCreate: vi.fn(),
                 onWrite: vi.fn()
             }))
+        },
+        logger: {
+            info: vi.fn(),
+            error: vi.fn(),
+            warn: vi.fn(),
         }
     };
 });
@@ -85,6 +94,16 @@ const { mockCheckQuota } = vi.hoisted(() => ({
 }));
 vi.mock('./rateLimit', () => ({
     checkQuota: mockCheckQuota
+}));
+
+// Mock params
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({ value: () => 'mock-secret' })),
+}));
+
+// Mock firestore v2
+vi.mock('firebase-functions/v2/firestore', () => ({
+    onDocumentCreated: vi.fn(),
 }));
 
 import { trackUsage } from './usage';
@@ -176,7 +195,10 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: {
+                uid: 'user123',
+                token: { role: 'super_admin' }
+            },
             data: { topic: 'Pet safety' } 
         };
         
