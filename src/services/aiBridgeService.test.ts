@@ -28,7 +28,17 @@ describe('aiBridgeService', () => {
     it('should route all requests through unified aiService (via Cloud Functions)', async () => {
         vi.mocked(adminService.getAISettings).mockResolvedValue({
             provider: 'openrouter',
-            modelMapping: { vision: 'model', triage: 'model', chat: 'model', matching: 'model' },
+            modelMapping: {
+                vision: 'model',
+                visionIdentification: 'model',
+                triage: 'model',
+                healthAssessment: 'model',
+                chat: 'model',
+                matching: 'model',
+                smartSearch: 'model',
+                blogGeneration: 'model'
+            },
+            fallbackToGemini: true,
             lastUpdated: Date.now(),
             updatedBy: 'admin'
         });
