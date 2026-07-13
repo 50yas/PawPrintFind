@@ -3,8 +3,11 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
+const mockGet = vi.fn().mockResolvedValue({ exists: false });
 const mockDoc = vi.fn().mockReturnThis();
 const mockCollection = vi.fn().mockReturnThis();
+const mockWhere = vi.fn().mockReturnThis();
+const mockLimit = vi.fn().mockReturnThis();
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,13 +16,19 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
+        set: mockSet,
+        get: mockGet,
+        where: mockWhere,
+        limit: mockLimit
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
         serverTimestamp: vi.fn(() => 'mock-timestamp'),
       },
     }),
+    messaging: vi.fn(() => ({
+        send: vi.fn().mockResolvedValue('msg-id')
+    }))
   };
 });
 
@@ -30,6 +39,7 @@ vi.mock('firebase-functions/v2/https', () => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
+        onRequest: vi.fn(),
         HttpsError: class HttpsError extends Error {
             constructor(public code: string, message: string) {
                 super(message);
@@ -37,6 +47,10 @@ vi.mock('firebase-functions/v2/https', () => {
         }
     };
 });
+
+vi.mock('firebase-functions/params', () => ({
+    defineSecret: vi.fn(() => ({ value: () => 'test-secret' }))
+}));
 
 // Mock firebase-functions/v1 (keep for triggers if needed)
 vi.mock('firebase-functions/v1', () => {
@@ -176,7 +190,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         

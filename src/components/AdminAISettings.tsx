@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
+    healthAssessment: { icon: '🩺', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-sky-400', borderColor: 'border-l-sky-500' },
+    blogGeneration: { icon: '✍️', color: 'text-orange-400', borderColor: 'border-l-orange-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,11 +194,12 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
+                    { label: t('dashboard:admin.fallbackStatus'), value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🛡️', glow: settings.fallbackToGemini ? 'neon-glow-teal' : '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
                     <div key={i} className={`p-4 rounded-2xl bg-white/5 border border-white/10 text-center transition-all duration-300 hover:bg-white/10 ${stat.glow}`}>
@@ -207,6 +216,67 @@ export const AdminAISettings: React.FC = () => {
                     <span className="status-pulse-green"></span>
                     {t('dashboard:admin.activeProvider')}
                 </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {([
+                        { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
+                        { id: 'openrouter' as AIProvider, name: t('dashboard:admin.providerOpenRouter'), desc: t('dashboard:admin.providerOpenRouterDesc'), icon: '🚀' },
+                    ]).map(p => {
+                        const isActive = settings.provider === p.id;
+                        const hasKey = !!secrets[p.id];
+                        const connStatus = connectionStatus[p.id];
+                        return (
+                            <button
+                                key={p.id}
+                                onClick={() => setSettings({ ...settings, provider: p.id })}
+                                className={`provider-card text-left ${isActive ? 'provider-card-active' : 'provider-card-inactive'}`}
+                            >
+                                {isActive && <div className="absolute inset-0 neon-border rounded-2xl"></div>}
+                                <div className="flex items-start gap-4 relative z-10">
+                                    <span className="text-3xl md:text-4xl">{p.icon}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-black text-white uppercase tracking-wider">{p.name}</span>
+                                            {isActive && <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full border border-primary/30 uppercase">Active</span>}
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 mt-1">{p.desc}</p>
+                                        <div className="flex items-center gap-2 mt-3">
+                                            <span className={`w-2 h-2 rounded-full ${hasKey ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]'}`}></span>
+                                            <span className="text-[9px] font-mono text-slate-500">{hasKey ? t('dashboard:admin.keyPresent') : t('dashboard:admin.keyMissing')}</span>
+                                            {connStatus && (
+                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${connStatus.success ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                                    {connStatus.success ? '✓ OK' : '✗ FAIL'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
+            </GlassCard>
+
+            {/* Fallback & Provider Settings */}
+            <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-2 h-4 bg-primary rounded-full"></span>
+                        FALLBACK & RESILIENCE
+                    </h3>
+                    <div className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/10">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider">{t('dashboard:admin.fallbackToGemini')}</span>
+                            <span className="text-[8px] text-slate-500 uppercase font-mono">{t('dashboard:admin.fallbackToGeminiDesc')}</span>
+                        </div>
+                        <button
+                            onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                        >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
                         { id: 'google' as AIProvider, name: t('dashboard:admin.providerGoogle'), desc: t('dashboard:admin.providerGoogleDesc'), icon: '💎' },
