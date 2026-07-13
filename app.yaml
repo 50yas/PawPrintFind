@@ -27,6 +27,14 @@ handlers:
     static_files: dist/manifest.webmanifest
     upload: dist/manifest.webmanifest
 
+  - url: /logo.png
+    static_files: dist/logo.png
+    upload: dist/logo.png
+
+  - url: /version.json
+    static_files: dist/version.json
+    upload: dist/version.json
+
   # Catch-all for SPA routing
   - url: /.*
     static_files: dist/index.html
