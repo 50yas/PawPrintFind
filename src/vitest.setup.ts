@@ -3,6 +3,21 @@ import '@testing-library/jest-dom';
 import 'vitest-axe/extend-expect';
 import 'jest-canvas-mock';
 
+// Polyfill window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 // Mock Firebase SDK
 vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(),
@@ -11,6 +26,11 @@ vi.mock('firebase/app', () => ({
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({
     currentUser: null,
+    onAuthStateChanged: vi.fn((cb) => {
+      // Immediate callback with null user for standard setup
+      if (typeof cb === 'function') cb(null);
+      return () => { };
+    }),
   })),
   signInWithEmailAndPassword: vi.fn(),
   signInWithPopup: vi.fn(),
@@ -27,33 +47,51 @@ vi.mock('firebase/auth', () => ({
   browserLocalPersistence: 'LOCAL',
 }));
 
-vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(),
-  initializeFirestore: vi.fn(),
-  collection: vi.fn((_db, path) => ({ // Mock collection to return an object
+vi.mock('firebase/firestore', () => {
+  const mockDb = { type: 'firestore' };
+  const mockCollection = vi.fn((_db, path) => ({
     id: path,
     type: 'collection',
-    _is_firebase_collection: true, // Marker for checking in tests if needed
-  })),
-  doc: vi.fn((_dbOrCollection, path) => ({ // Mock doc to return an object
+    _is_firebase_collection: true,
+    withConverter: vi.fn().mockReturnThis(),
+  }));
+  const mockDoc = vi.fn((_dbOrCollection, path) => ({
     id: path,
     type: 'doc',
-    _is_firebase_doc: true, // Marker
-    // Add other properties if needed, like parent, path, etc.
-  })),
-  getDoc: vi.fn(),
-  setDoc: vi.fn(),
-  updateDoc: vi.fn(),
-  query: vi.fn(),
-  where: vi.fn(),
-  getDocs: vi.fn(),
-  arrayUnion: vi.fn(),
-  increment: vi.fn(),
-  addDoc: vi.fn(),
-  orderBy: vi.fn(),
-  limit: vi.fn(),
-  onSnapshot: vi.fn(() => () => { }), // Mock unsubscribe
-}));
+    _is_firebase_doc: true,
+    withConverter: vi.fn().mockReturnThis(),
+  }));
+
+  return {
+    getFirestore: vi.fn(() => mockDb),
+    initializeFirestore: vi.fn(() => mockDb),
+    collection: mockCollection,
+    doc: mockDoc,
+    getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => ({}) }),
+    setDoc: vi.fn().mockResolvedValue({}),
+    updateDoc: vi.fn().mockResolvedValue({}),
+    deleteDoc: vi.fn().mockResolvedValue({}),
+    query: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    getDocs: vi.fn().mockResolvedValue({ docs: [], empty: true }),
+    arrayUnion: vi.fn(val => ({ type: 'arrayUnion', val })),
+    increment: vi.fn(val => ({ type: 'increment', val })),
+    addDoc: vi.fn().mockResolvedValue({ id: 'mock-id' }),
+    orderBy: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    onSnapshot: vi.fn((_q, cb) => {
+      if (typeof cb === 'function') cb({ docs: [] });
+      return () => { };
+    }),
+    getCountFromServer: vi.fn().mockResolvedValue({ data: () => ({ count: 0 }) }),
+    getAggregateFromServer: vi.fn().mockResolvedValue({ data: () => ({ total: 0 }) }),
+    sum: vi.fn(),
+    FieldValue: {
+      serverTimestamp: vi.fn(() => 'mock-timestamp'),
+      increment: vi.fn(n => ({ type: 'increment', value: n })),
+    }
+  };
+});
 
 vi.mock('firebase/storage', () => ({
   getStorage: vi.fn(),
@@ -72,7 +110,7 @@ vi.mock('firebase/performance', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: {} })),
 }));
 
 vi.mock('firebase/remote-config', () => ({
@@ -88,6 +126,7 @@ vi.mock('./services/loggerService', () => ({
     error: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
+    subscribe: vi.fn(() => () => {}),
   },
 }));
 
@@ -110,14 +149,12 @@ vi.mock('react-i18next', () => ({
 
 // Mock crypto subtle for verifyAdminKey
 const mockDigest = vi.fn(async (algorithm, data) => {
-  // Simple mock: just return a fixed buffer or a hash of the data
   const text = new TextDecoder().decode(data);
   if (text === 'GENESIS_KEY_INPUT') {
     return new Uint8Array(
       '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915'.match(/.{2}/g)!.map(byte => parseInt(byte, 16))
     ).buffer;
   }
-  // Return a generic hash for other inputs
   return new Uint8Array([0x00, 0x01, 0x02]).buffer;
 });
 

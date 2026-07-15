@@ -51,8 +51,8 @@ export const useAuthSync = (
                     hadUserRef.current = true;
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-                    // Redirect to dashboard if: fresh login OR currently on home page
-                    if (wasLoggedOut || currentView === 'home') {
+                    // Redirect to dashboard if: currently on home page upon login/sync
+                    if (currentView === 'home') {
                         const dashView = getDashboardView(profile.activeRole);
                         setCurrentView(dashView);
                     }
