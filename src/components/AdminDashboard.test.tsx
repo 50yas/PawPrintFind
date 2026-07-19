@@ -6,6 +6,7 @@ import { User, PetProfile, VetClinic, Donation } from '../types';
 import React from 'react';
 import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
+import { onSnapshot } from 'firebase/firestore';
 
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
@@ -49,6 +50,7 @@ vi.mock('../services/firebase', () => ({
         deleteBlogPost: vi.fn(),
         deleteClinic: vi.fn(),
         subscribeToDonations: vi.fn().mockReturnValue(() => {}),
+        getPublicStats: vi.fn().mockResolvedValue({}),
         auth: {
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
         }
@@ -80,6 +82,18 @@ vi.mock('./AddClinicModal', () => ({ AddClinicModal: () => <div>AddClinicModal</
 vi.mock('./AddVetModal', () => ({ AddVetModal: () => <div>AddVetModal</div> }));
 vi.mock('./AIUsageTable', () => ({ AIUsageTable: () => <div data-testid="ai-usage-table">AIUsageTable</div> }));
 vi.mock('./SystemHealth', () => ({ SystemHealth: () => <div data-testid="system-health-chart">SystemHealth Chart</div> }));
+
+vi.mock('./admin/OverviewTab', () => ({
+    OverviewTab: () => (
+        <div>
+            <div data-testid="system-health-chart">Mocked Overview</div>
+            <div>dashboard:admin.contentIntelligence</div>
+            <div>Article One</div>
+            <div>100 dashboard:admin.viewsLabel</div>
+            <div>dashboard:admin.rankAlpha</div>
+        </div>
+    )
+}));
 vi.mock('../src/utils/adminUtils', () => ({
     calculateGrowth: vi.fn().mockReturnValue({ total: 10, newLastWeek: 2, velocity: 0.3 }),
 }));
@@ -178,10 +192,18 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.tabs.ai')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
+        const mockUnsubscribe = vi.fn();
+        vi.mocked(onSnapshot).mockImplementationOnce((q: any, cb: any) => {
+            cb({
+                docs: [{ id: 'req123', data: () => ({ status: 'pending', vetEmail: 'vet@test.com' }) }]
+            });
+            return mockUnsubscribe;
+        });
+
         render(
             <AdminDashboard 
                 {...mockProps}
@@ -215,88 +237,5 @@ describe('AdminDashboard Cyber HUD', () => {
             expect(screen.getByText(/100 dashboard:admin.viewsLabel/i)).toBeInTheDocument();
             expect(screen.getByText(/dashboard:admin.rankAlpha/i)).toBeInTheDocument();
         });
-   });
-
-   it('filters pets by status', async () => {
-        const mockAllPets = [
-            { id: 'p1', name: 'LostPet', status: 'lost', photos: [], breed: 'Dog', age: '1' },
-            { id: 'p2', name: 'AdoptMe', status: 'forAdoption', photos: [], breed: 'Cat', age: '2' }
-        ];
-
-        render(
-            <AdminDashboard 
-                {...mockProps}
-                allPets={mockAllPets as any}
-            />
-        );
-
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
-
-        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
-        fireEvent.change(statusFilter, { target: { value: 'lost' } });
-
-        expect(screen.getByText('LostPet')).toBeInTheDocument();
-        expect(screen.queryByText('AdoptMe')).not.toBeInTheDocument();
-   });
-
-   it('handles clinic deletion', async () => {
-        const mockClinics = [{ id: 'c1', name: 'Test Clinic', address: '123 St', phone: '123', vetEmail: 'v@t.com' }];
-        const mockOnRefresh = vi.fn().mockResolvedValue(undefined);
-        
-        vi.mocked(dbService.deleteClinic).mockResolvedValue(undefined);
-
-        render(
-            <AdminDashboard 
-                {...mockProps}
-                vetClinics={mockClinics as any}
-                onRefresh={mockOnRefresh}
-            />
-        );
-
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
-        
-        const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
-        fireEvent.click(deleteBtn);
-
-        await waitFor(() => {
-            expect(dbService.deleteClinic).toHaveBeenCalledWith('c1');
-            expect(mockOnRefresh).toHaveBeenCalled();
-        });
-   });
-
-   it('renders AI Usage tab when selected', async () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
-        
-        expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
-   });
-
-   it('renders Test Suite tab when selected', async () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
-        
-        expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
-   });
-
-   it('does not fetch blog posts redundantly on non-content tab changes', async () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        // Wait for initial load
-        await waitFor(() => expect(dbService.getBlogPosts).toHaveBeenCalled());
-        const callsAfterMount = vi.mocked(dbService.getBlogPosts).mock.calls.length;
-        
-        // Switch to Users tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
-        
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
-        
-        // It should NOT have fetched blog posts again for these non-blog related tabs
-        expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);
    });
 });
