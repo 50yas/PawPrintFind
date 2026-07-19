@@ -41,7 +41,7 @@ vi.mock('firebase/firestore', () => ({
     _is_firebase_doc: true, // Marker
     // Add other properties if needed, like parent, path, etc.
   })),
-  getDoc: vi.fn(),
+  getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => ({}) }),
   setDoc: vi.fn(),
   updateDoc: vi.fn(),
   query: vi.fn(),
@@ -72,7 +72,7 @@ vi.mock('firebase/performance', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } })),
 }));
 
 vi.mock('firebase/remote-config', () => ({
@@ -140,3 +140,18 @@ vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
 
 // Stub jest global for jest-canvas-mock
 vi.stubGlobal('jest', vi);
+
+// Polyfill window.matchMedia for responsive components and Material 3 layouts
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
