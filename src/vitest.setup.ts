@@ -41,7 +41,7 @@ vi.mock('firebase/firestore', () => ({
     _is_firebase_doc: true, // Marker
     // Add other properties if needed, like parent, path, etc.
   })),
-  getDoc: vi.fn(),
+  getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => ({}) }),
   setDoc: vi.fn(),
   updateDoc: vi.fn(),
   query: vi.fn(),
@@ -72,7 +72,7 @@ vi.mock('firebase/performance', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } })),
 }));
 
 vi.mock('firebase/remote-config', () => ({
