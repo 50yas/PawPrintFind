@@ -108,7 +108,7 @@ describe('petService', () => {
         const mockError = new Error('Firestore error');
         (setDoc as Mock).mockRejectedValue(mockError);
         await expect(petService.savePet(validPet as any)).rejects.toThrow('Firestore error');
-        expect(logger.error).toHaveBeenCalledWith('Error saving pet:', mockError);
+        expect(logger.error).toHaveBeenCalledWith('Error saving pet:', mockError.message);
     });
   });
 
