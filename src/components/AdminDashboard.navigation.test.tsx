@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -30,6 +29,7 @@ vi.mock('../services/firebase', () => ({
     dbService: {
         logAdminAction: vi.fn(),
         getBlogPosts: vi.fn().mockResolvedValue([]),
+        getPendingVerifications: vi.fn().mockResolvedValue([]),
         subscribeToDonations: vi.fn().mockReturnValue(() => {}),
         auth: { currentUser: { uid: 'admin1', email: 'admin@test.com' } }
     },
@@ -60,23 +60,12 @@ describe('AdminDashboard Grouped Navigation', () => {
         onViewPet: vi.fn()
     };
 
-    it('groups tabs into categories in the sidebar', () => {
+    it('renders all flat sidebar tabs', () => {
         render(<AdminDashboard {...mockProps} />);
         
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
-    });
-
-    it('collapses and expands categories', () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
-        
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
+        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
+        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
+        expect(screen.getByTitle('Operations')).toBeInTheDocument();
     });
 
     it('toggles sidebar collapse state', () => {

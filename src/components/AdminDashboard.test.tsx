@@ -6,6 +6,8 @@ import { User, PetProfile, VetClinic, Donation } from '../types';
 import React from 'react';
 import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
+import { onSnapshot } from 'firebase/firestore';
+import type { Mock } from 'vitest';
 
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
@@ -18,6 +20,7 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+
 const mockAddSnackbar = vi.fn();
 // We don't mock useSnackbar globally if we wrap with SnackbarProvider,
 // but the test previously mocked it. Let's stick to mocking the module for simplicity.
@@ -27,6 +30,15 @@ vi.mock('../contexts/SnackbarContext', () => ({
   }),
   SnackbarProvider: ({ children }: any) => <div>{children}</div> // Mock provider to just render children
 }));
+
+// Mock lazy-loaded sub-tabs to be synchronous imports
+vi.mock('./admin/OverviewTab', async () => await vi.importActual('./admin/OverviewTab'));
+vi.mock('./admin/UsersTab', async () => await vi.importActual('./admin/UsersTab'));
+vi.mock('./admin/OperationsTab', async () => await vi.importActual('./admin/OperationsTab'));
+vi.mock('./admin/FinanceTab', async () => await vi.importActual('./admin/FinanceTab'));
+vi.mock('./admin/CommunityTab', async () => await vi.importActual('./admin/CommunityTab'));
+vi.mock('./admin/AISystemsTab', async () => await vi.importActual('./admin/AISystemsTab'));
+vi.mock('./admin/SettingsTab', async () => await vi.importActual('./admin/SettingsTab'));
 
 vi.mock('../services/donationService', () => ({
     calculateTotalFromList: vi.fn().mockReturnValue(1000),
@@ -48,6 +60,7 @@ vi.mock('../services/firebase', () => ({
         deletePet: vi.fn(),
         deleteBlogPost: vi.fn(),
         deleteClinic: vi.fn(),
+        getPendingVerifications: vi.fn().mockResolvedValue([{ id: 'req1', vetUid: 'vet1', clinicName: 'My Clinic', status: 'pending' }]),
         subscribeToDonations: vi.fn().mockReturnValue(() => {}),
         auth: {
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
@@ -122,6 +135,24 @@ describe('AdminDashboard Cyber HUD', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
+
+        // Mock onSnapshot to synchronously return 1 pending request so that the Alert Feed and sidebar badges render perfectly!
+        (onSnapshot as Mock).mockImplementation((_query: any, callback: any) => {
+            callback({
+                docs: [
+                    {
+                        id: 'req1',
+                        data: () => ({
+                            vetUid: 'vet1',
+                            clinicName: 'My Clinic',
+                            status: 'pending',
+                            specialization: []
+                        })
+                    }
+                ]
+            });
+            return () => {}; // unsubscribe
+        });
     });
 
     const mockProps = {
@@ -178,16 +209,19 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('Operations')).toBeInTheDocument();
    });
 
-   it('renders the Persistent Alert Feed when there are pending verifications', () => {
+   it('renders the Persistent Alert Feed when there are pending verifications', async () => {
         render(
             <AdminDashboard 
                 {...mockProps}
                 users={[mockUser, mockPendingUser]}
             />
         );
+
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
 
         expect(screen.getByText(/dashboard:admin.urgentProtocol/)).toBeInTheDocument();
         expect(screen.getByText(/1 dashboard:admin.pendingVerificationsTitle/i)).toBeInTheDocument();
@@ -205,6 +239,9 @@ describe('AdminDashboard Cyber HUD', () => {
         render(
             <AdminDashboard {...mockProps} />
         );
+
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
 
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.overview'));
 
@@ -230,9 +267,15 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
+
+        // First click Operations tab to mount OperationsTab component
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Wait for lazy-loaded OperationsTab to resolve and mount, then click the pets sub-tab
+        const petsTab = await screen.findByText('dashboard:admin.adminTabPets');
+        fireEvent.click(petsTab);
 
         const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
@@ -255,7 +298,15 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
+
+        // First click Operations tab to mount OperationsTab component
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Wait for lazy-loaded OperationsTab to resolve and mount, then click the clinics sub-tab
+        const clinicsTab = await screen.findByText('dashboard:admin.adminTabClinics');
+        fireEvent.click(clinicsTab);
         
         const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
@@ -269,7 +320,11 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
+
+        // Click AI Systems tab in sidebar
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -277,8 +332,15 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders Test Suite tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
+
+        // Switch to System tab
+        fireEvent.click(screen.getByTitle('System'));
+
+        // Wait for lazy-loaded SettingsTab to resolve and mount, then click Test Suite sub-tab
+        const testSuiteTab = await screen.findByText(/Test Suite/);
+        fireEvent.click(testSuiteTab);
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -286,6 +348,9 @@ describe('AdminDashboard Cyber HUD', () => {
    it('does not fetch blog posts redundantly on non-content tab changes', async () => {
         render(<AdminDashboard {...mockProps} />);
         
+        // Wait for initial mount to stabilize
+        await screen.findByText('dashboard:admin.uptime');
+
         // Wait for initial load
         await waitFor(() => expect(dbService.getBlogPosts).toHaveBeenCalled());
         const callsAfterMount = vi.mocked(dbService.getBlogPosts).mock.calls.length;
@@ -293,8 +358,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to System/Settings tab
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);

@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
+    healthAssessment: { icon: '🩺', color: 'text-sky-400', borderColor: 'border-l-sky-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-yellow-400', borderColor: 'border-l-yellow-500' },
+    blogGeneration: { icon: '✍️', color: 'text-fuchsia-400', borderColor: 'border-l-fuchsia-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Vision Identification' },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') || 'Health Assessment' },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') || 'Smart Search' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') || 'Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
@@ -186,10 +194,11 @@ export const AdminAISettings: React.FC = () => {
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {[
                     { label: t('dashboard:admin.activeProvider'), value: settings.provider === 'google' ? 'Gemini' : 'OpenRouter', icon: settings.provider === 'google' ? '💎' : '🚀', glow: 'neon-glow-teal' },
-                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/4`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.totalModels'), value: `${modelCount}/8`, icon: '🔧', glow: '' },
+                    { label: t('dashboard:admin.fallbackStatus') || 'Fallback Status', value: settings.fallbackToGemini ? 'ENABLED' : 'DISABLED', icon: '🔄', glow: settings.fallbackToGemini ? 'neon-glow-green' : 'neon-glow-red' },
                     { label: t('dashboard:admin.lastKeyRotation'), value: timeAgo(settings.lastUpdated), icon: '🔑', glow: '' },
                     { label: t('dashboard:admin.providerStatus'), value: activeKey ? t('dashboard:admin.connectionActive') : t('dashboard:admin.keyMissing'), icon: activeKey ? '✅' : '⚠️', glow: activeKey ? 'neon-glow-green' : 'neon-glow-red' },
                 ].map((stat, i) => (
@@ -244,6 +253,27 @@ export const AdminAISettings: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+            </GlassCard>
+
+            {/* Fallback settings */}
+            <GlassCard className="p-6 md:p-8 border-white/10 bg-black/40 scan-hover">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${settings.fallbackToGemini ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]'}`}></span>
+                            {t('dashboard:admin.fallbackToGemini') || 'Fallback To Gemini'}
+                        </h3>
+                        <p className="text-[10px] text-slate-500 mt-1 font-mono uppercase tracking-tight leading-relaxed max-w-2xl">
+                            If enabled, the system automatically falls back to Google Gemini if OpenRouter or another primary provider fails, ensuring continuous operation of critical pet search features.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setSettings({ ...settings, fallbackToGemini: !settings.fallbackToGemini })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 ${settings.fallbackToGemini ? 'bg-primary' : 'bg-slate-700'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.fallbackToGemini ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                 </div>
             </GlassCard>
 

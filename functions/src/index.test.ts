@@ -3,8 +3,45 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({
+  exists: true,
+  data: () => ({
+    provider: 'google',
+    fallbackToGemini: true,
+    modelMapping: {
+      vision: 'gemini-2.0-flash',
+      visionIdentification: 'gemini-2.0-flash',
+      triage: 'gemini-2.0-flash',
+      healthAssessment: 'gemini-2.0-flash',
+      chat: 'gemini-2.0-flash',
+      matching: 'gemini-2.0-flash',
+      smartSearch: 'gemini-2.0-flash',
+      blogGeneration: 'gemini-2.0-flash',
+    }
+  })
+});
+
+const mockDoc = vi.fn().mockImplementation(() => {
+  const chain = {
+    get: mockGet,
+    set: mockSet,
+    collection: mockCollection,
+    doc: vi.fn().mockImplementation(() => chain),
+    where: vi.fn().mockImplementation(() => chain),
+    limit: vi.fn().mockImplementation(() => chain),
+  };
+  return chain;
+});
+
+const mockCollection = vi.fn().mockImplementation(() => {
+  const chain = {
+    doc: mockDoc,
+    where: vi.fn().mockImplementation(() => chain),
+    limit: vi.fn().mockImplementation(() => chain),
+    get: vi.fn().mockResolvedValue({ empty: true }),
+  };
+  return chain;
+});
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -23,10 +60,23 @@ vi.mock('firebase-admin', () => {
   };
 });
 
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn(() => ({
+            value: () => 'mock-api-key'
+        }))
+    };
+});
+
 // Mock firebase-functions/v2
 vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
+            // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
             return typeof config === 'function' ? config : handler;
         }),
@@ -176,7 +226,7 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'super_admin' } },
             data: { topic: 'Pet safety' } 
         };
         
