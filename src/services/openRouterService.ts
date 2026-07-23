@@ -142,7 +142,11 @@ const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: s
         { role: 'system', content: systemInstruction },
         { role: 'user', content: userPrompt },
     ];
-    return callOpenRouter('triage', messages);
+    try {
+        return await callOpenRouter('triage', messages);
+    } catch {
+        return 'Health analysis failed.';
+    }
 };
 
 const generateChatSuggestions = async (session: ChatSession, currentUserEmail: string): Promise<string[]> => {
