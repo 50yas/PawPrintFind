@@ -21,6 +21,7 @@ interface OperationsTabProps {
     pendingVerificationCount: number;
     onViewPet: (pet: PetProfile) => void;
     onRefresh: () => Promise<void>;
+    defaultSubTab?: OpsSubTab;
 }
 
 export const OperationsTab: React.FC<OperationsTabProps> = ({
@@ -31,11 +32,18 @@ export const OperationsTab: React.FC<OperationsTabProps> = ({
     pendingVerificationCount,
     onViewPet,
     onRefresh,
+    defaultSubTab,
 }) => {
     const { t } = useTranslations();
     const { addSnackbar } = useSnackbar();
 
-    const [subTab, setSubTab] = useState<OpsSubTab>(pendingVerificationCount > 0 ? 'verification' : 'pets');
+    const [subTab, setSubTab] = useState<OpsSubTab>(defaultSubTab || (pendingVerificationCount > 0 ? 'verification' : 'pets'));
+
+    React.useEffect(() => {
+        if (defaultSubTab) {
+            setSubTab(defaultSubTab);
+        }
+    }, [defaultSubTab]);
     const [petSearch, setPetSearch] = useState('');
     const [petStatusFilter, setPetStatusFilter] = useState<'all' | 'lost' | 'forAdoption' | 'owned'>('all');
     const [editingPet, setEditingPet] = useState<PetProfile | null>(null);

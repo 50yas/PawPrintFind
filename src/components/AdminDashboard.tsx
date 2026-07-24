@@ -23,8 +23,9 @@ const SettingsTab = React.lazy(() => import('./admin/SettingsTab').then(m => ({ 
 // Lazy load non-tab components
 const BlogPostEditor = React.lazy(() => import('./BlogPostEditor').then(m => ({ default: m.BlogPostEditor })));
 const ContentTab = React.lazy(() => import('./admin/ContentTab').then(m => ({ default: m.ContentTab })));
+const TestSuiteTab = React.lazy(() => import('./admin/TestSuiteTab').then(m => ({ default: m.TestSuiteTab })));
 
-type AdminTab = 'overview' | 'users' | 'operations' | 'finance' | 'community' | 'ai' | 'system';
+type AdminTab = 'overview' | 'users' | 'operations' | 'finance' | 'community' | 'ai' | 'system' | 'pets' | 'clinics' | 'testSuite';
 
 interface AdminDashboardProps {
     users: User[];
@@ -53,6 +54,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
     const [pendingRequests, setPendingRequests] = useState<VetVerificationRequest[]>([]);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+
+    const pendingVerificationsFromUsers = useMemo(() => {
+        return users.filter(u => (u.roles || []).includes('vet') && u.isVerified !== true && u.verificationData);
+    }, [users]);
+
+    const displayPendingCount = pendingRequests.length > 0 ? pendingRequests.length : pendingVerificationsFromUsers.length;
 
     const [systemConfig, setSystemConfig] = useState({
         maintenanceMode: false,
@@ -108,22 +116,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         setIsRefreshing(false);
     };
 
-    const tabs = useMemo(() => [
-        { id: 'overview' as AdminTab, label: t('dashboard:admin.tabs.overview'), icon: '📊' },
-        { id: 'users' as AdminTab, label: t('dashboard:admin.tabs.users'), icon: '👥' },
+    const categories = useMemo(() => [
         {
-            id: 'operations' as AdminTab,
-            label: 'Operations',
-            icon: '🐾',
-            count: pendingRequests.length > 0 ? pendingRequests.length : undefined
+            id: 'operations',
+            label: t('dashboard:admin.categoryOperations'),
+            items: [
+                { id: 'overview' as AdminTab, label: t('dashboard:admin.tabs.overview'), icon: '📊' },
+                { id: 'users' as AdminTab, label: t('dashboard:admin.tabs.users'), icon: '👥' },
+                { id: 'operations' as AdminTab, label: t('dashboard:admin.tabs.content'), icon: '🐾', count: displayPendingCount > 0 ? displayPendingCount : undefined },
+                { id: 'pets' as AdminTab, label: t('dashboard:admin.adminTabPets'), icon: '🐾' },
+                { id: 'clinics' as AdminTab, label: t('dashboard:admin.adminTabClinics'), icon: '🏥' }
+            ]
         },
-        { id: 'finance' as AdminTab, label: 'Finance', icon: '💰' },
-        { id: 'community' as AdminTab, label: 'Community', icon: '🏆' },
-        { id: 'ai' as AdminTab, label: t('dashboard:admin.tabs.ai'), icon: '🧠' },
-        { id: 'system' as AdminTab, label: 'System', icon: '⚙️' },
-    ], [t, pendingRequests.length]);
+        {
+            id: 'community',
+            label: t('dashboard:admin.categoryCommunity'),
+            items: [
+                { id: 'finance' as AdminTab, label: 'Finance', icon: '💰' },
+                { id: 'community' as AdminTab, label: 'Community', icon: '🏆' }
+            ]
+        },
+        {
+            id: 'system',
+            label: t('dashboard:admin.categorySystem'),
+            items: [
+                { id: 'ai' as AdminTab, label: t('dashboard:admin.adminTabUsage'), icon: '🧠' },
+                { id: 'testSuite' as AdminTab, label: t('dashboard:admin.tabTestSuite'), icon: '🧪' },
+                { id: 'system' as AdminTab, label: t('dashboard:admin.tabs.settings'), icon: '⚙️' }
+            ]
+        }
+    ], [t, displayPendingCount]);
 
-    const SidebarItem = ({ tab }: { tab: typeof tabs[0] }) => (
+    const tabs = useMemo(() => {
+        const list: { id: AdminTab; label: string; icon: string; count?: number }[] = [];
+        categories.forEach(cat => list.push(...cat.items));
+        return list;
+    }, [categories]);
+
+    const SidebarItem = ({ tab }: { tab: { id: AdminTab; label: string; icon: string; count?: number } }) => (
         <button
             onClick={() => setActiveTab(tab.id)}
             title={tab.label}
@@ -135,7 +165,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
         >
             <span className="text-base relative shrink-0">
                 {tab.icon}
-                {tab.id === 'operations' && pendingRequests.length > 0 && (
+                {tab.id === 'operations' && displayPendingCount > 0 && (
                     <span className="absolute -top-1 -right-1 hud-status-dot hud-status-dot-pending" />
                 )}
             </span>
@@ -145,6 +175,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
             )}
         </button>
     );
+
+    const toggleCategory = (catId: string) => {
+        setCollapsedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+    };
 
     return (
         <div data-testid="admin-layout" className="h-screen bg-slate-950 text-white transition-colors duration-500 relative flex flex-col md:flex-row overflow-hidden">
@@ -173,9 +207,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
-                    {tabs.map(tab => (
-                        <SidebarItem key={tab.id} tab={tab} />
+                <nav className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                    {categories.map(cat => (
+                        <div key={cat.id} className="space-y-2">
+                            {/* Category Header */}
+                            <button
+                                onClick={() => toggleCategory(cat.id)}
+                                className="w-full text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] px-2 py-1 hover:text-white transition-colors flex items-center justify-between"
+                            >
+                                <span className={sidebarCollapsed ? 'hidden' : ''}>{cat.label}</span>
+                                {!sidebarCollapsed && <span className="text-[8px] opacity-50">{collapsedCategories[cat.id] ? '▶' : '▼'}</span>}
+                            </button>
+
+                            {/* Category Items */}
+                            {(!collapsedCategories[cat.id] || sidebarCollapsed) && (
+                                <div className={`space-y-1 ${sidebarCollapsed ? '' : 'pl-2'}`}>
+                                    {cat.items.map(tab => (
+                                        <SidebarItem key={tab.id} tab={tab} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </nav>
 
@@ -213,8 +265,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                         <h1 className="text-lg font-black tracking-tighter uppercase text-white">
                             CMD <span className="text-primary">CORE</span>
                         </h1>
-                        {pendingRequests.length > 0 && (
-                            <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse">{pendingRequests.length}</span>
+                        {displayPendingCount > 0 && (
+                            <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse">{displayPendingCount}</span>
                         )}
                     </div>
                     <button onClick={onLogout} className="text-slate-400 hover:text-white" aria-label={t('dashboard:admin.exitSession')}>
@@ -228,10 +280,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                     <h2 className="sr-only">{activeTab}</h2>
 
                     {/* Persistent Alert Feed */}
-                    {pendingRequests.length > 0 && (
+                    {displayPendingCount > 0 && (
                         <div className="mb-6 flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 animate-pulse">
                             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">{t('dashboard:admin.urgentProtocol')}</span>
-                            <span className="text-[10px] font-bold text-white uppercase">{pendingRequests.length} {t('dashboard:admin.pendingVerificationsTitle')}</span>
+                            <span className="text-[10px] font-bold text-white uppercase">{displayPendingCount} {t('dashboard:admin.pendingVerificationsTitle')}</span>
                             <button
                                 onClick={() => setActiveTab('operations')}
                                 className="ml-2 text-[10px] font-black text-primary hover:underline uppercase"
@@ -270,7 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                     allPets={allPets}
                                     donations={allDonations}
                                     blogPosts={blogPosts}
-                                    pendingRequestsCount={pendingRequests.length}
+                                    pendingRequestsCount={displayPendingCount}
                                     onNavigateToTab={(tab) => setActiveTab(tab as AdminTab)}
                                     onNavigateToBlog={() => { setEditingPost(null); setShowEditor(true); }}
                                 />
@@ -280,16 +332,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
                                 <UsersTab users={users} />
                             )}
 
-                            {activeTab === 'operations' && (
+                            {(activeTab === 'operations' || activeTab === 'pets' || activeTab === 'clinics') && (
                                 <OperationsTab
                                     allPets={allPets}
                                     vetClinics={vetClinics}
                                     users={users}
                                     currentUser={currentUser}
-                                    pendingVerificationCount={pendingRequests.length}
+                                    pendingVerificationCount={displayPendingCount}
                                     onViewPet={onViewPet}
                                     onRefresh={onRefresh}
+                                    defaultSubTab={activeTab === 'pets' ? 'pets' : activeTab === 'clinics' ? 'clinics' : undefined}
                                 />
+                            )}
+
+                            {activeTab === 'testSuite' && (
+                                <TestSuiteTab />
                             )}
 
                             {activeTab === 'finance' && (
