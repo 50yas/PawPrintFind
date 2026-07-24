@@ -21,18 +21,31 @@ const genesisKeyHash = defineSecret("GENESIS_KEY_HASH");
  * Resolves the active AI provider and model for a given task.
  */
 async function resolveAIConfig(task: string) {
+    if (task.includes('/') || task.startsWith('gemini-')) {
+        const provider = task.startsWith('gemini-') ? 'google' : 'openrouter';
+        return { provider, model: task, fallbackToGemini: true };
+    }
+
+    const DEFAULT_FREE_MODELS: Record<string, string> = {
+        vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+        visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+        blogGeneration: 'qwen/qwen-2.5-coder-32b-instruct:free',
+    };
+    const DEFAULT_FALLBACK_FREE_MODEL = 'qwen/qwen-2.5-72b-instruct:free';
+
     try {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
-            return { provider, model };
+            const fallbackToGemini = data?.fallbackToGemini !== false;
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : (DEFAULT_FREE_MODELS[task] || DEFAULT_FALLBACK_FREE_MODEL));
+            return { provider, model, fallbackToGemini };
         }
     } catch (e) {
         console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'google', model: 'gemini-2.5-flash', fallbackToGemini: true };
 }
 
 /**
@@ -45,7 +58,7 @@ async function callAI(
     config: any = {},
     taskOverride?: string
 ) {
-    const { provider, model } = await resolveAIConfig(taskOverride || featureName);
+    const { provider, model, fallbackToGemini } = await resolveAIConfig(taskOverride || featureName);
 
     if (provider === 'openrouter') {
         // Convert Gemini contents to OpenRouter messages if needed
@@ -65,7 +78,16 @@ async function callAI(
             }
         }
 
-        return callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        try {
+            return await callOpenRouterAI(userId, model, messages, config, featureName, openRouterApiKey.value());
+        } catch (error: any) {
+            console.warn(`[AI Fallback] OpenRouter failed for ${featureName}. Error:`, error);
+            if (fallbackToGemini) {
+                console.log(`[AI Fallback] Attempting fallback to Google Gemini (gemini-2.0-flash)...`);
+                return await callGeminiAI(userId, featureName, 'gemini-2.0-flash', contents, config, geminiApiKey.value());
+            }
+            throw error;
+        }
     } else {
         return callGeminiAI(userId, featureName, model, contents, config, geminiApiKey.value());
     }
