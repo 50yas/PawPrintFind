@@ -49,11 +49,39 @@ vi.mock('../services/firebase', () => ({
         deleteBlogPost: vi.fn(),
         deleteClinic: vi.fn(),
         subscribeToDonations: vi.fn().mockReturnValue(() => {}),
+        getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 100, petsProtected: 5, communityMembers: 10, vetPartners: 2, activeCities: 1, responseTime: 12 }),
         auth: {
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
         }
     },
 }));
+
+vi.mock('firebase/firestore', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('firebase/firestore')>();
+    return {
+        ...actual,
+        collection: vi.fn((_db, path) => ({ id: path, type: 'collection' })),
+        doc: vi.fn((_db, path) => ({ id: path, type: 'doc' })),
+        query: vi.fn(),
+        where: vi.fn(),
+        onSnapshot: vi.fn((q, cb) => {
+            cb({
+                docs: [
+                    {
+                        id: 'req123',
+                        data: () => ({
+                            vetUid: '456',
+                            vetEmail: 'vet@test.com',
+                            specialization: ['Small Animals'],
+                            status: 'pending'
+                        })
+                    }
+                ]
+            });
+            return () => {};
+        })
+    };
+});
 
 vi.mock('../services/adminService', () => ({
     adminService: {
@@ -178,7 +206,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.tabs.ai')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
@@ -208,7 +236,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.overview'));
 
-        expect(screen.getByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
+        expect(await screen.findByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('Article One')).toBeInTheDocument();
@@ -230,11 +258,14 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        // Open Operations tab first
+        fireEvent.click(screen.getByTitle('Operations'));
 
-        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
+        // Wait for tab content and click Pets in operations group
+        const petsSubTabBtn = await screen.findByText('dashboard:admin.adminTabPets');
+        fireEvent.click(petsSubTabBtn);
+
+        const statusFilter = await screen.findByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
@@ -255,7 +286,12 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        // Open Operations tab first
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Wait for tab content and click Clinics sub-tab
+        const clinicsSubTabBtn = await screen.findByText('dashboard:admin.adminTabClinics');
+        fireEvent.click(clinicsSubTabBtn);
         
         const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
@@ -269,7 +305,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -277,8 +313,12 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders Test Suite tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        // Open System tab
+        fireEvent.click(screen.getByTitle('System'));
+
+        // Wait for tab content and click Test Suite sub-tab
+        const testSuiteSubTabBtn = await screen.findByText('Test Suite');
+        fireEvent.click(testSuiteSubTabBtn);
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -293,8 +333,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to Settings tab (System)
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);

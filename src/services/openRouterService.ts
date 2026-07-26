@@ -3,7 +3,11 @@ import * as Prompts from './prompts';
 import { dbService } from './firebase';
 
 // =============================================================================
-// OPENROUTER CLIENT — Direct HTTP calls (no Cloud Functions needed)
+// OPENROUTER CLIENT — Direct HTTP calls (Client-Side)
+// NOTE: For secure production use with API keys, AI operations should be
+// routed via Cloud Functions (using aiBridgeService / geminiService) to prevent
+// client-side exposure of secrets. This client is used primarily for public models fetch
+// and isolated non-production flows.
 // =============================================================================
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';

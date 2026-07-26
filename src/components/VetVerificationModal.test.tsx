@@ -20,6 +20,13 @@ vi.mock('../services/firebase', () => ({
   }
 }));
 
+// Mock SnackbarContext
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn()
+  })
+}));
+
 describe('VetVerificationModal Component', () => {
   const defaultProps = {
     onClose: vi.fn(),

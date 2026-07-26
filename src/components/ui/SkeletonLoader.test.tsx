@@ -9,14 +9,14 @@ describe('SkeletonLoader Components', () => {
   it('Skeleton renders with custom class', () => {
     const { container } = render(<Skeleton className="test-class" />);
     expect(container.firstChild).toHaveClass('test-class');
-    expect(container.firstChild).toHaveClass('animate-pulse');
+    expect(container.querySelector('.animate-\\[shimmer_2s_infinite\\]')).toBeInTheDocument();
   });
 
   it('CardSkeleton renders correctly', () => {
     const { container } = render(<CardSkeleton />);
-    expect(container.firstChild).toHaveClass('glass-panel');
+    expect(container.firstChild).toHaveClass('glass-card-enhanced');
     // Check for internal skeletons
-    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.relative.overflow-hidden').length).toBeGreaterThan(0);
   });
 
   it('MapSidebarSkeleton renders 4 items', () => {

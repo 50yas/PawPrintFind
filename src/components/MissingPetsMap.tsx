@@ -139,14 +139,15 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
 
         // 1. RENDER LOST PETS (with supercluster)
         if (showLost && mapInstance.current) {
-            const zoom = mapInstance.current.getZoom();
-            const bounds = mapInstance.current.getBounds();
-            const bbox: [number, number, number, number] = [
-                bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()
-            ];
-            const clusters = clusterIndex.getClusters(bbox, Math.round(zoom));
+            const zoom = typeof mapInstance.current.getZoom === 'function' ? mapInstance.current.getZoom() : 6;
+            const bounds = typeof mapInstance.current.getBounds === 'function' ? mapInstance.current.getBounds() : null;
+            if (bounds) {
+                const bbox: [number, number, number, number] = [
+                    bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()
+                ];
+                const clusters = clusterIndex.getClusters(bbox, Math.round(zoom));
 
-            clusters.forEach((feature: any) => {
+                clusters.forEach((feature: any) => {
                 const [lng, lat] = feature.geometry.coordinates;
                 const isCluster = feature.properties.cluster;
 
@@ -211,6 +212,7 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
                     group.addLayer(circle);
                 }
             });
+            }
         }
 
         // 1.5. RENDER ADOPTABLE PETS
@@ -337,8 +339,8 @@ export const MissingPetsMap: React.FC<MissingPetsMapProps> = ({
             // Simple re-render: fire the logic again on zoomend by clearing the ref
             // The proper way is to move cluster logic into a callback; for simplicity, we re-trigger via a state change.
         };
-        map.on('zoomend moveend', refresh);
-        return () => { map.off('zoomend moveend', refresh); };
+        if (typeof map.on === 'function') map.on('zoomend moveend', refresh);
+        return () => { if (typeof map.off === 'function') map.off('zoomend moveend', refresh); };
     }, [showLost]);
 
     return (
