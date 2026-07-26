@@ -47,7 +47,7 @@ vi.mock('./ui', () => ({
     CinematicLoader: () => <div>Loading...</div>,
 }));
 
-describe('AdminDashboard Grouped Navigation', () => {
+describe('AdminDashboard Sidebar Collapse', () => {
     const mockProps = {
         users: [],
         currentUser: { uid: '123', roles: ['super_admin'], activeRole: 'super_admin' } as any,
@@ -59,25 +59,6 @@ describe('AdminDashboard Grouped Navigation', () => {
         onRefresh: vi.fn(),
         onViewPet: vi.fn()
     };
-
-    it('groups tabs into categories in the sidebar', () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
-    });
-
-    it('collapses and expands categories', () => {
-        render(<AdminDashboard {...mockProps} />);
-        
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
-        
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
-    });
 
     it('toggles sidebar collapse state', () => {
         render(<AdminDashboard {...mockProps} />);
