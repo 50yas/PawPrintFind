@@ -28,17 +28,28 @@ vi.mock('../contexts/ThemeContext', () => ({
 }));
 
 // Mock Leaflet
+const mockBounds = {
+  getWest: vi.fn().mockReturnValue(8),
+  getSouth: vi.fn().mockReturnValue(8),
+  getEast: vi.fn().mockReturnValue(12),
+  getNorth: vi.fn().mockReturnValue(12),
+};
+
 const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
   on: vi.fn(),
+  off: vi.fn(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(6),
+  getBounds: vi.fn().mockReturnValue(mockBounds),
 };
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn().mockReturnThis(),
 };
 
 const mockGroup = {

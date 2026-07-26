@@ -14,7 +14,35 @@ vi.mock('./loggerService');
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
-    googleProvider: {}
+    googleProvider: {},
+    functions: {}
+}));
+
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(),
+  httpsCallable: vi.fn((_fns, name) => {
+    if (name === 'verifyAdminKey') {
+      return vi.fn().mockImplementation((args: any) => {
+        if (args.key === 'GENESIS_KEY_INPUT') {
+          return Promise.resolve({ data: { valid: true, type: 'GENESIS' } });
+        }
+        if (args.key === 'ISSUED_KEY_INPUT') {
+          return Promise.resolve({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } });
+        }
+        if (args.key === 'INVALID_KEY_INPUT') {
+          return Promise.resolve({ data: { valid: false, type: 'GENESIS' } });
+        }
+        return Promise.reject(new Error('Key verification failed'));
+      });
+    }
+    return vi.fn();
+  })
+}));
+
+vi.mock('./notificationService', () => ({
+  notificationService: {
+    sendNotification: vi.fn().mockResolvedValue(undefined)
+  }
 }));
 
 describe('authService error handling and authentication', () => {
@@ -367,7 +395,7 @@ describe('authService error handling and authentication', () => {
        const mockUser = {
         uid: 'user1',
         email: 'test@test.com',
-        badges: ['Sightings Scout'],
+        badges: ['Sightings Scout', 'First Eyes'],
         stats: { sightingsReported: 10, reunionsSupported: 0 },
         roles: ['owner'],
         activeRole: 'owner',
