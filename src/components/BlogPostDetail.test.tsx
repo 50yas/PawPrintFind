@@ -21,7 +21,7 @@ vi.mock('../services/firebase', () => ({
 }));
 
 // Mock utils
-vi.mock('../src/utils/blogUtils', () => ({
+vi.mock('../utils/blogUtils', () => ({
   calculateReadingTime: () => 5,
 }));
 
