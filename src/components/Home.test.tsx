@@ -17,6 +17,21 @@ vi.mock('../hooks/useScrollAnimation', () => ({
   useScrollAnimation: vi.fn(),
 }));
 
+vi.mock('../hooks/useHomeLogic', () => ({
+  useHomeLogic: ({ currentUser, setView, openLogin }: any) => ({
+    donations: [],
+    shouldLoadHeavyContent: true,
+    featuresRef: { current: null },
+    handleNavigate: (view: any) => {
+      if (currentUser) {
+        setView(view);
+      } else {
+        openLogin();
+      }
+    },
+  })
+}));
+
 // Mock services
 vi.mock('../services/firebase', () => ({
   dbService: {
