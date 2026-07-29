@@ -6,9 +6,20 @@ import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
 // Mock dependencies
+const mockTranslations: Record<string, string> = {
+  'ecosystemHub.sections.intelligence': 'Core Intelligence',
+  'ecosystemHub.sections.safety': 'Safety Grid',
+  'ecosystemHub.sections.external': 'External Intel',
+  'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+  'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+  'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+  'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+  'ecosystemHub.backToBase': '← Back to Base',
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => mockTranslations[key] || key,
   }),
 }));
 

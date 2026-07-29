@@ -12,6 +12,13 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+// Mock useSnackbar
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    showSnackbar: vi.fn(),
+  }),
+}));
+
 // Mock dbService
 vi.mock('../services/firebase', () => ({
   dbService: {

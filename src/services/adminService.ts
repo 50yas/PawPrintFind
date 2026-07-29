@@ -44,9 +44,13 @@ export const adminService = {
                 provider: 'google',
                 modelMapping: {
                     vision: 'gemini-pro-vision',
+                    visionIdentification: 'gemini-2.0-flash-exp',
                     triage: 'gemini-pro',
+                    healthAssessment: 'gemini-2.0-flash-exp',
                     chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    matching: 'gemini-pro',
+                    smartSearch: 'gemini-2.0-flash-exp',
+                    blogGeneration: 'gemini-2.0-flash-exp'
                 },
                 lastUpdated: Date.now(),
                 updatedBy: 'system@pawprintfind.com'
@@ -60,9 +64,13 @@ export const adminService = {
                     provider: 'google',
                     modelMapping: {
                         vision: 'gemini-pro-vision',
+                        visionIdentification: 'gemini-2.0-flash-exp',
                         triage: 'gemini-pro',
+                        healthAssessment: 'gemini-2.0-flash-exp',
                         chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        matching: 'gemini-pro',
+                        smartSearch: 'gemini-2.0-flash-exp',
+                        blogGeneration: 'gemini-2.0-flash-exp'
                     },
                     lastUpdated: Date.now(),
                     updatedBy: 'system@pawprintfind.com'
