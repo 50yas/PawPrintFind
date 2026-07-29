@@ -16,9 +16,13 @@ export const initializeAISettings = async () => {
         },
         modelMapping: {
           vision: 'gemini-2.0-flash-exp',
+          visionIdentification: 'gemini-2.0-flash-exp',
           triage: 'gemini-2.0-flash-exp',
+          healthAssessment: 'gemini-2.0-flash-exp',
           chat: 'gemini-2.0-flash-exp',
-          matching: 'gemini-2.0-flash-exp'
+          matching: 'gemini-2.0-flash-exp',
+          smartSearch: 'gemini-2.0-flash-exp',
+          blogGeneration: 'gemini-2.0-flash-exp'
         },
         lastUpdated: Date.now(),
         updatedBy: 'system_init@pawprint.ai'
