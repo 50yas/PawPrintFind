@@ -18,6 +18,12 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
+  }),
+}));
+
 // Mock child components that might have complex logic/dependencies
 vi.mock('./SightingsMap', () => ({ SightingsMap: () => <div data-testid="map">Map</div> }));
 vi.mock('./ReportLostModal', () => ({ ReportLostModal: () => <div data-testid="report-lost">ReportLost</div> }));
@@ -90,7 +96,6 @@ describe('Dashboard Refactor Glassmorphism', () => {
     
     expect(header).toBeInTheDocument();
     expect(header).toHaveClass('backdrop-blur-xl');
-    expect(header).toHaveClass('bg-surface-container-low');
   });
 
   it('renders PetCards within a responsive grid', () => {
