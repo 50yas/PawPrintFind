@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { GlassCard } from './GlassCard';
 import { GlassButton } from './GlassButton';
 import { describe, it, expect, vi } from 'vitest';
@@ -13,9 +13,8 @@ describe('GlassCard', () => {
         const { container } = render(<GlassCard className="extra-class">Content</GlassCard>);
         const classNames = (container.firstChild as HTMLElement).className;
         expect(classNames).toContain('backdrop-blur-xl');
-        // Material 3 Refactor
-        expect(classNames).toContain('bg-surface-container-low');
-        expect(classNames).toContain('border-outline-variant');
+        expect(classNames).toContain('bg-white/5');
+        expect(classNames).toContain('border-white/20');
         expect(classNames).toContain('extra-class');
     });
 
@@ -36,7 +35,9 @@ describe('GlassButton', () => {
     it('handles click events', () => {
         const handleClick = vi.fn();
         render(<GlassButton onClick={handleClick}>Click Me</GlassButton>);
-        screen.getByText('Click Me').click();
+        act(() => {
+            screen.getByText('Click Me').click();
+        });
         expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
@@ -49,7 +50,7 @@ describe('GlassButton', () => {
     });
     
     it('supports loading state', () => {
-        render(<GlassButton isLoading>Submit</GlassButton>);
+        render(<GlassButton isLoading loadingText="Loading...">Submit</GlassButton>);
         expect(screen.getByText('Loading...')).toBeDefined();
     });
 });

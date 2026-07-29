@@ -7,9 +7,29 @@ import { subscriptionService } from '../services/subscriptionService';
 import React from 'react';
 
 // Mock translations
-vi.mock('../hooks/useTranslations', () => ({
-  useTranslations: () => ({
-    t: (key: string) => key,
+vi.mock('../hooks/useTranslations', () => {
+  const translations: Record<string, string> = {
+    'dashboard:vet.upgradeTitle': 'Upgrade to Vet Pro 🏥',
+    'dashboard:vet.upgradeNow': 'Upgrade Now',
+    'dashboard:vet.recommended': 'Recommended',
+    'dashboard:vet.vetPro': 'Vet Pro',
+    'dashboard:vet.unlockProTools': 'Unlock Pro Tools',
+    'dashboard:vet.proToolsDesc': 'Get advanced features',
+    'dashboard:vet.freePlan': 'Free Plan',
+    'dashboard:vet.vetProDesc': 'Pro Plan',
+    'dashboard:vet.stripeSecurity': 'Stripe Secured'
+  };
+  return {
+    useTranslations: () => ({
+      t: (key: string, fallback?: string) => translations[key] || fallback || key,
+    }),
+  };
+});
+
+// Mock SnackbarContext
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    showSnackbar: vi.fn(),
   }),
 }));
 

@@ -6,11 +6,25 @@ import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
 // Mock dependencies
-vi.mock('../hooks/useTranslations', () => ({
-  useTranslations: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock('../hooks/useTranslations', () => {
+  const translations: Record<string, string> = {
+    'ecosystemHub.sections.intelligence': 'Core Intelligence',
+    'ecosystemHub.sections.safety': 'Safety Grid',
+    'ecosystemHub.sections.external': 'External Intel',
+    'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+    'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+    'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+    'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+    'ecosystemHub.backToBase': '← Back to Base',
+    'ecosystemHub.title': 'System Ecosystem',
+    'ecosystemHub.description': 'A centralized overview of the Paw Print autonomous safety network.'
+  };
+  return {
+    useTranslations: () => ({
+      t: (key: string) => translations[key] || key,
+    }),
+  };
+});
 
 describe('EcosystemHub', () => {
     it('renders all core sections', () => {

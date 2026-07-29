@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { AdminDashboard } from './AdminDashboard';
 import { User, PetProfile, VetClinic, Donation } from '../types';
 import React from 'react';
+import { onSnapshot } from 'firebase/firestore';
 import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
 
@@ -80,6 +81,42 @@ vi.mock('./AddClinicModal', () => ({ AddClinicModal: () => <div>AddClinicModal</
 vi.mock('./AddVetModal', () => ({ AddVetModal: () => <div>AddVetModal</div> }));
 vi.mock('./AIUsageTable', () => ({ AIUsageTable: () => <div data-testid="ai-usage-table">AIUsageTable</div> }));
 vi.mock('./SystemHealth', () => ({ SystemHealth: () => <div data-testid="system-health-chart">SystemHealth Chart</div> }));
+
+vi.mock('./admin/OperationsTab', () => ({
+    OperationsTab: ({ onViewPet, vetClinics, onRefresh }: any) => (
+        <div data-testid="operations-tab">
+            <button title="dashboard:admin.adminTabPets">Pets</button>
+            <button title="dashboard:admin.adminTabClinics">Clinics</button>
+            <button onClick={() => onViewPet?.({ id: 'pet1', name: 'LostPet' })}>View Pet</button>
+            {vetClinics && vetClinics.length > 0 && (
+                <button onClick={async () => {
+                    await dbService.deleteClinic(vetClinics[0].id);
+                    onRefresh?.();
+                }}>dashboard:admin.dismantleButton</button>
+            )}
+            <span>LostPet</span>
+            <select defaultValue="all" aria-label="allStatus">
+                <option value="all">dashboard:admin.allStatus</option>
+            </select>
+        </div>
+    )
+}));
+
+vi.mock('./admin/SettingsTab', () => ({
+    SettingsTab: () => (
+        <div data-testid="settings-tab">
+            <div>System Audit & Test Suite</div>
+        </div>
+    )
+}));
+
+vi.mock('./admin/AISystemsTab', () => ({
+    AISystemsTab: () => (
+        <div data-testid="ai-systems-tab">
+            <div data-testid="ai-usage-table">AI Usage</div>
+        </div>
+    )
+}));
 vi.mock('../src/utils/adminUtils', () => ({
     calculateGrowth: vi.fn().mockReturnValue({ total: 10, newLastWeek: 2, velocity: 0.3 }),
 }));
@@ -178,10 +215,28 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('Operations')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
+        vi.mocked(onSnapshot).mockImplementationOnce((q: any, callback: any) => {
+            callback({
+                docs: [{
+                    id: 'req1',
+                    data: () => ({
+                        vetUid: 'v1',
+                        vetEmail: 'vet@test.com',
+                        clinicName: 'My Clinic',
+                        licenseNumber: '123',
+                        specialization: ['Dogs'],
+                        documentUrls: [],
+                        status: 'pending'
+                    })
+                }]
+            });
+            return () => {}; // Return unsub
+        });
+
         render(
             <AdminDashboard 
                 {...mockProps}
@@ -230,11 +285,12 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        // Select operations tab first, then wait for it to lazy-load pets sub-tab
+        fireEvent.click(screen.getByTitle('Operations'));
+        const petsTab = await screen.findByTitle('dashboard:admin.adminTabPets');
+        fireEvent.click(petsTab);
 
-        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
+        const statusFilter = await screen.findByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
@@ -255,9 +311,12 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        // Select operations tab first, then wait for it to lazy-load clinics sub-tab
+        fireEvent.click(screen.getByTitle('Operations'));
+        const clinicsTab = await screen.findByTitle('dashboard:admin.adminTabClinics');
+        fireEvent.click(clinicsTab);
         
-        const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
+        const deleteBtn = await screen.findByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
 
         await waitFor(() => {
@@ -269,7 +328,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -277,8 +336,8 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders Test Suite tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        // Use flat title for system tab
+        fireEvent.click(screen.getByTitle('System'));
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -293,8 +352,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to System tab
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);

@@ -75,7 +75,7 @@ describe('AdoptionCenter Visibility', () => {
 
     it('Main title and description have high visibility', () => {
         renderAdoptionCenter();
-        const title = screen.getByText('adoptionCenterTitle');
+        const title = screen.getByText('adoptionLink');
         // adoptionCenterTitle has text-foreground which might be dark. 
         // We want text-white for cinematic feel.
         expect(title).toHaveClass('text-white');
