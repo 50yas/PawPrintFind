@@ -113,6 +113,7 @@ export const OperationsTab: React.FC<OperationsTabProps> = ({
                     <button
                         key={tab.id}
                         onClick={() => setSubTab(tab.id)}
+                        title={tab.label}
                         className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all flex items-center gap-2 -mb-px ${
                             subTab === tab.id
                                 ? 'border-primary text-white'

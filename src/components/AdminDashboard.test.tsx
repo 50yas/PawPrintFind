@@ -7,7 +7,7 @@ import React from 'react';
 import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
 
-// Mock dependencies
+// Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
     t: (key: string, params?: any) => {
@@ -66,6 +66,36 @@ vi.mock('../services/adminService', () => ({
         })
     }
 }));
+
+// Mock tab modules to resolve synchronously for the test runner
+vi.mock('./admin/OverviewTab', async () => {
+  const actual = await vi.importActual<any>('./admin/OverviewTab');
+  return { default: actual.OverviewTab, OverviewTab: actual.OverviewTab };
+});
+vi.mock('./admin/UsersTab', async () => {
+  const actual = await vi.importActual<any>('./admin/UsersTab');
+  return { default: actual.UsersTab, UsersTab: actual.UsersTab };
+});
+vi.mock('./admin/OperationsTab', async () => {
+  const actual = await vi.importActual<any>('./admin/OperationsTab');
+  return { default: actual.OperationsTab, OperationsTab: actual.OperationsTab };
+});
+vi.mock('./admin/FinanceTab', async () => {
+  const actual = await vi.importActual<any>('./admin/FinanceTab');
+  return { default: actual.FinanceTab, FinanceTab: actual.FinanceTab };
+});
+vi.mock('./admin/CommunityTab', async () => {
+  const actual = await vi.importActual<any>('./admin/CommunityTab');
+  return { default: actual.CommunityTab, CommunityTab: actual.CommunityTab };
+});
+vi.mock('./admin/AISystemsTab', async () => {
+  const actual = await vi.importActual<any>('./admin/AISystemsTab');
+  return { default: actual.AISystemsTab, AISystemsTab: actual.AISystemsTab };
+});
+vi.mock('./admin/SettingsTab', async () => {
+  const actual = await vi.importActual<any>('./admin/SettingsTab');
+  return { default: actual.SettingsTab, SettingsTab: actual.SettingsTab };
+});
 
 vi.mock('./ui', () => ({
     GlassCard: ({children, className}: any) => <div className={`glass-card ${className}`} data-testid="glass-card">{children}</div>,
@@ -178,7 +208,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.tabs.ai')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
@@ -230,9 +260,12 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        // Click Operations tab in sidebar first to load OperationsTab
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Click Pets in operations sub-tab
+        const petsTab = await screen.findByTitle('dashboard:admin.adminTabPets');
+        fireEvent.click(petsTab);
 
         const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
@@ -255,7 +288,12 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        // Click Operations tab in sidebar first to load OperationsTab
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Click Clinics sub-tab
+        const clinicsTab = await screen.findByTitle('dashboard:admin.adminTabClinics');
+        fireEvent.click(clinicsTab);
         
         const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
@@ -269,7 +307,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -278,7 +316,11 @@ describe('AdminDashboard Cyber HUD', () => {
         render(<AdminDashboard {...mockProps} />);
         
         // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        fireEvent.click(screen.getByTitle('System'));
+
+        // Click Test Suite sub-tab inside SettingsTab
+        const testSuiteSubTab = await screen.findByText('Test Suite');
+        fireEvent.click(testSuiteSubTab);
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -293,8 +335,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to System tab
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);
