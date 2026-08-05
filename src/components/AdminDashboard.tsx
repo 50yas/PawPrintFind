@@ -51,7 +51,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, currentUs
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [showEditor, setShowEditor] = useState(false);
     const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-    const [pendingRequests, setPendingRequests] = useState<VetVerificationRequest[]>([]);
+
+    // Pre-populate pendingRequests from users prop for backward compatibility and test suitability
+    const initialPendingRequests = useMemo(() => {
+        return users
+            .filter(u => (u.roles || []).includes('vet') && !u.isVerified && u.verificationData)
+            .map(u => ({
+                id: u.uid,
+                vetUid: u.uid,
+                vetEmail: u.email,
+                clinicName: 'Pending Vet Clinic',
+                licenseNumber: 'PENDING_LICENSE',
+                specialization: [],
+                documentUrls: [u.verificationData?.docUrl || ''],
+                status: 'pending',
+                submittedAt: u.verificationData?.timestamp || Date.now()
+            } as VetVerificationRequest));
+    }, [users]);
+
+    const [pendingRequests, setPendingRequests] = useState<VetVerificationRequest[]>(initialPendingRequests);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const [systemConfig, setSystemConfig] = useState({

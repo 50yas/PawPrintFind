@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -8,7 +7,26 @@ import React from 'react';
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const dictionary: Record<string, string> = {
+        'ecosystemHub.sections.intelligence': 'Core Intelligence',
+        'ecosystemHub.sections.safety': 'Safety Grid',
+        'ecosystemHub.sections.external': 'External Intel',
+        'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+        'ecosystemHub.nodes.triage.title': 'Clinical Triage',
+        'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+        'ecosystemHub.nodes.alerts.title': 'Community Alerts',
+        'ecosystemHub.nodes.map.title': 'Interactive Map',
+        'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+        'ecosystemHub.nodes.vets.title': 'Vet Directory',
+        'ecosystemHub.nodes.community.title': 'Community Hub',
+        'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+        'ecosystemHub.backToBase': '← Back to Base',
+        'ecosystemHub.title': 'Ecosystem Hub',
+        'ecosystemHub.description': 'Core network nodes',
+      };
+      return dictionary[key] || key;
+    },
   }),
 }));
 
