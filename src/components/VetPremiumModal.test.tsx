@@ -9,7 +9,25 @@ import React from 'react';
 // Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const dictionary: Record<string, string> = {
+        'dashboard:vet.upgradeTitle': 'Upgrade to Vet Pro 🏥',
+        'dashboard:vet.vetPro': 'Vet Pro',
+        'dashboard:vet.upgradeNow': 'Upgrade Now',
+        'dashboard:vet.unlockProTools': 'Unlock Pro Tools',
+        'dashboard:vet.perMonth': 'per month',
+        'dashboard:vet.freePlan': 'Free Plan',
+        'dashboard:vet.recommended': 'Recommended',
+      };
+      return dictionary[key] || key;
+    },
+  }),
+}));
+
+// Mock useSnackbar
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
   }),
 }));
 

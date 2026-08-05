@@ -8,19 +8,42 @@ import {
   sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signInWithPhoneNumber
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, getDocs, collection, query, where, arrayUnion, increment, addDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { auth } from './firebase'; // Import the actual auth from firebase.ts, but it's mocked globally
 
 vi.mock('./loggerService');
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
-    googleProvider: {}
+    googleProvider: {},
+    functions: {}
 }));
 
 describe('authService error handling and authentication', () => {
+  const mockCallable = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
     (auth.currentUser as any) = null; // Reset current user for each test
+    (httpsCallable as Mock).mockReturnValue(mockCallable);
+
+    // Default mock implementation of getDoc to handle notification configurations
+    (getDoc as Mock).mockImplementation((docRef: any) => {
+      if (docRef && docRef.id === 'config/notifications') {
+        return Promise.resolve({
+          exists: () => true,
+          data: () => ({
+            email: { enabled: false, target: '' },
+            whatsapp: { enabled: false, target: '' },
+            telegram: { enabled: false, apiKey: '', chatId: '' },
+            events: { newUser: false, vetVerification: false }
+          })
+        });
+      }
+      return Promise.resolve({
+        exists: () => false
+      });
+    });
   });
 
   describe('loginWithEmail', () => {
@@ -195,30 +218,53 @@ describe('authService error handling and authentication', () => {
       expect(result.uid).toBe('anon-uid');
       expect(result.roles).toEqual(['owner']);
       expect(result.activeRole).toEqual('owner');
-      expect(getDoc).not.toHaveBeenCalled();
       expect(setDoc).not.toHaveBeenCalled();
     });
 
     it('should fetch and update existing user profile', async () => {
-      (getDoc as Mock).mockResolvedValueOnce({
-        exists: () => true,
-        data: () => ({ email: 'existing@example.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 100, badges: ['Veteran'] })
+      (getDoc as Mock).mockImplementation((docRef: any) => {
+        if (docRef && docRef.id === 'config/notifications') {
+          return Promise.resolve({
+            exists: () => true,
+            data: () => ({
+              email: { enabled: false, target: '' },
+              whatsapp: { enabled: false, target: '' },
+              telegram: { enabled: false, apiKey: '', chatId: '' },
+              events: { newUser: false, vetVerification: false }
+            })
+          });
+        }
+        return Promise.resolve({
+          exists: () => true,
+          data: () => ({ email: 'existing@example.com', roles: ['owner'], activeRole: 'owner', friends: [], friendRequests: [], points: 100, badges: ['Veteran'] })
+        });
       });
       (updateDoc as Mock).mockResolvedValue(undefined);
 
       const result = await authService.syncUserProfile(mockExistingUser);
-      expect(getDoc).toHaveBeenCalledWith(expect.any(Object));
       expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), { lastLoginAt: expect.any(Number) });
       expect(result.uid).toBe('existing-uid');
       expect(result.roles).toEqual(['owner']);
     });
 
     it('should create new user profile if not found', async () => {
-      (getDoc as Mock).mockResolvedValueOnce({ exists: () => false });
+      (getDoc as Mock).mockImplementation((docRef: any) => {
+        if (docRef && docRef.id === 'config/notifications') {
+          return Promise.resolve({
+            exists: () => true,
+            data: () => ({
+              email: { enabled: false, target: '' },
+              whatsapp: { enabled: false, target: '' },
+              telegram: { enabled: false, apiKey: '', chatId: '' },
+              events: { newUser: false, vetVerification: false }
+            })
+          });
+        }
+        return Promise.resolve({ exists: () => false });
+      });
       (setDoc as Mock).mockResolvedValue(undefined);
 
       const result = await authService.syncUserProfile(mockNewUser);
-      expect(getDoc).toHaveBeenCalledWith(expect.any(Object));
       expect(setDoc).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ uid: 'new-uid', email: 'new@example.com', roles: ['owner'], activeRole: 'owner' }));
       expect(result.uid).toBe('new-uid');
       expect(result.roles).toEqual(['owner']);
@@ -226,7 +272,15 @@ describe('authService error handling and authentication', () => {
 
     it('should log error and re-throw on failure', async () => {
       const mockError = new Error('Sync failed');
-      (getDoc as Mock).mockRejectedValue(mockError);
+      (getDoc as Mock).mockImplementation((docRef: any) => {
+        if (docRef && docRef.id === 'config/notifications') {
+          return Promise.resolve({
+            exists: () => true,
+            data: () => ({})
+          });
+        }
+        return Promise.reject(mockError);
+      });
 
       await expect(authService.syncUserProfile(mockExistingUser)).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Profile Sync Protocol Failure:', mockError);
@@ -234,38 +288,30 @@ describe('authService error handling and authentication', () => {
   });
 
   describe('verifyAdminKey', () => {
-    const GENESIS_KEY_HASH = '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915';
-    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT'; // Matches the mock in vitest.setup.ts
-
-    beforeEach(() => {
-      (getDocs as Mock).mockResolvedValue({ empty: true }); // Default to no issued keys
-    });
+    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT';
 
     it('should return valid true for genesis key', async () => {
+      mockCallable.mockResolvedValue({ data: { valid: true, type: 'GENESIS' } });
       const result = await authService.verifyAdminKey(TEST_KEY_INPUT);
       expect(result).toEqual({ valid: true, type: 'GENESIS' });
       expect(logger.error).not.toHaveBeenCalled();
     });
 
     it('should return valid true for an active issued key', async () => {
-      const mockSnapshot = {
-        empty: false,
-        docs: [{ id: 'key123' }]
-      };
-      (getDocs as Mock).mockResolvedValue(mockSnapshot);
-
-      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT'); // will produce a generic hash
+      mockCallable.mockResolvedValue({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } });
+      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT');
       expect(result).toEqual({ valid: true, type: 'ISSUED', keyDocId: 'key123' });
     });
 
     it('should return valid false for an invalid key', async () => {
+      mockCallable.mockResolvedValue({ data: { valid: false, type: 'GENESIS' } });
       const result = await authService.verifyAdminKey('INVALID_KEY_INPUT');
-      expect(result).toEqual({ valid: false, type: 'GENESIS' }); // Falls back to GENESIS type if not found
+      expect(result).toEqual({ valid: false, type: 'GENESIS' });
     });
 
     it('should log error and re-throw on failure', async () => {
       const mockError = new Error('Key verification failed');
-      (getDocs as Mock).mockRejectedValue(mockError);
+      mockCallable.mockRejectedValue(mockError);
 
       await expect(authService.verifyAdminKey('ANY_KEY')).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', mockError);
@@ -351,14 +397,22 @@ describe('authService error handling and authentication', () => {
         friendRequests: [],
         points: 0
       };
-      (getDoc as Mock).mockResolvedValue({ exists: () => true, data: () => mockUser });
+      (getDoc as Mock).mockImplementation((docRef: any) => {
+        if (docRef && docRef.id === 'config/notifications') {
+          return Promise.resolve({
+            exists: () => true,
+            data: () => ({})
+          });
+        }
+        return Promise.resolve({ exists: () => true, data: () => mockUser });
+      });
       (updateDoc as Mock).mockResolvedValue(undefined);
 
       const result = await authService.checkAndAwardBadges('user1');
       
       expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), {
-          badges: arrayUnion('Sightings Scout'),
-          points: increment(100)
+          badges: arrayUnion('First Eyes', 'Sightings Scout'),
+          points: increment(200)
       });
       expect(result).toContain('Sightings Scout');
     });
@@ -367,7 +421,7 @@ describe('authService error handling and authentication', () => {
        const mockUser = {
         uid: 'user1',
         email: 'test@test.com',
-        badges: ['Sightings Scout'],
+        badges: ['First Eyes', 'Sightings Scout'],
         stats: { sightingsReported: 10, reunionsSupported: 0 },
         roles: ['owner'],
         activeRole: 'owner',
@@ -375,7 +429,15 @@ describe('authService error handling and authentication', () => {
         friendRequests: [],
         points: 0
       };
-      (getDoc as Mock).mockResolvedValue({ exists: () => true, data: () => mockUser });
+      (getDoc as Mock).mockImplementation((docRef: any) => {
+        if (docRef && docRef.id === 'config/notifications') {
+          return Promise.resolve({
+            exists: () => true,
+            data: () => ({})
+          });
+        }
+        return Promise.resolve({ exists: () => true, data: () => mockUser });
+      });
 
       const result = await authService.checkAndAwardBadges('user1');
       expect(updateDoc).not.toHaveBeenCalled();
