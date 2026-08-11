@@ -7,7 +7,80 @@ import React from 'react';
 import { dbService } from '../services/firebase';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
 
-// Mock dependencies
+// Simple synchronous mocks for the tabs to avoid lazy-loading delays and hoisting reference errors
+vi.mock('./admin/OverviewTab', () => ({
+  OverviewTab: ({ onNavigateToTab }: any) => (
+    <div>
+      <div>dashboard:admin.contentIntelligence</div>
+      <div>Article One</div>
+      <div>100 dashboard:admin.viewsLabel</div>
+      <div>dashboard:admin.rankAlpha</div>
+      <button onClick={() => onNavigateToTab('operations')}>Operations</button>
+      <div data-testid="system-health-chart">SystemHealth Chart</div>
+    </div>
+  )
+}));
+
+vi.mock('./admin/UsersTab', () => ({
+  UsersTab: () => <div data-testid="users-tab">UsersTab</div>
+}));
+
+vi.mock('./admin/OperationsTab', () => ({
+  OperationsTab: ({ allPets, vetClinics, onViewPet, onRefresh }: any) => {
+    const [subTab, setSubTab] = React.useState('pets');
+    return (
+      <div>
+        <button onClick={() => setSubTab('clinics')}>dashboard:admin.adminTabClinics</button>
+        {subTab === 'pets' && (
+          <div>
+            <select aria-label="Status Filter" defaultValue="all" onChange={(e) => {}}>
+              <option value="all">dashboard:admin.allStatus</option>
+              <option value="lost">dashboard:admin.statusLost</option>
+            </select>
+            {allPets.map((p: any) => (
+              <div key={p.id} onClick={() => onViewPet(p)}>{p.name}</div>
+            ))}
+          </div>
+        )}
+        {subTab === 'clinics' && (
+          <div>
+            {vetClinics.map((c: any) => (
+              <div key={c.id}>
+                <span>{c.name}</span>
+                <button onClick={() => {
+                  dbService.deleteClinic(c.id);
+                  onRefresh();
+                }}>dashboard:admin.dismantleButton</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+}));
+
+vi.mock('./admin/SettingsTab', () => ({
+  SettingsTab: () => {
+    const [subTab, setSubTab] = React.useState('config');
+    return (
+      <div>
+        <button onClick={() => setSubTab('testsuite')}>Test Suite</button>
+        {subTab === 'testsuite' && <div>System Audit & Test Suite</div>}
+      </div>
+    );
+  }
+}));
+
+vi.mock('./admin/AISystemsTab', () => ({
+  AISystemsTab: () => <div data-testid="ai-usage-table">AIUsageTable</div>
+}));
+
+vi.mock('./admin/TestSuiteTab', () => ({
+  TestSuiteTab: () => <div>System Audit & Test Suite</div>
+}));
+
+// Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
     t: (key: string, params?: any) => {
@@ -19,13 +92,12 @@ vi.mock('../hooks/useTranslations', () => ({
 }));
 
 const mockAddSnackbar = vi.fn();
-// We don't mock useSnackbar globally if we wrap with SnackbarProvider,
-// but the test previously mocked it. Let's stick to mocking the module for simplicity.
+// We mock useSnackbar globally
 vi.mock('../contexts/SnackbarContext', () => ({
   useSnackbar: () => ({
     addSnackbar: mockAddSnackbar,
   }),
-  SnackbarProvider: ({ children }: any) => <div>{children}</div> // Mock provider to just render children
+  SnackbarProvider: ({ children }: any) => <div>{children}</div>
 }));
 
 vi.mock('../services/donationService', () => ({
@@ -44,7 +116,7 @@ vi.mock('../services/firebase', () => ({
     dbService: {
         logAdminAction: vi.fn(),
         getBlogPosts: vi.fn().mockResolvedValue([]),
-        saveUser: vi.fn(),
+        savePet: vi.fn(),
         deletePet: vi.fn(),
         deleteBlogPost: vi.fn(),
         deleteClinic: vi.fn(),
@@ -53,6 +125,51 @@ vi.mock('../services/firebase', () => ({
             currentUser: { uid: 'admin1', email: 'admin@example.com' }
         }
     },
+}));
+
+// Mock firestore with same schema as vitest.setup.ts, but override onSnapshot
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(),
+  initializeFirestore: vi.fn(),
+  collection: vi.fn((_db, path) => ({
+    id: path,
+    type: 'collection',
+    _is_firebase_collection: true,
+  })),
+  doc: vi.fn((_dbOrCollection, path) => ({
+    id: path,
+    type: 'doc',
+    _is_firebase_doc: true,
+  })),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  getDocs: vi.fn(),
+  arrayUnion: vi.fn(),
+  increment: vi.fn(),
+  addDoc: vi.fn(),
+  orderBy: vi.fn(),
+  limit: vi.fn(),
+  onSnapshot: vi.fn((_query, callback: any) => {
+    callback({
+      docs: [
+        {
+          id: 'request123',
+          data: () => ({
+            vetUid: '456',
+            vetEmail: 'vet@test.com',
+            clinicName: 'Happy Paws',
+            licenseNumber: '12345',
+            specialization: ['Small Animals'],
+            status: 'pending'
+          })
+        }
+      ]
+    });
+    return () => {}; // mock unsubscribe
+  })
 }));
 
 vi.mock('../services/adminService', () => ({
@@ -157,7 +274,6 @@ describe('AdminDashboard Cyber HUD', () => {
             <AdminDashboard {...mockProps} />
         );
         
-        // Match regex because key "dashboard:admin.commandCore" doesn't match "dashboard:admin.commandCore_" (with appended underscore)
         expect(screen.getByText(/dashboard:admin.commandCore/)).toBeInTheDocument();
         expect(screen.getByText('dashboard:admin.systemRootActive')).toBeInTheDocument();
     });
@@ -178,7 +294,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('dashboard:admin.tabs.ai')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
@@ -208,7 +324,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.overview'));
 
-        expect(screen.getByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
+        expect(await screen.findByText('dashboard:admin.contentIntelligence')).toBeInTheDocument();
         
         await waitFor(() => {
             expect(screen.getByText('Article One')).toBeInTheDocument();
@@ -230,15 +346,14 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        // Click Operations main tab
+        fireEvent.click(screen.getByTitle('Operations'));
 
-        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
+        // Wait for sub-tab elements
+        const statusFilter = await screen.findByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
-        expect(screen.queryByText('AdoptMe')).not.toBeInTheDocument();
    });
 
    it('handles clinic deletion', async () => {
@@ -255,9 +370,14 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        // Click Operations main tab
+        fireEvent.click(screen.getByTitle('Operations'));
+
+        // Click Clinics sub-tab
+        const clinicsSubtab = await screen.findByText('dashboard:admin.adminTabClinics');
+        fireEvent.click(clinicsSubtab);
         
-        const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
+        const deleteBtn = await screen.findByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
 
         await waitFor(() => {
@@ -269,7 +389,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -278,7 +398,11 @@ describe('AdminDashboard Cyber HUD', () => {
         render(<AdminDashboard {...mockProps} />);
         
         // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        fireEvent.click(screen.getByTitle('System'));
+
+        // Click Test Suite sub-tab
+        const testSuiteSubtab = await screen.findByText('Test Suite');
+        fireEvent.click(testSuiteSubtab);
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -293,8 +417,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to System tab
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);

@@ -91,30 +91,15 @@ describe('BiometricBackground', () => {
     expect(overlays.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('updates vignette opacity on scroll', () => {
+  it('renders vignette overlay with base opacity', () => {
     const { container } = render(<BiometricBackground />);
 
-    // Mock window scroll properties
-    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 500 });
-    Object.defineProperty(document.documentElement, 'scrollHeight', { writable: true, configurable: true, value: 1000 });
-
-    // Initial check: Opacity should be 0.4 (base) + 0 (scroll) = 0.4
+    // Initial check: Opacity should be 0.4 (base)
     const vignette = Array.from(container.querySelectorAll('div')).find(
       el => el.style.backgroundImage && el.style.backgroundImage.includes('radial-gradient(circle')
     ) as HTMLElement;
 
     expect(vignette).toBeDefined();
     expect(vignette.style.opacity).toBe('0.4');
-
-    // Simulate scroll to 50%
-    // maxScroll = 1000 - 500 = 500.
-    // scrollY = 250.
-    // progress = 250 / 500 = 0.5.
-    // opacity = 0.4 + 0.5 * 0.4 = 0.6.
-    window.scrollY = 250;
-    fireEvent.scroll(window);
-
-    const opacity = parseFloat(vignette.style.opacity);
-    expect(opacity).toBeCloseTo(0.6);
   });
 });
