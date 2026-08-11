@@ -17,12 +17,54 @@ vi.mock('../hooks/useScrollAnimation', () => ({
   useScrollAnimation: vi.fn(),
 }));
 
+vi.mock('../hooks/useHomeLogic', () => ({
+  useHomeLogic: ({ currentUser, setView, openLogin }: any) => ({
+    donations: [],
+    shouldLoadHeavyContent: true,
+    featuresRef: { current: null },
+    handleNavigate: (view: any) => {
+      if (currentUser) {
+        setView(view);
+      } else {
+        openLogin();
+      }
+    },
+    stats: {
+      petsProtected: 1200,
+      successfulMatches: 847,
+      communityMembers: 5600,
+      vetPartners: 342,
+      activeCities: 23,
+      totalDonations: 0,
+      responseTime: 12
+    }
+  }),
+}));
+
 // Mock services
 vi.mock('../services/firebase', () => ({
   dbService: {
     subscribeToDonations: vi.fn(() => vi.fn()),
+    getPublicStats: vi.fn().mockResolvedValue({ lostCount: 10, foundCount: 5, adoptionCount: 8 }),
   },
 }));
+
+// Mock matchMedia
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated
+      removeListener: vi.fn(), // deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 // Mock components to simplify testing
 vi.mock('./MissingPetsMap', () => ({
