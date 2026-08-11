@@ -32,13 +32,22 @@ const mockMap = {
   setView: vi.fn().mockReturnThis(),
   removeLayer: vi.fn(),
   on: vi.fn(),
+  off: vi.fn(),
   invalidateSize: vi.fn(),
   fitBounds: vi.fn(),
+  getZoom: vi.fn().mockReturnValue(6),
+  getBounds: vi.fn().mockReturnValue({
+    getWest: () => 10,
+    getSouth: () => 10,
+    getEast: () => 10,
+    getNorth: () => 10,
+  }),
 };
 
 const mockLayer = {
   addTo: vi.fn().mockReturnThis(),
   bindPopup: vi.fn().mockReturnThis(),
+  on: vi.fn().mockReturnThis(),
 };
 
 const mockGroup = {
@@ -48,6 +57,22 @@ const mockGroup = {
   getLayers: vi.fn().mockReturnValue([]),
   getBounds: vi.fn().mockReturnValue({ pad: vi.fn() }),
 };
+
+vi.mock('supercluster', () => {
+  return {
+    default: class {
+      load() {}
+      getClusters() {
+        return [
+          {
+            geometry: { coordinates: [10, 10] },
+            properties: { cluster: false, petId: '1', petName: 'Buddy', petPhoto: 'img.jpg' }
+          }
+        ];
+      }
+    }
+  };
+});
 
 global.L = {
   map: vi.fn().mockReturnValue(mockMap),

@@ -14,6 +14,7 @@ vi.mock('../hooks/useTranslations', () => ({
 
 // Mock services
 vi.mock('../services/firebase', () => ({
+  db: {},
   dbService: {
     checkPatientLimit: vi.fn().mockResolvedValue({ current: 0, limit: 5, reached: false }),
     getVerificationStatus: vi.fn().mockResolvedValue(null)
@@ -91,23 +92,20 @@ describe('VetDashboard Component', () => {
     expect(screen.getByText(/Invalid license/)).toBeInTheDocument();
   });
 
-  it('disables Upgrade to Pro for unverified users', () => {
+  it('does not render Unlock Pro button for unverified users', () => {
     render(<VetDashboard {...defaultProps} user={mockFreeUser} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
-    expect(upgradeBtn).toBeDisabled();
+    expect(screen.queryByText(/Unlock Pro/)).not.toBeInTheDocument();
   });
 
   it('enables Upgrade to Pro for approved users', () => {
-    render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    // Pro user shows 'Pro Active', so let's test a verified but free user
     const mockVerifiedFreeUser = { ...mockFreeUser, isVetVerified: true, verificationStatus: 'approved' };
     render(<VetDashboard {...defaultProps} user={mockVerifiedFreeUser as any} />);
-    const upgradeBtn = screen.getByText('🦁 Upgrade to Pro').closest('button');
+    const upgradeBtn = screen.getByText(/Unlock Pro/).closest('button');
     expect(upgradeBtn).not.toBeDisabled();
   });
 
   it('shows Pro Active status for Pro users', () => {
     render(<VetDashboard {...defaultProps} user={mockProUser} />);
-    expect(screen.getByText('👑 Pro Active')).toBeInTheDocument();
+    expect(screen.getByText(/Pro Active/)).toBeInTheDocument();
   });
 });

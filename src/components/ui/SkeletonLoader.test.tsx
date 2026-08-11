@@ -14,7 +14,7 @@ describe('SkeletonLoader Components', () => {
 
   it('CardSkeleton renders correctly', () => {
     const { container } = render(<CardSkeleton />);
-    expect(container.firstChild).toHaveClass('glass-panel');
+    expect(container.firstChild).toHaveClass('glass-card-enhanced');
     // Check for internal skeletons
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
   });

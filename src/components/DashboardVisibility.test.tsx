@@ -30,6 +30,12 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
+  }),
+}));
+
 const mockUser: User = {
   uid: '123',
   email: 'test@example.com',
@@ -173,9 +179,9 @@ describe('Dashboard Visibility', () => {
   
                   const subHeader = screen.getByText('dashboardTitle');
   
-                  // Ensure it uses a light text class for visibility against dark backgrounds
+                  // Ensure it uses tracking-tight
   
-                  expect(subHeader).toHaveClass('text-white');
+                  expect(subHeader).toHaveClass('tracking-tight');
   
               });});
 

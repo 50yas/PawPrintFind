@@ -24,7 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
-      className={`bg-white/5 relative overflow-hidden backdrop-blur-sm ${variantStyles[variant]} ${className}`}
+      className={`bg-white/5 relative overflow-hidden backdrop-blur-sm animate-pulse ${variantStyles[variant]} ${className}`}
       aria-hidden="true"
       role="presentation"
     >
