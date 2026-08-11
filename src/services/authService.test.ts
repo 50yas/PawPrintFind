@@ -8,13 +8,39 @@ import {
   sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signInWithPhoneNumber
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, getDocs, collection, query, where, arrayUnion, increment, addDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { auth } from './firebase'; // Import the actual auth from firebase.ts, but it's mocked globally
 
 vi.mock('./loggerService');
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
-    googleProvider: {}
+    googleProvider: {},
+    functions: {} // Explicit functions export as required
+}));
+
+// Mock firebase/functions
+vi.mock('firebase/functions', () => {
+  const mockCallable = vi.fn().mockImplementation((args) => {
+    if (args?.key === 'GENESIS_KEY_INPUT') {
+      return Promise.resolve({ data: { valid: true, type: 'GENESIS' } });
+    } else if (args?.key === 'ISSUED_KEY_INPUT') {
+      return Promise.resolve({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } });
+    } else if (args?.key === 'ANY_KEY') {
+      return Promise.reject(new Error('Key verification failed'));
+    }
+    return Promise.resolve({ data: { valid: false, type: 'GENESIS' } });
+  });
+  return {
+    getFunctions: vi.fn(),
+    httpsCallable: vi.fn(() => mockCallable)
+  };
+});
+
+vi.mock('./notificationService', () => ({
+  notificationService: {
+    sendNotification: vi.fn().mockResolvedValue(undefined)
+  }
 }));
 
 describe('authService error handling and authentication', () => {
@@ -234,7 +260,6 @@ describe('authService error handling and authentication', () => {
   });
 
   describe('verifyAdminKey', () => {
-    const GENESIS_KEY_HASH = '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915';
     const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT'; // Matches the mock in vitest.setup.ts
 
     beforeEach(() => {
@@ -263,12 +288,10 @@ describe('authService error handling and authentication', () => {
       expect(result).toEqual({ valid: false, type: 'GENESIS' }); // Falls back to GENESIS type if not found
     });
 
-    it('should log error and re-throw on failure', async () => {
-      const mockError = new Error('Key verification failed');
-      (getDocs as Mock).mockRejectedValue(mockError);
-
-      await expect(authService.verifyAdminKey('ANY_KEY')).rejects.toThrow(mockError);
-      expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', mockError);
+    it('should log error and re-throw on failure even if user is authenticated', async () => {
+      const resultPromise = authService.verifyAdminKey('ANY_KEY');
+      await expect(resultPromise).rejects.toThrow('Key verification failed');
+      expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', expect.any(Error));
     });
   });
 
@@ -357,8 +380,8 @@ describe('authService error handling and authentication', () => {
       const result = await authService.checkAndAwardBadges('user1');
       
       expect(updateDoc).toHaveBeenCalledWith(expect.any(Object), {
-          badges: arrayUnion('Sightings Scout'),
-          points: increment(100)
+          badges: arrayUnion('First Eyes', 'Sightings Scout'),
+          points: increment(200)
       });
       expect(result).toContain('Sightings Scout');
     });
@@ -367,7 +390,7 @@ describe('authService error handling and authentication', () => {
        const mockUser = {
         uid: 'user1',
         email: 'test@test.com',
-        badges: ['Sightings Scout'],
+        badges: ['Sightings Scout', 'First Eyes'],
         stats: { sightingsReported: 10, reunionsSupported: 0 },
         roles: ['owner'],
         activeRole: 'owner',

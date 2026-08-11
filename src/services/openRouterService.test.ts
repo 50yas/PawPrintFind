@@ -1,32 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { openRouterService } from './openRouterService';
-import { httpsCallable } from 'firebase/functions';
+import { dbService } from './firebase';
 
-// Mock Firebase Functions
-vi.mock('firebase/functions', () => ({
-  httpsCallable: vi.fn(),
-  getFunctions: vi.fn(),
-}));
-
+// Mock Firebase dbService
 vi.mock('./firebase', () => ({
-  functions: {},
+  dbService: {
+    getAISettings: vi.fn(),
+  },
 }));
 
 describe('openRouterService', () => {
-  const mockCallFunction = vi.fn();
+  const mockFetch = vi.fn();
+  const originalFetch = global.fetch;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (httpsCallable as any).mockReturnValue(mockCallFunction);
+    global.fetch = mockFetch as any;
+
+    // Default settings mock
+    (dbService.getAISettings as any).mockResolvedValue({
+      apiKeys: { openrouter: 'test-api-key' },
+      modelMapping: {
+        vision: 'google/gemini-2.5-flash',
+        triage: 'google/gemini-2.5-pro',
+        chat: 'google/gemini-2.5-flash',
+        matching: 'google/gemini-2.5-pro',
+      },
+    });
   });
 
-  it('analyzeImageForDescription should call cloud function with correct parameters', async () => {
-    mockCallFunction.mockResolvedValue({ data: { success: true, text: 'A cute dog' } });
-    
-    // Create a dummy file
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('analyzeImageForDescription should perform direct fetch to OpenRouter with base64 content', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: 'A beautiful cat' } }]
+      }),
+    });
+
     const file = new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' });
     
-    // Mock FileReader class
+    // Mock FileReader
     class MockFileReader {
       readAsDataURL = vi.fn();
       onloadend = vi.fn();
@@ -34,63 +51,55 @@ describe('openRouterService', () => {
       
       constructor() {
         this.readAsDataURL.mockImplementation(() => {
-           // Simulate async behavior
            setTimeout(() => {
              if (this.onloadend) this.onloadend();
            }, 0);
         });
       }
     }
-    
     vi.spyOn(window, 'FileReader').mockImplementation(MockFileReader as any);
 
     const result = await openRouterService.analyzeImageForDescription(file);
 
-    expect(result).toBe('A cute dog');
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callOpenRouter');
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'vision',
-      messages: expect.arrayContaining([
-        expect.objectContaining({
-          role: 'user',
-          content: expect.arrayContaining([
-            expect.objectContaining({ type: 'image_url' })
-          ])
-        })
-      ])
+    expect(result).toBe('A beautiful cat');
+    expect(mockFetch).toHaveBeenCalledWith('https://openrouter.ai/api/v1/chat/completions', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({
+        'Authorization': 'Bearer test-api-key',
+      }),
     }));
   });
 
-  it('generateChatSuggestions should parse JSON response', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { 
-        success: true, 
-        text: JSON.stringify({ suggestions: ['Hello', 'Hi'] }) 
-      } 
+  it('generateChatSuggestions should parse JSON suggestions from fetch response', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ suggestions: ['Hello', 'Hi'] }) } }]
+      }),
     });
 
     const session: any = { messages: [], ownerEmail: 'owner@example.com' };
     const result = await openRouterService.generateChatSuggestions(session, 'owner@example.com');
 
     expect(result).toEqual(['Hello', 'Hi']);
-    expect(mockCallFunction).toHaveBeenCalledWith(expect.objectContaining({
-      task: 'chat'
-    }));
   });
 
-  it('fetchAvailableModels should call fetchOpenRouterModels cloud function', async () => {
-    mockCallFunction.mockResolvedValue({ 
-      data: { models: [{ id: 'gpt-4', name: 'GPT-4' }] } 
+  it('fetchAvailableModels should call direct openrouter endpoint', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [{ id: 'gpt-4', name: 'GPT-4' }]
+      }),
     });
 
     const result = await openRouterService.fetchAvailableModels();
 
     expect(result).toEqual([{ id: 'gpt-4', name: 'GPT-4' }]);
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'fetchOpenRouterModels');
+    expect(mockFetch).toHaveBeenCalledWith('https://openrouter.ai/api/v1/models');
   });
 
-  it('should handle errors gracefully', async () => {
-    mockCallFunction.mockRejectedValue(new Error('API Error'));
+  it('should handle errors gracefully by returning fallback', async () => {
+    mockFetch.mockRejectedValue(new Error('Network error'));
 
     const result = await openRouterService.performAIHealthCheck({} as any, 'cough');
 

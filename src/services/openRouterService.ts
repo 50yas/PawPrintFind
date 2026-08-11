@@ -137,12 +137,17 @@ const analyzeImageForDescription = async (photo: File): Promise<string> => {
 };
 
 const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    return callOpenRouter('triage', messages);
+    try {
+        const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
+        const messages: OpenRouterMessage[] = [
+            { role: 'system', content: systemInstruction },
+            { role: 'user', content: userPrompt },
+        ];
+        return await callOpenRouter('triage', messages);
+    } catch (e) {
+        console.error('[OpenRouter] performAIHealthCheck error:', e);
+        return 'Health analysis failed.';
+    }
 };
 
 const generateChatSuggestions = async (session: ChatSession, currentUserEmail: string): Promise<string[]> => {
