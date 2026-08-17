@@ -81,8 +81,8 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
             bg-primary/90 text-on-primary 
             shadow-[0_8px_32px_rgba(var(--primary-rgb),0.3)]
             border border-white/20
-            hover:bg-primary hover:shadow-[0_8px_32px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-0.5
-            focus-visible:ring-primary/50
+            hover:bg-primary/90 hover:shadow-[0_8px_32px_rgba(var(--primary-rgb),0.4)] hover:-translate-y-0.5
+            focus-visible:ring-primary
         `,
         secondary: `
             bg-surface-container-high/60 text-on-surface 
