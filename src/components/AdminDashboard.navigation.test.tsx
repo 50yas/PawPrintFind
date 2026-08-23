@@ -60,23 +60,21 @@ describe('AdminDashboard Grouped Navigation', () => {
         onViewPet: vi.fn()
     };
 
-    it('groups tabs into categories in the sidebar', () => {
+    it('renders main navigation tabs in the sidebar', () => {
         render(<AdminDashboard {...mockProps} />);
         
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
+        expect(screen.getByTitle('Operations')).toBeInTheDocument();
+        expect(screen.getByTitle('Finance')).toBeInTheDocument();
+        expect(screen.getByTitle('Community')).toBeInTheDocument();
     });
 
-    it('collapses and expands categories', () => {
+    it('navigates when tabs are clicked', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
+        const operationsBtn = screen.getByTitle('Operations');
+        fireEvent.click(operationsBtn);
         
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
+        expect(await screen.findByRole('heading', { name: 'operations' })).toBeInTheDocument();
     });
 
     it('toggles sidebar collapse state', () => {
