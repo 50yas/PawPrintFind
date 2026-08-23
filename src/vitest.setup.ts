@@ -72,7 +72,7 @@ vi.mock('firebase/performance', () => ({
 
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(),
-  httpsCallable: vi.fn(),
+  httpsCallable: vi.fn(() => vi.fn()),
 }));
 
 vi.mock('firebase/remote-config', () => ({
