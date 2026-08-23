@@ -48,7 +48,7 @@ describe('Navbar Refactor Glassmorphism', () => {
 
     const loginBtn = screen.getByText('loginButton');
     // GlassButton primary variant classes
-    expect(loginBtn.className).toContain('backdrop-blur-md');
+    expect(loginBtn.className).toContain('backdrop-blur-xl');
     expect(loginBtn.className).toContain('bg-primary');
   });
 
