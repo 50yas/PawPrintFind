@@ -43,13 +43,17 @@ export const adminService = {
             return {
                 provider: 'google',
                 modelMapping: {
-                    vision: 'gemini-pro-vision',
-                    triage: 'gemini-pro',
-                    chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    vision: 'gemini-2.0-flash',
+                    visionIdentification: 'gemini-2.0-flash',
+                    triage: 'gemini-2.0-flash',
+                    healthAssessment: 'gemini-2.0-flash',
+                    chat: 'gemini-2.0-flash',
+                    matching: 'gemini-2.0-flash',
+                    smartSearch: 'gemini-2.0-flash',
+                    blogGeneration: 'gemini-2.0-flash'
                 },
                 lastUpdated: Date.now(),
-                updatedBy: 'system@pawprintfind.com'
+                updatedBy: 'system@pawprint.ai'
             };
         } catch (error: any) {
             // Permission denied is expected for non-admins if rules are strict,
@@ -59,13 +63,17 @@ export const adminService = {
                 return {
                     provider: 'google',
                     modelMapping: {
-                        vision: 'gemini-pro-vision',
-                        triage: 'gemini-pro',
-                        chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        vision: 'gemini-2.0-flash',
+                        visionIdentification: 'gemini-2.0-flash',
+                        triage: 'gemini-2.0-flash',
+                        healthAssessment: 'gemini-2.0-flash',
+                        chat: 'gemini-2.0-flash',
+                        matching: 'gemini-2.0-flash',
+                        smartSearch: 'gemini-2.0-flash',
+                        blogGeneration: 'gemini-2.0-flash'
                     },
                     lastUpdated: Date.now(),
-                    updatedBy: 'system@pawprintfind.com'
+                    updatedBy: 'system@pawprint.ai'
                 };
             }
             logger.error('Error fetching AI settings:', error);
