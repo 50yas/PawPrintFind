@@ -61,7 +61,8 @@ describe('Auth Component', () => {
     it('handles google login', async () => {
       const { dbService } = await import('../services/firebase');
       render(<Auth />);
-      fireEvent.click(screen.getByText('buttons.syncGoogle'));
+      const googleBtns = screen.getAllByText('buttons.syncGoogle');
+      fireEvent.click(googleBtns[0]);
       await waitFor(() => {
         expect(dbService.signInWithGoogle).toHaveBeenCalled();
       });
