@@ -179,8 +179,8 @@ export const DonationModal: React.FC<DonationModalProps> = ({ onClose, isOpen, o
 
     useEffect(() => {
         if (isOpen) {
-            dbService.getPublicStats().then(stats => {
-                if (stats.totalDonations) setTotalRaised(stats.totalDonations);
+            dbService.getPublicStats?.().then(stats => {
+                if (stats?.totalDonations) setTotalRaised(stats.totalDonations);
             }).catch(console.error);
         }
     }, [isOpen]);

@@ -14,7 +14,8 @@ vi.mock('./loggerService');
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
-    googleProvider: {}
+    googleProvider: {},
+    functions: {}
 }));
 
 describe('authService error handling and authentication', () => {
@@ -166,6 +167,15 @@ describe('authService error handling and authentication', () => {
     beforeEach(() => {
         (createUserWithEmailAndPassword as Mock).mockResolvedValue(mockUserCredential);
         (setDoc as Mock).mockResolvedValue(undefined);
+        (getDoc as Mock).mockResolvedValue({
+          exists: () => true,
+          data: () => ({
+            email: { enabled: false },
+            whatsapp: { enabled: false },
+            telegram: { enabled: false },
+            events: { newUser: false, vetVerification: false }
+          })
+        });
     });
 
     it('should register user and save profile on success', async () => {
@@ -234,38 +244,41 @@ describe('authService error handling and authentication', () => {
   });
 
   describe('verifyAdminKey', () => {
-    const GENESIS_KEY_HASH = '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915';
-    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT'; // Matches the mock in vitest.setup.ts
-
-    beforeEach(() => {
-      (getDocs as Mock).mockResolvedValue({ empty: true }); // Default to no issued keys
-    });
+    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT';
 
     it('should return valid true for genesis key', async () => {
+      const { httpsCallable } = await import('firebase/functions');
+      const mockCallable = vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } });
+      (httpsCallable as Mock).mockReturnValue(mockCallable);
+
       const result = await authService.verifyAdminKey(TEST_KEY_INPUT);
       expect(result).toEqual({ valid: true, type: 'GENESIS' });
       expect(logger.error).not.toHaveBeenCalled();
     });
 
     it('should return valid true for an active issued key', async () => {
-      const mockSnapshot = {
-        empty: false,
-        docs: [{ id: 'key123' }]
-      };
-      (getDocs as Mock).mockResolvedValue(mockSnapshot);
+      const { httpsCallable } = await import('firebase/functions');
+      const mockCallable = vi.fn().mockResolvedValue({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } });
+      (httpsCallable as Mock).mockReturnValue(mockCallable);
 
-      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT'); // will produce a generic hash
+      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT');
       expect(result).toEqual({ valid: true, type: 'ISSUED', keyDocId: 'key123' });
     });
 
     it('should return valid false for an invalid key', async () => {
+      const { httpsCallable } = await import('firebase/functions');
+      const mockCallable = vi.fn().mockResolvedValue({ data: { valid: false, type: 'GENESIS' } });
+      (httpsCallable as Mock).mockReturnValue(mockCallable);
+
       const result = await authService.verifyAdminKey('INVALID_KEY_INPUT');
-      expect(result).toEqual({ valid: false, type: 'GENESIS' }); // Falls back to GENESIS type if not found
+      expect(result).toEqual({ valid: false, type: 'GENESIS' });
     });
 
     it('should log error and re-throw on failure', async () => {
+      const { httpsCallable } = await import('firebase/functions');
       const mockError = new Error('Key verification failed');
-      (getDocs as Mock).mockRejectedValue(mockError);
+      const mockCallable = vi.fn().mockRejectedValue(mockError);
+      (httpsCallable as Mock).mockReturnValue(mockCallable);
 
       await expect(authService.verifyAdminKey('ANY_KEY')).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', mockError);
@@ -367,7 +380,7 @@ describe('authService error handling and authentication', () => {
        const mockUser = {
         uid: 'user1',
         email: 'test@test.com',
-        badges: ['Sightings Scout'],
+        badges: ['First Eyes', 'Sightings Scout'],
         stats: { sightingsReported: 10, reunionsSupported: 0 },
         roles: ['owner'],
         activeRole: 'owner',

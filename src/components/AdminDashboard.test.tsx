@@ -178,7 +178,7 @@ describe('AdminDashboard Cyber HUD', () => {
 
        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
-       expect(screen.getByTitle('dashboard:admin.tabs.content')).toBeInTheDocument();
+       expect(screen.getByTitle('Operations')).toBeInTheDocument();
    });
 
    it('renders the Persistent Alert Feed when there are pending verifications', () => {
@@ -230,11 +230,9 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        // Click Pets in operations group (need to find it differently since it might be collapsed)
-        // For now, let's just use getByTitle if it's rendered
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabPets'));
+        fireEvent.click(screen.getByTitle('Operations'));
 
-        const statusFilter = screen.getByDisplayValue('dashboard:admin.allStatus');
+        const statusFilter = await screen.findByDisplayValue('dashboard:admin.allStatus');
         fireEvent.change(statusFilter, { target: { value: 'lost' } });
 
         expect(screen.getByText('LostPet')).toBeInTheDocument();
@@ -255,9 +253,9 @@ describe('AdminDashboard Cyber HUD', () => {
             />
         );
 
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabClinics'));
+        fireEvent.click(screen.getByTitle('Operations'));
         
-        const deleteBtn = screen.getByText('dashboard:admin.dismantleButton');
+        const deleteBtn = await screen.findByText('dashboard:admin.dismantleButton');
         fireEvent.click(deleteBtn);
 
         await waitFor(() => {
@@ -269,7 +267,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders AI Usage tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        fireEvent.click(screen.getByTitle('dashboard:admin.adminTabUsage'));
+        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.ai'));
         
         expect(await screen.findByTestId('ai-usage-table')).toBeInTheDocument();
    });
@@ -277,8 +275,7 @@ describe('AdminDashboard Cyber HUD', () => {
    it('renders Test Suite tab when selected', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        // Use full title for system group tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabTestSuite'));
+        fireEvent.click(screen.getByTitle('System'));
         
         expect(await screen.findByText('System Audit & Test Suite')).toBeInTheDocument();
    });
@@ -293,8 +290,8 @@ describe('AdminDashboard Cyber HUD', () => {
         // Switch to Users tab
         fireEvent.click(screen.getByTitle('dashboard:admin.tabs.users'));
         
-        // Switch to Settings tab
-        fireEvent.click(screen.getByTitle('dashboard:admin.tabs.settings'));
+        // Switch to System tab
+        fireEvent.click(screen.getByTitle('System'));
         
         // It should NOT have fetched blog posts again for these non-blog related tabs
         expect(vi.mocked(dbService.getBlogPosts).mock.calls.length).toBe(callsAfterMount);
