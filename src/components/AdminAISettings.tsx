@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-teal-400', borderColor: 'border-l-teal-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
+    healthAssessment: { icon: '🩺', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-sky-400', borderColor: 'border-l-sky-500' },
+    blogGeneration: { icon: '📝', color: 'text-fuchsia-400', borderColor: 'border-l-fuchsia-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -154,9 +158,13 @@ export const AdminAISettings: React.FC = () => {
 
     const tasks: { id: AIModelTask; label: string }[] = [
         { id: 'vision', label: t('dashboard:admin.visionProtocol') },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Vision Identification (Breed/AutoFill)' },
         { id: 'triage', label: t('dashboard:admin.triageProtocol') },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessment') || 'Health Assessment Advice' },
         { id: 'chat', label: t('dashboard:admin.neuralChat') },
         { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearch') || 'Smart Search Natural Language' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGeneration') || 'AI Blog Post Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
