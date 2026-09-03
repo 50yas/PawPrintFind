@@ -51,11 +51,7 @@ export const useAuthSync = (
                     hadUserRef.current = true;
                     setCurrentUser(profile);
                     setIsLoginModalOpen(false);
-                    // Redirect to dashboard if: fresh login OR currently on home page
-                    if (wasLoggedOut || currentView === 'home') {
-                        const dashView = getDashboardView(profile.activeRole);
-                        setCurrentView(dashView);
-                    }
+                    // Redirect removed to allow users to remain on public pages/home upon login sync
                 } catch (e: any) {
                     console.error("Sync Error:", e.message);
                 }
