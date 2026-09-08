@@ -17,26 +17,27 @@ describe('EcosystemHub', () => {
         const onNavigate = vi.fn();
         render(<EcosystemHub onNavigate={onNavigate} />);
         
-        expect(screen.getByText('Core Intelligence')).toBeInTheDocument();
-        expect(screen.getByText('Safety Grid')).toBeInTheDocument();
-        expect(screen.getByText('External Intel')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.sections.intelligence')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.sections.safety')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.sections.external')).toBeInTheDocument();
     });
 
     it('renders key module nodes', () => {
         const onNavigate = vi.fn();
         render(<EcosystemHub onNavigate={onNavigate} />);
         
-        expect(screen.getByText('AI Vision')).toBeInTheDocument();
-        expect(screen.getByText('Smart Geofencing')).toBeInTheDocument();
-        expect(screen.getByText('Social Scraper')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.nodes.aiVision.title')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.nodes.geofencing.title')).toBeInTheDocument();
+        expect(screen.getByText('ecosystemHub.nodes.scraper.title')).toBeInTheDocument();
     });
 
     it('navigates to the correct view when a node is clicked', () => {
         const onNavigate = vi.fn();
         render(<EcosystemHub onNavigate={onNavigate} />);
         
-        const smartSearchNode = screen.getByText('Smart Search').closest('div[role="button"]') || screen.getByText('Smart Search').parentElement;
-        if (smartSearchNode) fireEvent.click(smartSearchNode);
+        const smartSearchTitle = screen.getByText('ecosystemHub.nodes.smartSearch.title');
+        const nodeCard = smartSearchTitle.closest('div[role="button"]') || smartSearchTitle.parentElement;
+        if (nodeCard) fireEvent.click(nodeCard);
         
         expect(onNavigate).toHaveBeenCalledWith('adoptionCenter');
     });
@@ -45,7 +46,7 @@ describe('EcosystemHub', () => {
         const onNavigate = vi.fn();
         render(<EcosystemHub onNavigate={onNavigate} />);
         
-        fireEvent.click(screen.getByText('← Back to Base'));
+        fireEvent.click(screen.getByText('ecosystemHub.backToBase'));
         expect(onNavigate).toHaveBeenCalledWith('home');
     });
 });
