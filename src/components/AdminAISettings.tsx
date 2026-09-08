@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-teal-400', borderColor: 'border-l-teal-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
+    healthAssessment: { icon: '🩺', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
+    blogGeneration: { icon: '✍️', color: 'text-fuchsia-400', borderColor: 'border-l-fuchsia-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -153,10 +157,14 @@ export const AdminAISettings: React.FC = () => {
     if (!settings) return <div className="text-center p-12 text-red-500 font-mono uppercase text-sm">Critical: System Configuration Data Corrupted</div>;
 
     const tasks: { id: AIModelTask; label: string }[] = [
-        { id: 'vision', label: t('dashboard:admin.visionProtocol') },
-        { id: 'triage', label: t('dashboard:admin.triageProtocol') },
-        { id: 'chat', label: t('dashboard:admin.neuralChat') },
-        { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'vision', label: t('dashboard:admin.visionProtocol') || 'Vision Analysis' },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Vision Pet Identikit' },
+        { id: 'triage', label: t('dashboard:admin.triageProtocol') || 'Health Triage' },
+        { id: 'chat', label: t('dashboard:admin.neuralChat') || 'Neural Assistant Chat' },
+        { id: 'matching', label: t('dashboard:admin.matchingProtocol') || 'Smart Pet Matching' },
+        { id: 'smartSearch', label: 'Smart Search Query Parsing' },
+        { id: 'healthAssessment', label: 'AI Health Insights' },
+        { id: 'blogGeneration', label: 'Automated Blog Generation' },
     ];
 
     const activeKey = secrets[settings.provider];
