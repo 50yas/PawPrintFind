@@ -54,8 +54,11 @@ async function resolveAIConfig(task) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.activeProvider || 'google';
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.5-flash' : 'openai/gpt-4o-mini');
+            const provider = data?.provider || data?.activeProvider || 'google';
+            const defaultOpenRouterModel = (task === 'vision' || task === 'visionIdentification')
+                ? 'nvidia/nemotron-nano-12b-v2-vl:free'
+                : (task === 'blogGeneration' ? 'qwen/qwen-2.5-coder-32b-instruct:free' : 'qwen/qwen-2.5-72b-instruct:free');
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : defaultOpenRouterModel);
             return { provider, model };
         }
     }
@@ -72,10 +75,11 @@ async function callAI(userId, featureName, contents, config = {}, taskOverride) 
             messages = [{ role: 'user', content: contents.parts[0].text }];
             if (contents.parts.find((p) => p.inlineData)) {
                 const imgPart = contents.parts.find((p) => p.inlineData);
+                const textPart = contents.parts.find((p) => p.text);
                 messages = [{
                         role: 'user',
                         content: [
-                            { type: 'text', text: contents.parts.find((p) => p.text).text },
+                            { type: 'text', text: textPart ? textPart.text : '' },
                             { type: 'image_url', image_url: { url: `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}` } }
                         ]
                     }];
@@ -169,12 +173,16 @@ async function callGeminiAI(userId, featureName, modelName, contents, config = {
             config: generationConfig
         });
         const response = result.response;
-        const text = response.text();
+        const candidate = response.candidates?.[0];
+        const text = candidate?.content?.parts?.find((p) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p) => p.inlineData)?.inlineData;
         (0, usage_1.trackUsage)(userId, featureName, 'google').catch(err => console.error(`Failed to track usage for ${featureName}:`, err));
         return {
             success: true,
             text,
-            groundingMetadata: response.candidates?.[0]?.groundingMetadata,
+            mediaData: inlineData?.data,
+            mimeType: inlineData?.mimeType,
+            groundingMetadata: candidate?.groundingMetadata,
         };
     }
     catch (error) {
@@ -295,8 +303,10 @@ exports.callGemini = (0, https_1.onCall)({
 }, async (request) => {
     if (!request.auth)
         throw new https_1.HttpsError("unauthenticated", "Auth required.");
-    const { model, contents, config } = request.data;
-    return callAI(request.auth.uid, "generic", contents, { ...config, modelOverride: model });
+    const { task, contents, config } = request.data;
+    if (!task)
+        throw new https_1.HttpsError("invalid-argument", "Task identifier required.");
+    return callAI(request.auth.uid, task, contents, config);
 });
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });

@@ -43,10 +43,10 @@ export const adminService = {
             return {
                 provider: 'google',
                 modelMapping: {
-                    vision: 'gemini-pro-vision',
-                    triage: 'gemini-pro',
-                    chat: 'gemini-pro',
-                    matching: 'gemini-pro'
+                    vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                    triage: 'qwen/qwen-2.5-72b-instruct:free',
+                    chat: 'qwen/qwen-2.5-72b-instruct:free',
+                    matching: 'qwen/qwen-2.5-72b-instruct:free'
                 },
                 lastUpdated: Date.now(),
                 updatedBy: 'system@pawprintfind.com'
@@ -59,10 +59,10 @@ export const adminService = {
                 return {
                     provider: 'google',
                     modelMapping: {
-                        vision: 'gemini-pro-vision',
-                        triage: 'gemini-pro',
-                        chat: 'gemini-pro',
-                        matching: 'gemini-pro'
+                        vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+                        triage: 'qwen/qwen-2.5-72b-instruct:free',
+                        chat: 'qwen/qwen-2.5-72b-instruct:free',
+                        matching: 'qwen/qwen-2.5-72b-instruct:free'
                     },
                     lastUpdated: Date.now(),
                     updatedBy: 'system@pawprintfind.com'
