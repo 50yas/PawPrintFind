@@ -2,9 +2,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockDoc = vi.fn().mockImplementation(() => ({
+    get: mockGet,
+    set: mockSet,
+    collection: mockCollection,
+    doc: mockDoc,
+}));
+const mockCollection = vi.fn().mockImplementation(() => ({
+    doc: mockDoc,
+    get: mockGet,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -13,7 +24,8 @@ vi.mock('firebase-admin', () => {
     firestore: Object.assign(vi.fn(() => ({
         collection: mockCollection,
         doc: mockDoc,
-        set: mockSet
+        set: mockSet,
+        get: mockGet,
     })), {
       FieldValue: {
         increment: vi.fn((n) => ({ type: 'increment', value: n })),
@@ -28,6 +40,9 @@ vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             return typeof config === 'function' ? config : handler;
         }),
         HttpsError: class HttpsError extends Error {
@@ -109,8 +124,9 @@ describe('AI Cloud Functions', () => {
 
     it('visionIdentification should be defined and track usage', async () => {
         expect(visionIdentification).toBeDefined();
+        process.env.GEMINI_API_KEY = 'test-gemini-key';
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'user' } },
             data: { image: 'base64data', task: 'identify' } 
         };
         
@@ -175,8 +191,9 @@ describe('AI Cloud Functions', () => {
 
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
+        process.env.GEMINI_API_KEY = 'test-gemini-key';
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'super_admin' } },
             data: { topic: 'Pet safety' } 
         };
         

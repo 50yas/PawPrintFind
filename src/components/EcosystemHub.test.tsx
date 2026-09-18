@@ -5,10 +5,26 @@ import '@testing-library/jest-dom';
 import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
-// Mock dependencies
+const translations: Record<string, string> = {
+  'ecosystemHub.sections.intelligence': 'Core Intelligence',
+  'ecosystemHub.sections.safety': 'Safety Grid',
+  'ecosystemHub.sections.external': 'External Intel',
+  'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+  'ecosystemHub.nodes.aiVision.desc': 'Vision description',
+  'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+  'ecosystemHub.nodes.geofencing.desc': 'Geofencing description',
+  'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+  'ecosystemHub.nodes.scraper.desc': 'Scraper description',
+  'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+  'ecosystemHub.nodes.smartSearch.desc': 'Smart Search description',
+  'ecosystemHub.backToBase': '← Back to Base',
+  'ecosystemHub.title': 'Ecosystem Hub',
+  'ecosystemHub.description': 'All-in-one ecosystem'
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => translations[key] || key,
   }),
 }));
 

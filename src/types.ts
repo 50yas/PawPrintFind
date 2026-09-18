@@ -883,7 +883,7 @@ export const NotificationConfigSchema = z.object({
 });
 
 export type AIProvider = 'google' | 'openrouter';
-export type AIModelTask = 'vision' | 'triage' | 'chat' | 'matching';
+export type AIModelTask = 'vision' | 'visionIdentification' | 'triage' | 'healthAssessment' | 'chat' | 'matching' | 'smartSearch' | 'blogGeneration';
 
 export interface AISecrets {
   google?: string;
@@ -908,10 +908,14 @@ export const AISettingsSchema = z.object({
   provider: z.enum(['google', 'openrouter']),
   publicLiveAssistantKey: z.string().optional(),
   modelMapping: z.object({
-    vision: z.string(),
-    triage: z.string(),
-    chat: z.string(),
-    matching: z.string()
+    vision: z.string().optional().default('gemini-2.0-flash-exp'),
+    visionIdentification: z.string().optional().default('nvidia/nemotron-nano-12b-v2-vl:free'),
+    triage: z.string().optional().default('gemini-2.0-flash-exp'),
+    healthAssessment: z.string().optional().default('qwen/qwen-2.5-72b-instruct:free'),
+    chat: z.string().optional().default('gemini-2.0-flash-exp'),
+    matching: z.string().optional().default('gemini-2.0-flash-exp'),
+    smartSearch: z.string().optional().default('qwen/qwen-2.5-72b-instruct:free'),
+    blogGeneration: z.string().optional().default('qwen/qwen-2.5-coder-32b-instruct:free')
   }),
   lastUpdated: z.number(),
   updatedBy: z.string().email()
