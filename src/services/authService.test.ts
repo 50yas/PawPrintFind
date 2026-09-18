@@ -11,10 +11,20 @@ import { doc, getDoc, setDoc, updateDoc, getDocs, collection, query, where, arra
 import { auth } from './firebase'; // Import the actual auth from firebase.ts, but it's mocked globally
 
 vi.mock('./loggerService');
+vi.mock('../services/notificationService', () => ({
+    notificationService: {
+        sendNotification: vi.fn().mockResolvedValue(undefined)
+    }
+}));
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
+    functions: {},
     googleProvider: {}
+}));
+const mockHttpsCallable = vi.fn();
+vi.mock('firebase/functions', () => ({
+    httpsCallable: (...args: any[]) => mockHttpsCallable(...args)
 }));
 
 describe('authService error handling and authentication', () => {
@@ -234,38 +244,30 @@ describe('authService error handling and authentication', () => {
   });
 
   describe('verifyAdminKey', () => {
-    const GENESIS_KEY_HASH = '83036031472796eaf4267d6d664e6c4950db82ff4e0e0a9e59b894d4d9608915';
-    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT'; // Matches the mock in vitest.setup.ts
-
-    beforeEach(() => {
-      (getDocs as Mock).mockResolvedValue({ empty: true }); // Default to no issued keys
-    });
+    const TEST_KEY_INPUT = 'GENESIS_KEY_INPUT';
 
     it('should return valid true for genesis key', async () => {
+      mockHttpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { valid: true, type: 'GENESIS' } }));
       const result = await authService.verifyAdminKey(TEST_KEY_INPUT);
       expect(result).toEqual({ valid: true, type: 'GENESIS' });
       expect(logger.error).not.toHaveBeenCalled();
     });
 
     it('should return valid true for an active issued key', async () => {
-      const mockSnapshot = {
-        empty: false,
-        docs: [{ id: 'key123' }]
-      };
-      (getDocs as Mock).mockResolvedValue(mockSnapshot);
-
-      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT'); // will produce a generic hash
+      mockHttpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { valid: true, type: 'ISSUED', keyDocId: 'key123' } }));
+      const result = await authService.verifyAdminKey('ISSUED_KEY_INPUT');
       expect(result).toEqual({ valid: true, type: 'ISSUED', keyDocId: 'key123' });
     });
 
     it('should return valid false for an invalid key', async () => {
+      mockHttpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { valid: false, type: 'GENESIS' } }));
       const result = await authService.verifyAdminKey('INVALID_KEY_INPUT');
-      expect(result).toEqual({ valid: false, type: 'GENESIS' }); // Falls back to GENESIS type if not found
+      expect(result).toEqual({ valid: false, type: 'GENESIS' });
     });
 
     it('should log error and re-throw on failure', async () => {
       const mockError = new Error('Key verification failed');
-      (getDocs as Mock).mockRejectedValue(mockError);
+      mockHttpsCallable.mockReturnValue(vi.fn().mockRejectedValue(mockError));
 
       await expect(authService.verifyAdminKey('ANY_KEY')).rejects.toThrow(mockError);
       expect(logger.error).toHaveBeenCalledWith('Error verifying admin key:', mockError);
@@ -367,7 +369,7 @@ describe('authService error handling and authentication', () => {
        const mockUser = {
         uid: 'user1',
         email: 'test@test.com',
-        badges: ['Sightings Scout'],
+        badges: ['First Eyes', 'Sightings Scout'],
         stats: { sightingsReported: 10, reunionsSupported: 0 },
         roles: ['owner'],
         activeRole: 'owner',
