@@ -39,13 +39,13 @@ describe('Auth Responsive Layout', () => {
     window.dispatchEvent(new Event('resize'));
   };
 
-  it('renders side-split layout on desktop', () => {
+  it('renders side-split layout on desktop', async () => {
     setViewport(1200);
     render(<Auth isFullScreen={true} />);
     
     const container = screen.getByTestId('auth-container');
     expect(container).toHaveClass('cinematic-split');
-    const backgrounds = screen.getAllByTestId('cinematic-bg');
+    const backgrounds = await screen.findAllByTestId('cinematic-bg');
     expect(backgrounds.length).toBeGreaterThan(0);
   });
 

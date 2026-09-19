@@ -8,7 +8,21 @@ import React from 'react';
 // Mock dependencies
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      const dict: Record<string, string> = {
+        'ecosystemHub.sections.intelligence': 'Core Intelligence',
+        'ecosystemHub.sections.safety': 'Safety Grid',
+        'ecosystemHub.sections.external': 'External Intel',
+        'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+        'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+        'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+        'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+        'ecosystemHub.backToBase': '← Back to Base'
+      };
+      return dict[key] || key;
+    },
+    language: 'en',
+    setLanguage: vi.fn(),
   }),
 }));
 
