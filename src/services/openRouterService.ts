@@ -57,12 +57,16 @@ const getModel = async (task: string): Promise<string> => {
     const mapped = settings?.modelMapping?.[task as keyof typeof settings.modelMapping];
     // Default models per task if not configured
     const defaults: Record<string, string> = {
-        vision: 'google/gemini-2.5-flash',
-        triage: 'google/gemini-2.5-pro',
-        chat: 'google/gemini-2.5-flash',
-        matching: 'google/gemini-2.5-pro',
+        vision: 'nvidia/nemotron-nano-12b-v2-vl:free',
+        visionIdentification: 'nvidia/nemotron-nano-12b-v2-vl:free',
+        triage: 'qwen/qwen-2.5-72b-instruct:free',
+        healthAssessment: 'qwen/qwen-2.5-72b-instruct:free',
+        chat: 'qwen/qwen-2.5-72b-instruct:free',
+        matching: 'qwen/qwen-2.5-72b-instruct:free',
+        smartSearch: 'qwen/qwen-2.5-72b-instruct:free',
+        blogGeneration: 'qwen/qwen-2.5-coder-32b-instruct:free',
     };
-    return mapped || defaults[task] || 'google/gemini-2.5-flash';
+    return mapped || defaults[task] || 'qwen/qwen-2.5-72b-instruct:free';
 };
 
 /**
@@ -137,12 +141,16 @@ const analyzeImageForDescription = async (photo: File): Promise<string> => {
 };
 
 const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    return callOpenRouter('triage', messages);
+    try {
+        const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
+        const messages: OpenRouterMessage[] = [
+            { role: 'system', content: systemInstruction },
+            { role: 'user', content: userPrompt },
+        ];
+        return await callOpenRouter('triage', messages);
+    } catch {
+        return 'Health analysis failed.';
+    }
 };
 
 const generateChatSuggestions = async (session: ChatSession, currentUserEmail: string): Promise<string[]> => {
