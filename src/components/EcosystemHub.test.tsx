@@ -5,10 +5,38 @@ import '@testing-library/jest-dom';
 import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
-// Mock dependencies
+// Mock dependencies with translation dictionary mapping
+const translations: Record<string, string> = {
+  'ecosystemHub.title': 'Ecosystem Hub',
+  'ecosystemHub.description': 'Core network architecture',
+  'ecosystemHub.backToBase': '← Back to Base',
+  'ecosystemHub.accessProtocol': 'Access Protocol',
+  'ecosystemHub.sections.intelligence': 'Core Intelligence',
+  'ecosystemHub.sections.safety': 'Safety Grid',
+  'ecosystemHub.sections.external': 'External Intel',
+  'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+  'ecosystemHub.nodes.aiVision.desc': 'Visual recognition engine',
+  'ecosystemHub.nodes.triage.title': 'Triage Protocol',
+  'ecosystemHub.nodes.triage.desc': 'Health triage analysis',
+  'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+  'ecosystemHub.nodes.smartSearch.desc': 'Natural language search',
+  'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+  'ecosystemHub.nodes.geofencing.desc': 'Perimeter tracking',
+  'ecosystemHub.nodes.alerts.title': 'Community Alerts',
+  'ecosystemHub.nodes.alerts.desc': 'Realtime notifications',
+  'ecosystemHub.nodes.map.title': 'Missing Pets Map',
+  'ecosystemHub.nodes.map.desc': 'Interactive grid map',
+  'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+  'ecosystemHub.nodes.scraper.desc': 'Automated social scanner',
+  'ecosystemHub.nodes.vets.title': 'Vet Network',
+  'ecosystemHub.nodes.vets.desc': 'Verified clinics',
+  'ecosystemHub.nodes.community.title': 'Community Hub',
+  'ecosystemHub.nodes.community.desc': 'Volunteer network',
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => translations[key] || key,
   }),
 }));
 
