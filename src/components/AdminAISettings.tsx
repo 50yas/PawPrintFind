@@ -10,9 +10,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 const TASK_META: Record<AIModelTask, { icon: string; color: string; borderColor: string }> = {
     vision: { icon: '👁', color: 'text-cyan-400', borderColor: 'border-l-cyan-500' },
+    visionIdentification: { icon: '🆔', color: 'text-teal-400', borderColor: 'border-l-teal-500' },
     triage: { icon: '💓', color: 'text-rose-400', borderColor: 'border-l-rose-500' },
+    healthAssessment: { icon: '🩺', color: 'text-emerald-400', borderColor: 'border-l-emerald-500' },
     chat: { icon: '💬', color: 'text-violet-400', borderColor: 'border-l-violet-500' },
     matching: { icon: '🔗', color: 'text-amber-400', borderColor: 'border-l-amber-500' },
+    smartSearch: { icon: '🔍', color: 'text-blue-400', borderColor: 'border-l-blue-500' },
+    blogGeneration: { icon: '✍️', color: 'text-indigo-400', borderColor: 'border-l-indigo-500' },
 };
 
 const maskKey = (key: string | undefined): string => {
@@ -153,10 +157,14 @@ export const AdminAISettings: React.FC = () => {
     if (!settings) return <div className="text-center p-12 text-red-500 font-mono uppercase text-sm">Critical: System Configuration Data Corrupted</div>;
 
     const tasks: { id: AIModelTask; label: string }[] = [
-        { id: 'vision', label: t('dashboard:admin.visionProtocol') },
-        { id: 'triage', label: t('dashboard:admin.triageProtocol') },
-        { id: 'chat', label: t('dashboard:admin.neuralChat') },
-        { id: 'matching', label: t('dashboard:admin.matchingProtocol') },
+        { id: 'vision', label: t('dashboard:admin.visionProtocol') || 'Vision Protocol' },
+        { id: 'visionIdentification', label: t('dashboard:admin.visionIdentificationProtocol') || 'Pet ID / Identikit' },
+        { id: 'triage', label: t('dashboard:admin.triageProtocol') || 'Triage Protocol' },
+        { id: 'healthAssessment', label: t('dashboard:admin.healthAssessmentProtocol') || 'Health Check Engine' },
+        { id: 'chat', label: t('dashboard:admin.neuralChat') || 'Neural Chat' },
+        { id: 'matching', label: t('dashboard:admin.matchingProtocol') || 'Matching Protocol' },
+        { id: 'smartSearch', label: t('dashboard:admin.smartSearchProtocol') || 'Smart Search NLP' },
+        { id: 'blogGeneration', label: t('dashboard:admin.blogGenerationProtocol') || 'Blog Content AI' },
     ];
 
     const activeKey = secrets[settings.provider];

@@ -26,7 +26,13 @@ async function resolveAIConfig(task: string) {
         if (doc.exists) {
             const data = doc.data();
             const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+            let defaultOpenRouterModel = 'qwen/qwen-2.5-72b-instruct:free';
+            if (task === 'vision' || task === 'visionIdentification') {
+                defaultOpenRouterModel = 'nvidia/nemotron-nano-12b-v2-vl:free';
+            } else if (task === 'blogGeneration') {
+                defaultOpenRouterModel = 'qwen/qwen-2.5-coder-32b-instruct:free';
+            }
+            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : defaultOpenRouterModel);
             return { provider, model };
         }
     } catch (e) {
