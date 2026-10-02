@@ -160,7 +160,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(({
             {isLoading ? (
                 <>
                     <LoadingSpinner />
-                    <span className="opacity-80">{loadingText || t('processing')}</span>
+                    <span className="opacity-80">{loadingText || (t('loading') !== 'loading' ? t('loading') : 'Loading...')}</span>
                 </>
             ) : (
                 <>
