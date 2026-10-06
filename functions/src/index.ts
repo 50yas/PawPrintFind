@@ -25,14 +25,22 @@ async function resolveAIConfig(task: string) {
         const doc = await admin.firestore().collection('system_config').doc('ai_settings').get();
         if (doc.exists) {
             const data = doc.data();
-            const provider = data?.provider || data?.activeProvider || 'google'; // 'google' or 'openrouter'
-            const model = data?.modelMapping?.[task] || (provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free');
+            const provider = data?.provider || data?.activeProvider || 'openrouter'; // 'google' or 'openrouter'
+            let defaultModel = provider === 'google' ? 'gemini-2.0-flash' : 'qwen/qwen-2.5-72b-instruct:free';
+            if (provider === 'openrouter') {
+                if (task === 'vision' || task === 'visionIdentification') {
+                    defaultModel = 'nvidia/nemotron-nano-12b-v2-vl:free';
+                } else if (task === 'blogGeneration') {
+                    defaultModel = 'qwen/qwen-2.5-coder-32b-instruct:free';
+                }
+            }
+            const model = data?.modelMapping?.[task] || defaultModel;
             return { provider, model };
         }
     } catch (e) {
-        console.warn("Failed to resolve AI config, defaulting to Google/Gemini:", e);
+        console.warn("Failed to resolve AI config, defaulting to OpenRouter free model:", e);
     }
-    return { provider: 'google', model: 'gemini-2.5-flash' };
+    return { provider: 'openrouter', model: task === 'vision' || task === 'visionIdentification' ? 'nvidia/nemotron-nano-12b-v2-vl:free' : task === 'blogGeneration' ? 'qwen/qwen-2.5-coder-32b-instruct:free' : 'qwen/qwen-2.5-72b-instruct:free' };
 }
 
 /**
