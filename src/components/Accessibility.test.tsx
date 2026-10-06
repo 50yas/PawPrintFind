@@ -51,6 +51,7 @@ vi.mock('../services/firebase', () => {
   };
   return {
     dbService: {
+      getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 100 }),
       subscribeToDonations: vi.fn(() => vi.fn()),
       logAdminAction: vi.fn().mockResolvedValue(undefined),
       getBlogPosts: vi.fn().mockResolvedValue([]),
