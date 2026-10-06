@@ -114,7 +114,7 @@ function getContrastRatio(fg: string, bg: string): number {
 }
 
 describe('Accessibility: Color Contrast', () => {
-  const { root, dark } = getCssVariables(path.resolve(__dirname, 'index.css'));
+  const { root, dark } = getCssVariables(path.resolve(process.cwd(), 'src/index.css'));
 
   // Merge dark variables on top of root for full context
   const darkTheme = { ...root, ...dark };
