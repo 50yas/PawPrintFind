@@ -16,6 +16,7 @@ vi.mock('../hooks/useTranslations', () => ({
 vi.mock('../services/firebase', () => ({
   dbService: {
     auth: { currentUser: null },
+    getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 500 }),
     recordDonation: vi.fn().mockResolvedValue(undefined),
     createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://stripe.com/checkout' }),
   },
