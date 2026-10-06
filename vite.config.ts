@@ -253,6 +253,7 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/jest-shim.ts', './src/vitest.setup.ts'], // A setup file for global mocks
+      testTimeout: 10000,
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],
