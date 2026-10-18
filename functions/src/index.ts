@@ -185,8 +185,8 @@ async function callGeminiAI(
         const candidate = response.candidates?.[0];
 
         // Extract data based on what's returned
-        const text = candidate?.content?.parts?.find(p => p.text)?.text || "";
-        const inlineData = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData;
+        const text = candidate?.content?.parts?.find((p: any) => p.text)?.text || "";
+        const inlineData = candidate?.content?.parts?.find((p: any) => p.inlineData)?.inlineData;
 
         trackUsage(userId, featureName, 'google').catch(err =>
             console.error(`Failed to track usage for ${featureName}:`, err)
