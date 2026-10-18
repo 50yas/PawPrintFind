@@ -5,7 +5,7 @@ import { ThemeProvider, useTheme } from './ThemeContext';
 import React from 'react';
 
 // Mock theme utility
-vi.mock('../src/utils/theme', () => ({
+vi.mock('../utils/theme', () => ({
     generateTheme: vi.fn().mockReturnValue({
         light: { primary: '#008080' },
         dark: { primary: '#4cdada' }

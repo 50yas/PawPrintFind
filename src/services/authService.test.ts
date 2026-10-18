@@ -14,7 +14,8 @@ vi.mock('./loggerService');
 vi.mock('./firebase', () => ({
     auth: { currentUser: null }, // Mock current user initially
     db: { _isFirestore: true }, // More realistic mock for db
-    googleProvider: {}
+    googleProvider: {},
+    functions: {}
 }));
 
 describe('authService error handling and authentication', () => {
