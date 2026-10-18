@@ -72,7 +72,7 @@ export const petService = {
         } catch (error: unknown) {
             const err = error as Error;
             // Log the full error detail so the admin can debug it
-            logger.error('Error saving pet:', err.message || err);
+            logger.error('Error saving pet:', err);
             throw error;
         }
     },
