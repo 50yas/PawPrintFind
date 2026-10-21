@@ -3,8 +3,19 @@ import * as admin from 'firebase-admin';
 
 // Create persistent mocks for Firestore
 const mockSet = vi.fn().mockResolvedValue({});
-const mockDoc = vi.fn().mockReturnThis();
-const mockCollection = vi.fn().mockReturnThis();
+const mockGet = vi.fn().mockResolvedValue({ exists: false, data: () => ({}) });
+const mockDoc = vi.fn().mockImplementation(() => ({
+    get: mockGet,
+    set: mockSet,
+    collection: mockCollection
+}));
+const mockCollection = vi.fn().mockImplementation((name?: string) => ({
+    doc: mockDoc,
+    set: mockSet,
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: mockGet
+}));
 
 // Mock firebase-admin
 vi.mock('firebase-admin', () => {
@@ -23,11 +34,23 @@ vi.mock('firebase-admin', () => {
   };
 });
 
+// Mock firebase-functions/params
+vi.mock('firebase-functions/params', () => {
+    return {
+        defineSecret: vi.fn((name) => ({
+            value: () => 'mock-secret-key'
+        }))
+    };
+});
+
 // Mock firebase-functions/v2
 vi.mock('firebase-functions/v2/https', () => {
     return {
         onCall: vi.fn((config, handler) => {
             // Return the handler so it can be called directly in tests
+            return typeof config === 'function' ? config : handler;
+        }),
+        onRequest: vi.fn((config, handler) => {
             return typeof config === 'function' ? config : handler;
         }),
         HttpsError: class HttpsError extends Error {
@@ -110,14 +133,14 @@ describe('AI Cloud Functions', () => {
     it('visionIdentification should be defined and track usage', async () => {
         expect(visionIdentification).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: {} },
             data: { image: 'base64data', task: 'identify' } 
         };
         
         // @ts-ignore
         await visionIdentification(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ visionIdentification: expect.anything() }),
             { merge: true }
@@ -142,14 +165,14 @@ describe('AI Cloud Functions', () => {
     it('smartSearch should be defined and track usage', async () => {
         expect(smartSearch).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: {} },
             data: { query: 'lost dog' } 
         };
         
         // @ts-ignore
         await smartSearch(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ smartSearch: expect.anything() }),
             { merge: true }
@@ -159,14 +182,14 @@ describe('AI Cloud Functions', () => {
     it('healthAssessment should be defined and track usage', async () => {
         expect(healthAssessment).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: {} },
             data: { pet: { name: 'Buddy' }, symptoms: 'coughing' } 
         };
         
         // @ts-ignore
         await healthAssessment(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ healthAssessment: expect.anything() }),
             { merge: true }
@@ -176,14 +199,14 @@ describe('AI Cloud Functions', () => {
     it('blogGeneration should be defined and track usage', async () => {
         expect(blogGeneration).toBeDefined();
         const request = { 
-            auth: { uid: 'user123' }, 
+            auth: { uid: 'user123', token: { role: 'admin' } },
             data: { topic: 'Pet safety' } 
         };
         
         // @ts-ignore
         await blogGeneration(request);
         
-        expect(mockCollection).toHaveBeenCalledWith('usageStats');
+        expect(mockCollection).toHaveBeenCalledWith('users');
         expect(mockSet).toHaveBeenCalledWith(
             expect.objectContaining({ blogGeneration: expect.anything() }),
             { merge: true }
