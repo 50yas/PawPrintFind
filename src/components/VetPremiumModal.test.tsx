@@ -9,8 +9,12 @@ import React from 'react';
 // Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string, fallback?: string) => fallback || key,
   }),
+}));
+
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({ addSnackbar: vi.fn() }),
 }));
 
 // Mock services
@@ -48,14 +52,14 @@ describe('VetPremiumModal Component', () => {
 
   it('renders correctly when open', () => {
     render(<VetPremiumModal {...defaultProps} />);
-    expect(screen.getByText('Upgrade to Vet Pro 🏥')).toBeInTheDocument();
-    expect(screen.getByText('Vet Pro')).toBeInTheDocument();
-    expect(screen.getByText('€18.00')).toBeInTheDocument();
+    expect(screen.getByText('dashboard:vet.upgradeTitle')).toBeInTheDocument();
+    expect(screen.getByText('dashboard:vet.vetPro')).toBeInTheDocument();
+    expect(screen.getByText(/€18\.00/)).toBeInTheDocument();
   });
 
   it('calls subscribeToPlan when Upgrade Now is clicked', async () => {
     render(<VetPremiumModal {...defaultProps} />);
-    const upgradeBtn = screen.getByText('Upgrade Now');
+    const upgradeBtn = screen.getByText('dashboard:vet.upgradeNow');
     fireEvent.click(upgradeBtn);
     expect(subscriptionService.subscribeToPlan).toHaveBeenCalledWith(expect.stringContaining('price_'));
   });
@@ -65,7 +69,7 @@ describe('VetPremiumModal Component', () => {
     (subscriptionService.subscribeToPlan as any).mockReturnValue(new Promise(() => {}));
     
     render(<VetPremiumModal {...defaultProps} />);
-    const upgradeBtn = screen.getByText('Upgrade Now');
+    const upgradeBtn = screen.getByText('dashboard:vet.upgradeNow');
     fireEvent.click(upgradeBtn);
     
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
