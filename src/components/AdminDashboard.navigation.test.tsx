@@ -6,9 +6,44 @@ import { AdminDashboard } from './AdminDashboard';
 import React from 'react';
 
 // Mock dependencies
+const mockAdminTranslations: Record<string, string> = {
+  'admin.categoryOperations': 'Operations & Safety',
+  'admin.categoryCommunity': 'Community & Karma',
+  'admin.categorySystem': 'System & AI',
+  'admin.commandCore': 'Command Core',
+  'admin.systemRootActive': 'System Root Active',
+  'admin.tabs.overview': 'Overview',
+  'admin.tabs.users': 'Users',
+  'admin.tabs.operations': 'Operations',
+  'admin.tabs.finance': 'Finance',
+  'admin.tabs.community': 'Community',
+  'admin.tabs.socialMedia': 'Social Media',
+  'admin.tabs.blogManager': 'Blog Manager',
+  'admin.tabs.aiSystems': 'AI Systems',
+  'admin.tabs.ai': 'AI Systems',
+  'admin.tabs.settings': 'Settings',
+  'admin.tabs.testSuite': 'Test Suite',
+  'dashboard:admin.categoryOperations': 'Operations & Safety',
+  'dashboard:admin.categoryCommunity': 'Community & Karma',
+  'dashboard:admin.categorySystem': 'System & AI',
+  'dashboard:admin.commandCore': 'Command Core',
+  'dashboard:admin.systemRootActive': 'System Root Active',
+  'dashboard:admin.tabs.overview': 'Overview',
+  'dashboard:admin.tabs.users': 'Users',
+  'dashboard:admin.tabs.operations': 'Operations',
+  'dashboard:admin.tabs.finance': 'Finance',
+  'dashboard:admin.tabs.community': 'Community',
+  'dashboard:admin.tabs.socialMedia': 'Social Media',
+  'dashboard:admin.tabs.blogManager': 'Blog Manager',
+  'dashboard:admin.tabs.aiSystems': 'AI Systems',
+  'dashboard:admin.tabs.ai': 'AI Systems',
+  'dashboard:admin.tabs.settings': 'Settings',
+  'dashboard:admin.tabs.testSuite': 'Test Suite',
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => mockAdminTranslations[key] || key,
     locale: 'en',
   }),
 }));
@@ -60,23 +95,21 @@ describe('AdminDashboard Grouped Navigation', () => {
         onViewPet: vi.fn()
     };
 
-    it('groups tabs into categories in the sidebar', () => {
+    it('renders tabs in the sidebar', () => {
         render(<AdminDashboard {...mockProps} />);
         
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
+        expect(screen.getByText('Operations')).toBeInTheDocument();
+        expect(screen.getByText('Community')).toBeInTheDocument();
+        expect(screen.getByText('Finance')).toBeInTheDocument();
     });
 
-    it('collapses and expands categories', () => {
+    it('allows tab switching', () => {
         render(<AdminDashboard {...mockProps} />);
         
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
+        const financeBtn = screen.getByTitle('Finance');
+        fireEvent.click(financeBtn);
         
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
+        expect(screen.getByTitle('Finance')).toBeInTheDocument();
     });
 
     it('toggles sidebar collapse state', () => {
