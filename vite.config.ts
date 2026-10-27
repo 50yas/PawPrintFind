@@ -253,10 +253,11 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/jest-shim.ts', './src/vitest.setup.ts'], // A setup file for global mocks
+      exclude: ['node_modules/', 'functions/'],
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],
-        exclude: ['node_modules/', '**/firebase.ts', '**/loggerService.ts', '**/audioService.ts']
+        exclude: ['node_modules/', 'functions/', '**/firebase.ts', '**/loggerService.ts', '**/audioService.ts']
       },
     },
   };

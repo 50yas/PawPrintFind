@@ -25,7 +25,7 @@ const ProblemCard = memo(({ value, label, sublabel, color, suffix = "" }: { valu
             <div className={`text-4xl md:text-6xl font-black font-mono-tech mb-2 ${colorClass} drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]`}>
                 {count}{suffix}
             </div>
-            <h4 className="text-white font-bold uppercase tracking-widest text-sm md:text-base mb-2">{label}</h4>
+            <h3 className="text-white font-bold uppercase tracking-widest text-sm md:text-base mb-2">{label}</h3>
             <p className="text-slate-400 text-xs md:text-sm font-medium leading-relaxed">{sublabel}</p>
             
             {/* HUD Scanning Decoration */}

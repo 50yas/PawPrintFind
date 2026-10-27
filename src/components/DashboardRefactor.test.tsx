@@ -18,6 +18,11 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({ addSnackbar: vi.fn() }),
+  SnackbarProvider: ({ children }: any) => <div>{children}</div>
+}));
+
 // Mock child components that might have complex logic/dependencies
 vi.mock('./SightingsMap', () => ({ SightingsMap: () => <div data-testid="map">Map</div> }));
 vi.mock('./ReportLostModal', () => ({ ReportLostModal: () => <div data-testid="report-lost">ReportLost</div> }));
