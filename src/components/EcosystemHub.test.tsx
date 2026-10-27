@@ -6,9 +6,36 @@ import { EcosystemHub } from './EcosystemHub';
 import React from 'react';
 
 // Mock dependencies
+const translationsMap: Record<string, string> = {
+  'ecosystemHub.sections.intelligence': 'Core Intelligence',
+  'ecosystemHub.sections.safety': 'Safety Grid',
+  'ecosystemHub.sections.external': 'External Intel',
+  'ecosystemHub.nodes.aiVision.title': 'AI Vision',
+  'ecosystemHub.nodes.aiVision.desc': 'Multi-modal breed identification',
+  'ecosystemHub.nodes.triage.title': 'Health Triage',
+  'ecosystemHub.nodes.triage.desc': 'Proactive AI assessments',
+  'ecosystemHub.nodes.smartSearch.title': 'Smart Search',
+  'ecosystemHub.nodes.smartSearch.desc': 'Natural language queries',
+  'ecosystemHub.nodes.geofencing.title': 'Smart Geofencing',
+  'ecosystemHub.nodes.geofencing.desc': 'Safe-zone monitoring',
+  'ecosystemHub.nodes.alerts.title': 'Global Alerts',
+  'ecosystemHub.nodes.alerts.desc': 'Instant broadcasts',
+  'ecosystemHub.nodes.map.title': 'Sightings Map',
+  'ecosystemHub.nodes.map.desc': 'Real-time tracking',
+  'ecosystemHub.nodes.scraper.title': 'Social Scraper',
+  'ecosystemHub.nodes.scraper.desc': 'Autonomous AI agents',
+  'ecosystemHub.nodes.vets.title': 'Vet Network',
+  'ecosystemHub.nodes.vets.desc': 'Professional verification',
+  'ecosystemHub.nodes.community.title': 'Community Hub',
+  'ecosystemHub.nodes.community.desc': 'Decentralized support',
+  'ecosystemHub.backToBase': '← Back to Base',
+  'ecosystemHub.title': 'System Ecosystem',
+  'ecosystemHub.description': 'A centralized overview',
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => translationsMap[key] || key,
   }),
 }));
 
