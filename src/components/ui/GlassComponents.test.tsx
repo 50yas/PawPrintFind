@@ -49,7 +49,7 @@ describe('GlassButton', () => {
     });
     
     it('supports loading state', () => {
-        render(<GlassButton isLoading>Submit</GlassButton>);
+        render(<GlassButton isLoading loadingText="Loading...">Submit</GlassButton>);
         expect(screen.getByText('Loading...')).toBeDefined();
     });
 });

@@ -18,7 +18,7 @@ const SolutionLink = ({ problem, solution, icon, featureId }: { problem: string;
             </div>
             <div className="flex-1 text-center md:text-left">
                 <div className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">{t('solutionNarrative.problemLabel', { problem })}</div>
-                <h4 className="text-xl font-bold text-white mb-2">{solution}</h4>
+                <h3 className="text-xl font-bold text-white mb-2">{solution}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{t('ecosystemDesc')}</p>
             </div>
             <button 

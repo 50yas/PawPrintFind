@@ -24,7 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <div
-      className={`bg-white/5 relative overflow-hidden backdrop-blur-sm ${variantStyles[variant]} ${className}`}
+      className={`bg-white/5 relative overflow-hidden backdrop-blur-sm animate-pulse ${variantStyles[variant]} ${className}`}
       aria-hidden="true"
       role="presentation"
     >
@@ -44,7 +44,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
  * Pet Card Skeleton - matches PetCard layout
  */
 export const PetCardSkeleton: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
-  <div className="glass-card-enhanced rounded-3xl p-4 md:p-6 flex flex-col gap-4 border border-white/10 h-full">
+  <div className="glass-panel glass-card-enhanced rounded-3xl p-4 md:p-6 flex flex-col gap-4 border border-white/10 h-full">
     <Skeleton className={`w-full rounded-2xl ${compact ? 'h-32' : 'h-40 md:h-48'}`} />
     <div className="space-y-3 flex-grow">
       <div className="flex items-center justify-between">

@@ -13,6 +13,11 @@ vi.mock('../hooks/useTranslations', () => ({
   }),
 }));
 
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({ addSnackbar: vi.fn() }),
+  SnackbarProvider: ({ children }: any) => <div>{children}</div>
+}));
+
 vi.mock('../services/searchService', () => ({
     searchService: {
         getSavedSearches: vi.fn().mockResolvedValue([]),

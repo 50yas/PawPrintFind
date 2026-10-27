@@ -7,9 +7,15 @@ import { subscriptionService } from '../services/subscriptionService';
 import React from 'react';
 
 // Mock translations
+const mockVetTranslations: Record<string, string> = {
+  'dashboard:vet.upgradeTitle': 'Upgrade to Vet Pro 🏥',
+  'dashboard:vet.vetPro': 'Vet Pro',
+  'dashboard:vet.upgradeNow': 'Upgrade Now',
+};
+
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string) => mockVetTranslations[key] || key,
   }),
 }));
 
@@ -18,6 +24,11 @@ vi.mock('../services/subscriptionService', () => ({
   subscriptionService: {
     subscribeToPlan: vi.fn(),
   },
+}));
+
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({ addSnackbar: vi.fn() }),
+  SnackbarProvider: ({ children }: any) => <div>{children}</div>
 }));
 
 // Mock Modal

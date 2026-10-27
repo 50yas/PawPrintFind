@@ -17,6 +17,30 @@ vi.mock('../hooks/useScrollAnimation', () => ({
   useScrollAnimation: vi.fn(),
 }));
 
+vi.mock('../hooks/useHomeLogic', () => ({
+  useHomeLogic: ({ setView, openLogin, currentUser }: any) => ({
+    stats: { petsProtected: 100, successfulMatches: 50, communityMembers: 200, vetPartners: 10, activeCities: 5, totalDonations: 500, responseTime: 5 },
+    donations: [],
+    shouldLoadHeavyContent: true,
+    featuresRef: { current: null },
+    videoRef: { current: null },
+    videoContainerRef: { current: null },
+    isMuted: true,
+    setIsMuted: vi.fn(),
+    isFullscreen: false,
+    handleToggleAudio: vi.fn(),
+    handleRestart: vi.fn(),
+    handleToggleFullscreen: vi.fn(),
+    handleNavigate: (targetView: any) => {
+      if (currentUser) {
+        setView(targetView);
+      } else {
+        openLogin();
+      }
+    },
+  }),
+}));
+
 // Mock services
 vi.mock('../services/firebase', () => ({
   dbService: {

@@ -46,11 +46,11 @@ describe('Vision Model Upgrade', () => {
     vi.clearAllMocks();
   });
 
-  it('identifyBreedFromImage should use legacy callGemini', async () => {
+  it('identifyBreedFromImage should use visionIdentification', async () => {
     const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });
     await identifyBreedFromImage(mockFile);
     
-    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'callGemini');
+    expect(httpsCallable).toHaveBeenCalledWith(expect.anything(), 'visionIdentification');
   });
 
   it('autoFillPetDetails should use visionIdentification', async () => {
