@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -18,6 +17,7 @@ vi.mock('../services/firebase', () => ({
     auth: { currentUser: null },
     recordDonation: vi.fn().mockResolvedValue(undefined),
     createCheckoutSession: vi.fn().mockResolvedValue({ url: 'http://stripe.com/checkout' }),
+    getPublicStats: vi.fn().mockResolvedValue({ totalDonations: 1000 })
   },
 }));
 

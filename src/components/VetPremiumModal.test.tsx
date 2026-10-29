@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -9,7 +8,21 @@ import React from 'react';
 // Mock translations
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
-    t: (key: string) => key,
+    t: (key: string, fallback?: string) => {
+      const map: Record<string, string> = {
+        'dashboard:vet.upgradeTitle': 'Upgrade to Vet Pro 🏥',
+        'dashboard:vet.vetPro': 'Vet Pro',
+        'dashboard:vet.upgradeNow': 'Upgrade Now',
+      };
+      return map[key] || fallback || key;
+    },
+  }),
+}));
+
+// Mock SnackbarContext
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
   }),
 }));
 

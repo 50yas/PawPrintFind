@@ -1,6 +1,5 @@
-
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AdminDashboard } from './AdminDashboard';
 import React from 'react';
@@ -26,7 +25,7 @@ vi.mock('../services/loggerService', () => ({
 }));
 
 vi.mock('../services/firebase', () => ({
-    db: {},
+    db: { _isFirestore: true },
     dbService: {
         logAdminAction: vi.fn(),
         getBlogPosts: vi.fn().mockResolvedValue([]),
@@ -47,7 +46,7 @@ vi.mock('./ui', () => ({
     CinematicLoader: () => <div>Loading...</div>,
 }));
 
-describe('AdminDashboard Grouped Navigation', () => {
+describe('AdminDashboard Navigation', () => {
     const mockProps = {
         users: [],
         currentUser: { uid: '123', roles: ['super_admin'], activeRole: 'super_admin' } as any,
@@ -60,30 +59,37 @@ describe('AdminDashboard Grouped Navigation', () => {
         onViewPet: vi.fn()
     };
 
-    it('groups tabs into categories in the sidebar', () => {
+    it('renders main navigation tabs in the sidebar', () => {
         render(<AdminDashboard {...mockProps} />);
         
-        expect(screen.getByText('dashboard:admin.categoryOperations')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categoryCommunity')).toBeInTheDocument();
-        expect(screen.getByText('dashboard:admin.categorySystem')).toBeInTheDocument();
+        expect(screen.getByTitle('dashboard:admin.tabs.overview')).toBeInTheDocument();
+        expect(screen.getByTitle('dashboard:admin.tabs.users')).toBeInTheDocument();
+        expect(screen.getByTitle('Operations')).toBeInTheDocument();
+        expect(screen.getByTitle('Finance')).toBeInTheDocument();
+        expect(screen.getByTitle('Community')).toBeInTheDocument();
+        expect(screen.getByTitle('dashboard:admin.tabs.ai')).toBeInTheDocument();
+        expect(screen.getByTitle('System')).toBeInTheDocument();
     });
 
-    it('collapses and expands categories', () => {
+    it('switches active tab on click', async () => {
         render(<AdminDashboard {...mockProps} />);
         
-        const operationsHeader = screen.getByText('dashboard:admin.categoryOperations');
-        fireEvent.click(operationsHeader);
+        const operationsTab = screen.getByTitle('Operations');
+        await act(async () => {
+            fireEvent.click(operationsTab);
+        });
         
-        // After clicking, the subjects under it might be hidden depending on implementation
-        // For now just verify it is clickable
-        expect(operationsHeader).toBeInTheDocument();
+        const updatedOperationsTab = screen.getByTitle('Operations');
+        expect(updatedOperationsTab.className).toContain('bg-primary/10');
     });
 
-    it('toggles sidebar collapse state', () => {
+    it('toggles sidebar collapse state', async () => {
         render(<AdminDashboard {...mockProps} />);
         
         const toggleBtn = screen.getByTestId('sidebar-toggle');
-        fireEvent.click(toggleBtn);
+        await act(async () => {
+            fireEvent.click(toggleBtn);
+        });
         
         const sidebar = screen.getByTestId('admin-sidebar');
         expect(sidebar).toHaveClass('w-20'); // Small width when collapsed

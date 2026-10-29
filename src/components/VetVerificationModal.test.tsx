@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -9,6 +8,13 @@ import React from 'react';
 vi.mock('../hooks/useTranslations', () => ({
   useTranslations: () => ({
     t: (key: string, fallback?: string) => fallback || key,
+  }),
+}));
+
+// Mock SnackbarContext
+vi.mock('../contexts/SnackbarContext', () => ({
+  useSnackbar: () => ({
+    addSnackbar: vi.fn(),
   }),
 }));
 

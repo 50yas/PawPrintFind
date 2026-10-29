@@ -1,30 +1,15 @@
+import { httpsCallable } from 'firebase/functions';
+import { functions, dbService } from './firebase';
 import { PetProfile, ChatSession, AISettings } from '../types';
 import * as Prompts from './prompts';
-import { dbService } from './firebase';
 
 // =============================================================================
-// OPENROUTER CLIENT — Direct HTTP calls (no Cloud Functions needed)
+// OPENROUTER SERVICE — Cloud Function router for OpenRouter AI operations
 // =============================================================================
-
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 interface OpenRouterMessage {
     role: 'system' | 'user' | 'assistant';
     content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
-}
-
-interface OpenRouterResponse {
-    choices: Array<{
-        message: {
-            content: string;
-            role: string;
-        };
-    }>;
-    usage?: {
-        prompt_tokens: number;
-        completion_tokens: number;
-        total_tokens: number;
-    };
 }
 
 // Cached settings to avoid repeated Firestore reads
@@ -45,28 +30,8 @@ const getSettings = async (): Promise<AISettings | null> => {
     }
 };
 
-const getApiKey = async (): Promise<string> => {
-    const settings = await getSettings();
-    const key = settings?.apiKeys?.openrouter;
-    if (!key) throw new Error('OpenRouter API key not configured. Set it in Admin → AI Settings.');
-    return key;
-};
-
-const getModel = async (task: string): Promise<string> => {
-    const settings = await getSettings();
-    const mapped = settings?.modelMapping?.[task as keyof typeof settings.modelMapping];
-    // Default models per task if not configured
-    const defaults: Record<string, string> = {
-        vision: 'google/gemini-2.5-flash',
-        triage: 'google/gemini-2.5-pro',
-        chat: 'google/gemini-2.5-flash',
-        matching: 'google/gemini-2.5-pro',
-    };
-    return mapped || defaults[task] || 'google/gemini-2.5-flash';
-};
-
 /**
- * Core HTTP client for OpenRouter API.
+ * Core Cloud Function wrapper for OpenRouter API calls via callOpenRouter.
  */
 const callOpenRouter = async (
     task: string,
@@ -75,37 +40,28 @@ const callOpenRouter = async (
         responseFormat?: { type: string };
         temperature?: number;
         maxTokens?: number;
+        model?: string;
     } = {}
 ): Promise<string> => {
-    const [apiKey, model] = await Promise.all([getApiKey(), getModel(task)]);
+    const fn = httpsCallable(functions, 'callOpenRouter');
+    const settings = await getSettings();
+    const mappedModel = settings?.modelMapping?.[task as keyof typeof settings.modelMapping];
+    const targetModel = options.model || mappedModel || 'qwen/qwen-2.5-72b-instruct:free';
 
-    const body: Record<string, unknown> = {
-        model,
+    const config: any = {};
+    if (options.temperature !== undefined) config.temperature = options.temperature;
+    if (options.maxTokens !== undefined) config.max_tokens = options.maxTokens;
+    if (options.responseFormat) config.response_format = options.responseFormat;
+
+    const res = await fn({
+        task,
+        model: targetModel,
         messages,
-        ...(options.temperature !== undefined && { temperature: options.temperature }),
-        ...(options.maxTokens && { max_tokens: options.maxTokens }),
-        ...(options.responseFormat && { response_format: options.responseFormat }),
-    };
-
-    const response = await fetch(OPENROUTER_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'PawPrintFind',
-        },
-        body: JSON.stringify(body),
+        ...(Object.keys(config).length > 0 && { config }),
     });
 
-    if (!response.ok) {
-        const errorBody = await response.text();
-        console.error(`[OpenRouter] ${response.status}: ${errorBody}`);
-        throw new Error(`OpenRouter API error: ${response.status}`);
-    }
-
-    const data: OpenRouterResponse = await response.json();
-    return data.choices?.[0]?.message?.content || '';
+    const data = res.data as { success: boolean; text: string };
+    return data.text || '';
 };
 
 // =============================================================================
@@ -137,12 +93,17 @@ const analyzeImageForDescription = async (photo: File): Promise<string> => {
 };
 
 const performAIHealthCheck = async (pet: PetProfile, symptoms: string, locale: string = 'en'): Promise<string> => {
-    const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
-    const messages: OpenRouterMessage[] = [
-        { role: 'system', content: systemInstruction },
-        { role: 'user', content: userPrompt },
-    ];
-    return callOpenRouter('triage', messages);
+    try {
+        const { systemInstruction, userPrompt } = Prompts.getAIHealthCheckParts(pet, symptoms, locale);
+        const messages: OpenRouterMessage[] = [
+            { role: 'system', content: systemInstruction },
+            { role: 'user', content: userPrompt },
+        ];
+        return await callOpenRouter('triage', messages);
+    } catch (e) {
+        console.error('[OpenRouter] performAIHealthCheck error:', e);
+        return 'Health analysis failed.';
+    }
 };
 
 const generateChatSuggestions = async (session: ChatSession, currentUserEmail: string): Promise<string[]> => {
@@ -206,15 +167,16 @@ const chat = async (
 };
 
 /**
- * Fetch available models from OpenRouter (public endpoint, no auth needed).
+ * Fetch available models from OpenRouter via Cloud Function.
  */
 const fetchAvailableModels = async (): Promise<{ id: string; name: string }[]> => {
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/models');
-        if (!response.ok) return [];
-        const data = await response.json();
-        return (data.data || []).map((m: { id: string; name: string }) => ({ id: m.id, name: m.name }));
-    } catch {
+        const fn = httpsCallable(functions, 'fetchOpenRouterModels');
+        const res = await fn({});
+        const data = res.data as { models: { id: string; name: string }[] };
+        return data?.models || [];
+    } catch (e) {
+        console.error('[OpenRouter] fetchAvailableModels error:', e);
         return [];
     }
 };
