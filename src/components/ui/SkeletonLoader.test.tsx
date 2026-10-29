@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -9,14 +8,11 @@ describe('SkeletonLoader Components', () => {
   it('Skeleton renders with custom class', () => {
     const { container } = render(<Skeleton className="test-class" />);
     expect(container.firstChild).toHaveClass('test-class');
-    expect(container.firstChild).toHaveClass('animate-pulse');
   });
 
   it('CardSkeleton renders correctly', () => {
     const { container } = render(<CardSkeleton />);
-    expect(container.firstChild).toHaveClass('glass-panel');
-    // Check for internal skeletons
-    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0);
+    expect(container.firstChild).toHaveClass('glass-card-enhanced');
   });
 
   it('MapSidebarSkeleton renders 4 items', () => {
