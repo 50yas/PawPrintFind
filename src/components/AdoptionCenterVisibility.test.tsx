@@ -1,4 +1,3 @@
-
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AdoptionCenter } from './AdoptionCenter';
@@ -59,15 +58,14 @@ describe('AdoptionCenter Visibility', () => {
         <SnackbarProvider>
             <LanguageProvider>
                 <ThemeProvider>
-                                        <AdoptionCenter
-                                            petsForAdoption={mockPets}
-                                            onInquire={vi.fn()}
-                                            onViewPet={vi.fn()}
-                                            goBack={vi.fn()}
-                                            currentUser={null}
-                                            isLoading={false}
-                                        />
-                    
+                    <AdoptionCenter
+                        petsForAdoption={mockPets}
+                        onInquire={vi.fn()}
+                        onViewPet={vi.fn()}
+                        goBack={vi.fn()}
+                        currentUser={null}
+                        isLoading={false}
+                    />
                 </ThemeProvider>
             </LanguageProvider>
         </SnackbarProvider>
@@ -75,9 +73,7 @@ describe('AdoptionCenter Visibility', () => {
 
     it('Main title and description have high visibility', () => {
         renderAdoptionCenter();
-        const title = screen.getByText('adoptionCenterTitle');
-        // adoptionCenterTitle has text-foreground which might be dark. 
-        // We want text-white for cinematic feel.
+        const title = screen.getByText('adoptionLink');
         expect(title).toHaveClass('text-white');
         
         const desc = screen.getByText('adoptionCenterDescPublic');
@@ -90,7 +86,6 @@ describe('AdoptionCenter Visibility', () => {
         expect(petName).toHaveClass('text-white');
         
         const behavior = screen.getByText('Friendly and playful');
-        // Currently text-slate-400, needs improvement
         expect(behavior).toHaveClass('text-slate-200');
     });
 });
